@@ -1,5 +1,5 @@
 # player.py (新規ファイル)
-
+import sqlite3
 # from monsters.definitions import Monster # 将来的には型ヒントなどで使うかもしれませんが、まずは無くてもOK
 from map_data import STARTING_LOCATION_ID
 class Player:
@@ -11,6 +11,28 @@ class Player:
         self.gold = gold
         self.items = []  # 所持アイテムのリスト (最初は空)
         self.current_location_id = STARTING_LOCATION_ID  # 初期位置を設定 (map_data.py からインポート)
+        self.db_initialized = False  # データベース初期化フラグ
+        
+    def save_game(self, db_name): # データベースファイル名を引数で受け取る
+        conn = sqlite3.connect(db_name)
+        cursor = conn.cursor()
+
+        if self.db_id: # 既に保存されたことがあり、IDを持っている場合 (更新)
+            cursor.execute("""
+            UPDATE player_data 
+            SET name=?, player_level=?, exp=?, gold=?, current_location_id=?
+            WHERE id=?
+            """, (self.name, self.player_level, self.exp, self.gold, self.current_location_id, self.db_id))
+        else: # 初めて保存する場合 (新規作成)
+            cursor.execute("""
+            INSERT INTO player_data (name, player_level, exp, gold, current_location_id)
+            VALUES (?, ?, ?, ?, ?)
+            """, (self.name, self.player_level, self.exp, self.gold, self.current_location_id))
+            self.db_id = cursor.lastrowid # 新しく割り振られたIDを保存
+
+        conn.commit()
+        conn.close()
+        print(f"{self.name} のデータがセーブされました。")
 
     def show_status(self):
         """主人公の現在のステータスを表示します。"""
@@ -80,3 +102,26 @@ class Player:
         else:
             print("お金が足りない！宿屋に泊まれない...")
             return False
+        
+    # player.py の Player クラスに追加 (またはクラスメソッドや外部関数として)
+@staticmethod # Playerインスタンスを作る前に呼ぶので静的メソッドが良いかも
+def load_game(db_name): # データベースファイル名
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    # ID=1 のプレイヤーデータをロードする想定 (または最後にセーブされたデータなど)
+    cursor.execute("SELECT id, name, player_level, exp, gold, current_location_id FROM player_data ORDER BY id DESC LIMIT 1")
+    row = cursor.fetchone()
+    conn.close()
+
+    if row:
+        db_id, name, level, exp, gold, location_id = row
+        loaded_player = Player(name, player_level=level, gold=gold) # Playerインスタンス再作成
+        loaded_player.exp = exp
+        loaded_player.current_location_id = location_id
+        loaded_player.db_id = db_id # ロードしたデータのIDを保持
+        print(f"{name} のデータがロードされました。")
+        return loaded_player
+    else:
+        print("セーブデータが見つかりませんでした。")
+        return None

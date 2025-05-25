@@ -5,6 +5,9 @@ from monsters import ALL_MONSTERS, Monster # Monsterクラスもインポート
 from skills.skills import ALL_SKILLS # (もしスキルデータが必要なら)
 from battle import start_battle
 from map_data import LOCATIONS # LOCATIONS辞書をインポート
+from database_setup import initialize_database, DATABASE_NAME
+
+initialize_database()
 
 def get_monster_instance_for_battle(monster_id):
     """戦闘用にモンスターの新しいインスタンス（または状態リセット済み）を返す"""
@@ -32,6 +35,7 @@ def get_monster_instance_for_battle(monster_id):
 def game_loop(hero):
     """ゲームのメインループ"""
     game_over = False
+    
     while not game_over:
         current_location = LOCATIONS[hero.current_location_id]
         
@@ -146,13 +150,18 @@ def game_loop(hero):
 
 def main():
     # 主人公作成
-    hero = Player(name="ユーシャ", gold=100)
-    # 初期手持ちモンスター (テスト用)
-    if "slime" in ALL_MONSTERS:
-         # 戦闘用に毎回インスタンスを作る方が安全だが、ここでは簡略化
-        initial_slime = get_monster_instance_for_battle("slime")
-        if initial_slime:
-            hero.add_monster_to_party(initial_slime)
+    initialize_database() # データベース初期化
+
+    hero = None
+    load_choice = input("セーブデータをロードしますか？ (y/n): ").lower()
+    if load_choice == 'y':
+        hero = Player.load_game(DATABASE_NAME) # Playerクラスの静的メソッドとして呼び出す場合
+
+    if not hero: # ロードしなかった、またはできなかった場合
+        player_name = input("主人公の名前を入力してください: ")
+        hero = Player(name=player_name, gold=100)
+        print(f"冒険をはじめます、{hero.name}！")
+        # hero.save_game(DATABASE_NAME) # ニューゲーム時にいきなりセーブするのもあり
 
     # ゲームループ開始
     game_loop(hero)
