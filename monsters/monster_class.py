@@ -177,32 +177,3 @@ class Monster:
 # (スキルは skills.skills から ALL_SKILLS をインポートして使う形になりますね)
 # from skills.skills import ALL_SKILLS # このファイルの先頭でインポート
 
-
-def show_status(self):
-        """モンスターの現在のステータスを表示します。"""
-        print(f"名前: {self.name} (Lv.{self.level})")
-        if self.element:
-            print(f"属性: {self.element}")
-        print(f"HP: {self.hp}/{self.max_hp}")
-        print(f"攻撃力: {self.attack}")
-        print(f"防御力: {self.defense}")
-        print(f"経験値: {self.exp}")
-
-        if self.skills:
-            print("スキル:")
-            for skill_obj in self.skills:
-                # Skillオブジェクトに describe() メソッドがあると仮定
-                # もし describe() がまだなければ、skill_obj.name などでスキル名を表示
-                if hasattr(skill_obj, 'describe') and callable(skill_obj.describe):
-                    print(f"  - {skill_obj.describe()}")
-                else:
-                    print(f"  - {skill_obj.name}") # Skillオブジェクトにname属性があると仮定
-        else:
-            print("  (スキルなし)")
-
-        if self.status_effects:
-            effect_names = ", ".join(self.status_effects)
-            print(f"状態異常: {effect_names}")
-        # print(f"生存状態: {'生存' if self.is_alive else '戦闘不能'}") # 必要に応じて表示
-        print("-" * 20)
-# --- 全モンスターを格納する辞書 ---

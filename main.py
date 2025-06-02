@@ -45,12 +45,11 @@ def game_loop(hero):
 
         # 行動選択
         print("\nどうしますか？")
-        if hasattr(current_location, 'has_inn') and current_location.has_inn:
-            print(f"4: 宿屋に泊まる ({current_location.inn_cost}G)") # コマンド番号は適宜調整
-
         print("1: 移動する")
         print("2: ステータス確認")
         print("3: パーティ確認") # 手持ちモンスターのステータス確認
+        if hasattr(current_location, 'has_inn') and current_location.has_inn:
+            print(f"4: 宿屋に泊まる ({current_location.inn_cost}G)") # コマンド番号は適宜調整
         
         # print("9: ゲーム終了") # 将来的にはセーブなど
 

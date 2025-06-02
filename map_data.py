@@ -2,7 +2,7 @@
 import random # エンカウント判定で使います
 
 class Location:
-    def __init__(self, location_id, name, description, connections=None, possible_enemies=None, encounter_rate=0.0):
+    def __init__(self, location_id, name, description, connections=None, possible_enemies=None, encounter_rate=0.0, has_inn=False, inn_cost=0):
         """
         場所の情報を保持するクラス。
         location_id (str): 場所を識別するユニークなID
@@ -20,6 +20,8 @@ class Location:
         self.connections = connections if connections else {}
         self.possible_enemies = possible_enemies if possible_enemies else []
         self.encounter_rate = encounter_rate
+        self.has_inn = has_inn  # 宿屋があるかどうかのフラグ (True/False)
+        self.inn_cost = inn_cost  # 宿泊料金**
 
     def get_random_enemy_id(self):
         """この場所で出現する可能性のあるモンスターIDをランダムに1つ返す。"""
