@@ -1,29 +1,85 @@
 # monsters/monster_data.py
 
-# 同じフォルダ内の monster_class.py から Monster クラスと成長タイプ定数をインポート
 from .monster_class import Monster, GROWTH_TYPE_AVERAGE, GROWTH_TYPE_EARLY, GROWTH_TYPE_LATE
-# skills.py から ALL_SKILLS 辞書をインポート (パスは環境に合わせて調整)
-# from ..skills.skills import ALL_SKILLS # 一つ上の階層のskillsフォルダを見る場合
-from skills.skills import ALL_SKILLS # skillsフォルダが同じ階層か、Pythonのパスが通っていれば
+from skills.skills import ALL_SKILLS
 
-# --- 個々のモンスターインスタンスを定義 ---
+# モンスターランク定義
+RANK_S = "S"
+RANK_A = "A"
+RANK_B = "B"
+RANK_C = "C"
+RANK_D = "D"
+
 SLIME = Monster(
     name="スライム", hp=25, attack=8, defense=5, level=1, element="水",
     skills=[ALL_SKILLS["heal"]] if "heal" in ALL_SKILLS else [],
-    growth_type=GROWTH_TYPE_EARLY
+    growth_type=GROWTH_TYPE_EARLY,
+    monster_id="slime",
+    rank=RANK_D # 例: スライムはDランク
 )
 
 GOBLIN = Monster(
     name="ゴブリン", hp=40, attack=12, defense=8, level=2, element="なし",
     skills=[ALL_SKILLS["fireball"]] if "fireball" in ALL_SKILLS else [],
-    growth_type=GROWTH_TYPE_AVERAGE
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="goblin",
+    rank=RANK_D # 例: ゴブリンはDランク
 )
 
-# DRAGON = Monster(name="ドラゴン", ..., growth_type=GROWTH_TYPE_LATE)
+WOLF = Monster(
+    name="ウルフ", hp=50, attack=15, defense=7, level=3, element="なし",
+    skills=[], 
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="wolf",
+    rank=RANK_C # 例: ウルフはCランク
+)
 
-# --- 全モンスターを格納する辞書 ---
+SLIME_GOBLIN_HYBRID = Monster(
+    name="スライムゴブリン", 
+    hp=35,
+    attack=10,
+    defense=7,
+    level=1, 
+    element="混合",
+    skills=[], 
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="slime_goblin_hybrid",
+    rank=RANK_C # 例: 合成モンスターはCランク
+)
+
+# 例として高ランクモンスターを追加
+DRAGON_PUP = Monster(
+    name="ドラゴンのこども",
+    hp=70,
+    attack=25,
+    defense=20,
+    level=5,
+    element="火",
+    skills=[ALL_SKILLS["fireball"]] if "fireball" in ALL_SKILLS else [], # 初期スキルは弱めでも良い
+    growth_type=GROWTH_TYPE_LATE, # 大器晩成型
+    monster_id="dragon_pup",
+    rank=RANK_A # 例: ドラゴンのこどもはAランク
+)
+
+PHOENIX_CHICK = Monster(
+    name="不死鳥のヒナ",
+    hp=60,
+    attack=18,
+    defense=22,
+    level=5,
+    element="火",
+    skills=[ALL_SKILLS["heal"]] if "heal" in ALL_SKILLS else [], # 自己回復スキル持ち
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="phoenix_chick",
+    rank=RANK_S # 例: 不死鳥のヒナはSランク
+)
+
+
 ALL_MONSTERS = {
     "slime": SLIME,
     "goblin": GOBLIN,
-    # "dragon": DRAGON,
+    "wolf": WOLF,
+    "slime_goblin_hybrid": SLIME_GOBLIN_HYBRID,
+    "dragon_pup": DRAGON_PUP,
+    "phoenix_chick": PHOENIX_CHICK,
 }

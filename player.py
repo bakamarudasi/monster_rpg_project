@@ -60,35 +60,44 @@ class Player:
         手持ちモンスターに新しいモンスターを加えます。
         引数はモンスターID (ALL_MONSTERSのキー) または Monsterオブジェクト。
         """
+        newly_added_monster = None # 追加されたモンスターを一時的に保持
         if isinstance(monster_id_or_object, str): # モンスターIDの場合
-            monster_id = monster_id_or_object
-            if monster_id in ALL_MONSTERS:
+            monster_id_key = monster_id_or_object.lower() # 確実に小文字で検索
+            if monster_id_key in ALL_MONSTERS:
                 # ALL_MONSTERSのテンプレートから新しいインスタンスをコピーして仲間にする
-                new_monster_instance = ALL_MONSTERS[monster_id].copy()
+                # print(f"[DEBUG player.py add_monster_to_party] Copying from ALL_MONSTERS with key: '{monster_id_key}'")
+                # print(f"[DEBUG player.py add_monster_to_party]   Template monster_id: '{ALL_MONSTERS[monster_id_key].monster_id}'")
+                new_monster_instance = ALL_MONSTERS[monster_id_key].copy()
+                if new_monster_instance is None: # copy()が失敗した場合
+                    print(f"エラー: モンスター '{monster_id_key}' のコピーに失敗しました。")
+                    return
+
                 # 仲間にする際は通常レベル1、経験値0、HP最大で初期化することが多い
-                new_monster_instance.level = 1 # またはALL_MONSTERS[monster_id].level
+                new_monster_instance.level = 1 # またはALL_MONSTERS[monster_id_key].level
                 new_monster_instance.exp = 0
-                new_monster_instance.max_hp = ALL_MONSTERS[monster_id].max_hp # 初期max_hp
-                new_monster_instance.hp = new_monster_instance.max_hp
-                new_monster_instance.attack = ALL_MONSTERS[monster_id].attack # 初期attack
-                new_monster_instance.defense = ALL_MONSTERS[monster_id].defense # 初期defense
-                # スキルも初期状態に戻すか、コピー元のスキルを引き継ぐか設計による
-                # new_monster_instance.skills = [s.copy() for s in ALL_MONSTERS[monster_id].skills]
-
-
+                new_monster_instance.hp = new_monster_instance.max_hp # HPは最大に
+                
                 self.party_monsters.append(new_monster_instance)
                 print(f"{new_monster_instance.name} が仲間に加わった！")
+                newly_added_monster = new_monster_instance
             else:
-                print(f"エラー: モンスターID '{monster_id}' は存在しません。")
+                print(f"エラー: モンスターID '{monster_id_key}' は存在しません。")
         elif isinstance(monster_id_or_object, Monster): # Monsterオブジェクトの場合
             monster_object = monster_id_or_object
-            # オブジェクトを直接追加する場合、それがコピーであることを確認するか、
-            # 意図的に同じインスタンスを共有するかを考慮する。
-            # 通常はコピーを追加するのが安全。
-            self.party_monsters.append(monster_object.copy()) # ここでもコピーが望ましい
-            print(f"{monster_object.name} が仲間に加わった！")
+            # print(f"[DEBUG player.py add_monster_to_party] Copying from Monster object: name='{monster_object.name}', monster_id='{monster_object.monster_id}'")
+            copied_monster = monster_object.copy()
+            if copied_monster is None: # copy()が失敗した場合
+                print(f"エラー: モンスターオブジェクト '{monster_object.name}' のコピーに失敗しました。")
+                return
+
+            self.party_monsters.append(copied_monster) 
+            print(f"{copied_monster.name} が仲間に加わった！")
+            newly_added_monster = copied_monster
         else:
             print("エラー: add_monster_to_party の引数が不正です。")
+        
+        if newly_added_monster:
+            print(f"[DEBUG player.py add_monster_to_party] Actual monster_id of added monster '{newly_added_monster.name}': '{newly_added_monster.monster_id}' (type: {type(newly_added_monster.monster_id)})")
 
 
     def show_all_party_monsters_status(self):
@@ -134,55 +143,50 @@ class Player:
         parent1 = self.party_monsters[monster1_idx]
         parent2 = self.party_monsters[monster2_idx]
 
-        # レシピ検索のためにモンスターIDをソートしてタプル化
-        # (parent1.monster_id と parent2.monster_id が設定されている前提)
+        # --- デバッグプリント追加 ---
+        print(f"[DEBUG player.py] Synthesizing with:")
+        print(f"[DEBUG player.py]   Parent 1: name='{parent1.name}', monster_id='{parent1.monster_id}' (type: {type(parent1.monster_id)})")
+        print(f"[DEBUG player.py]   Parent 2: name='{parent2.name}', monster_id='{parent2.monster_id}' (type: {type(parent2.monster_id)})")
+        # --- デバッグプリント追加ここまで ---
+
         if not parent1.monster_id or not parent2.monster_id:
             return False, "エラー: 合成元のモンスターにIDが設定されていません。", None
             
-        recipe_key_parts = sorted([parent1.monster_id.lower(), parent2.monster_id.lower()])
+        id1_lower = parent1.monster_id.lower() # ここで日本語の monster_id が小文字化される（日本語のまま）
+        id2_lower = parent2.monster_id.lower() # 同上
+        
+        recipe_key_parts = sorted([id1_lower, id2_lower])
         recipe_key = tuple(recipe_key_parts)
+        
+        # --- デバッグプリント追加 ---
+        print(f"[DEBUG player.py]   ID1 original: '{parent1.monster_id}', ID1 lower: '{id1_lower}'")
+        print(f"[DEBUG player.py]   ID2 original: '{parent2.monster_id}', ID2 lower: '{id2_lower}'")
+        print(f"[DEBUG player.py]   Recipe key parts (sorted): {recipe_key_parts}")
+        print(f"[DEBUG player.py]   Recipe key for lookup: {recipe_key}")
+        print(f"[DEBUG player.py]   Available recipes in SYNTHESIS_RECIPES: {SYNTHESIS_RECIPES}")
+        # --- デバッグプリント追加ここまで ---
 
         if recipe_key in SYNTHESIS_RECIPES:
             result_monster_id = SYNTHESIS_RECIPES[recipe_key]
             
             if result_monster_id in ALL_MONSTERS:
-                # 新しいモンスターをALL_MONSTERSのテンプレートからコピーして生成
-                base_new_monster = ALL_MONSTERS[result_monster_id]
-                new_monster = base_new_monster.copy() # Monsterクラスのcopyメソッドを使用
+                base_new_monster_template = ALL_MONSTERS[result_monster_id]
+                # print(f"[DEBUG player.py synthesize_monster] Template for new monster '{result_monster_id}': monster_id='{base_new_monster_template.monster_id}'")
+                new_monster = base_new_monster_template.copy()
+                if new_monster is None: # copy()が失敗した場合
+                    return False, f"エラー: 合成結果のモンスター '{result_monster_id}' の生成に失敗しました。", None
 
-                # 合成後のモンスターの初期化 (例: レベル1、HP最大)
                 new_monster.level = 1
                 new_monster.exp = 0
-                # ステータスはALL_MONSTERSの定義時点のものをコピーしているので、
-                # レベル1の基本ステータスになっているはず。
-                # max_hpとhpも再設定
-                new_monster.max_hp = ALL_MONSTERS[result_monster_id].max_hp # 初期max_hp
-                new_monster.hp = new_monster.max_hp
-                new_monster.attack = ALL_MONSTERS[result_monster_id].attack # 初期attack
-                new_monster.defense = ALL_MONSTERS[result_monster_id].defense # 初期defense
+                new_monster.hp = new_monster.max_hp # HPは最大に
                 new_monster.is_alive = True
+                # print(f"[DEBUG player.py synthesize_monster] Newly synthesized monster: name='{new_monster.name}', monster_id='{new_monster.monster_id}'")
                 
-                # TODO: スキル継承ロジック (オプション)
-                # 例: 親のスキルをいくつか引き継ぐなど
-                # new_monster.skills = [] # いったん空にするか、基本スキルを設定
-                # inherited_skills = set()
-                # for skill in parent1.skills:
-                #     if len(inherited_skills) < 2: # 例: 親1から2つまで
-                #         inherited_skills.add(skill)
-                # for skill in parent2.skills:
-                #     if len(inherited_skills) < 4: # 例: 親2からさらに追加して合計4つまで
-                #         inherited_skills.add(skill)
-                # new_monster.skills = list(inherited_skills)
-
-
-                # 親モンスターをパーティから削除
-                # インデックスが大きい方から削除しないと、小さい方を先に消すとインデックスがずれる
                 indices_to_remove = sorted([monster1_idx, monster2_idx], reverse=True)
                 removed_monster_names = []
                 for idx in indices_to_remove:
                     removed_monster_names.append(self.party_monsters.pop(idx).name)
                 
-                # 新しいモンスターをパーティに追加
                 self.party_monsters.append(new_monster)
                 
                 return True, f"{removed_monster_names[1]} と {removed_monster_names[0]} を合成して {new_monster.name} が誕生した！", new_monster
@@ -207,14 +211,8 @@ class Player:
             loaded_player.current_location_id = location_id
             loaded_player.db_id = db_id
             
-            # TODO: パーティモンスターやアイテムのロード処理もここに追加する (ステップ1の課題)
-            # 例:
-            # loaded_player.party_monsters = load_party_monsters_from_db(db_id)
-            # loaded_player.items = load_items_from_db(db_id)
-            
             print(f"{name} のデータがロードされました。")
             return loaded_player
         else:
             print("セーブデータが見つかりませんでした。")
             return None
-
