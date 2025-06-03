@@ -111,6 +111,18 @@ class Player:
             monster.show_status()
         print("=" * 30)
 
+    def show_items(self):
+        if not self.items:
+            print("アイテムを何も持っていない。")
+            return
+
+        print("===== 所持アイテム =====")
+        for i, item in enumerate(self.items, 1):
+            name = getattr(item, "name", str(item))
+            desc = getattr(item, "description", "")
+            print(f"{i}. {name} - {desc}")
+        print("=" * 20)
+
     def rest_at_inn(self, cost):
         if self.gold >= cost:
             self.gold -= cost

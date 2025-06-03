@@ -96,11 +96,12 @@ def is_party_defeated(party: list[Monster]) -> bool:
     """パーティが全滅したかどうかを判定します。"""
     return all(not monster.is_alive for monster in party)
 
-def start_battle(player_party: list[Monster], enemy_party: list[Monster]):
+def start_battle(player_party: list[Monster], enemy_party: list[Monster], player: Player | None = None):
     """
     3vs3の戦闘を開始します。
     player_party: プレイヤーのモンスターパーティ (最大3体想定)
     enemy_party: 敵のモンスターパーティ (1体～3体想定)
+    player: 戦闘結果の報酬を受け取るプレイヤー
     戻り値: (戦闘結果フラグ: "win", "lose", "fled")
     """
     print("\n!!! バトル開始 !!!")
@@ -270,9 +271,14 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster]):
         # 勝利時の経験値獲得処理 (生存している味方モンスターに分配)
         # TODO: より詳細な経験値計算ロジック
         total_exp_reward = 0
-        for defeated_enemy in enemy_party: # 元のenemy_partyを参照して倒した敵の情報を得る
-            if not defeated_enemy.is_alive: # この戦闘で倒された敵
-                 total_exp_reward += (defeated_enemy.level * 10) + (defeated_enemy.max_hp // 5)
+        for defeated_enemy in enemy_party:  # 元のenemy_partyを参照して倒した敵の情報を得る
+            if not defeated_enemy.is_alive:  # この戦闘で倒された敵
+                total_exp_reward += (defeated_enemy.level * 10) + (defeated_enemy.max_hp // 5)
+                if player is not None:
+                    for item_obj, rate in getattr(defeated_enemy, "drop_items", []):
+                        if random.random() < rate:
+                            player.items.append(item_obj)
+                            print(f"{item_obj.name} を手に入れた！")
         
         alive_player_monsters_after_battle = [m for m in active_player_party if m.is_alive]
         if alive_player_monsters_after_battle and total_exp_reward > 0:
