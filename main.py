@@ -50,8 +50,6 @@ def game_loop(hero: Player): # 型ヒントを追加
             game_over = True
             break
             
-        # Locationオブジェクトであることを確認 (map_data.pyのLOCATIONSがLocationインスタンスを保持するように変更した場合)
-        # もしLOCATIONSが辞書のままなら、current_location_data['name'] のようにアクセス
         current_location_name = current_location_data.name if isinstance(current_location_data, Location) else current_location_data.get('name', "不明な場所")
         current_location_description = current_location_data.description if isinstance(current_location_data, Location) else current_location_data.get('description', "")
 
@@ -66,7 +64,6 @@ def game_loop(hero: Player): # 型ヒントを追加
         print("3: パーティ確認 (モンスター)")
         print("4: モンスター合成") # 新しい選択肢
         
-        # 宿屋のチェック (Locationオブジェクトに属性があるか確認)
         if isinstance(current_location_data, Location) and hasattr(current_location_data, 'has_inn') and current_location_data.has_inn:
             inn_cost = current_location_data.inn_cost if hasattr(current_location_data, 'inn_cost') else 10 # デフォルトコスト
             print(f"8: 宿屋に泊まる ({inn_cost}G)")
@@ -106,7 +103,6 @@ def game_loop(hero: Player): # 型ヒントを追加
                     new_location_name = new_location_data.name if isinstance(new_location_data, Location) else new_location_data.get('name', "不明な場所")
                     print(f"{new_location_name} へ移動しました。")
 
-                    # エンカウント判定 (Locationオブジェクトの属性を確認)
                     if isinstance(new_location_data, Location) and \
                        new_location_data.possible_enemies and \
                        random.random() < new_location_data.encounter_rate:
@@ -120,44 +116,45 @@ def game_loop(hero: Player): # 型ヒントを追加
                                 print("エラー: 敵モンスターの準備に失敗しました。")
                                 continue
 
-                            # 戦闘に参加するプレイヤーモンスターを選択 (先頭の生存モンスター)
                             player_monster_for_battle = None
+                            original_player_monster_in_party = None # 元のパーティのモンスターを保持する変数
                             for monster in hero.party_monsters:
                                 if monster.is_alive:
-                                    player_monster_for_battle = get_monster_instance_for_battle(monster) # コピーを渡す
+                                    player_monster_for_battle = get_monster_instance_for_battle(monster) # 戦闘用のコピー
+                                    original_player_monster_in_party = monster # 元のインスタンスを特定
                                     break
                             
                             if not player_monster_for_battle:
                                 print("戦えるモンスターがパーティにいません！")
                                 continue
                             
-                            # player_monster_for_battle は既にコピーなので、元のモンスターの状態は戦闘に影響されない。
-                            # 戦闘結果（経験値、HPなど）を元のモンスターに反映する必要がある。
-                            original_player_monster_in_party = None
-                            for m in hero.party_monsters: # 元のパーティから戦闘参加モンスターを見つける
-                                if m.monster_id == player_monster_for_battle.monster_id and m.hp == player_monster_for_battle.hp: # より確実な同定方法が必要かも
-                                    original_player_monster_in_party = m
-                                    break
-                            
-                            if not original_player_monster_in_party: # 万が一見つからない場合 (通常ありえないが)
+                            if not original_player_monster_in_party:
                                 print("エラー：戦闘参加モンスターをパーティ内で特定できませんでした。")
                                 continue
 
-
-                            battle_result_player_monster, battle_result_enemy_monster, fled = start_battle(player_monster_for_battle, enemy_for_battle)
+                            # battle_result_player_monster, battle_result_enemy_monster, fled = start_battle(player_monster_for_battle, enemy_for_battle)
+                            battle_outcome = start_battle(player_monster_for_battle, enemy_for_battle)
                             
-                            # 戦闘結果を元のパーティモンスターに反映
-                            original_player_monster_in_party.hp = battle_result_player_monster.hp
-                            original_player_monster_in_party.exp = battle_result_player_monster.exp
-                            original_player_monster_in_party.level = battle_result_player_monster.level
-                            original_player_monster_in_party.max_hp = battle_result_player_monster.max_hp
-                            original_player_monster_in_party.attack = battle_result_player_monster.attack
-                            original_player_monster_in_party.defense = battle_result_player_monster.defense
-                            original_player_monster_in_party.is_alive = battle_result_player_monster.is_alive
-                            # スキルやステータス効果の変動もあればここで反映
+                            if battle_outcome is not None:
+                                battle_result_player_monster, battle_result_enemy_monster, fled = battle_outcome
+                                
+                                # 戦闘結果を元のパーティモンスターに反映
+                                original_player_monster_in_party.hp = battle_result_player_monster.hp
+                                original_player_monster_in_party.exp = battle_result_player_monster.exp
+                                original_player_monster_in_party.level = battle_result_player_monster.level
+                                original_player_monster_in_party.max_hp = battle_result_player_monster.max_hp
+                                original_player_monster_in_party.attack = battle_result_player_monster.attack
+                                original_player_monster_in_party.defense = battle_result_player_monster.defense
+                                original_player_monster_in_party.is_alive = battle_result_player_monster.is_alive
+                                # スキルやステータス効果の変動もあればここで反映
 
-                            # プレイヤーモンスターがレベルアップした場合、hero.party_monsters内のインスタンスが直接更新されているはず
-                            # (gain_expメソッドがselfを変更するため)
+                                # プレイヤーモンスターがレベルアップした場合、original_player_monster_in_party の gain_exp メソッド内で
+                                # self (つまり original_player_monster_in_party 自身) のステータスが更新されているはずです。
+                            else:
+                                print("戦闘処理でエラーが発生し、戦闘結果を処理できませんでした。")
+                                # fled = False # 必要に応じてデフォルト値を設定
+                                # ここでゲームを続行するか、エラーとして扱うかなどを決定
+                                continue # ループの最初に戻るなど
 
                         elif not hero.party_monsters:
                             print("手持ちモンスターがいない！逃げるしかない！")
@@ -180,7 +177,7 @@ def game_loop(hero: Player): # 型ヒントを追加
                 continue
 
             print("\nどのモンスターを合成しますか？ パーティから2体選んでください。")
-            hero.show_all_party_monsters_status() # 番号で選びやすくするため表示
+            hero.show_all_party_monsters_status() 
 
             try:
                 idx1_input = input(f"1体目のモンスター番号 (1-{len(hero.party_monsters)}): ")
@@ -198,12 +195,6 @@ def game_loop(hero: Player): # 型ヒントを追加
                 if monster1_idx == monster2_idx:
                     print("同じモンスターは選べません。")
                     continue
-
-                # (オプション) 合成アイテムの選択
-                # item_to_use = None
-                # if hero.items:
-                # print("合成に使用するアイテムを選びますか？ (y/n)")
-                # ... アイテム選択処理 ...
                 
                 success, message, new_monster = hero.synthesize_monster(monster1_idx, monster2_idx)
                 print(message)
@@ -234,7 +225,7 @@ def game_loop(hero: Player): # 型ヒントを追加
 
 
 def main():
-    initialize_database() # データベース初期化を一度だけ行う
+    initialize_database() 
     print("モンスターRPGへようこそ！")
 
     hero = None
@@ -244,14 +235,12 @@ def main():
 
     if not hero:
         player_name = input("主人公の名前を入力してください: ")
-        hero = Player(name=player_name, gold=100) # 初期ゴールド設定
+        hero = Player(name=player_name, gold=100) 
         print(f"冒険をはじめます、{hero.name}！")
-        # 初期モンスターを仲間にする (例)
         if "slime" in ALL_MONSTERS:
-             hero.add_monster_to_party("slime") # スライムを初期メンバーに
+             hero.add_monster_to_party("slime") 
         if "goblin" in ALL_MONSTERS:
-             hero.add_monster_to_party("goblin") # ゴブリンも初期メンバーに
-        # hero.save_game(DATABASE_NAME) # ニューゲーム時にセーブするなら
+             hero.add_monster_to_party("goblin") 
 
     if hero:
         game_loop(hero)
