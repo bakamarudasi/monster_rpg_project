@@ -84,8 +84,9 @@ def calculate_exp_for_late(current_level):
         raise
 
 class Monster:
-    def __init__(self, name, hp, attack, defense, level=1, exp=0, element=None, skills=None, 
-                 growth_type=GROWTH_TYPE_AVERAGE, monster_id=None, image_filename=None, rank=RANK_D, speed=5): # speed 引数を追加 (デフォルト値5)
+    def __init__(self, name, hp, attack, defense, level=1, exp=0, element=None, skills=None,
+                 growth_type=GROWTH_TYPE_AVERAGE, monster_id=None, image_filename=None,
+                 rank=RANK_D, speed=5, drop_items=None):
         self.name = name
         self.hp = hp
         self.max_hp = hp
@@ -106,7 +107,8 @@ class Monster:
             
         self.image_filename = image_filename
         self.rank = rank 
-        self.speed = speed # speed 属性を保存
+        self.speed = speed  # speed 属性を保存
+        self.drop_items = drop_items if drop_items else []
 
     def show_status(self):
         print(f"名前: {self.name} (ID: {self.monster_id}, Lv.{self.level}, Rank: {self.rank})") 
@@ -222,7 +224,8 @@ class Monster:
                 monster_id=self.monster_id, 
                 image_filename=self.image_filename,
                 rank=self.rank,
-                speed=self.speed # speed 属性をコピー時に引き継ぐ
+                speed=self.speed,  # speed 属性をコピー時に引き継ぐ
+                drop_items=copy.deepcopy(self.drop_items)
             )
             new_monster.max_hp = self.max_hp 
             new_monster.hp = new_monster.max_hp 

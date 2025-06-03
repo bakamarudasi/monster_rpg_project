@@ -148,7 +148,7 @@ def game_loop(hero: Player): # 型ヒントを追加
                             continue # 戦闘せずにループの最初へ
                         
                         # --- 戦闘開始 ---
-                        battle_outcome_result_str = start_battle(player_battle_party, enemy_battle_party)
+                        battle_outcome_result_str = start_battle(player_battle_party, enemy_battle_party, hero)
                         
                         # 戦闘結果の処理
                         if battle_outcome_result_str == "win":
