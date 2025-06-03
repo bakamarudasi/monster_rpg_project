@@ -85,7 +85,7 @@ def calculate_exp_for_late(current_level):
 
 class Monster:
     def __init__(self, name, hp, attack, defense, level=1, exp=0, element=None, skills=None, 
-                 growth_type=GROWTH_TYPE_AVERAGE, monster_id=None, image_filename=None, rank=RANK_D): # rank 引数を追加 (デフォルトDランク)
+                 growth_type=GROWTH_TYPE_AVERAGE, monster_id=None, image_filename=None, rank=RANK_D, speed=5): # speed 引数を追加 (デフォルト値5)
         self.name = name
         self.hp = hp
         self.max_hp = hp
@@ -105,15 +105,17 @@ class Monster:
             self.monster_id = name.lower() 
             
         self.image_filename = image_filename
-        self.rank = rank # rank 属性を保存
+        self.rank = rank 
+        self.speed = speed # speed 属性を保存
 
     def show_status(self):
-        print(f"名前: {self.name} (ID: {self.monster_id}, Lv.{self.level}, Rank: {self.rank})") # ランクも表示
+        print(f"名前: {self.name} (ID: {self.monster_id}, Lv.{self.level}, Rank: {self.rank})") 
         if self.element:
             print(f"属性: {self.element}")
         print(f"HP: {self.hp}/{self.max_hp}")
         print(f"攻撃力: {self.attack}")
         print(f"防御力: {self.defense}")
+        print(f"素早さ: {self.speed}") # 素早さを表示
         exp_needed = self.calculate_exp_to_next_level()
         print(f"経験値: {self.exp}/{exp_needed if exp_needed is not None else 'N/A'}")
         if self.skills:
@@ -173,7 +175,7 @@ class Monster:
     def level_up(self):
         try:
             self.level += 1
-            print(f"🎉🎉🎉 {self.name} は レベル {self.level} に上がった！ 🎉🎉🎉")
+            print(f"🎉🎉🎉 {self.name} は レベル {self.level} に上がった！ 🎉🎉�")
 
             status_gains_dict = {}
             if self.growth_type == GROWTH_TYPE_EARLY:
@@ -192,6 +194,7 @@ class Monster:
             hp_increase = status_gains_dict.get("hp", 0)
             attack_increase = status_gains_dict.get("attack", 0)
             defense_increase = status_gains_dict.get("defense", 0)
+            # TODO: speed の上昇ロジックもここに追加する
                 
             self.max_hp += hp_increase
             self.hp = self.max_hp 
@@ -218,7 +221,8 @@ class Monster:
                 growth_type=self.growth_type,
                 monster_id=self.monster_id, 
                 image_filename=self.image_filename,
-                rank=self.rank # rank 属性をコピー時に引き継ぐ
+                rank=self.rank,
+                speed=self.speed # speed 属性をコピー時に引き継ぐ
             )
             new_monster.max_hp = self.max_hp 
             new_monster.hp = new_monster.max_hp 
