@@ -1,45 +1,41 @@
 from skills.skills import ALL_SKILLS
+import copy # deepcopyのためにインポート
 
 GROWTH_TYPE_AVERAGE = "平均型"
 GROWTH_TYPE_EARLY = "早熟型"
 GROWTH_TYPE_LATE = "大器晩成型"
-# monsters/definitions.py (Monsterクラス定義の前など、経験値テーブル関数の近くが良いでしょう)
 
 def get_status_gains_average(current_level):
-    """平均型のレベルアップ時ステータス上昇量"""
-    # 例: 以前の固定値上昇に少しレベル補正を加える
-    hp_gain = 5 + (current_level // 5)  # 5レベルごとにHP上昇量が少し増える
+    hp_gain = 5 + (current_level // 5)
     attack_gain = 2 + (current_level // 10)
     defense_gain = 2 + (current_level // 10)
     return {"hp": hp_gain, "attack": attack_gain, "defense": defense_gain}
 
 def get_status_gains_early(current_level):
-    """早熟型のレベルアップ時ステータス上昇量"""
-    if current_level <= 10: # Lv10までは大きく成長
+    if current_level <= 10:
         hp_gain = 8 + (current_level // 3)
         attack_gain = 3 + (current_level // 5)
         defense_gain = 3 + (current_level // 5)
-    elif current_level <= 25: # Lv25まではそこそこ
+    elif current_level <= 25:
         hp_gain = 4 + (current_level // 6)
         attack_gain = 1 + (current_level // 8)
         defense_gain = 1 + (current_level // 8)
-    else: # Lv26以降は伸び悩む
+    else:
         hp_gain = 3
         attack_gain = 1
         defense_gain = 1
     return {"hp": hp_gain, "attack": attack_gain, "defense": defense_gain}
 
 def get_status_gains_late(current_level):
-    """大器晩成型のレベルアップ時ステータス上昇量"""
-    if current_level <= 15: # Lv15までは伸びが悪い
+    if current_level <= 15:
         hp_gain = 3 + (current_level // 7)
         attack_gain = 1 + (current_level // 10)
         defense_gain = 1 + (current_level // 10)
-    elif current_level <= 30: # Lv30までは平均的に
+    elif current_level <= 30:
         hp_gain = 6 + (current_level // 5)
         attack_gain = 2 + (current_level // 8)
         defense_gain = 2 + (current_level // 8)
-    else: # Lv31以降、急成長！
+    else:
         hp_gain = 10 + (current_level // 4)
         attack_gain = 4 + (current_level // 6)
         defense_gain = 4 + (current_level // 6)
@@ -47,29 +43,23 @@ def get_status_gains_late(current_level):
 
 
 def calculate_exp_for_average(current_level):
-    """平均型の必要経験値"""
-    # 例: 以前の計算式をベースに
     return (current_level ** 2) * 20 + 50
 
 def calculate_exp_for_early(current_level):
-    """早熟型の必要経験値"""
-    # 例: 低レベルでは少なく、高レベルで急増するイメージ
     if current_level < 10:
-        return (current_level ** 2) * 15 + 30  # 平均より少なめ
+        return (current_level ** 2) * 15 + 30
     elif current_level < 30:
-        return (current_level ** 2) * 25 + 100 # 平均よりやや多め
+        return (current_level ** 2) * 25 + 100
     else:
-        return (current_level ** 3) * 10 + 500 # さらに急増
+        return (current_level ** 3) * 10 + 500
 
 def calculate_exp_for_late(current_level):
-    """大器晩成型の必要経験値"""
-    # 例: 低レベルでは多く、高レベルになるほど相対的に伸びが良くなるイメージ
     if current_level < 15:
-        return (current_level ** 2) * 30 + 100 # 平均より多め
+        return (current_level ** 2) * 30 + 100
     else:
-        return (current_level ** 2) * 20 + 50  # 平均型と同じか、やや緩やかに
+        return (current_level ** 2) * 20 + 50
 class Monster:
-    def __init__(self, name, hp, attack, defense, level=1, exp=0, element=None, skills=None,growth_type=GROWTH_TYPE_AVERAGE):
+    def __init__(self, name, hp, attack, defense, level=1, exp=0, element=None, skills=None, growth_type=GROWTH_TYPE_AVERAGE, monster_id=None): # monster_id を追加
         self.name = name
         self.hp = hp
         self.max_hp = hp
@@ -79,20 +69,20 @@ class Monster:
         self.exp = exp
         self.element = element
         self.skills = skills if skills else []
-        self.status_effects = [] # これは前回ユーザーが追加したものでしたね！
-        self.is_alive = True     # これも！
-        self.growth_type = growth_type  # 新しく属性として保持
-        
+        self.status_effects = []
+        self.is_alive = True
+        self.growth_type = growth_type
+        self.monster_id = monster_id if monster_id else name.lower() # monster_idが未指定なら名前の小文字版をIDとする
+
     def show_status(self):
-        print(f"名前: {self.name} (Lv.{self.level})")
+        print(f"名前: {self.name} (ID: {self.monster_id}, Lv.{self.level})") # IDも表示
         if self.element:
             print(f"属性: {self.element}")
         print(f"HP: {self.hp}/{self.max_hp}")
         print(f"攻撃力: {self.attack}")
         print(f"防御力: {self.defense}")
-        # 次のレベルまでの経験値を表示すると分かりやすい
         exp_needed = self.calculate_exp_to_next_level()
-        print(f"経験値: {self.exp}/{exp_needed}") # 現在の経験値 / 次のレベルに必要な経験値
+        print(f"経験値: {self.exp}/{exp_needed}")
         if self.skills:
             print("スキル:")
             for skill_obj in self.skills:
@@ -108,72 +98,82 @@ class Monster:
         print("-" * 20)
 
     def calculate_exp_to_next_level(self):
-        """成長タイプに応じて、次のレベルアップに必要な経験値を計算します。"""
         if self.growth_type == GROWTH_TYPE_EARLY:
             return calculate_exp_for_early(self.level)
         elif self.growth_type == GROWTH_TYPE_LATE:
             return calculate_exp_for_late(self.level)
         elif self.growth_type == GROWTH_TYPE_AVERAGE:
             return calculate_exp_for_average(self.level)
-        else: # 未知の成長タイプの場合は平均型として扱う (フォールバック)
+        else:
             print(f"警告: 未知の成長タイプ '{self.growth_type}' が指定されました。平均型として計算します。")
             return calculate_exp_for_average(self.level)
 
     def gain_exp(self, amount):
-        """経験値を獲得し、必要であればレベルアップ処理を呼び出します。"""
-        if not self.is_alive: # 戦闘不能なら経験値は得られない
+        if not self.is_alive:
             return
 
         self.exp += amount
         print(f"{self.name} は {amount} の経験値を獲得した！")
 
-        # レベルアップ判定
         exp_needed_for_next_level = self.calculate_exp_to_next_level()
-        while self.exp >= exp_needed_for_next_level and self.is_alive: # 生きている間だけレベルアップ
-            self.exp -= exp_needed_for_next_level # 次のレベルに必要な経験値を消費
+        while self.exp >= exp_needed_for_next_level and self.is_alive:
+            self.exp -= exp_needed_for_next_level
             self.level_up()
-            # レベルアップ後の次のレベルに必要な経験値を再計算
             exp_needed_for_next_level = self.calculate_exp_to_next_level()
-            # 経験値がマイナスにならないように (繰り越し分がマイナスになることは通常ないが念のため)
             if self.exp < 0:
                 self.exp = 0
 
 
-    # monsters/definitions.py の Monster クラス内の level_up メソッドを修正
-
     def level_up(self):
-        """レベルアップ処理を行います。ステータス上昇やスキル習得など。"""
         self.level += 1
         print(f"🎉🎉🎉 {self.name} は レベル {self.level} に上がった！ 🎉🎉🎉")
 
-        # 成長タイプに応じたステータス上昇量を決定
-        status_gains_dict = {} # 上昇量を格納する辞書
+        status_gains_dict = {}
         if self.growth_type == GROWTH_TYPE_EARLY:
             status_gains_dict = get_status_gains_early(self.level)
         elif self.growth_type == GROWTH_TYPE_LATE:
             status_gains_dict = get_status_gains_late(self.level)
         elif self.growth_type == GROWTH_TYPE_AVERAGE:
             status_gains_dict = get_status_gains_average(self.level)
-        else: # 未知の成長タイプの場合は平均型として扱う
+        else:
             print(f"警告: 未知の成長タイプ '{self.growth_type}'。平均型のステータス上昇を適用します。")
             status_gains_dict = get_status_gains_average(self.level)
 
-        hp_increase = status_gains_dict.get("hp", 0) # .get(キー, デフォルト値)で安全に値を取得
+        hp_increase = status_gains_dict.get("hp", 0)
         attack_increase = status_gains_dict.get("attack", 0)
         defense_increase = status_gains_dict.get("defense", 0)
             
         self.max_hp += hp_increase
-        self.hp = self.max_hp  # レベルアップ時は全回復
+        self.hp = self.max_hp
         self.attack += attack_increase
         self.defense += defense_increase
 
         print(f"最大HPが {hp_increase}、攻撃力が {attack_increase}、防御力が {defense_increase} 上昇した！")
 
-        # (スキル習得処理などはそのまま)
-
+    def copy(self):
+        """モンスターの新しいインスタンス（ディープコピー）を返す。
+           これにより、ALL_MONSTERS のテンプレートを変更せずに新しい個体を作成できる。
+        """
+        # スキルオブジェクトもコピーするために deepcopy を使用
+        new_skills = [copy.deepcopy(skill) for skill in self.skills]
         
-
-# 個々のモンスターインスタンスを定義
-# (スキルは skills.skills から ALL_SKILLS をインポートして使う形になりますね)
-# from skills.skills import ALL_SKILLS # このファイルの先頭でインポート
+        new_monster = Monster(
+            name=self.name,
+            hp=self.max_hp, # コピー時は最大HPで初期化
+            attack=self.attack,
+            defense=self.defense,
+            level=self.level, # コピー元のレベルを引き継ぐか、1にするかは設計次第。ここでは引き継ぐ。
+            exp=self.exp,     # 経験値も同様。
+            element=self.element,
+            skills=new_skills,
+            growth_type=self.growth_type,
+            monster_id=self.monster_id
+        )
+        # max_hpも正確にコピー元のmax_hpに設定
+        new_monster.max_hp = self.max_hp
+        new_monster.hp = self.hp # 現在のHPも引き継ぐならこちら。戦闘用ならmax_hpが良い。
+                                 # 合成で生まれるモンスターは通常レベル1、HP最大なので、
+                                 # 合成ロジック側で調整する。ここでは汎用的なコピーメソッドとする。
+        new_monster.is_alive = self.is_alive 
+        return new_monster
 
