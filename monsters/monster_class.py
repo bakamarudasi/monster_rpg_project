@@ -147,7 +147,8 @@ class Monster:
                 exp_needed = calculate_exp_for_average(self.level)
             return exp_needed
         except Exception as e:
-            raise 
+            raise
+
 
     def gain_exp(self, amount):
         try:

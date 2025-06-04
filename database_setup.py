@@ -28,4 +28,4 @@ def initialize_database():
     print("データベースの初期化が完了しました (または既に初期化済みです)。")
 
 if __name__ == '__main__':
-    initialize_database() # このファイルを実行するとDB初期化s
+initialize_database() # このファイルを実行するとDB初期化s
