@@ -2,7 +2,11 @@
 import random # エンカウント判定で使います
 
 class Location:
-    def __init__(self, location_id, name, description, connections=None, possible_enemies=None, encounter_rate=0.0, has_inn=False, inn_cost=0, hidden_connections=None, has_shop=False, shop_items=None, shop_monsters=None):
+    def __init__(self, location_id, name, description, connections=None,
+                 possible_enemies=None, encounter_rate=0.0, has_inn=False,
+                 inn_cost=0, hidden_connections=None, has_shop=False,
+                 shop_items=None, shop_monsters=None, boss_enemy_id=None,
+                 rare_enemies=None, treasure_items=None, event_chance=0.0):
         """
         場所の情報を保持するクラス。
         location_id (str): 場所を識別するユニークなID
@@ -26,6 +30,10 @@ class Location:
         self.has_shop = has_shop
         self.shop_items = shop_items if shop_items else {}
         self.shop_monsters = shop_monsters if shop_monsters else {}
+        self.boss_enemy_id = boss_enemy_id
+        self.rare_enemies = rare_enemies if rare_enemies else []
+        self.treasure_items = treasure_items if treasure_items else []
+        self.event_chance = event_chance
 
     def get_random_enemy_id(self):
         """この場所で出現する可能性のあるモンスターIDをランダムに1つ返す。"""
@@ -79,7 +87,11 @@ LOCATIONS = {
         connections={"入り口へ": "forest_entrance"},
         possible_enemies=["wolf", "goblin", "forest_spirit"],
         encounter_rate=0.9,
-        hidden_connections={"さらに奥へ": "forest_boss_room"}
+        hidden_connections={"さらに奥へ": "forest_boss_room"},
+        boss_enemy_id="dragon_pup",
+        rare_enemies=["phoenix_chick"],
+        treasure_items=["small_potion"],
+        event_chance=0.3
     ),
     "forest_boss_room": Location(
         location_id="forest_boss_room",
