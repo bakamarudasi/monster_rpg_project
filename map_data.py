@@ -2,7 +2,7 @@
 import random # エンカウント判定で使います
 
 class Location:
-    def __init__(self, location_id, name, description, connections=None, possible_enemies=None, encounter_rate=0.0, has_inn=False, inn_cost=0):
+    def __init__(self, location_id, name, description, connections=None, possible_enemies=None, encounter_rate=0.0, has_inn=False, inn_cost=0, hidden_connections=None):
         """
         場所の情報を保持するクラス。
         location_id (str): 場所を識別するユニークなID
@@ -22,6 +22,7 @@ class Location:
         self.encounter_rate = encounter_rate
         self.has_inn = has_inn  # 宿屋があるかどうかのフラグ (True/False)
         self.inn_cost = inn_cost  # 宿泊料金**
+        self.hidden_connections = hidden_connections if hidden_connections else {}
 
     def get_random_enemy_id(self):
         """この場所で出現する可能性のあるモンスターIDをランダムに1つ返す。"""
@@ -63,7 +64,16 @@ LOCATIONS = {
         description="木々が鬱蒼と茂り、昼なお暗い。強力なモンスターが生息しているようだ。",
         connections={"入り口へ": "forest_entrance"},
         possible_enemies=["wolf", "goblin"], # wolf は ALL_MONSTERS に定義が必要
-        encounter_rate=0.9
+        encounter_rate=0.9,
+        hidden_connections={"さらに奥へ": "forest_boss_room"}
+    ),
+    "forest_boss_room": Location(
+        location_id="forest_boss_room",
+        name="森の守護者の間",
+        description="森の奥深くに佇む神秘的な祭壇。強大なモンスターの気配がする。",
+        connections={"奥地へ戻る": "deep_forest"},
+        possible_enemies=["dragon_pup"],
+        encounter_rate=1.0
     ),
     
 }

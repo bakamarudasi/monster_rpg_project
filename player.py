@@ -20,6 +20,7 @@ class Player:
         self.items = []
         self.current_location_id = STARTING_LOCATION_ID
         self.db_id = None # データベース上のID (ロード時に設定)
+        self.exploration_progress = {}
 
     def save_game(self, db_name):
         conn = sqlite3.connect(db_name)
@@ -73,6 +74,15 @@ class Player:
         else:
             print("  (まだ仲間モンスターがいません)")
         print("=" * 26)
+
+    def get_exploration(self, location_id):
+        return self.exploration_progress.get(location_id, 0)
+
+    def increase_exploration(self, location_id, amount):
+        current = self.exploration_progress.get(location_id, 0)
+        new_value = min(100, current + amount)
+        self.exploration_progress[location_id] = new_value
+        return new_value
 
     def add_monster_to_party(self, monster_id_or_object):
         """
