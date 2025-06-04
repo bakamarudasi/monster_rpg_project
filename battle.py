@@ -154,6 +154,14 @@ def is_party_defeated(party: list[Monster]) -> bool:
     """パーティが全滅したかどうかを判定します。"""
     return all(not monster.is_alive for monster in party)
 
+def determine_turn_order(party_a: list[Monster], party_b: list[Monster]) -> list[Monster]:
+    """Return the action order for this turn sorted by speed."""
+    return sorted(
+        [m for m in party_a + party_b if m.is_alive],
+        key=lambda m: m.speed,
+        reverse=True,
+    )
+
 def attempt_scout(player: Player, target: Monster, enemy_party: list[Monster]) -> bool:
     """敵モンスターをスカウトして仲間にする試みを行う。成功するとTrueを返す。"""
     if target is None or not target.is_alive:
@@ -210,11 +218,7 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster], player
         display_party_status(active_enemy_party, "敵パーティ")
 
         # このターンに行動する順序を速度順で決める
-        turn_order = sorted(
-            [m for m in active_player_party + active_enemy_party if m.is_alive],
-            key=lambda m: m.speed,
-            reverse=True,
-        )
+        turn_order = determine_turn_order(active_player_party, active_enemy_party)
 
         for actor in turn_order:
             if fled:
