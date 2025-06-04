@@ -3,9 +3,10 @@ import random
 from player import Player
 from monsters import ALL_MONSTERS, Monster
 from skills.skills import ALL_SKILLS
-from battle import start_battle # battle.py から start_battle をインポート
-from map_data import LOCATIONS, Location 
+from battle import start_battle  # battle.py から start_battle をインポート
+from map_data import LOCATIONS, Location
 from database_setup import initialize_database, DATABASE_NAME
+from items.item_data import ALL_ITEMS
 
 def get_monster_instance_copy(monster_id_or_object: Monster | str) -> Monster | None:
     """
@@ -297,8 +298,46 @@ def game_loop(hero: Player): # 型ヒントを追加
                 if getattr(current_location_data, 'hidden_connections', {}):
                     current_location_data.connections.update(current_location_data.hidden_connections)
                     print("新たな道が開けた！")
+                if getattr(current_location_data, 'boss_enemy_id', None):
+                    print("ボスが姿を現した！")
+                    boss = get_monster_instance_copy(current_location_data.boss_enemy_id)
+                    if boss:
+                        outcome = start_battle(hero.party_monsters, [boss], hero)
+                        if outcome == "win":
+                            print("ダンジョンを制覇した！")
+                            current_location_data.boss_enemy_id = None
+                        elif outcome == "lose":
+                            print(f"{hero.name} はボスに敗北してしまった...")
+                            res = handle_battle_loss(hero)
+                            if res == "exit":
+                                game_over = True
+                                break
+                        elif outcome == "fled":
+                            print(f"{hero.name} はボスから逃げ出した。")
 
-            if current_location_data.possible_enemies and random.random() < current_location_data.encounter_rate:
+            if random.random() < getattr(current_location_data, 'event_chance', 0):
+                if random.random() < 0.5 and getattr(current_location_data, 'treasure_items', []):
+                    item_id = random.choice(current_location_data.treasure_items)
+                    if item_id in ALL_ITEMS:
+                        hero.items.append(ALL_ITEMS[item_id])
+                        print(f"宝箱を見つけた！{ALL_ITEMS[item_id].name} を手に入れた。")
+                elif getattr(current_location_data, 'rare_enemies', []):
+                    print("レアモンスターが現れた！")
+                    rare_id = random.choice(current_location_data.rare_enemies)
+                    rare_enemy = get_monster_instance_copy(rare_id)
+                    if rare_enemy:
+                        outcome = start_battle(hero.party_monsters, [rare_enemy], hero)
+                        if outcome == "win":
+                            print(f"{hero.name} はレアモンスターを倒した！")
+                        elif outcome == "lose":
+                            print(f"{hero.name} は敗北してしまった...")
+                            res = handle_battle_loss(hero)
+                            if res == "exit":
+                                game_over = True
+                                break
+                        elif outcome == "fled":
+                            print(f"{hero.name} は戦闘から逃げ出した。")
+            elif current_location_data.possible_enemies and random.random() < current_location_data.encounter_rate:
                 print("\n!!!モンスターが襲ってきた!!!")
                 player_battle_party = hero.party_monsters
                 enemy_battle_party = generate_enemy_party(current_location_data)
