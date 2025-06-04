@@ -101,6 +101,176 @@ LOCATIONS = {
         possible_enemies=["dragon_pup"],
         encounter_rate=1.0
     ),
+    "hill_road": Location(
+    location_id="hill_road",
+    name="丘陵街道",
+    description="ゆるやかな丘を抜ける古びた街道。行商人の姿もちらほら。",
+    connections={"南": "field_near_village", "北": "mountain_foothills"},
+    possible_enemies=["wolf", "orc_warrior"],
+    encounter_rate=0.55,
+),
+
+"mountain_foothills": Location(
+    location_id="mountain_foothills",
+    name="山麓の荒野",
+    description="切り立った崖と転がる岩石。空気が薄くなり始めている。",
+    connections={"南": "hill_road", "北": "thunder_peak", "西": "ancient_ruins"},
+    possible_enemies=["orc_warrior", "skeleton_archer", "troll_brute"],
+    encounter_rate=0.75,
+    treasure_items=["medium_potion"],
+),
+
+"thunder_peak": Location(
+    location_id="thunder_peak",
+    name="雷鳴峰",
+    description="雲間を貫く尖塔のような山頂。常に雷が轟く。",
+    connections={"南": "mountain_foothills"},
+    possible_enemies=["thunder_eagle", "storm_golem"],
+    encounter_rate=0.85,
+    rare_enemies=["nameless_kingling"],
+    boss_enemy_id="storm_golem",
+    treasure_items=["thunder_core"],
+),
+
+"ancient_ruins": Location(
+    location_id="ancient_ruins",
+    name="古代遺跡",
+    description="苔むした石碑と崩れた柱が並ぶ、忘れられた文明の跡。",
+    connections={"東": "mountain_foothills", "地下へ": "catacombs_entrance"},
+    possible_enemies=["elf_mage", "goblin", "undead_warrior"],
+    encounter_rate=0.7,
+    event_chance=0.25,
+),
+
+"catacombs_entrance": Location(
+    location_id="catacombs_entrance",
+    name="地下墓地・入口",
+    description="石階段が闇へと続く。不気味な気配が漂う。",
+    connections={"上へ戻る": "ancient_ruins", "奥へ": "catacombs_deep"},
+    possible_enemies=["skeleton_archer", "undead_warrior", "gravetide_hollow"],
+    encounter_rate=0.8,
+    treasure_items=["frost_crystal"],
+),
+
+"catacombs_deep": Location(
+    location_id="catacombs_deep",
+    name="地下墓地・深層",
+    description="蝋燭の火が揺れる石室。静寂を破る足音が反響する。",
+    connections={"入口へ戻る": "catacombs_entrance", "奈落へ": "abyssal_chasm"},
+    possible_enemies=["blighted_knight", "vampire_lord"],
+    encounter_rate=0.9,
+    boss_enemy_id="abyss_watcher",
+    rare_enemies=["abyss_watcher"],
+    treasure_items=["abyss_shard"],
+),
+
+"abyssal_chasm": Location(
+    location_id="abyssal_chasm",
+    name="深淵の裂け目",
+    description="底知れぬ闇が広がる亀裂。闇の鼓動が聞こえる。",
+    connections={"地上へ": "catacombs_deep", "光の塔へ": "celestial_tower"},
+    possible_enemies=["shadow_panther", "abyss_watcher", "blighted_knight"],
+    encounter_rate=1.0,
+),
+
+"celestial_tower": Location(
+    location_id="celestial_tower",
+    name="天啓の塔",
+    description="蒼穹へと伸びる光輝の塔。最上階には試練が待つ。",
+    connections={"深淵へ戻る": "abyssal_chasm"},
+    possible_enemies=["celestial_panther", "cinder_sentinel"],
+    encounter_rate=0.85,
+    boss_enemy_id="celestial_dragon",
+    has_shop=True,
+    shop_items={"large_potion": 120, "elixir": 300, "celestial_feather": 500},
+    has_inn=True,
+    inn_cost=50,
+    treasure_items=["celestial_feather", "elixir"],
+),
+"desert_outskirts": Location(
+    location_id="desert_outskirts",
+    name="砂漠の外れ",
+    description="熱風が吹きつけ、遠くに蜃気楼が揺れる。",
+    connections={"西": "field_near_village", "東": "desert_oasis"},
+    possible_enemies=["desert_scorpion", "sand_wyrm"],
+    encounter_rate=0.65,
+),
+
+"desert_oasis": Location(
+    location_id="desert_oasis",
+    name="オアシスの集落",
+    description="椰子の木が茂る水辺。旅人の憩いの場だ。",
+    connections={"西": "desert_outskirts", "北": "sunken_temple"},
+    has_inn=True, inn_cost=20,
+    has_shop=True, shop_items={"medium_potion": 40, "antidote": 25},
+    possible_enemies=["desert_scorpion"],
+    encounter_rate=0.3,
+),
+
+"sunken_temple": Location(
+    location_id="sunken_temple",
+    name="水没した神殿",
+    description="半ば湖に沈んだ古代神殿。水棲モンスターの巣窟。",
+    connections={"南": "desert_oasis", "深部へ": "abyssal_marsh"},
+    possible_enemies=["kraken", "mermaid_siren", "water_wolf"],
+    encounter_rate=0.85,
+    treasure_items=["frost_crystal"],
+),
+
+"abyssal_marsh": Location(
+    location_id="abyssal_marsh",
+    name="深淵の湿地",
+    description="黒い水面に泡が弾ける不気味な湿地帯。",
+    connections={"上へ": "sunken_temple", "東": "volcanic_ridge"},
+    possible_enemies=["kraken", "blighted_knight", "abyss_watcher"],
+    encounter_rate=0.95,
+),
+
+"volcanic_ridge": Location(
+    location_id="volcanic_ridge",
+    name="熔岩稜線",
+    description="赤熱した溶岩が流れ、空気が揺らめく灼熱地帯。",
+    connections={"西": "abyssal_marsh", "北": "lava_core"},
+    possible_enemies=["lava_elemental", "troll_brute", "orc_warrior"],
+    encounter_rate=0.9,
+    rare_enemies=["cinder_sentinel"],
+    treasure_items=["dragon_scale"],
+),
+
+"lava_core": Location(
+    location_id="lava_core",
+    name="熔岩核",
+    description="流動するマグマの中央に浮かぶ岩盤。炎の脈動が響く。",
+    connections={"南": "volcanic_ridge", "上空へ": "sky_isle"},
+    boss_enemy_id="lava_elemental",
+    possible_enemies=["lava_elemental"],
+    encounter_rate=1.0,
+),
+
+"sky_isle": Location(
+    location_id="sky_isle",
+    name="浮遊島・聖域",
+    description="雲海を見下ろす浮島。澄んだ風の中で光が舞う。",
+    connections={"下へ": "lava_core", "北": "celestial_tower"},  # 既存塔と直通
+    possible_enemies=["sky_seraph", "thunder_eagle", "celestial_panther"],
+    encounter_rate=0.8,
+    hidden_connections={"更なる空の高みへ": "sky_isle_inner_sanctum"},
+),
+
+"sky_isle_inner_sanctum": Location(
+    location_id="sky_isle_inner_sanctum",
+    name="浮遊島・内なる聖域",
+    description="静謐な光が満ちる最奥部。翼を持つ守護者が待ち構えている。",
+    connections={"外縁へ戻る": "sky_isle"},
+    boss_enemy_id="sky_seraph",
+    possible_enemies=["sky_seraph"],
+    encounter_rate=1.0,
+    treasure_items=["celestial_feather", "elixir"],
+)
+# ------------------------------------------------------------
+# ▼ ここまで追加マップ
+# ------------------------------------------------------------
+
     
 }
 

@@ -189,6 +189,188 @@ CELESTIAL_DRAGON = Monster(
     rank=RANK_S,
 )
 
+WATER_WOLF = Monster(
+    name="ウォーターワルフ", hp=55, attack=17, defense=9, level=4,
+    element="水", speed=11,
+    skills=[ALL_SKILLS[s] for s in ("ice_spear",) if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="water_wolf",
+    rank=RANK_C,
+)
+
+POISON_ORC = Monster(
+    name="ポイズンオーク", hp=70, attack=24, defense=16, level=5,
+    element="毒", speed=7,
+    skills=[ALL_SKILLS[s] for s in ("poison_dart", "weaken_armor") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_EARLY,
+    monster_id="poison_orc",
+    rank=RANK_B,
+)
+
+FROST_ELF = Monster(
+    name="フロストエルフ", hp=60, attack=16, defense=12, level=5,
+    element="氷", speed=12,
+    skills=[ALL_SKILLS[s] for s in ("ice_spear", "heal", "speed_up") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="frost_elf",
+    rank=RANK_B,
+)
+
+UNDEAD_WARRIOR = Monster(
+    name="アンデッドウォリアー", hp=75, attack=25, defense=17, level=6,
+    element="闇", speed=8,
+    skills=[ALL_SKILLS[s] for s in ("dark_pulse", "stun_blow", "guard_up") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="undead_warrior",
+    rank=RANK_B,
+)
+
+STORM_GOLEM = Monster(
+    name="ストームゴーレム", hp=130, attack=35, defense=38, level=9,
+    element="雷", speed=4,
+    skills=[ALL_SKILLS[s] for s in ("earth_quake", "thunder_bolt", "guard_up") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_LATE,
+    monster_id="storm_golem",
+    rank=RANK_A,
+)
+
+CELESTIAL_PANTHER = Monster(
+    name="セレスティアルパンサー", hp=110, attack=38, defense=28, level=11,
+    element="光", speed=19,
+    skills=[ALL_SKILLS[s] for s in ("holy_light", "meteor_strike", "speed_up", "power_up") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_LATE,
+    monster_id="celestial_panther",
+    rank=RANK_S,
+)
+
+ABYSS_WATCHER = Monster(
+    name="アビスウォッチャー",
+    hp=95, attack=34, defense=24, level=9,
+    element="闇", speed=17,
+    skills=[ALL_SKILLS[s] for s in ("dark_pulse", "stun_blow", "speed_up") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_EARLY,
+    monster_id="abyss_watcher",
+    rank=RANK_A,
+)
+
+CINDER_SENTINEL = Monster(
+    name="シンダーセンチネル",
+    hp=140, attack=42, defense=42, level=11,
+    element="火", speed=8,
+    skills=[ALL_SKILLS[s] for s in ("meteor_strike", "guard_up", "power_up") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_LATE,
+    monster_id="cinder_sentinel",
+    rank=RANK_S,
+)
+
+ASHEN_DRAKE = Monster(
+    name="アシェンドレイク",
+    hp=125, attack=38, defense=30, level=10,
+    element="火", speed=13,
+    skills=[ALL_SKILLS[s] for s in ("dragon_breath", "thunder_bolt") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_LATE,
+    monster_id="ashen_drake",
+    rank=RANK_A,
+)
+
+BLIGHTED_KNIGHT = Monster(
+    name="ブライテッドナイト",
+    hp=110, attack=36, defense=28, level=9,
+    element="毒", speed=10,
+    skills=[ALL_SKILLS[s] for s in ("poison_dart", "weaken_armor", "guard_up") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="blighted_knight",
+    rank=RANK_A,
+)
+
+GRAVETIDE_HOLLOW = Monster(
+    name="グレイブタイドホロウ",
+    hp=90, attack=30, defense=18, level=8,
+    element="闇", speed=11,
+    skills=[ALL_SKILLS[s] for s in ("sleep_spell", "dark_pulse") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="gravetide_hollow",
+    rank=RANK_B,
+)
+
+NAMELESS_KINGLING = Monster(
+    name="ネームレスキングリング",
+    hp=155, attack=48, defense=35, level=12,
+    element="雷", speed=16,
+    skills=[ALL_SKILLS[s] for s in ("thunder_bolt", "meteor_strike", "power_up") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_LATE,
+    monster_id="nameless_kingling",
+    rank=RANK_S,
+)
+
+PONTIFF_SHADE = Monster(
+    name="ポンティフシェイド",
+    hp=100, attack=32, defense=22, level=9,
+    element="氷", speed=15,
+    skills=[ALL_SKILLS[s] for s in ("ice_spear", "curse", "slow") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="pontiff_shade",
+    rank=RANK_A,
+)
+
+# ------------------------------------------------------------
+# ▼ 新モンスター
+# ------------------------------------------------------------
+DESERT_SCORPION = Monster(
+    name="デザートスコーピオン", hp=60, attack=20, defense=14, level=4,
+    element="毒", speed=9,
+    skills=[ALL_SKILLS[s] for s in ("poison_dart", "stun_blow") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_EARLY,
+    monster_id="desert_scorpion",
+    rank=RANK_C,
+)
+
+SAND_WYRM = Monster(
+    name="サンドワーム", hp=95, attack=28, defense=22, level=6,
+    element="土", speed=14,
+    skills=[ALL_SKILLS[s] for s in ("earth_quake", "power_up", "poison_dart") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="sand_wyrm",
+    rank=RANK_B,
+)
+
+LAVA_ELEMENTAL = Monster(
+    name="ラヴァエレメンタル", hp=110, attack=35, defense=30, level=8,
+    element="火", speed=5,
+    skills=[ALL_SKILLS[s] for s in ("meteor_strike", "dragon_breath") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_LATE,
+    monster_id="lava_elemental",
+    rank=RANK_A,
+)
+
+CRYSTAL_DRAKE = Monster(
+    name="クリスタルドレイク", hp=100, attack=33, defense=25, level=8,
+    element="氷", speed=12,
+    skills=[ALL_SKILLS[s] for s in ("ice_spear", "guard_up", "power_up") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="crystal_drake",
+    rank=RANK_A,
+)
+
+KRAKEN = Monster(
+    name="クラーケン", hp=140, attack=38, defense=32, level=10,
+    element="水", speed=7,
+    skills=[ALL_SKILLS[s] for s in ("ice_spear", "heal", "slow") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_LATE,
+    monster_id="kraken",
+    rank=RANK_A,
+)
+
+SKY_SERAPH = Monster(
+    name="スカイセラフ", hp=120, attack=40, defense=28, level=11,
+    element="光", speed=18,
+    skills=[ALL_SKILLS[s] for s in ("holy_light", "thunder_bolt", "revive") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_LATE,
+    monster_id="sky_seraph",
+    rank=RANK_S,
+)
+
+
 ALL_MONSTERS = {
     "slime": SLIME,
     "goblin": GOBLIN,
@@ -206,4 +388,23 @@ ALL_MONSTERS = {
     "shadow_panther": SHADOW_PANTHER,
     "vampire_lord": VAMPIRE_LORD,
     "celestial_dragon": CELESTIAL_DRAGON,
+    "water_wolf": WATER_WOLF,
+    "poison_orc": POISON_ORC,
+    "frost_elf": FROST_ELF,
+    "undead_warrior": UNDEAD_WARRIOR,
+    "storm_golem": STORM_GOLEM,
+    "celestial_panther": CELESTIAL_PANTHER,
+    "abyss_watcher": ABYSS_WATCHER,
+    "cinder_sentinel": CINDER_SENTINEL,
+    "ashen_drake": ASHEN_DRAKE,
+    "blighted_knight": BLIGHTED_KNIGHT,
+    "gravetide_hollow": GRAVETIDE_HOLLOW,
+    "nameless_kingling": NAMELESS_KINGLING,
+    "pontiff_shade": PONTIFF_SHADE,
+    "desert_scorpion": DESERT_SCORPION,
+    "sand_wyrm": SAND_WYRM,
+    "lava_elemental": LAVA_ELEMENTAL,
+    "crystal_drake": CRYSTAL_DRAKE,
+    "kraken": KRAKEN,
+    "sky_seraph": SKY_SERAPH,
 }
