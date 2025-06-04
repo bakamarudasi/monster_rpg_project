@@ -21,6 +21,8 @@ def apply_skill_effect(caster: Monster, targets: list[Monster], skill_obj: Skill
     all_enemies: 敵全体のリスト (範囲スキル用)
     """
     print(f"\n{caster.name} は {skill_obj.name} を使った！")
+    if skill_obj.cost > 0:
+        caster.mp = max(0, caster.mp - skill_obj.cost)
 
     targets_to_use = targets
     if skill_obj.scope == "all":
@@ -54,7 +56,13 @@ def apply_skill_effect(caster: Monster, targets: list[Monster], skill_obj: Skill
         elif skill_obj.skill_type == "buff":
             if skill_obj.target == "ally" and callable(skill_obj.effect):
                 try:
-                    skill_obj.effect(target) # Monsterオブジェクト(スキル対象)を渡す
+                    remove_func = skill_obj.effect(target)
+                    if skill_obj.duration > 0:
+                        target.status_effects.append({
+                            "name": skill_obj.name,
+                            "remaining": skill_obj.duration,
+                            "remove_func": remove_func,
+                        })
                     print(f"{target.name} の何かが強化された！")
                 except Exception as e:
                     print(f"スキル効果の適用中にエラー: {e}")
@@ -67,7 +75,24 @@ def display_party_status(party: list[Monster], party_name: str):
     print(f"\n--- {party_name} ---")
     for i, monster in enumerate(party):
         status_mark = "💀" if not monster.is_alive else "❤️" # 生存状態マーク
-        print(f"  {i + 1}. {monster.name} (Lv.{monster.level}, HP: {monster.hp}/{monster.max_hp}) {status_mark}")
+        print(
+            f"  {i + 1}. {monster.name} (Lv.{monster.level}, HP: {monster.hp}/{monster.max_hp}, MP: {monster.mp}/{monster.max_mp}) {status_mark}"
+        )
+
+def process_status_effects(monster: Monster):
+    expired = []
+    for effect in monster.status_effects:
+        effect["remaining"] -= 1
+        if effect["remaining"] <= 0:
+            if callable(effect.get("remove_func")):
+                try:
+                    effect["remove_func"]()
+                except Exception:
+                    pass
+            expired.append(effect)
+    for e in expired:
+        monster.status_effects.remove(e)
+        print(f"{monster.name} の {e['name']} の効果が切れた。")
 
 def get_player_choice(prompt: str, max_choice: int) -> int:
     """プレイヤーに番号で選択させ、有効な値を返すまでループします。"""
@@ -172,6 +197,8 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster], player
             if not actor.is_alive:
                 continue
 
+            process_status_effects(actor)
+
             if actor in active_player_party:
                 print(f"\n>>> {actor.name} の行動！ <<<")
                 print("1: たたかう")
@@ -209,6 +236,10 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster], player
                         continue
 
                     selected_skill = actor.skills[skill_choice_idx - 1]
+
+                    if actor.mp < selected_skill.cost:
+                        print(f"MPが足りない！ {selected_skill.name} を使えない。")
+                        continue
 
                     # スキルの対象を選択
                     skill_targets = []
