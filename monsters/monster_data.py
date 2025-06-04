@@ -17,6 +17,7 @@ SLIME = Monster(
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="slime",
     rank=RANK_D,
+    speed=3,
     drop_items=[(ALL_ITEMS["small_potion"], 0.2)],
     scout_rate=0.5
 )
@@ -27,6 +28,7 @@ GOBLIN = Monster(
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="goblin",
     rank=RANK_D,
+    speed=6,
     drop_items=[(ALL_ITEMS["small_potion"], 0.15)],
     scout_rate=0.4
 )
@@ -37,6 +39,7 @@ WOLF = Monster(
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="wolf",
     rank=RANK_C,
+    speed=8,
     drop_items=[(ALL_ITEMS["small_potion"], 0.1)],
     scout_rate=0.35
 )
@@ -52,6 +55,7 @@ SLIME_GOBLIN_HYBRID = Monster(
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="slime_goblin_hybrid",
     rank=RANK_C,
+    speed=5,
     drop_items=[(ALL_ITEMS["small_potion"], 0.25)],  # 例: 合成モンスターはCランク
     scout_rate=0.3
 )
@@ -68,6 +72,7 @@ DRAGON_PUP = Monster(
     growth_type=GROWTH_TYPE_LATE, # 大器晩成型
     monster_id="dragon_pup",
     rank=RANK_A,
+    speed=4,
     drop_items=[(ALL_ITEMS["small_potion"], 0.05)],
     scout_rate=0.15
 )
@@ -83,6 +88,7 @@ PHOENIX_CHICK = Monster(
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="phoenix_chick",
     rank=RANK_S,
+    speed=7,
     drop_items=[(ALL_ITEMS["small_potion"], 0.05)],  # 例: 不死鳥のヒナはSランク
     scout_rate=0.1
 )
@@ -99,6 +105,7 @@ WATER_WOLF = Monster(
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="water_wolf",
     rank=RANK_C,
+    speed=7,
     drop_items=[(ALL_ITEMS["small_potion"], 0.1)],
     scout_rate=0.3
 )
@@ -114,6 +121,7 @@ FOREST_SPIRIT = Monster(
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="forest_spirit",
     rank=RANK_B,
+    speed=9,
     drop_items=[(ALL_ITEMS["small_potion"], 0.2)],
     scout_rate=0.25
 )
