@@ -17,8 +17,10 @@ class LevelUpSpeedTests(unittest.TestCase):
         with redirect_stdout(buf):
             monster.level_up()
         output = buf.getvalue()
-        self.assertIn("素早さが", output)
-        self.assertGreater(monster.speed, start_speed)
+        end_speed = monster.speed
+        speed_gain = end_speed - start_speed
+        self.assertIn(f"素早さが {speed_gain}", output)
+        self.assertGreater(end_speed, start_speed)
 
 if __name__ == '__main__':
     unittest.main()
