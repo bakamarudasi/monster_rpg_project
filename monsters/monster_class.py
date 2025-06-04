@@ -213,12 +213,17 @@ class Monster:
                 status_gains_dict = get_status_gains_average(self.level)
             
             if not isinstance(status_gains_dict, dict):
-                status_gains_dict = {"hp": 1, "attack": 1, "defense": 1, "speed": 1}
+                status_gains_dict = {}
 
-            hp_increase = status_gains_dict.get("hp", 0)
-            attack_increase = status_gains_dict.get("attack", 0)
-            defense_increase = status_gains_dict.get("defense", 0)
-            speed_increase = status_gains_dict.get("speed", 0)
+            status_gains_dict.setdefault("hp", 0)
+            status_gains_dict.setdefault("attack", 0)
+            status_gains_dict.setdefault("defense", 0)
+            status_gains_dict.setdefault("speed", 0)
+
+            hp_increase = status_gains_dict["hp"]
+            attack_increase = status_gains_dict["attack"]
+            defense_increase = status_gains_dict["defense"]
+            speed_increase = status_gains_dict["speed"]
                 
             self.max_hp += hp_increase
             self.hp = self.max_hp 
