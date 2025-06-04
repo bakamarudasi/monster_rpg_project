@@ -231,94 +231,100 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster], player
             process_status_effects(actor)
 
             if actor in active_player_party:
-                print(f"\n>>> {actor.name} の行動！ <<<")
-                print("1: たたかう")
-                print("2: スキル")
-                print("3: スカウト")
-                print("4: にげる")
-                action_choice = get_player_choice("行動を選んでください", 4)
+                while True:
+                    print(f"\n>>> {actor.name} の行動！ <<<")
+                    print("1: たたかう")
+                    print("2: スキル")
+                    print("3: スカウト")
+                    print("4: にげる")
+                    action_choice = get_player_choice("行動を選んでください", 4)
 
-                if action_choice == 1:  # たたかう
-                    target = select_target(active_enemy_party, "\n攻撃対象を選んでください:")
-                    if target:
-                        print(f"\n{actor.name} の攻撃！ -> {target.name}")
-                        damage = calculate_damage(actor, target)
-                        target.hp -= damage
-                        print(f"{target.name} に {damage} のダメージを与えた！ (残りHP: {max(0, target.hp)})")
-                        if target.hp <= 0:
-                            target.is_alive = False
-                            print(f"{target.name} を倒した！")
-                    else:
-                        print("攻撃をキャンセルしました。")
-                        continue
-
-                elif action_choice == 2:  # スキル
-                    if not actor.skills:
-                        print(f"{actor.name} は覚えているスキルがない！")
-                        continue
-
-                    print("\nどのスキルを使いますか？")
-                    for i, skill in enumerate(actor.skills):
-                        print(f"  {i + 1}: {skill.describe()}")
-
-                    skill_choice_idx = get_player_choice("スキル番号を選んでください", len(actor.skills))
-                    if skill_choice_idx == 0:
-                        print("スキル使用をキャンセルしました。")
-                        continue
-
-                    selected_skill = actor.skills[skill_choice_idx - 1]
-
-                    if actor.mp < selected_skill.cost:
-                        print(f"MPが足りない！ {selected_skill.name} を使えない。")
-                        continue
-
-                    # スキルの対象を選択
-                    skill_targets = []
-                    if selected_skill.skill_type == "attack":
-                        target_monster = select_target(active_enemy_party, f"\n{selected_skill.name} の対象を選んでください:")
-                        if target_monster:
-                            skill_targets.append(target_monster)
+                    if action_choice == 1:  # たたかう
+                        target = select_target(active_enemy_party, "\n攻撃対象を選んでください:")
+                        if target:
+                            print(f"\n{actor.name} の攻撃！ -> {target.name}")
+                            damage = calculate_damage(actor, target)
+                            target.hp -= damage
+                            print(f"{target.name} に {damage} のダメージを与えた！ (残りHP: {max(0, target.hp)})")
+                            if target.hp <= 0:
+                                target.is_alive = False
+                                print(f"{target.name} を倒した！")
+                            break
                         else:
-                            print("スキル対象の選択をキャンセルしました。")
+                            print("攻撃をキャンセルしました。")
                             continue
-                    elif selected_skill.skill_type == "heal" and selected_skill.target == "ally":
-                        if selected_skill.scope == "all":
-                            skill_targets = [m for m in active_player_party if m.is_alive]
-                        else:
-                            target_monster = select_target(active_player_party, f"\n{selected_skill.name} の回復対象を選んでください:")
+
+                    elif action_choice == 2:  # スキル
+                        if not actor.skills:
+                            print(f"{actor.name} は覚えているスキルがない！")
+                            continue
+
+                        print("\nどのスキルを使いますか？")
+                        for i, skill in enumerate(actor.skills):
+                            print(f"  {i + 1}: {skill.describe()}")
+
+                        skill_choice_idx = get_player_choice("スキル番号を選んでください", len(actor.skills))
+                        if skill_choice_idx == 0:
+                            print("スキル使用をキャンセルしました。")
+                            continue
+
+                        selected_skill = actor.skills[skill_choice_idx - 1]
+
+                        if actor.mp < selected_skill.cost:
+                            print(f"MPが足りない！ {selected_skill.name} を使えない。")
+                            continue
+
+                        # スキルの対象を選択
+                        skill_targets = []
+                        if selected_skill.skill_type == "attack":
+                            target_monster = select_target(active_enemy_party, f"\n{selected_skill.name} の対象を選んでください:")
                             if target_monster:
                                 skill_targets.append(target_monster)
                             else:
                                 print("スキル対象の選択をキャンセルしました。")
                                 continue
+                        elif selected_skill.skill_type == "heal" and selected_skill.target == "ally":
+                            if selected_skill.scope == "all":
+                                skill_targets = [m for m in active_player_party if m.is_alive]
+                            else:
+                                target_monster = select_target(active_player_party, f"\n{selected_skill.name} の回復対象を選んでください:")
+                                if target_monster:
+                                    skill_targets.append(target_monster)
+                                else:
+                                    print("スキル対象の選択をキャンセルしました。")
+                                    continue
 
-                    if skill_targets:
-                        apply_skill_effect(actor, skill_targets, selected_skill, active_player_party, active_enemy_party)
-                    else:
-                        print(f"{selected_skill.name} は適切な対象に使えなかった。")
+                        if skill_targets:
+                            apply_skill_effect(actor, skill_targets, selected_skill, active_player_party, active_enemy_party)
+                            break
+                        else:
+                            print(f"{selected_skill.name} は適切な対象に使えなかった。")
+                            continue
+
+                    elif action_choice == 3:  # スカウト
+                        target = select_target(active_enemy_party, "\nスカウトする対象を選んでください:")
+                        if target:
+                            attempt_scout(player, target, enemy_party)
+                            if not target.is_alive and target in active_enemy_party:
+                                active_enemy_party.remove(target)
+                            break
+                        else:
+                            print("スカウトをキャンセルしました。")
+                            continue
+
+                    elif action_choice == 4:  # にげる
+                        print(f"\n{actor.name} は逃げ出そうとした！")
+                        if random.random() < 0.5:
+                            print("うまく逃げ切れた！")
+                            fled = True
+                            break
+                        else:
+                            print("しかし、回り込まれてしまった！")
+                            break
+
+                    else:  # action_choice == 0 (キャンセル)
+                        print("行動をキャンセルしました。")
                         continue
-
-                elif action_choice == 3:  # スカウト
-                    target = select_target(active_enemy_party, "\nスカウトする対象を選んでください:")
-                    if target:
-                        attempt_scout(player, target, enemy_party)
-                        if not target.is_alive and target in active_enemy_party:
-                            active_enemy_party.remove(target)
-                    else:
-                        print("スカウトをキャンセルしました。")
-
-                elif action_choice == 4:  # にげる
-                    print(f"\n{actor.name} は逃げ出そうとした！")
-                    if random.random() < 0.5:
-                        print("うまく逃げ切れた！")
-                        fled = True
-                        break
-                    else:
-                        print("しかし、回り込まれてしまった！")
-
-                else:  # action_choice == 0 (キャンセル)
-                    print("行動をキャンセルしました。")
-                    continue
 
             else:  # 敵モンスターの行動
                 enemy_actor = actor
