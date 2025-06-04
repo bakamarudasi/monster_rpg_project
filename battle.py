@@ -1,15 +1,42 @@
 # battle.py
 import random
-from player import Player # Playerクラスは直接使わないが、型ヒントなどで参照される可能性を考慮
-from monsters import Monster, ALL_MONSTERS # MonsterクラスとALL_MONSTERSを参照
-from skills.skills import Skill # Skillクラスを参照
+from player import Player  # Playerクラスは直接使わないが、型ヒントなどで参照される可能性を考慮
+from monsters import Monster, ALL_MONSTERS  # MonsterクラスとALL_MONSTERSを参照
+from skills.skills import Skill  # Skillクラスを参照
 # import traceback # デバッグ時に必要なら再度有効化
+
+# 属性相性倍率定義
+ELEMENTAL_MULTIPLIERS = {
+    ("火", "風"): 1.5,
+    ("風", "水"): 1.5,
+    ("水", "火"): 1.5,
+}
+
+# クリティカルヒット設定
+CRITICAL_HIT_CHANCE = 0.1
+CRITICAL_HIT_MULTIPLIER = 2.0
 
 def calculate_damage(attacker: Monster, defender: Monster) -> int:
     """通常攻撃のダメージを計算します。"""
-    # TODO: 属性相性やクリティカルヒットなどの要素を追加する
-    damage = attacker.attack - defender.defense
-    return max(1, damage) # 最低1ダメージは保証
+    base = attacker.attack - defender.defense
+    damage = max(1, base)
+
+    multiplier = ELEMENTAL_MULTIPLIERS.get((attacker.element, defender.element))
+    if multiplier is None:
+        # 相手が有利な場合は半減
+        rev = ELEMENTAL_MULTIPLIERS.get((defender.element, attacker.element))
+        if rev is not None:
+            multiplier = 0.5
+        else:
+            multiplier = 1.0
+
+    damage = int(damage * multiplier)
+
+    # クリティカル判定
+    if random.random() < CRITICAL_HIT_CHANCE:
+        damage = int(damage * CRITICAL_HIT_MULTIPLIER)
+
+    return max(1, damage)  # 最低1ダメージは保証
 
 def apply_skill_effect(caster: Monster, targets: list[Monster], skill_obj: Skill, all_allies: list[Monster] = None, all_enemies: list[Monster] = None):
     """
