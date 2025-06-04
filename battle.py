@@ -22,7 +22,14 @@ def apply_skill_effect(caster: Monster, targets: list[Monster], skill_obj: Skill
     """
     print(f"\n{caster.name} は {skill_obj.name} を使った！")
 
-    for target in targets: # スキルは複数の対象に影響することがある
+    targets_to_use = targets
+    if skill_obj.scope == "all":
+        if skill_obj.target == "ally" and all_allies is not None:
+            targets_to_use = [m for m in all_allies if m.is_alive]
+        elif skill_obj.target == "enemy" and all_enemies is not None:
+            targets_to_use = [m for m in all_enemies if m.is_alive]
+
+    for target in targets_to_use:  # スキルは複数の対象に影響することがある
         if not target.is_alive: # 対象が既に倒れていたらスキップ
             print(f"{target.name} は既に倒れているため、{skill_obj.name} の効果を受けなかった。")
             continue
@@ -37,13 +44,12 @@ def apply_skill_effect(caster: Monster, targets: list[Monster], skill_obj: Skill
                 print(f"{target.name} は倒れた！")
 
         elif skill_obj.skill_type == "heal":
-            if skill_obj.target == "ally": # 現状は単体対象を想定
+            if skill_obj.target == "ally":
                 original_hp = target.hp
                 target.hp += skill_obj.power
                 target.hp = min(target.hp, target.max_hp)
                 healed_amount = target.hp - original_hp
                 print(f"{target.name} のHPが {healed_amount} 回復した！ (現在HP: {target.hp})")
-            # TODO: 味方全体回復 (all_allies を使う) もここに追加
 
         elif skill_obj.skill_type == "buff":
             if skill_obj.target == "ally" and callable(skill_obj.effect):
@@ -214,7 +220,15 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster], player
                             print("スキル対象の選択をキャンセルしました。")
                             continue
                     elif selected_skill.skill_type == "heal" and selected_skill.target == "ally":
-                        skill_targets.append(actor)
+                        if selected_skill.scope == "all":
+                            skill_targets = [m for m in active_player_party if m.is_alive]
+                        else:
+                            target_monster = select_target(active_player_party, f"\n{selected_skill.name} の回復対象を選んでください:")
+                            if target_monster:
+                                skill_targets.append(target_monster)
+                            else:
+                                print("スキル対象の選択をキャンセルしました。")
+                                continue
 
                     if skill_targets:
                         apply_skill_effect(actor, skill_targets, selected_skill, active_player_party, active_enemy_party)
