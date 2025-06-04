@@ -36,7 +36,7 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
 Other notable modules include `player.py` (player data and save/load logic), `battle.py` (battle system), and `synthesis_rules.py` (monster fusion recipes).
 
 ## New Features
-- Items can now be used outside of battle. The included Small Potion heals 30 HP.
+- Items can now be used both outside and during battle. The included potions restore HP and can turn the tide mid-fight.
 - The starting village has a shop where you can buy Small Potions or even purchase a Slime companion.
 
 ## Saving

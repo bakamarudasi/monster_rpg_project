@@ -164,7 +164,13 @@ class Player:
             print(f"{item.name} はここでは使えない。")
             return False
 
-        if item.item_id == "small_potion":
+        heal_amounts = {
+            "small_potion": 30,
+            "medium_potion": 60,
+            "large_potion": 120,
+        }
+
+        if item.item_id in heal_amounts:
             if target_monster is None:
                 print("対象モンスターがいません。")
                 return False
@@ -172,9 +178,44 @@ class Player:
                 print(f"{target_monster.name} は倒れているため回復できない。")
                 return False
             before = target_monster.hp
-            target_monster.hp = min(target_monster.max_hp, target_monster.hp + 30)
+            target_monster.hp = min(target_monster.max_hp, target_monster.hp + heal_amounts[item.item_id])
             healed = target_monster.hp - before
             print(f"{target_monster.name} のHPが {healed} 回復した。")
+            self.items.pop(item_idx)
+            return True
+
+        if item.item_id == "ether":
+            if target_monster is None:
+                print("対象モンスターがいません。")
+                return False
+            before = target_monster.mp
+            target_monster.mp = min(target_monster.max_mp, target_monster.mp + 30)
+            restored = target_monster.mp - before
+            print(f"{target_monster.name} のMPが {restored} 回復した。")
+            self.items.pop(item_idx)
+            return True
+
+        if item.item_id == "elixir":
+            if target_monster is None:
+                print("対象モンスターがいません。")
+                return False
+            target_monster.hp = target_monster.max_hp
+            target_monster.mp = target_monster.max_mp
+            target_monster.is_alive = True
+            print(f"{target_monster.name} のHPとMPが全回復した！")
+            self.items.pop(item_idx)
+            return True
+
+        if item.item_id == "revive_scroll":
+            if target_monster is None:
+                print("対象モンスターがいません。")
+                return False
+            if target_monster.is_alive:
+                print(f"{target_monster.name} はまだ倒れていない。")
+                return False
+            target_monster.is_alive = True
+            target_monster.hp = target_monster.max_hp // 2
+            print(f"{target_monster.name} が復活した！ HPが半分回復した。")
             self.items.pop(item_idx)
             return True
 
