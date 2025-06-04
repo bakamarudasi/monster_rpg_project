@@ -21,11 +21,28 @@ def initialize_database():
     # 当面は1プレイヤーなので、player_dataテーブルには1行だけ入る想定
     # (あるいはid=1の行だけを常に使うなど)
 
-    # TODO: party_monsters_data テーブルも将来的にはここに追加
+    # party_monsters テーブルの作成
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS party_monsters (
+        player_id INTEGER,
+        monster_id TEXT,
+        level INTEGER,
+        exp INTEGER
+    )
+    """)
+
+    # player_items テーブルの作成
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS player_items (
+        player_id INTEGER,
+        item_id TEXT
+    )
+    """)
 
     conn.commit()
     conn.close()
     print("データベースの初期化が完了しました (または既に初期化済みです)。")
 
 if __name__ == '__main__':
-    initialize_database() # このファイルを実行するとDB初期化s
+    # このファイルを直接実行した場合、データベースを初期化する
+    initialize_database()
