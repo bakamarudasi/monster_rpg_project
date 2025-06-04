@@ -87,6 +87,37 @@ PHOENIX_CHICK = Monster(
     scout_rate=0.1
 )
 
+# 新しいモンスター
+WATER_WOLF = Monster(
+    name="ウォーターウルフ",
+    hp=60,
+    attack=20,
+    defense=12,
+    level=3,
+    element="水",
+    skills=[ALL_SKILLS["heal"]] if "heal" in ALL_SKILLS else [],
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="water_wolf",
+    rank=RANK_C,
+    drop_items=[(ALL_ITEMS["small_potion"], 0.1)],
+    scout_rate=0.3
+)
+
+FOREST_SPIRIT = Monster(
+    name="森の精霊",
+    hp=55,
+    attack=17,
+    defense=15,
+    level=4,
+    element="風",
+    skills=[ALL_SKILLS["guard_up"]] if "guard_up" in ALL_SKILLS else [],
+    growth_type=GROWTH_TYPE_EARLY,
+    monster_id="forest_spirit",
+    rank=RANK_B,
+    drop_items=[(ALL_ITEMS["small_potion"], 0.2)],
+    scout_rate=0.25
+)
+
 
 ALL_MONSTERS = {
     "slime": SLIME,
@@ -95,4 +126,6 @@ ALL_MONSTERS = {
     "slime_goblin_hybrid": SLIME_GOBLIN_HYBRID,
     "dragon_pup": DRAGON_PUP,
     "phoenix_chick": PHOENIX_CHICK,
+    "water_wolf": WATER_WOLF,
+    "forest_spirit": FOREST_SPIRIT,
 }
