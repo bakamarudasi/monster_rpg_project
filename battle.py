@@ -235,9 +235,10 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster], player
                     print(f"\n>>> {actor.name} の行動！ <<<")
                     print("1: たたかう")
                     print("2: スキル")
-                    print("3: スカウト")
-                    print("4: にげる")
-                    action_choice = get_player_choice("行動を選んでください", 4)
+                    print("3: アイテム")
+                    print("4: スカウト")
+                    print("5: にげる")
+                    action_choice = get_player_choice("行動を選んでください", 5)
 
                     if action_choice == 1:  # たたかう
                         target = select_target(active_enemy_party, "\n攻撃対象を選んでください:")
@@ -301,7 +302,29 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster], player
                             print(f"{selected_skill.name} は適切な対象に使えなかった。")
                             continue
 
-                    elif action_choice == 3:  # スカウト
+                    elif action_choice == 3:  # アイテム
+                        if player is None:
+                            print("アイテムを使うプレイヤーがいない。")
+                            continue
+                        if not player.items:
+                            print("アイテムを持っていない。")
+                            continue
+                        player.show_items()
+                        item_choice = get_player_choice("使うアイテム番号を選んでください", len(player.items))
+                        if item_choice == 0:
+                            print("アイテム使用をキャンセルしました。")
+                            continue
+                        target_monster = select_target(active_player_party, "\n回復対象を選んでください:")
+                        if target_monster is None:
+                            print("アイテム使用をキャンセルしました。")
+                            continue
+                        used = player.use_item(item_choice - 1, target_monster)
+                        if used:
+                            break
+                        else:
+                            continue
+
+                    elif action_choice == 4:  # スカウト
                         target = select_target(active_enemy_party, "\nスカウトする対象を選んでください:")
                         if target:
                             attempt_scout(player, target, enemy_party)
@@ -312,7 +335,7 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster], player
                             print("スカウトをキャンセルしました。")
                             continue
 
-                    elif action_choice == 4:  # にげる
+                    elif action_choice == 5:  # にげる
                         print(f"\n{actor.name} は逃げ出そうとした！")
                         if random.random() < 0.5:
                             print("うまく逃げ切れた！")
