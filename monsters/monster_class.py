@@ -17,7 +17,13 @@ def get_status_gains_average(current_level):
         hp_gain = 5 + (current_level // 5)
         attack_gain = 2 + (current_level // 10)
         defense_gain = 2 + (current_level // 10)
-        return {"hp": hp_gain, "attack": attack_gain, "defense": defense_gain}
+        speed_gain = attack_gain
+        return {
+            "hp": hp_gain,
+            "attack": attack_gain,
+            "defense": defense_gain,
+            "speed": speed_gain,
+        }
     except Exception as e:
         raise 
 
@@ -35,7 +41,13 @@ def get_status_gains_early(current_level):
             hp_gain = 3
             attack_gain = 1
             defense_gain = 1
-        return {"hp": hp_gain, "attack": attack_gain, "defense": defense_gain}
+        speed_gain = attack_gain
+        return {
+            "hp": hp_gain,
+            "attack": attack_gain,
+            "defense": defense_gain,
+            "speed": speed_gain,
+        }
     except Exception as e:
         raise
 
@@ -53,7 +65,13 @@ def get_status_gains_late(current_level):
             hp_gain = 10 + (current_level // 4)
             attack_gain = 4 + (current_level // 6)
             defense_gain = 4 + (current_level // 6)
-        return {"hp": hp_gain, "attack": attack_gain, "defense": defense_gain}
+        speed_gain = attack_gain
+        return {
+            "hp": hp_gain,
+            "attack": attack_gain,
+            "defense": defense_gain,
+            "speed": speed_gain,
+        }
     except Exception as e:
         raise
 
@@ -194,22 +212,25 @@ class Monster:
                 print(f"警告: 未知の成長タイプ '{self.growth_type}'。平均型のステータス上昇を適用します。")
                 status_gains_dict = get_status_gains_average(self.level)
             
-            if not isinstance(status_gains_dict, dict): 
-                status_gains_dict = {"hp": 1, "attack": 1, "defense": 1} 
+            if not isinstance(status_gains_dict, dict):
+                status_gains_dict = {"hp": 1, "attack": 1, "defense": 1, "speed": 1}
 
             hp_increase = status_gains_dict.get("hp", 0)
             attack_increase = status_gains_dict.get("attack", 0)
             defense_increase = status_gains_dict.get("defense", 0)
-            # TODO: speed の上昇ロジックもここに追加する
+            speed_increase = status_gains_dict.get("speed", 0)
                 
             self.max_hp += hp_increase
             self.hp = self.max_hp 
             self.attack += attack_increase
             self.defense += defense_increase
+            self.speed += speed_increase
 
-            print(f"最大HPが {hp_increase}、攻撃力が {attack_increase}、防御力が {defense_increase} 上昇した！")
+            print(
+                f"最大HPが {hp_increase}、攻撃力が {attack_increase}、防御力が {defense_increase}、素早さが {speed_increase} 上昇した！"
+            )
         except Exception as e:
-            raise 
+            raise
 
     def copy(self):
         try:
