@@ -105,6 +105,7 @@ class Player:
                 new_monster_instance.level = 1 # またはALL_MONSTERS[monster_id_key].level
                 new_monster_instance.exp = 0
                 new_monster_instance.hp = new_monster_instance.max_hp # HPは最大に
+                new_monster_instance.mp = new_monster_instance.max_mp
                 
                 self.party_monsters.append(new_monster_instance)
                 print(f"{new_monster_instance.name} が仲間に加わった！")
@@ -119,7 +120,8 @@ class Player:
                 print(f"エラー: モンスターオブジェクト '{monster_object.name}' のコピーに失敗しました。")
                 return
 
-            self.party_monsters.append(copied_monster) 
+            self.party_monsters.append(copied_monster)
+            copied_monster.mp = copied_monster.max_mp
             print(f"{copied_monster.name} が仲間に加わった！")
             newly_added_monster = copied_monster
         else:
@@ -185,6 +187,7 @@ class Player:
             print(f"{cost}G を支払い、宿屋に泊まった。")
             for monster in self.party_monsters:
                 monster.hp = monster.max_hp
+                monster.mp = monster.max_mp
                 monster.is_alive = True
             print("パーティは完全に回復した！")
             return True

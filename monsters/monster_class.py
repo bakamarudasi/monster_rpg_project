@@ -84,12 +84,14 @@ def calculate_exp_for_late(current_level):
         raise
 
 class Monster:
-    def __init__(self, name, hp, attack, defense, level=1, exp=0, element=None, skills=None,
+    def __init__(self, name, hp, attack, defense, mp=30, level=1, exp=0, element=None, skills=None,
                  growth_type=GROWTH_TYPE_AVERAGE, monster_id=None, image_filename=None,
                  rank=RANK_D, speed=5, drop_items=None, scout_rate=0.25):
         self.name = name
         self.hp = hp
         self.max_hp = hp
+        self.mp = mp
+        self.max_mp = mp
         self.attack = attack
         self.defense = defense
         self.level = level
@@ -116,6 +118,7 @@ class Monster:
         if self.element:
             print(f"属性: {self.element}")
         print(f"HP: {self.hp}/{self.max_hp}")
+        print(f"MP: {self.mp}/{self.max_mp}")
         print(f"攻撃力: {self.attack}")
         print(f"防御力: {self.defense}")
         print(f"素早さ: {self.speed}") # 素早さを表示
@@ -131,7 +134,7 @@ class Monster:
         else:
             print("  (スキルなし)")
         if self.status_effects:
-            effect_names = ", ".join(self.status_effects)
+            effect_names = ", ".join(effect['name'] for effect in self.status_effects)
             print(f"状態異常: {effect_names}")
         print("-" * 20)
 
@@ -217,7 +220,8 @@ class Monster:
                 hp=self.max_hp, 
                 attack=self.attack,
                 defense=self.defense,
-                level=self.level, 
+                mp=self.max_mp,
+                level=self.level,
                 exp=self.exp,    
                 element=self.element,
                 skills=new_skills,
@@ -229,8 +233,10 @@ class Monster:
                 drop_items=copy.deepcopy(self.drop_items),
                 scout_rate=self.scout_rate
             )
-            new_monster.max_hp = self.max_hp 
-            new_monster.hp = new_monster.max_hp 
+            new_monster.max_hp = self.max_hp
+            new_monster.hp = new_monster.max_hp
+            new_monster.max_mp = self.max_mp
+            new_monster.mp = new_monster.max_mp
             new_monster.is_alive = True 
             return new_monster
         except Exception as e:
