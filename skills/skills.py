@@ -1,8 +1,5 @@
 class Skill:
-uju83u-codex/スキルの構成要素を確認する
     def __init__(self, name, power, cost=0, skill_type="attack", effect=None, target="enemy", scope="single", duration=0, description="", category=None):
-
-main
         """
         :param name: スキル名
         :param power: 威力（攻撃なら攻撃力に加算、回復なら回復量）
@@ -11,11 +8,9 @@ main
         :param effect: 特殊効果（関数や状態異常名など）
         :param target: "enemy" or "ally"（対象指定）
         :param scope: "single" or "all"（単体か全体か）
-　　　　　 uju83u-codex/スキルの構成要素を確認する
         :param duration: 効果持続ターン数（バフ等）
         :param description: 説明文
         :param category: スキル分類（物理/魔法など）
- main
         """
         self.name = name
         self.power = power
@@ -24,7 +19,6 @@ main
         self.effect = effect
         self.target = target
         self.scope = scope
-uju83u-codex/スキルの構成要素を確認する
         self.duration = duration
         self.description = description
         self.category = category
@@ -46,7 +40,6 @@ fireball = Skill(
 )
 
 # 回復スキル
-uju83u-codex/スキルの構成要素を確認する
 heal = Skill(
     "ヒール",
     power=25,
@@ -66,7 +59,6 @@ mass_heal = Skill(
     description="味方全体を回復",
     category="回復",
 )
-
 
 # バフスキル
 def increase_defense(monster):
