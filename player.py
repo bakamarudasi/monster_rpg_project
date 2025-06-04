@@ -7,6 +7,9 @@ from items.item_data import ALL_ITEMS
 from synthesis_rules import SYNTHESIS_RECIPES # 合成レシピをインポート
 import random # 将来的にスキル継承などで使うかも
 
+# Debug flag to control verbose output
+DEBUG_MODE = False
+
 class Player:
     def __init__(self, name, player_level=1, gold=50):
         self.name = name
@@ -171,11 +174,10 @@ class Player:
         parent1 = self.party_monsters[monster1_idx]
         parent2 = self.party_monsters[monster2_idx]
 
-        # --- デバッグプリント追加 ---
-        print(f"[DEBUG player.py] Synthesizing with:")
-        print(f"[DEBUG player.py]   Parent 1: name='{parent1.name}', monster_id='{parent1.monster_id}' (type: {type(parent1.monster_id)})")
-        print(f"[DEBUG player.py]   Parent 2: name='{parent2.name}', monster_id='{parent2.monster_id}' (type: {type(parent2.monster_id)})")
-        # --- デバッグプリント追加ここまで ---
+        if DEBUG_MODE:
+            print("[DEBUG player.py] Synthesizing with:")
+            print(f"[DEBUG player.py]   Parent 1: name='{parent1.name}', monster_id='{parent1.monster_id}' (type: {type(parent1.monster_id)})")
+            print(f"[DEBUG player.py]   Parent 2: name='{parent2.name}', monster_id='{parent2.monster_id}' (type: {type(parent2.monster_id)})")
 
         if not parent1.monster_id or not parent2.monster_id:
             return False, "エラー: 合成元のモンスターにIDが設定されていません。", None
@@ -186,13 +188,12 @@ class Player:
         recipe_key_parts = sorted([id1_lower, id2_lower])
         recipe_key = tuple(recipe_key_parts)
         
-        # --- デバッグプリント追加 ---
-        print(f"[DEBUG player.py]   ID1 original: '{parent1.monster_id}', ID1 lower: '{id1_lower}'")
-        print(f"[DEBUG player.py]   ID2 original: '{parent2.monster_id}', ID2 lower: '{id2_lower}'")
-        print(f"[DEBUG player.py]   Recipe key parts (sorted): {recipe_key_parts}")
-        print(f"[DEBUG player.py]   Recipe key for lookup: {recipe_key}")
-        print(f"[DEBUG player.py]   Available recipes in SYNTHESIS_RECIPES: {SYNTHESIS_RECIPES}")
-        # --- デバッグプリント追加ここまで ---
+        if DEBUG_MODE:
+            print(f"[DEBUG player.py]   ID1 original: '{parent1.monster_id}', ID1 lower: '{id1_lower}'")
+            print(f"[DEBUG player.py]   ID2 original: '{parent2.monster_id}', ID2 lower: '{id2_lower}'")
+            print(f"[DEBUG player.py]   Recipe key parts (sorted): {recipe_key_parts}")
+            print(f"[DEBUG player.py]   Recipe key for lookup: {recipe_key}")
+            print(f"[DEBUG player.py]   Available recipes in SYNTHESIS_RECIPES: {SYNTHESIS_RECIPES}")
 
         if recipe_key in SYNTHESIS_RECIPES:
             result_monster_id = SYNTHESIS_RECIPES[recipe_key]
