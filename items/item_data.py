@@ -1,3 +1,15 @@
+# Item definitions
+
+class Item:
+    def __init__(self, item_id, name, description, usable=False):
+        self.item_id = item_id
+        self.name = name
+        self.description = description
+        self.usable = usable
+
+    def __repr__(self):
+        return f"Item({self.item_id})"
+
 # ── 回復系・サポート系 ───────────────────────────────
 small_potion = Item(
     item_id="small_potion",

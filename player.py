@@ -4,7 +4,7 @@ from map_data import STARTING_LOCATION_ID
 from monsters.monster_class import Monster  # Monsterクラスをインポート
 from monsters.monster_data import ALL_MONSTERS  # モンスター定義をインポート
 from items.item_data import ALL_ITEMS
-from synthesis_rules import SYNTHESIS_RECIPES # 合成レシピをインポート
+from synthesis_rules import SYNTHESIS_RECIPES, SYNTHESIS_ITEMS_REQUIRED
 import random # 将来的にスキル継承などで使うかも
 
 # Debug flag to control verbose output
@@ -260,6 +260,17 @@ class Player:
             print(f"[DEBUG player.py]   Available recipes in SYNTHESIS_RECIPES: {SYNTHESIS_RECIPES}")
 
         if recipe_key in SYNTHESIS_RECIPES:
+            # 合成に必要なアイテムがあればチェック
+            required_item = SYNTHESIS_ITEMS_REQUIRED.get(recipe_key)
+            if required_item:
+                item_index = next((i for i, itm in enumerate(self.items)
+                                   if getattr(itm, "item_id", None) == required_item), None)
+                if item_index is None:
+                    item_name = ALL_ITEMS[required_item].name if required_item in ALL_ITEMS else required_item
+                    return False, f"合成には {item_name} が必要だ。", None
+                # 消費アイテムとして取り除く
+                self.items.pop(item_index)
+
             result_monster_id = SYNTHESIS_RECIPES[recipe_key]
             
             if result_monster_id in ALL_MONSTERS:
