@@ -2,7 +2,6 @@
 
 from .monster_class import Monster, GROWTH_TYPE_AVERAGE, GROWTH_TYPE_EARLY, GROWTH_TYPE_LATE
 from skills.skills import ALL_SKILLS
-from items.item_data import ALL_ITEMS
 
 # モンスターランク定義
 RANK_S = "S"
@@ -12,52 +11,42 @@ RANK_C = "C"
 RANK_D = "D"
 
 SLIME = Monster(
-    name="スライム", hp=25, attack=8, defense=5, level=1, element="水",
+    name="スライム", hp=25, attack=8, defense=5, level=1, element="水",speed=5,
+    # スライムは初期スキルとして回復スキルを持つ
     skills=[ALL_SKILLS["heal"]] if "heal" in ALL_SKILLS else [],
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="slime",
-    rank=RANK_D,
-    speed=3,
-    drop_items=[(ALL_ITEMS["small_potion"], 0.2)],
-    scout_rate=0.5
+    rank=RANK_D # 例: スライムはDランク
 )
 
 GOBLIN = Monster(
-    name="ゴブリン", hp=40, attack=12, defense=8, level=2, element="なし",
+    name="ゴブリン", hp=40, attack=12, defense=8, level=2, element="なし",speed=7,
     skills=[ALL_SKILLS["fireball"]] if "fireball" in ALL_SKILLS else [],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="goblin",
-    rank=RANK_D,
-    speed=6,
-    drop_items=[(ALL_ITEMS["small_potion"], 0.15)],
-    scout_rate=0.4
+    rank=RANK_D # 例: ゴブリンはDランク
 )
 
 WOLF = Monster(
-    name="ウルフ", hp=50, attack=15, defense=7, level=3, element="なし",
-    skills=[],
+    name="ウルフ", hp=50, attack=15, defense=7, level=3, element="なし",speed=10,
+    skills=[], 
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="wolf",
-    rank=RANK_C,
-    speed=8,
-    drop_items=[(ALL_ITEMS["small_potion"], 0.1)],
-    scout_rate=0.35
+    rank=RANK_C # 例: ウルフはCランク
 )
 
 SLIME_GOBLIN_HYBRID = Monster(
-    name="スライムゴブリン",
+    name="スライムゴブリン", 
     hp=35,
     attack=10,
     defense=7,
-    level=1,
+    level=1, 
     element="混合",
-    skills=[],
+    speed=6,
+    skills=[], 
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="slime_goblin_hybrid",
-    rank=RANK_C,
-    speed=5,
-    drop_items=[(ALL_ITEMS["small_potion"], 0.25)],  # 例: 合成モンスターはCランク
-    scout_rate=0.3
+    rank=RANK_C # 例: 合成モンスターはCランク
 )
 
 # 例として高ランクモンスターを追加
@@ -68,13 +57,11 @@ DRAGON_PUP = Monster(
     defense=20,
     level=5,
     element="火",
+    speed=7,
     skills=[ALL_SKILLS["fireball"]] if "fireball" in ALL_SKILLS else [], # 初期スキルは弱めでも良い
     growth_type=GROWTH_TYPE_LATE, # 大器晩成型
     monster_id="dragon_pup",
-    rank=RANK_A,
-    speed=4,
-    drop_items=[(ALL_ITEMS["small_potion"], 0.05)],
-    scout_rate=0.15
+    rank=RANK_A # 例: ドラゴンのこどもはAランク
 )
 
 PHOENIX_CHICK = Monster(
@@ -84,48 +71,123 @@ PHOENIX_CHICK = Monster(
     defense=22,
     level=5,
     element="火",
+    speed=8,
     skills=[ALL_SKILLS["heal"]] if "heal" in ALL_SKILLS else [], # 自己回復スキル持ち
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="phoenix_chick",
-    rank=RANK_S,
-    speed=7,
-    drop_items=[(ALL_ITEMS["small_potion"], 0.05)],  # 例: 不死鳥のヒナはSランク
-    scout_rate=0.1
+    rank=RANK_S # 例: 不死鳥のヒナはSランク
 )
-
-# 新しいモンスター
-WATER_WOLF = Monster(
-    name="ウォーターウルフ",
-    hp=60,
-    attack=20,
-    defense=12,
-    level=3,
-    element="水",
-    skills=[ALL_SKILLS["heal"]] if "heal" in ALL_SKILLS else [],
-    growth_type=GROWTH_TYPE_AVERAGE,
-    monster_id="water_wolf",
-    rank=RANK_C,
-    speed=7,
-    drop_items=[(ALL_ITEMS["small_potion"], 0.1)],
-    scout_rate=0.3
-)
-
-FOREST_SPIRIT = Monster(
-    name="森の精霊",
-    hp=55,
-    attack=17,
-    defense=15,
-    level=4,
-    element="風",
-    skills=[ALL_SKILLS["guard_up"]] if "guard_up" in ALL_SKILLS else [],
+ORC_WARRIOR = Monster(
+    name="オークウォリアー",
+    hp=60, attack=22, defense=15, level=4,
+    element="土", speed=6,
+    skills=[ALL_SKILLS["power_up"]] if "power_up" in ALL_SKILLS else [],
     growth_type=GROWTH_TYPE_EARLY,
-    monster_id="forest_spirit",
-    rank=RANK_B,
-    speed=9,
-    drop_items=[(ALL_ITEMS["small_potion"], 0.2)],
-    scout_rate=0.25
+    monster_id="orc_warrior",
+    rank=RANK_C,
 )
 
+SKELETON_ARCHER = Monster(
+    name="スケルトンアーチャー",
+    hp=45, attack=18, defense=8, level=3,
+    element="闇", speed=9,
+    skills=[ALL_SKILLS["poison_dart"]] if "poison_dart" in ALL_SKILLS else [],
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="skeleton_archer",
+    rank=RANK_C,
+)
+
+ELF_MAGE = Monster(
+    name="エルフメイジ",
+    hp=55, attack=14, defense=10, level=4,
+    element="風", speed=11,
+    skills=[
+        ALL_SKILLS[s] for s in ("ice_spear", "heal")
+        if s in ALL_SKILLS
+    ],
+    growth_type=GROWTH_TYPE_EARLY,
+    monster_id="elf_mage",
+    rank=RANK_B,
+)
+
+TROLL_BRUTE = Monster(
+    name="トロールブルート",
+    hp=90, attack=28, defense=18, level=6,
+    element="土", speed=4,
+    skills=[ALL_SKILLS["regen"]] if "regen" in ALL_SKILLS else [],
+    growth_type=GROWTH_TYPE_EARLY,
+    monster_id="troll_brute",
+    rank=RANK_B,
+)
+
+MERMAID_SIREN = Monster(
+    name="マーメイドサイレン",
+    hp=65, attack=20, defense=14, level=6,
+    element="水", speed=10,
+    skills=[ALL_SKILLS["sleep_spell"]] if "sleep_spell" in ALL_SKILLS else [],
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="mermaid_siren",
+    rank=RANK_B,
+)
+
+THUNDER_EAGLE = Monster(
+    name="サンダーイーグル",
+    hp=70, attack=24, defense=16, level=7,
+    element="雷", speed=14,
+    skills=[ALL_SKILLS["thunder_bolt"]] if "thunder_bolt" in ALL_SKILLS else [],
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="thunder_eagle",
+    rank=RANK_A,
+)
+
+GIANT_GOLEM = Monster(
+    name="ジャイアントゴーレム",
+    hp=120, attack=32, defense=35, level=8,
+    element="土", speed=3,
+    skills=[
+        ALL_SKILLS[s] for s in ("earth_quake", "guard_up")
+        if s in ALL_SKILLS
+    ],
+    growth_type=GROWTH_TYPE_LATE,
+    monster_id="giant_golem",
+    rank=RANK_A,
+)
+
+SHADOW_PANTHER = Monster(
+    name="シャドウパンサー",
+    hp=80, attack=30, defense=18, level=8,
+    element="闇", speed=18,
+    skills=[ALL_SKILLS["dark_pulse"]] if "dark_pulse" in ALL_SKILLS else [],
+    growth_type=GROWTH_TYPE_EARLY,
+    monster_id="shadow_panther",
+    rank=RANK_A,
+)
+
+VAMPIRE_LORD = Monster(
+    name="ヴァンパイアロード",
+    hp=95, attack=35, defense=22, level=10,
+    element="闇", speed=15,
+    skills=[
+        ALL_SKILLS[s] for s in ("dark_pulse", "cure", "paralysis_shock")
+        if s in ALL_SKILLS
+    ],
+    growth_type=GROWTH_TYPE_LATE,
+    monster_id="vampire_lord",
+    rank=RANK_S,
+)
+
+CELESTIAL_DRAGON = Monster(
+    name="セレスティアルドラゴン",
+    hp=150, attack=45, defense=40, level=12,
+    element="光", speed=12,
+    skills=[
+        ALL_SKILLS[s] for s in ("meteor_strike", "holy_light", "revive")
+        if s in ALL_SKILLS
+    ],
+    growth_type=GROWTH_TYPE_LATE,
+    monster_id="celestial_dragon",
+    rank=RANK_S,
+)
 
 ALL_MONSTERS = {
     "slime": SLIME,
@@ -134,6 +196,14 @@ ALL_MONSTERS = {
     "slime_goblin_hybrid": SLIME_GOBLIN_HYBRID,
     "dragon_pup": DRAGON_PUP,
     "phoenix_chick": PHOENIX_CHICK,
-    "water_wolf": WATER_WOLF,
-    "forest_spirit": FOREST_SPIRIT,
+    "orc_warrior": ORC_WARRIOR,
+    "skeleton_archer": SKELETON_ARCHER,
+    "elf_mage": ELF_MAGE,
+    "troll_brute": TROLL_BRUTE,
+    "mermaid_siren": MERMAID_SIREN,
+    "thunder_eagle": THUNDER_EAGLE,
+    "giant_golem": GIANT_GOLEM,
+    "shadow_panther": SHADOW_PANTHER,
+    "vampire_lord": VAMPIRE_LORD,
+    "celestial_dragon": CELESTIAL_DRAGON,
 }

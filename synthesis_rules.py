@@ -6,9 +6,12 @@
 # モンスターIDは、ALL_MONSTERS のキーと一致させる（通常はモンスター名の小文字）
 
 SYNTHESIS_RECIPES = {
-    ("goblin", "slime"): "slime_goblin_hybrid", # ゴブリンとスライムを合成するとスライムゴブリンハイブリッドが生まれる
-    ("slime", "wolf"): "water_wolf",
-    # 他のレシピもここに追加
+    ("slime", "wolf"): "water_wolf",              # 例: スライム + ウルフ
+    ("orc_warrior", "slime"): "poison_orc",       # スライムの粘性×オークの暴力
+    ("elf_mage", "slime"): "frost_elf",           # 冷気魔力を帯びたエルフ
+    ("orc_warrior", "skeleton_archer"): "undead_warrior",
+    ("giant_golem", "thunder_eagle"): "storm_golem",
+    ("celestial_dragon", "shadow_panther"): "celestial_panther",
 }
 
 # 将来的には、合成に必要なアイテムなどもここに定義できる
