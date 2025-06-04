@@ -7,8 +7,8 @@
 
 SYNTHESIS_RECIPES = {
     ("goblin", "slime"): "slime_goblin_hybrid", # ゴブリンとスライムを合成するとスライムゴブリンハイブリッドが生まれる
+    ("slime", "wolf"): "water_wolf",
     # 他のレシピもここに追加
-    # 例: ("slime", "wolf"): "water_wolf",
 }
 
 # 将来的には、合成に必要なアイテムなどもここに定義できる

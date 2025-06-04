@@ -60,16 +60,24 @@ LOCATIONS = {
         location_id="forest_entrance",
         name="妖精の森・入り口",
         description="薄暗い森の入り口。奥からはかすかに獣の気配がする。",
-        connections={"南西": "field_near_village", "奥へ": "deep_forest"},
+        connections={"南西": "field_near_village", "奥へ": "deep_forest", "東": "mystic_lake"},
         possible_enemies=["goblin", "slime"],
         encounter_rate=0.75
+    ),
+    "mystic_lake": Location(
+        location_id="mystic_lake",
+        name="神秘の湖",
+        description="森の奥にひっそりと佇む美しい湖。水面が青く光っている。",
+        connections={"西": "forest_entrance"},
+        possible_enemies=["water_wolf", "forest_spirit"],
+        encounter_rate=0.8
     ),
     "deep_forest": Location(
         location_id="deep_forest",
         name="妖精の森・奥地",
         description="木々が鬱蒼と茂り、昼なお暗い。強力なモンスターが生息しているようだ。",
         connections={"入り口へ": "forest_entrance"},
-        possible_enemies=["wolf", "goblin"], # wolf は ALL_MONSTERS に定義が必要
+        possible_enemies=["wolf", "goblin", "forest_spirit"],
         encounter_rate=0.9,
         hidden_connections={"さらに奥へ": "forest_boss_room"}
     ),
