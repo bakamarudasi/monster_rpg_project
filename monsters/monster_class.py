@@ -17,7 +17,13 @@ def get_status_gains_average(current_level):
         hp_gain = 5 + (current_level // 5)
         attack_gain = 2 + (current_level // 10)
         defense_gain = 2 + (current_level // 10)
-        return {"hp": hp_gain, "attack": attack_gain, "defense": defense_gain}
+        speed_gain = attack_gain
+        return {
+            "hp": hp_gain,
+            "attack": attack_gain,
+            "defense": defense_gain,
+            "speed": speed_gain,
+        }
     except Exception as e:
         raise 
 
@@ -35,7 +41,13 @@ def get_status_gains_early(current_level):
             hp_gain = 3
             attack_gain = 1
             defense_gain = 1
-        return {"hp": hp_gain, "attack": attack_gain, "defense": defense_gain}
+        speed_gain = attack_gain
+        return {
+            "hp": hp_gain,
+            "attack": attack_gain,
+            "defense": defense_gain,
+            "speed": speed_gain,
+        }
     except Exception as e:
         raise
 
@@ -53,7 +65,13 @@ def get_status_gains_late(current_level):
             hp_gain = 10 + (current_level // 4)
             attack_gain = 4 + (current_level // 6)
             defense_gain = 4 + (current_level // 6)
-        return {"hp": hp_gain, "attack": attack_gain, "defense": defense_gain}
+        speed_gain = attack_gain
+        return {
+            "hp": hp_gain,
+            "attack": attack_gain,
+            "defense": defense_gain,
+            "speed": speed_gain,
+        }
     except Exception as e:
         raise
 
@@ -84,12 +102,14 @@ def calculate_exp_for_late(current_level):
         raise
 
 class Monster:
-    def __init__(self, name, hp, attack, defense, level=1, exp=0, element=None, skills=None,
+    def __init__(self, name, hp, attack, defense, mp=30, level=1, exp=0, element=None, skills=None,
                  growth_type=GROWTH_TYPE_AVERAGE, monster_id=None, image_filename=None,
-                 rank=RANK_D, speed=5, drop_items=None):
+                 rank=RANK_D, speed=5, drop_items=None, scout_rate=0.25):
         self.name = name
         self.hp = hp
         self.max_hp = hp
+        self.mp = mp
+        self.max_mp = mp
         self.attack = attack
         self.defense = defense
         self.level = level
@@ -109,12 +129,14 @@ class Monster:
         self.rank = rank 
         self.speed = speed  # speed 属性を保存
         self.drop_items = drop_items if drop_items else []
+        self.scout_rate = scout_rate  # スカウト成功率(0.0-1.0)
 
     def show_status(self):
         print(f"名前: {self.name} (ID: {self.monster_id}, Lv.{self.level}, Rank: {self.rank})") 
         if self.element:
             print(f"属性: {self.element}")
         print(f"HP: {self.hp}/{self.max_hp}")
+        print(f"MP: {self.mp}/{self.max_mp}")
         print(f"攻撃力: {self.attack}")
         print(f"防御力: {self.defense}")
         print(f"素早さ: {self.speed}") # 素早さを表示
@@ -130,7 +152,7 @@ class Monster:
         else:
             print("  (スキルなし)")
         if self.status_effects:
-            effect_names = ", ".join(self.status_effects)
+            effect_names = ", ".join(effect['name'] for effect in self.status_effects)
             print(f"状態異常: {effect_names}")
         print("-" * 20)
 
@@ -190,22 +212,30 @@ class Monster:
                 print(f"警告: 未知の成長タイプ '{self.growth_type}'。平均型のステータス上昇を適用します。")
                 status_gains_dict = get_status_gains_average(self.level)
             
-            if not isinstance(status_gains_dict, dict): 
-                status_gains_dict = {"hp": 1, "attack": 1, "defense": 1} 
+            if not isinstance(status_gains_dict, dict):
+                status_gains_dict = {}
 
-            hp_increase = status_gains_dict.get("hp", 0)
-            attack_increase = status_gains_dict.get("attack", 0)
-            defense_increase = status_gains_dict.get("defense", 0)
-            # TODO: speed の上昇ロジックもここに追加する
+            status_gains_dict.setdefault("hp", 0)
+            status_gains_dict.setdefault("attack", 0)
+            status_gains_dict.setdefault("defense", 0)
+            status_gains_dict.setdefault("speed", 0)
+
+            hp_increase = status_gains_dict["hp"]
+            attack_increase = status_gains_dict["attack"]
+            defense_increase = status_gains_dict["defense"]
+            speed_increase = status_gains_dict["speed"]
                 
             self.max_hp += hp_increase
             self.hp = self.max_hp 
             self.attack += attack_increase
             self.defense += defense_increase
+            self.speed += speed_increase
 
-            print(f"最大HPが {hp_increase}、攻撃力が {attack_increase}、防御力が {defense_increase} 上昇した！")
+            print(
+                f"最大HPが {hp_increase}、攻撃力が {attack_increase}、防御力が {defense_increase}、素早さが {speed_increase} 上昇した！"
+            )
         except Exception as e:
-            raise 
+            raise
 
     def copy(self):
         try:
@@ -216,7 +246,8 @@ class Monster:
                 hp=self.max_hp, 
                 attack=self.attack,
                 defense=self.defense,
-                level=self.level, 
+                mp=self.max_mp,
+                level=self.level,
                 exp=self.exp,    
                 element=self.element,
                 skills=new_skills,
@@ -225,10 +256,13 @@ class Monster:
                 image_filename=self.image_filename,
                 rank=self.rank,
                 speed=self.speed,  # speed 属性をコピー時に引き継ぐ
-                drop_items=copy.deepcopy(self.drop_items)
+                drop_items=copy.deepcopy(self.drop_items),
+                scout_rate=self.scout_rate
             )
-            new_monster.max_hp = self.max_hp 
-            new_monster.hp = new_monster.max_hp 
+            new_monster.max_hp = self.max_hp
+            new_monster.hp = new_monster.max_hp
+            new_monster.max_mp = self.max_mp
+            new_monster.mp = new_monster.max_mp
             new_monster.is_alive = True 
             return new_monster
         except Exception as e:

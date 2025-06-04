@@ -3,9 +3,10 @@ import random
 from player import Player
 from monsters import ALL_MONSTERS, Monster
 from skills.skills import ALL_SKILLS
-from battle import start_battle # battle.py から start_battle をインポート
-from map_data import LOCATIONS, Location 
+from battle import start_battle  # battle.py から start_battle をインポート
+from map_data import LOCATIONS, Location
 from database_setup import initialize_database, DATABASE_NAME
+from items.item_data import ALL_ITEMS
 
 def get_monster_instance_copy(monster_id_or_object: Monster | str) -> Monster | None:
     """
@@ -62,6 +63,71 @@ def generate_enemy_party(location: Location) -> list[Monster]:
     return enemy_party
 
 
+def open_shop(player: Player, location: Location):
+    if not getattr(location, 'has_shop', False):
+        print("ここにはお店はない。")
+        return
+
+    while True:
+        print("\n===== ショップ =====")
+        print(f"所持金: {player.gold}G")
+        options = []
+        idx = 1
+        for item_id, price in getattr(location, 'shop_items', {}).items():
+            item = ALL_ITEMS.get(item_id)
+            if item:
+                options.append(('item', item_id, price))
+                print(f"{idx}: {item.name} - {price}G")
+                idx += 1
+        for monster_id, price in getattr(location, 'shop_monsters', {}).items():
+            monster = ALL_MONSTERS.get(monster_id)
+            if monster:
+                options.append(('monster', monster_id, price))
+                print(f"{idx}: {monster.name} - {price}G")
+                idx += 1
+        print("0: やめる")
+
+        choice = input("購入する番号を選んでください: ")
+        if not choice.isdigit():
+            print("数字で入力してください。")
+            continue
+        c = int(choice)
+        if c == 0:
+            break
+        if 1 <= c <= len(options):
+            kind, obj_id, price = options[c-1]
+            if kind == 'item':
+                player.buy_item(obj_id, price)
+            else:
+                player.buy_monster(obj_id, price)
+        else:
+            print("無効な選択です。")
+
+
+def handle_battle_loss(hero: Player) -> str:
+    """Handle menu flow after the player loses a battle.
+
+    Returns one of "retry", "load", or "exit" depending on the player's choice.
+    """
+    while True:
+        print("\n--- GAME OVER ---")
+        print("1: リトライする")
+        print("2: セーブデータをロードする")
+        print("3: ゲームを終了する")
+        choice = input("選択: ").strip()
+        if choice == "1":
+            return "retry"
+        elif choice == "2":
+            loaded = Player.load_game(DATABASE_NAME)
+            if loaded:
+                hero.__dict__.update(loaded.__dict__)
+            return "load"
+        elif choice == "3":
+            return "exit"
+        else:
+            print("無効な選択です。")
+
+
 def game_loop(hero: Player): # 型ヒントを追加
     """ゲームのメインループ"""
     game_over = False
@@ -85,8 +151,12 @@ def game_loop(hero: Player): # 型ヒントを追加
         print("1: 移動する")
         print("2: ステータス確認 (主人公)")
         print("3: パーティ確認 (モンスター)")
-        print("4: モンスター合成") 
-        
+        print("4: モンスター合成")
+        print("5: 探索する")
+        print("6: アイテムを使う")
+        if getattr(current_location_data, 'has_shop', False):
+            print("7: ショップで買い物")
+
         if hasattr(current_location_data, 'has_inn') and current_location_data.has_inn:
             inn_cost = current_location_data.inn_cost if hasattr(current_location_data, 'inn_cost') else 10
             print(f"8: 宿屋に泊まる ({inn_cost}G)")
@@ -156,7 +226,9 @@ def game_loop(hero: Player): # 型ヒントを追加
                             # 経験値やアイテム獲得はbattle.py内で処理済み（player_battle_partyの要素が更新される）
                         elif battle_outcome_result_str == "lose":
                             print(f"{hero.name} は敗北してしまった...")
-                            # TODO: ゲームオーバー処理など
+                            result = handle_battle_loss(hero)
+                            if result == "exit":
+                                game_over = True
                         elif battle_outcome_result_str == "fled":
                             print(f"{hero.name} は戦闘から逃げ出した。")
                         else: # draw や予期せぬ結果
@@ -216,7 +288,106 @@ def game_loop(hero: Player): # 型ヒントを追加
                 print(f"入力エラー: {e}")
             except Exception as e:
                 print(f"合成中に予期せぬエラーが発生しました: {e}")
-        
+
+        elif action == "5":  # 探索する
+            progress_before = hero.get_exploration(hero.current_location_id)
+            gained = random.randint(15, 30)
+            progress_after = hero.increase_exploration(hero.current_location_id, gained)
+            print(f"探索を行った。探索率が {progress_after}% になった。")
+            if progress_before < 100 <= progress_after:
+                if getattr(current_location_data, 'hidden_connections', {}):
+                    current_location_data.connections.update(current_location_data.hidden_connections)
+                    print("新たな道が開けた！")
+                if getattr(current_location_data, 'boss_enemy_id', None):
+                    print("ボスが姿を現した！")
+                    boss = get_monster_instance_copy(current_location_data.boss_enemy_id)
+                    if boss:
+                        outcome = start_battle(hero.party_monsters, [boss], hero)
+                        if outcome == "win":
+                            print("ダンジョンを制覇した！")
+                            current_location_data.boss_enemy_id = None
+                        elif outcome == "lose":
+                            print(f"{hero.name} はボスに敗北してしまった...")
+                            res = handle_battle_loss(hero)
+                            if res == "exit":
+                                game_over = True
+                                break
+                        elif outcome == "fled":
+                            print(f"{hero.name} はボスから逃げ出した。")
+
+            if random.random() < getattr(current_location_data, 'event_chance', 0):
+                if random.random() < 0.5 and getattr(current_location_data, 'treasure_items', []):
+                    item_id = random.choice(current_location_data.treasure_items)
+                    if item_id in ALL_ITEMS:
+                        hero.items.append(ALL_ITEMS[item_id])
+                        print(f"宝箱を見つけた！{ALL_ITEMS[item_id].name} を手に入れた。")
+                elif getattr(current_location_data, 'rare_enemies', []):
+                    print("レアモンスターが現れた！")
+                    rare_id = random.choice(current_location_data.rare_enemies)
+                    rare_enemy = get_monster_instance_copy(rare_id)
+                    if rare_enemy:
+                        outcome = start_battle(hero.party_monsters, [rare_enemy], hero)
+                        if outcome == "win":
+                            print(f"{hero.name} はレアモンスターを倒した！")
+                        elif outcome == "lose":
+                            print(f"{hero.name} は敗北してしまった...")
+                            res = handle_battle_loss(hero)
+                            if res == "exit":
+                                game_over = True
+                                break
+                        elif outcome == "fled":
+                            print(f"{hero.name} は戦闘から逃げ出した。")
+            elif current_location_data.possible_enemies and random.random() < current_location_data.encounter_rate:
+                print("\n!!!モンスターが襲ってきた!!!")
+                player_battle_party = hero.party_monsters
+                enemy_battle_party = generate_enemy_party(current_location_data)
+                if enemy_battle_party:
+                    battle_outcome_result_str = start_battle(player_battle_party, enemy_battle_party, hero)
+                    if battle_outcome_result_str == "win":
+                        print(f"{hero.name} は勝利した！")
+                    elif battle_outcome_result_str == "lose":
+                        print(f"{hero.name} は敗北してしまった...")
+                        res = handle_battle_loss(hero)
+                        if res == "exit":
+                            game_over = True
+                            break
+                    elif battle_outcome_result_str == "fled":
+                        print(f"{hero.name} は戦闘から逃げ出した。")
+                else:
+                    print("敵は現れなかった...")
+
+        elif action == "6":
+            if not hero.items:
+                print("アイテムを持っていない。")
+                continue
+            hero.show_items()
+            idx_in = input(f"使うアイテム番号 (1-{len(hero.items)}, 0でキャンセル): ")
+            if not idx_in.isdigit():
+                print("数字で入力してください。")
+                continue
+            idx = int(idx_in)
+            if idx == 0:
+                continue
+            if not (1 <= idx <= len(hero.items)):
+                print("無効な番号です。")
+                continue
+            if not hero.party_monsters:
+                print("モンスターがいない。")
+                continue
+            hero.show_all_party_monsters_status()
+            t_in = input(f"対象モンスター番号 (1-{len(hero.party_monsters)}): ")
+            if not t_in.isdigit():
+                print("数字で入力してください。")
+                continue
+            t_idx = int(t_in) - 1
+            if not (0 <= t_idx < len(hero.party_monsters)):
+                print("無効な番号です。")
+                continue
+            hero.use_item(idx-1, hero.party_monsters[t_idx])
+
+        elif action == "7":
+            open_shop(hero, current_location_data)
+
         elif action == "8": # 宿屋
             if hasattr(current_location_data, 'has_inn') and current_location_data.has_inn:
                 cost = current_location_data.inn_cost if hasattr(current_location_data, 'inn_cost') else 10

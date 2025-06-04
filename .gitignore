@@ -172,3 +172,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Local database and caches
+monster_rpg_save.db
+__pycache__/

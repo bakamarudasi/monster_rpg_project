@@ -2,7 +2,11 @@
 import random # エンカウント判定で使います
 
 class Location:
-    def __init__(self, location_id, name, description, connections=None, possible_enemies=None, encounter_rate=0.0, has_inn=False, inn_cost=0):
+    def __init__(self, location_id, name, description, connections=None,
+                 possible_enemies=None, encounter_rate=0.0, has_inn=False,
+                 inn_cost=0, hidden_connections=None, has_shop=False,
+                 shop_items=None, shop_monsters=None, boss_enemy_id=None,
+                 rare_enemies=None, treasure_items=None, event_chance=0.0):
         """
         場所の情報を保持するクラス。
         location_id (str): 場所を識別するユニークなID
@@ -22,6 +26,14 @@ class Location:
         self.encounter_rate = encounter_rate
         self.has_inn = has_inn  # 宿屋があるかどうかのフラグ (True/False)
         self.inn_cost = inn_cost  # 宿泊料金**
+        self.hidden_connections = hidden_connections if hidden_connections else {}
+        self.has_shop = has_shop
+        self.shop_items = shop_items if shop_items else {}
+        self.shop_monsters = shop_monsters if shop_monsters else {}
+        self.boss_enemy_id = boss_enemy_id
+        self.rare_enemies = rare_enemies if rare_enemies else []
+        self.treasure_items = treasure_items if treasure_items else []
+        self.event_chance = event_chance
 
     def get_random_enemy_id(self):
         """この場所で出現する可能性のあるモンスターIDをランダムに1つ返す。"""
@@ -33,13 +45,16 @@ class Location:
 # ここにゲーム世界の場所をどんどん追加していきます。
 LOCATIONS = {
     "village_square": Location(
-    location_id="village_square",
-    name="アリアルの村・広場",
-    description="あなたの冒険が始まる小さな村の広場。宿屋の看板が見える。",
-    connections={"北": "field_near_village"},
-    encounter_rate=0.0,
-    has_inn=True, # 宿屋あり
-    inn_cost=10   # 宿泊料10G
+        location_id="village_square",
+        name="アリアルの村・広場",
+        description="あなたの冒険が始まる小さな村の広場。宿屋の看板が見える。",
+        connections={"北": "field_near_village"},
+        encounter_rate=0.0,
+        has_inn=True,  # 宿屋あり
+        inn_cost=10,   # 宿泊料10G
+        has_shop=True,
+        shop_items={"small_potion": 15},
+        shop_monsters={"slime": 50}
     ),
     "field_near_village": Location(
         location_id="field_near_village",
@@ -53,17 +68,38 @@ LOCATIONS = {
         location_id="forest_entrance",
         name="妖精の森・入り口",
         description="薄暗い森の入り口。奥からはかすかに獣の気配がする。",
-        connections={"南西": "field_near_village", "奥へ": "deep_forest"},
+        connections={"南西": "field_near_village", "奥へ": "deep_forest", "東": "mystic_lake"},
         possible_enemies=["goblin", "slime"],
         encounter_rate=0.75
+    ),
+    "mystic_lake": Location(
+        location_id="mystic_lake",
+        name="神秘の湖",
+        description="森の奥にひっそりと佇む美しい湖。水面が青く光っている。",
+        connections={"西": "forest_entrance"},
+        possible_enemies=["water_wolf", "forest_spirit"],
+        encounter_rate=0.8
     ),
     "deep_forest": Location(
         location_id="deep_forest",
         name="妖精の森・奥地",
         description="木々が鬱蒼と茂り、昼なお暗い。強力なモンスターが生息しているようだ。",
         connections={"入り口へ": "forest_entrance"},
-        possible_enemies=["wolf", "goblin"], # wolf は ALL_MONSTERS に定義が必要
-        encounter_rate=0.9
+        possible_enemies=["wolf", "goblin", "forest_spirit"],
+        encounter_rate=0.9,
+        hidden_connections={"さらに奥へ": "forest_boss_room"},
+        boss_enemy_id="dragon_pup",
+        rare_enemies=["phoenix_chick"],
+        treasure_items=["small_potion"],
+        event_chance=0.3
+    ),
+    "forest_boss_room": Location(
+        location_id="forest_boss_room",
+        name="森の守護者の間",
+        description="森の奥深くに佇む神秘的な祭壇。強大なモンスターの気配がする。",
+        connections={"奥地へ戻る": "deep_forest"},
+        possible_enemies=["dragon_pup"],
+        encounter_rate=1.0
     ),
     
 }

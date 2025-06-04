@@ -17,7 +17,9 @@ SLIME = Monster(
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="slime",
     rank=RANK_D,
-    drop_items=[(ALL_ITEMS["small_potion"], 0.2)]
+    speed=3,
+    drop_items=[(ALL_ITEMS["small_potion"], 0.2)],
+    scout_rate=0.5
 )
 
 GOBLIN = Monster(
@@ -26,7 +28,9 @@ GOBLIN = Monster(
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="goblin",
     rank=RANK_D,
-    drop_items=[(ALL_ITEMS["small_potion"], 0.15)]
+    speed=6,
+    drop_items=[(ALL_ITEMS["small_potion"], 0.15)],
+    scout_rate=0.4
 )
 
 WOLF = Monster(
@@ -35,7 +39,9 @@ WOLF = Monster(
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="wolf",
     rank=RANK_C,
-    drop_items=[(ALL_ITEMS["small_potion"], 0.1)]
+    speed=8,
+    drop_items=[(ALL_ITEMS["small_potion"], 0.1)],
+    scout_rate=0.35
 )
 
 SLIME_GOBLIN_HYBRID = Monster(
@@ -43,13 +49,15 @@ SLIME_GOBLIN_HYBRID = Monster(
     hp=35,
     attack=10,
     defense=7,
-    level=1, 
+    level=1,
     element="混合",
-    skills=[], 
+    skills=[],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="slime_goblin_hybrid",
     rank=RANK_C,
-    drop_items=[(ALL_ITEMS["small_potion"], 0.25)]  # 例: 合成モンスターはCランク
+    speed=5,
+    drop_items=[(ALL_ITEMS["small_potion"], 0.25)],  # 例: 合成モンスターはCランク
+    scout_rate=0.3
 )
 
 # 例として高ランクモンスターを追加
@@ -64,7 +72,9 @@ DRAGON_PUP = Monster(
     growth_type=GROWTH_TYPE_LATE, # 大器晩成型
     monster_id="dragon_pup",
     rank=RANK_A,
-    drop_items=[(ALL_ITEMS["small_potion"], 0.05)]
+    speed=4,
+    drop_items=[(ALL_ITEMS["small_potion"], 0.05)],
+    scout_rate=0.15
 )
 
 PHOENIX_CHICK = Monster(
@@ -78,7 +88,42 @@ PHOENIX_CHICK = Monster(
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="phoenix_chick",
     rank=RANK_S,
-    drop_items=[(ALL_ITEMS["small_potion"], 0.05)]  # 例: 不死鳥のヒナはSランク
+    speed=7,
+    drop_items=[(ALL_ITEMS["small_potion"], 0.05)],  # 例: 不死鳥のヒナはSランク
+    scout_rate=0.1
+)
+
+# 新しいモンスター
+WATER_WOLF = Monster(
+    name="ウォーターウルフ",
+    hp=60,
+    attack=20,
+    defense=12,
+    level=3,
+    element="水",
+    skills=[ALL_SKILLS["heal"]] if "heal" in ALL_SKILLS else [],
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="water_wolf",
+    rank=RANK_C,
+    speed=7,
+    drop_items=[(ALL_ITEMS["small_potion"], 0.1)],
+    scout_rate=0.3
+)
+
+FOREST_SPIRIT = Monster(
+    name="森の精霊",
+    hp=55,
+    attack=17,
+    defense=15,
+    level=4,
+    element="風",
+    skills=[ALL_SKILLS["guard_up"]] if "guard_up" in ALL_SKILLS else [],
+    growth_type=GROWTH_TYPE_EARLY,
+    monster_id="forest_spirit",
+    rank=RANK_B,
+    speed=9,
+    drop_items=[(ALL_ITEMS["small_potion"], 0.2)],
+    scout_rate=0.25
 )
 
 
@@ -89,4 +134,6 @@ ALL_MONSTERS = {
     "slime_goblin_hybrid": SLIME_GOBLIN_HYBRID,
     "dragon_pup": DRAGON_PUP,
     "phoenix_chick": PHOENIX_CHICK,
+    "water_wolf": WATER_WOLF,
+    "forest_spirit": FOREST_SPIRIT,
 }
