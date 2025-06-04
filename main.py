@@ -85,7 +85,8 @@ def game_loop(hero: Player): # 型ヒントを追加
         print("1: 移動する")
         print("2: ステータス確認 (主人公)")
         print("3: パーティ確認 (モンスター)")
-        print("4: モンスター合成") 
+        print("4: モンスター合成")
+        print("5: 探索する")
         
         if hasattr(current_location_data, 'has_inn') and current_location_data.has_inn:
             inn_cost = current_location_data.inn_cost if hasattr(current_location_data, 'inn_cost') else 10
@@ -216,6 +217,31 @@ def game_loop(hero: Player): # 型ヒントを追加
                 print(f"入力エラー: {e}")
             except Exception as e:
                 print(f"合成中に予期せぬエラーが発生しました: {e}")
+
+        elif action == "5":  # 探索する
+            progress_before = hero.get_exploration(hero.current_location_id)
+            gained = random.randint(15, 30)
+            progress_after = hero.increase_exploration(hero.current_location_id, gained)
+            print(f"探索を行った。探索率が {progress_after}% になった。")
+            if progress_before < 100 <= progress_after:
+                if getattr(current_location_data, 'hidden_connections', {}):
+                    current_location_data.connections.update(current_location_data.hidden_connections)
+                    print("新たな道が開けた！")
+
+            if current_location_data.possible_enemies and random.random() < current_location_data.encounter_rate:
+                print("\n!!!モンスターが襲ってきた!!!")
+                player_battle_party = hero.party_monsters
+                enemy_battle_party = generate_enemy_party(current_location_data)
+                if enemy_battle_party:
+                    battle_outcome_result_str = start_battle(player_battle_party, enemy_battle_party, hero)
+                    if battle_outcome_result_str == "win":
+                        print(f"{hero.name} は勝利した！")
+                    elif battle_outcome_result_str == "lose":
+                        print(f"{hero.name} は敗北してしまった...")
+                    elif battle_outcome_result_str == "fled":
+                        print(f"{hero.name} は戦闘から逃げ出した。")
+                else:
+                    print("敵は現れなかった...")
         
         elif action == "8": # 宿屋
             if hasattr(current_location_data, 'has_inn') and current_location_data.has_inn:
