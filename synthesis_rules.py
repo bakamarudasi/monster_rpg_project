@@ -14,7 +14,12 @@ SYNTHESIS_RECIPES = {
     ("celestial_dragon", "shadow_panther"): "celestial_panther",
 }
 
-# 将来的には、合成に必要なアイテムなどもここに定義できる
-# SYNTHESIS_ITEMS_REQUIRED = {
-# "slime_goblin_hybrid": "magic_stone",
-# }
+# 合成に必要なアイテムの定義
+# キーは SYNTHESIS_RECIPES と同じタプル、値は必要なアイテムID
+SYNTHESIS_ITEMS_REQUIRED = {
+    ("orc_warrior", "slime"): "magic_stone",
+    ("elf_mage", "slime"): "frost_crystal",
+    ("orc_warrior", "skeleton_archer"): "abyss_shard",
+    ("giant_golem", "thunder_eagle"): "thunder_core",
+    ("celestial_dragon", "shadow_panther"): "celestial_feather",
+}
