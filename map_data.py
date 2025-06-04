@@ -2,7 +2,7 @@
 import random # エンカウント判定で使います
 
 class Location:
-    def __init__(self, location_id, name, description, connections=None, possible_enemies=None, encounter_rate=0.0, has_inn=False, inn_cost=0, hidden_connections=None):
+    def __init__(self, location_id, name, description, connections=None, possible_enemies=None, encounter_rate=0.0, has_inn=False, inn_cost=0, hidden_connections=None, has_shop=False, shop_items=None, shop_monsters=None):
         """
         場所の情報を保持するクラス。
         location_id (str): 場所を識別するユニークなID
@@ -23,6 +23,9 @@ class Location:
         self.has_inn = has_inn  # 宿屋があるかどうかのフラグ (True/False)
         self.inn_cost = inn_cost  # 宿泊料金**
         self.hidden_connections = hidden_connections if hidden_connections else {}
+        self.has_shop = has_shop
+        self.shop_items = shop_items if shop_items else {}
+        self.shop_monsters = shop_monsters if shop_monsters else {}
 
     def get_random_enemy_id(self):
         """この場所で出現する可能性のあるモンスターIDをランダムに1つ返す。"""
@@ -34,13 +37,16 @@ class Location:
 # ここにゲーム世界の場所をどんどん追加していきます。
 LOCATIONS = {
     "village_square": Location(
-    location_id="village_square",
-    name="アリアルの村・広場",
-    description="あなたの冒険が始まる小さな村の広場。宿屋の看板が見える。",
-    connections={"北": "field_near_village"},
-    encounter_rate=0.0,
-    has_inn=True, # 宿屋あり
-    inn_cost=10   # 宿泊料10G
+        location_id="village_square",
+        name="アリアルの村・広場",
+        description="あなたの冒険が始まる小さな村の広場。宿屋の看板が見える。",
+        connections={"北": "field_near_village"},
+        encounter_rate=0.0,
+        has_inn=True,  # 宿屋あり
+        inn_cost=10,   # 宿泊料10G
+        has_shop=True,
+        shop_items={"small_potion": 15},
+        shop_monsters={"slime": 50}
     ),
     "field_near_village": Location(
         location_id="field_near_village",

@@ -152,6 +152,33 @@ class Player:
             print(f"{i}. {name} - {desc}")
         print("=" * 20)
 
+    def use_item(self, item_idx, target_monster):
+        if not (0 <= item_idx < len(self.items)):
+            print("無効なアイテム番号です。")
+            return False
+
+        item = self.items[item_idx]
+        if not getattr(item, "usable", False):
+            print(f"{item.name} はここでは使えない。")
+            return False
+
+        if item.item_id == "small_potion":
+            if target_monster is None:
+                print("対象モンスターがいません。")
+                return False
+            if not target_monster.is_alive:
+                print(f"{target_monster.name} は倒れているため回復できない。")
+                return False
+            before = target_monster.hp
+            target_monster.hp = min(target_monster.max_hp, target_monster.hp + 30)
+            healed = target_monster.hp - before
+            print(f"{target_monster.name} のHPが {healed} 回復した。")
+            self.items.pop(item_idx)
+            return True
+
+        print("このアイテムはまだ効果が実装されていない。")
+        return False
+
     def rest_at_inn(self, cost):
         if self.gold >= cost:
             self.gold -= cost
@@ -164,6 +191,30 @@ class Player:
         else:
             print("お金が足りない！宿屋に泊まれない...")
             return False
+
+    def buy_item(self, item_id, price):
+        if self.gold < price:
+            print("お金が足りない！")
+            return False
+        if item_id not in ALL_ITEMS:
+            print("そのアイテムは存在しない。")
+            return False
+        self.gold -= price
+        self.items.append(ALL_ITEMS[item_id])
+        print(f"{ALL_ITEMS[item_id].name} を {price}G で購入した。")
+        return True
+
+    def buy_monster(self, monster_id, price):
+        if self.gold < price:
+            print("お金が足りない！")
+            return False
+        if monster_id not in ALL_MONSTERS:
+            print("そのモンスターは存在しない。")
+            return False
+        self.gold -= price
+        self.add_monster_to_party(monster_id)
+        print(f"{ALL_MONSTERS[monster_id].name} を {price}G で仲間にした。")
+        return True
 
     def synthesize_monster(self, monster1_idx, monster2_idx, item_id=None): # item_id は将来用
         """
