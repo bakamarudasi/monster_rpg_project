@@ -12,7 +12,7 @@ RANK_C = "C"
 RANK_D = "D"
 
 SLIME = Monster(
-    name="スライム", hp=25, attack=8, defense=5, level=1, element="水",
+    name="スライム", hp=25, attack=8, defense=5, mp=10, level=1, element="水",
     skills=[ALL_SKILLS["heal"]] if "heal" in ALL_SKILLS else [],
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="slime",
@@ -21,7 +21,7 @@ SLIME = Monster(
 )
 
 GOBLIN = Monster(
-    name="ゴブリン", hp=40, attack=12, defense=8, level=2, element="なし",
+    name="ゴブリン", hp=40, attack=12, defense=8, mp=5, level=2, element="なし",
     skills=[ALL_SKILLS["fireball"]] if "fireball" in ALL_SKILLS else [],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="goblin",
@@ -30,7 +30,7 @@ GOBLIN = Monster(
 )
 
 WOLF = Monster(
-    name="ウルフ", hp=50, attack=15, defense=7, level=3, element="なし",
+    name="ウルフ", hp=50, attack=15, defense=7, mp=5, level=3, element="なし",
     skills=[],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="wolf",
@@ -43,6 +43,7 @@ SLIME_GOBLIN_HYBRID = Monster(
     hp=35,
     attack=10,
     defense=7,
+    mp=12,
     level=1, 
     element="混合",
     skills=[], 
@@ -58,6 +59,7 @@ DRAGON_PUP = Monster(
     hp=70,
     attack=25,
     defense=20,
+    mp=15,
     level=5,
     element="火",
     skills=[ALL_SKILLS["fireball"]] if "fireball" in ALL_SKILLS else [], # 初期スキルは弱めでも良い
@@ -72,6 +74,7 @@ PHOENIX_CHICK = Monster(
     hp=60,
     attack=18,
     defense=22,
+    mp=20,
     level=5,
     element="火",
     skills=[ALL_SKILLS["heal"]] if "heal" in ALL_SKILLS else [], # 自己回復スキル持ち

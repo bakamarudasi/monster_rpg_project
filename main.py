@@ -20,8 +20,9 @@ def get_monster_instance_copy(monster_id_or_object: Monster | str) -> Monster | 
             # ALL_MONSTERSのテンプレートから新しいインスタンスをコピー
             new_monster = ALL_MONSTERS[monster_id].copy()
             if new_monster:
-                # 戦闘や仲間にする際の初期状態（HP最大など）
+                # 戦闘や仲間にする際の初期状態（HP/MP最大など）
                 new_monster.hp = new_monster.max_hp
+                new_monster.mp = new_monster.max_mp
                 new_monster.is_alive = True
             return new_monster
         else:
@@ -32,6 +33,7 @@ def get_monster_instance_copy(monster_id_or_object: Monster | str) -> Monster | 
         new_monster = monster_id_or_object.copy()
         if new_monster:
             new_monster.hp = new_monster.max_hp # HPを最大にリセット
+            new_monster.mp = new_monster.max_mp
             new_monster.is_alive = True
         return new_monster
     else:
