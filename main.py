@@ -103,6 +103,30 @@ def open_shop(player: Player, location: Location):
             print("無効な選択です。")
 
 
+def handle_battle_loss(hero: Player) -> str:
+    """Handle menu flow after the player loses a battle.
+
+    Returns one of "retry", "load", or "exit" depending on the player's choice.
+    """
+    while True:
+        print("\n--- GAME OVER ---")
+        print("1: リトライする")
+        print("2: セーブデータをロードする")
+        print("3: ゲームを終了する")
+        choice = input("選択: ").strip()
+        if choice == "1":
+            return "retry"
+        elif choice == "2":
+            loaded = Player.load_game(DATABASE_NAME)
+            if loaded:
+                hero.__dict__.update(loaded.__dict__)
+            return "load"
+        elif choice == "3":
+            return "exit"
+        else:
+            print("無効な選択です。")
+
+
 def game_loop(hero: Player): # 型ヒントを追加
     """ゲームのメインループ"""
     game_over = False
@@ -201,7 +225,9 @@ def game_loop(hero: Player): # 型ヒントを追加
                             # 経験値やアイテム獲得はbattle.py内で処理済み（player_battle_partyの要素が更新される）
                         elif battle_outcome_result_str == "lose":
                             print(f"{hero.name} は敗北してしまった...")
-                            # TODO: ゲームオーバー処理など
+                            result = handle_battle_loss(hero)
+                            if result == "exit":
+                                game_over = True
                         elif battle_outcome_result_str == "fled":
                             print(f"{hero.name} は戦闘から逃げ出した。")
                         else: # draw や予期せぬ結果
@@ -282,6 +308,10 @@ def game_loop(hero: Player): # 型ヒントを追加
                         print(f"{hero.name} は勝利した！")
                     elif battle_outcome_result_str == "lose":
                         print(f"{hero.name} は敗北してしまった...")
+                        res = handle_battle_loss(hero)
+                        if res == "exit":
+                            game_over = True
+                            break
                     elif battle_outcome_result_str == "fled":
                         print(f"{hero.name} は戦闘から逃げ出した。")
                 else:
