@@ -96,6 +96,27 @@ def is_party_defeated(party: list[Monster]) -> bool:
     """パーティが全滅したかどうかを判定します。"""
     return all(not monster.is_alive for monster in party)
 
+def attempt_scout(player: Player, target: Monster, enemy_party: list[Monster]) -> bool:
+    """敵モンスターをスカウトして仲間にする試みを行う。成功するとTrueを返す。"""
+    if target is None or not target.is_alive:
+        print("対象がいません。")
+        return False
+
+    rate = getattr(target, "scout_rate", 0.25)
+    print(f"\n{target.name} をスカウトしている...")
+
+    if random.random() < rate:
+        print(f"{target.name} は仲間になりたそうにこちらを見ている！")
+        if player is not None:
+            player.add_monster_to_party(target)
+        target.is_alive = False
+        if target in enemy_party:
+            enemy_party.remove(target)
+        return True
+    else:
+        print(f"{target.name} は警戒している。仲間にならなかった。")
+        return False
+
 def start_battle(player_party: list[Monster], enemy_party: list[Monster], player: Player | None = None):
     """
     3vs3の戦闘を開始します。
@@ -149,8 +170,9 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster], player
                 print(f"\n>>> {actor.name} の行動！ <<<")
                 print("1: たたかう")
                 print("2: スキル")
-                print("3: にげる")
-                action_choice = get_player_choice("行動を選んでください", 3)
+                print("3: スカウト")
+                print("4: にげる")
+                action_choice = get_player_choice("行動を選んでください", 4)
 
                 if action_choice == 1:  # たたかう
                     target = select_target(active_enemy_party, "\n攻撃対象を選んでください:")
@@ -200,7 +222,16 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster], player
                         print(f"{selected_skill.name} は適切な対象に使えなかった。")
                         continue
 
-                elif action_choice == 3:  # にげる
+                elif action_choice == 3:  # スカウト
+                    target = select_target(active_enemy_party, "\nスカウトする対象を選んでください:")
+                    if target:
+                        attempt_scout(player, target, enemy_party)
+                        if not target.is_alive and target in active_enemy_party:
+                            active_enemy_party.remove(target)
+                    else:
+                        print("スカウトをキャンセルしました。")
+
+                elif action_choice == 4:  # にげる
                     print(f"\n{actor.name} は逃げ出そうとした！")
                     if random.random() < 0.5:
                         print("うまく逃げ切れた！")
