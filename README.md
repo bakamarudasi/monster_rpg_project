@@ -35,6 +35,10 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
 
 Other notable modules include `player.py` (player data and save/load logic), `battle.py` (battle system), and `synthesis_rules.py` (monster fusion recipes).
 
+## New Features
+- Items can now be used outside of battle. The included Small Potion heals 30 HP.
+- The starting village has a shop where you can buy Small Potions or even purchase a Slime companion.
+
 ## Saving
 The game saves player data to `monster_rpg_save.db`. Only basic information is stored at the moment, but the structure is ready for expansion.
 

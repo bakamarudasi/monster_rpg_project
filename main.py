@@ -62,6 +62,47 @@ def generate_enemy_party(location: Location) -> list[Monster]:
     return enemy_party
 
 
+def open_shop(player: Player, location: Location):
+    if not getattr(location, 'has_shop', False):
+        print("ここにはお店はない。")
+        return
+
+    while True:
+        print("\n===== ショップ =====")
+        print(f"所持金: {player.gold}G")
+        options = []
+        idx = 1
+        for item_id, price in getattr(location, 'shop_items', {}).items():
+            item = ALL_ITEMS.get(item_id)
+            if item:
+                options.append(('item', item_id, price))
+                print(f"{idx}: {item.name} - {price}G")
+                idx += 1
+        for monster_id, price in getattr(location, 'shop_monsters', {}).items():
+            monster = ALL_MONSTERS.get(monster_id)
+            if monster:
+                options.append(('monster', monster_id, price))
+                print(f"{idx}: {monster.name} - {price}G")
+                idx += 1
+        print("0: やめる")
+
+        choice = input("購入する番号を選んでください: ")
+        if not choice.isdigit():
+            print("数字で入力してください。")
+            continue
+        c = int(choice)
+        if c == 0:
+            break
+        if 1 <= c <= len(options):
+            kind, obj_id, price = options[c-1]
+            if kind == 'item':
+                player.buy_item(obj_id, price)
+            else:
+                player.buy_monster(obj_id, price)
+        else:
+            print("無効な選択です。")
+
+
 def game_loop(hero: Player): # 型ヒントを追加
     """ゲームのメインループ"""
     game_over = False
@@ -87,7 +128,10 @@ def game_loop(hero: Player): # 型ヒントを追加
         print("3: パーティ確認 (モンスター)")
         print("4: モンスター合成")
         print("5: 探索する")
-        
+        print("6: アイテムを使う")
+        if getattr(current_location_data, 'has_shop', False):
+            print("7: ショップで買い物")
+
         if hasattr(current_location_data, 'has_inn') and current_location_data.has_inn:
             inn_cost = current_location_data.inn_cost if hasattr(current_location_data, 'inn_cost') else 10
             print(f"8: 宿屋に泊まる ({inn_cost}G)")
@@ -242,7 +286,39 @@ def game_loop(hero: Player): # 型ヒントを追加
                         print(f"{hero.name} は戦闘から逃げ出した。")
                 else:
                     print("敵は現れなかった...")
-        
+
+        elif action == "6":
+            if not hero.items:
+                print("アイテムを持っていない。")
+                continue
+            hero.show_items()
+            idx_in = input(f"使うアイテム番号 (1-{len(hero.items)}, 0でキャンセル): ")
+            if not idx_in.isdigit():
+                print("数字で入力してください。")
+                continue
+            idx = int(idx_in)
+            if idx == 0:
+                continue
+            if not (1 <= idx <= len(hero.items)):
+                print("無効な番号です。")
+                continue
+            if not hero.party_monsters:
+                print("モンスターがいない。")
+                continue
+            hero.show_all_party_monsters_status()
+            t_in = input(f"対象モンスター番号 (1-{len(hero.party_monsters)}): ")
+            if not t_in.isdigit():
+                print("数字で入力してください。")
+                continue
+            t_idx = int(t_in) - 1
+            if not (0 <= t_idx < len(hero.party_monsters)):
+                print("無効な番号です。")
+                continue
+            hero.use_item(idx-1, hero.party_monsters[t_idx])
+
+        elif action == "7":
+            open_shop(hero, current_location_data)
+
         elif action == "8": # 宿屋
             if hasattr(current_location_data, 'has_inn') and current_location_data.has_inn:
                 cost = current_location_data.inn_cost if hasattr(current_location_data, 'inn_cost') else 10
