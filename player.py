@@ -1,8 +1,9 @@
 # player.py
 import sqlite3
 from map_data import STARTING_LOCATION_ID
-from monsters.monster_class import Monster # Monsterクラスをインポート
-from monsters.monster_data import ALL_MONSTERS # モンスター定義をインポート
+from monsters.monster_class import Monster  # Monsterクラスをインポート
+from monsters.monster_data import ALL_MONSTERS  # モンスター定義をインポート
+from items.item_data import ALL_ITEMS
 from synthesis_rules import SYNTHESIS_RECIPES # 合成レシピをインポート
 import random # 将来的にスキル継承などで使うかも
 
@@ -34,7 +35,22 @@ class Player:
             """, (self.name, self.player_level, self.exp, self.gold, self.current_location_id))
             self.db_id = cursor.lastrowid
 
-        # TODO: パーティモンスターやアイテムの保存処理もここに追加する (ステップ1の課題)
+        # パーティモンスターを保存
+        cursor.execute("DELETE FROM party_monsters WHERE player_id=?", (self.db_id,))
+        for monster in self.party_monsters:
+            cursor.execute(
+                "INSERT INTO party_monsters (player_id, monster_id, level, exp) VALUES (?, ?, ?, ?)",
+                (self.db_id, monster.monster_id, monster.level, monster.exp),
+            )
+
+        # 所持アイテムを保存
+        cursor.execute("DELETE FROM player_items WHERE player_id=?", (self.db_id,))
+        for item in self.items:
+            item_id = getattr(item, "item_id", str(item))
+            cursor.execute(
+                "INSERT INTO player_items (player_id, item_id) VALUES (?, ?)",
+                (self.db_id, item_id),
+            )
 
         conn.commit()
         conn.close()
@@ -212,9 +228,10 @@ class Player:
     def load_game(db_name):
         conn = sqlite3.connect(db_name)
         cursor = conn.cursor()
-        cursor.execute("SELECT id, name, player_level, exp, gold, current_location_id FROM player_data ORDER BY id DESC LIMIT 1")
+        cursor.execute(
+            "SELECT id, name, player_level, exp, gold, current_location_id FROM player_data ORDER BY id DESC LIMIT 1"
+        )
         row = cursor.fetchone()
-        conn.close()
 
         if row:
             db_id, name, level, exp, gold, location_id = row
@@ -222,9 +239,33 @@ class Player:
             loaded_player.exp = exp
             loaded_player.current_location_id = location_id
             loaded_player.db_id = db_id
-            
+
+            # パーティモンスターを読み込む
+            cursor.execute(
+                "SELECT monster_id, level, exp FROM party_monsters WHERE player_id=?",
+                (db_id,),
+            )
+            for monster_id, m_level, m_exp in cursor.fetchall():
+                if monster_id in ALL_MONSTERS:
+                    monster = ALL_MONSTERS[monster_id].copy()
+                    while monster.level < m_level:
+                        monster.gain_exp(monster.calculate_exp_to_next_level())
+                    monster.exp = m_exp
+                    loaded_player.party_monsters.append(monster)
+
+            # 所持アイテムを読み込む
+            cursor.execute(
+                "SELECT item_id FROM player_items WHERE player_id=?",
+                (db_id,),
+            )
+            for (item_id,) in cursor.fetchall():
+                if item_id in ALL_ITEMS:
+                    loaded_player.items.append(ALL_ITEMS[item_id])
+
+            conn.close()
             print(f"{name} のデータがロードされました。")
             return loaded_player
         else:
+            conn.close()
             print("セーブデータが見つかりませんでした。")
             return None
