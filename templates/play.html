@@ -14,7 +14,7 @@
 <form action="{{ url_for('party', user_id=user_id) }}" method="get"><button>パーティ</button></form>
 <form action="{{ url_for('explore', user_id=user_id) }}" method="post"><button>探索</button></form>
 <form action="{{ url_for('items', user_id=user_id) }}" method="get"><button>アイテム</button></form>
-<form action="{{ url_for('map', user_id=user_id) }}" method="get"><button>マップ</button></form>
+<form action="{{ url_for('world_map', user_id=user_id) }}" method="get"><button>マップ</button></form>
 {% if loc.has_shop %}
 <form action="{{ url_for('shop', user_id=user_id) }}" method="get"><button>ショップ</button></form>
 {% endif %}
