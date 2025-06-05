@@ -144,6 +144,25 @@ def party(user_id):
     return render_template("party.html", player=player, user_id=user_id)
 
 
+@app.route('/formation/<int:user_id>', methods=['GET', 'POST'])
+def formation(user_id):
+    """Allow reordering of the player's party."""
+    player = active_players.get(user_id)
+    if not player:
+        return redirect(url_for('index'))
+    if request.method == 'POST':
+        try:
+            idx = int(request.form.get('index', -1))
+        except (TypeError, ValueError):
+            idx = -1
+        move = request.form.get('move')
+        if move == 'up':
+            player.move_monster(idx, idx - 1)
+        elif move == 'down':
+            player.move_monster(idx, idx + 1)
+    return render_template('formation.html', player=player, user_id=user_id)
+
+
 @app.route('/items/<int:user_id>', methods=['GET', 'POST'])
 def items(user_id):
     player = active_players.get(user_id)
