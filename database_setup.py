@@ -80,15 +80,16 @@ def initialize_database():
 
 def create_user(username: str, password: str) -> int:
     """Create a new user and return its ID."""
-    conn = sqlite3.connect(DATABASE_NAME)
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO users (username, password) VALUES (?, ?)",
-        (username, _hash_password(password)),
-    )
-    conn.commit()
-    user_id = cursor.lastrowid
-    conn.close()
+    # Use a context manager and provide a timeout to avoid locking issues when
+    # multiple requests write to the database simultaneously.
+    with sqlite3.connect(DATABASE_NAME, timeout=5) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO users (username, password) VALUES (?, ?)",
+            (username, _hash_password(password)),
+        )
+        conn.commit()
+        user_id = cursor.lastrowid
     return user_id
 
 
