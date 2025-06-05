@@ -1,9 +1,15 @@
 {% extends "layout.html" %}
 {% block content %}
 <h2>編成</h2>
+<h3>編成中</h3>
 <ul>
 {% for m in player.party_monsters %}
-  <li>{{ loop.index }}. {{ m.name }}
+  <li>
+    {% if m.image_filename %}
+      <img src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}" width="64">
+    {% else %}
+      {{ m.name }}
+    {% endif %}
     <form action="{{ url_for('formation', user_id=user_id) }}" method="post" style="display:inline">
       <input type="hidden" name="index" value="{{ loop.index0 }}">
       {% if not loop.first %}
@@ -12,9 +18,30 @@
       {% if not loop.last %}
       <button type="submit" name="move" value="down">↓</button>
       {% endif %}
+      <button type="submit" name="remove" value="1">外す</button>
     </form>
   </li>
 {% endfor %}
 </ul>
+<h3>未編成</h3>
+<ul>
+{% for m in player.reserve_monsters %}
+  <li>
+    <form action="{{ url_for('formation', user_id=user_id) }}" method="post" style="display:inline">
+      <input type="hidden" name="add_index" value="{{ loop.index0 }}">
+      <button type="submit" style="border:none;background:none;padding:0;">
+        {% if m.image_filename %}
+          <img src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}" width="64">
+        {% else %}
+          {{ m.name }}
+        {% endif %}
+      </button>
+    </form>
+  </li>
+{% endfor %}
+</ul>
+<form action="{{ url_for('formation', user_id=user_id) }}" method="post">
+  <button type="submit" name="reset" value="1">リセット</button>
+</form>
 <a href="{{ url_for('party', user_id=user_id) }}">戻る</a>
 {% endblock %}

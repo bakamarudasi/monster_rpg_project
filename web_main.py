@@ -301,6 +301,17 @@ def formation(user_id):
             player.move_monster(idx, idx - 1)
         elif move == 'down':
             player.move_monster(idx, idx + 1)
+
+        if 'remove' in request.form:
+            player.move_to_reserve(idx)
+        if 'add_index' in request.form:
+            try:
+                add_idx = int(request.form.get('add_index'))
+                player.move_from_reserve(add_idx)
+            except (TypeError, ValueError):
+                pass
+        if 'reset' in request.form:
+            player.reset_formation()
     return render_template('formation.html', player=player, user_id=user_id)
 
 

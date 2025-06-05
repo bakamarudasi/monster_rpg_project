@@ -63,6 +63,16 @@ def initialize_database():
     )
     """)
 
+    # 控えモンスターを保存するテーブル
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS storage_monsters (
+        player_id INTEGER,
+        monster_id TEXT,
+        level INTEGER,
+        exp INTEGER
+    )
+    """)
+
     # player_items テーブルの作成
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS player_items (
