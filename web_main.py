@@ -1,6 +1,12 @@
 """Simple web interface for the Monster RPG game."""
 
-from flask import Flask, request, redirect, url_for, render_template
+try:
+    from flask import Flask, request, redirect, url_for, render_template
+except ImportError as e:  # pragma: no cover - dependency check
+    raise SystemExit(
+        "Flask is required to run this web interface. "
+        "Install dependencies with 'pip install -r requirements.txt'."
+    ) from e
 import random
 
 import database_setup
