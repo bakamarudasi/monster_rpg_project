@@ -4,13 +4,16 @@
   <h2 class="book-title">◆ モンスター図鑑 ◆</h2>
   <div class="book-meta">発見率 <span class="book-percent">{{ completion|round(1) }}%</span></div>
   <ul class="book-list">
-    {% for entry, status in entries %}
+    {% for entry, status, image_url in entries %}
       <li class="book-entry status-{{ status }}">
         {% if status == 'captured' %}
           <div class="entry-head">
             <span class="badge badge-captured">捕獲</span>
             <span class="entry-id">{{ entry.monster_id }}</span>
           </div>
+          {% if image_url %}
+            <div class="entry-img"><img src="{{ image_url }}" alt="{{ entry.monster_id }}"></div>
+          {% endif %}
           <div class="entry-desc">{{ entry.description }}</div>
           {% if entry.location_hint %}
             <div class="entry-hint"><span class="hint-label">出現場所：</span>{{ entry.location_hint }}</div>
@@ -23,6 +26,9 @@
             <span class="badge badge-seen">目撃</span>
             <span class="entry-id">{{ entry.monster_id }}</span>
           </div>
+          {% if image_url %}
+            <div class="entry-img"><img src="{{ image_url }}" alt="{{ entry.monster_id }}"></div>
+          {% endif %}
           <div class="entry-desc">？？？ 詳細は不明</div>
           {% if entry.location_hint %}
             <div class="entry-hint"><span class="hint-label">手掛かり：</span>{{ entry.location_hint }}</div>
@@ -137,6 +143,14 @@
   font-size: 1.08em;
   font-weight: 500;
   line-height: 1.6;
+}
+.entry-img {
+  text-align: center;
+  margin-bottom: 0.5em;
+}
+.entry-img img {
+  max-width: 100px;
+  height: auto;
 }
 .entry-hint {
   font-size: 0.99em;

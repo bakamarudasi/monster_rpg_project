@@ -222,7 +222,12 @@ def monster_book(user_id):
             status = 'captured'
         elif mid in player.monster_book.seen:
             status = 'seen'
-        entries.append((entry, status))
+
+        image_url = None
+        monster_obj = ALL_MONSTERS.get(mid)
+        if monster_obj and monster_obj.image_filename:
+            image_url = url_for('static', filename=f"images/{monster_obj.image_filename}")
+        entries.append((entry, status, image_url))
     completion = player.monster_book.completion_rate()
     return render_template(
         'monster_book.html',
