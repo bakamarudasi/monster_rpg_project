@@ -43,17 +43,24 @@ def generate_enemy_party(location: Location) -> list[Monster]:
         return enemy_party
 
     num_enemies = random.randint(1, min(3, len(location.possible_enemies)))
+    base_level = getattr(location, "avg_enemy_level", 1)
 
     for _ in range(num_enemies):
         enemy_id = random.choice(location.possible_enemies)
         enemy_instance = get_monster_instance_copy(enemy_id)
         if enemy_instance:
+            target_level = max(1, base_level + random.randint(-1, 1))
+            while enemy_instance.level < target_level:
+                enemy_instance.level_up()
             enemy_party.append(enemy_instance)
 
     if not enemy_party and location.possible_enemies:
         enemy_id = random.choice(location.possible_enemies)
         enemy_instance = get_monster_instance_copy(enemy_id)
         if enemy_instance:
+            target_level = max(1, base_level + random.randint(-1, 1))
+            while enemy_instance.level < target_level:
+                enemy_instance.level_up()
             enemy_party.append(enemy_instance)
 
     return enemy_party

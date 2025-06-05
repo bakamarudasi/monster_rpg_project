@@ -6,7 +6,8 @@ class Location:
                  possible_enemies=None, encounter_rate=0.0, has_inn=False,
                  inn_cost=0, hidden_connections=None, has_shop=False,
                  shop_items=None, shop_monsters=None, boss_enemy_id=None,
-                 rare_enemies=None, treasure_items=None, event_chance=0.0):
+                 rare_enemies=None, treasure_items=None, event_chance=0.0,
+                 avg_enemy_level=1):
         """
         場所の情報を保持するクラス。
         location_id (str): 場所を識別するユニークなID
@@ -34,6 +35,7 @@ class Location:
         self.rare_enemies = rare_enemies if rare_enemies else []
         self.treasure_items = treasure_items if treasure_items else []
         self.event_chance = event_chance
+        self.avg_enemy_level = avg_enemy_level
 
     def get_random_enemy_id(self):
         """この場所で出現する可能性のあるモンスターIDをランダムに1つ返す。"""
@@ -54,7 +56,8 @@ LOCATIONS = {
         inn_cost=10,   # 宿泊料10G
         has_shop=True,
         shop_items={"small_potion": 15},
-        shop_monsters={"slime": 50}
+        shop_monsters={"slime": 50},
+        avg_enemy_level=1
     ),
     "field_near_village": Location(
         location_id="field_near_village",
@@ -62,7 +65,8 @@ LOCATIONS = {
         description="見渡す限りの草原が広がっている。時折、弱いモンスターの姿が見える。",
         connections={"南": "village_square", "北東": "forest_entrance"},
         possible_enemies=["slime"], # ALL_MONSTERSのキーで指定
-        encounter_rate=0.6 # 60%の確率でエンカウント
+        encounter_rate=0.6, # 60%の確率でエンカウント
+        avg_enemy_level=1
     ),
     "forest_entrance": Location(
         location_id="forest_entrance",
@@ -70,7 +74,8 @@ LOCATIONS = {
         description="薄暗い森の入り口。奥からはかすかに獣の気配がする。",
         connections={"南西": "field_near_village", "奥へ": "deep_forest", "東": "mystic_lake"},
         possible_enemies=["goblin", "slime"],
-        encounter_rate=0.75
+        encounter_rate=0.75,
+        avg_enemy_level=2
     ),
     "mystic_lake": Location(
         location_id="mystic_lake",
@@ -78,7 +83,8 @@ LOCATIONS = {
         description="森の奥にひっそりと佇む美しい湖。水面が青く光っている。",
         connections={"西": "forest_entrance"},
         possible_enemies=["water_wolf", "forest_spirit"],
-        encounter_rate=0.8
+        encounter_rate=0.8,
+        avg_enemy_level=3
     ),
     "deep_forest": Location(
         location_id="deep_forest",
@@ -91,7 +97,8 @@ LOCATIONS = {
         boss_enemy_id="dragon_pup",
         rare_enemies=["phoenix_chick"],
         treasure_items=["small_potion"],
-        event_chance=0.3
+        event_chance=0.3,
+        avg_enemy_level=4
     ),
     "forest_boss_room": Location(
         location_id="forest_boss_room",
@@ -99,7 +106,8 @@ LOCATIONS = {
         description="森の奥深くに佇む神秘的な祭壇。強大なモンスターの気配がする。",
         connections={"奥地へ戻る": "deep_forest"},
         possible_enemies=["dragon_pup"],
-        encounter_rate=1.0
+        encounter_rate=1.0,
+        avg_enemy_level=5
     ),
     "hill_road": Location(
     location_id="hill_road",
@@ -108,6 +116,7 @@ LOCATIONS = {
     connections={"南": "field_near_village", "北": "mountain_foothills"},
     possible_enemies=["wolf", "orc_warrior"],
     encounter_rate=0.55,
+    avg_enemy_level=3
 ),
 
 "mountain_foothills": Location(
@@ -118,6 +127,7 @@ LOCATIONS = {
     possible_enemies=["orc_warrior", "skeleton_archer", "troll_brute"],
     encounter_rate=0.75,
     treasure_items=["medium_potion"],
+    avg_enemy_level=4,
 ),
 
 "thunder_peak": Location(
@@ -130,6 +140,7 @@ LOCATIONS = {
     rare_enemies=["nameless_kingling"],
     boss_enemy_id="storm_golem",
     treasure_items=["thunder_core"],
+    avg_enemy_level=6,
 ),
 
 "ancient_ruins": Location(
@@ -140,6 +151,7 @@ LOCATIONS = {
     possible_enemies=["elf_mage", "goblin", "undead_warrior"],
     encounter_rate=0.7,
     event_chance=0.25,
+    avg_enemy_level=5,
 ),
 
 "catacombs_entrance": Location(
@@ -150,6 +162,7 @@ LOCATIONS = {
     possible_enemies=["skeleton_archer", "undead_warrior", "gravetide_hollow"],
     encounter_rate=0.8,
     treasure_items=["frost_crystal"],
+    avg_enemy_level=6,
 ),
 
 "catacombs_deep": Location(
@@ -162,6 +175,7 @@ LOCATIONS = {
     boss_enemy_id="abyss_watcher",
     rare_enemies=["abyss_watcher"],
     treasure_items=["abyss_shard"],
+    avg_enemy_level=8,
 ),
 
 "abyssal_chasm": Location(
@@ -171,6 +185,7 @@ LOCATIONS = {
     connections={"地上へ": "catacombs_deep", "光の塔へ": "celestial_tower"},
     possible_enemies=["shadow_panther", "abyss_watcher", "blighted_knight"],
     encounter_rate=1.0,
+    avg_enemy_level=9,
 ),
 
 "celestial_tower": Location(
@@ -186,6 +201,7 @@ LOCATIONS = {
     has_inn=True,
     inn_cost=50,
     treasure_items=["celestial_feather", "elixir"],
+    avg_enemy_level=10,
 ),
 "desert_outskirts": Location(
     location_id="desert_outskirts",
@@ -194,6 +210,7 @@ LOCATIONS = {
     connections={"西": "field_near_village", "東": "desert_oasis"},
     possible_enemies=["desert_scorpion", "sand_wyrm"],
     encounter_rate=0.65,
+    avg_enemy_level=4,
 ),
 
 "desert_oasis": Location(
@@ -205,6 +222,7 @@ LOCATIONS = {
     has_shop=True, shop_items={"medium_potion": 40, "antidote": 25},
     possible_enemies=["desert_scorpion"],
     encounter_rate=0.3,
+    avg_enemy_level=3,
 ),
 
 "sunken_temple": Location(
@@ -215,6 +233,7 @@ LOCATIONS = {
     possible_enemies=["kraken", "mermaid_siren", "water_wolf"],
     encounter_rate=0.85,
     treasure_items=["frost_crystal"],
+    avg_enemy_level=7,
 ),
 
 "abyssal_marsh": Location(
@@ -224,6 +243,7 @@ LOCATIONS = {
     connections={"上へ": "sunken_temple", "東": "volcanic_ridge"},
     possible_enemies=["kraken", "blighted_knight", "abyss_watcher"],
     encounter_rate=0.95,
+    avg_enemy_level=8,
 ),
 
 "volcanic_ridge": Location(
@@ -235,6 +255,7 @@ LOCATIONS = {
     encounter_rate=0.9,
     rare_enemies=["cinder_sentinel"],
     treasure_items=["dragon_scale"],
+    avg_enemy_level=9,
 ),
 
 "lava_core": Location(
@@ -245,6 +266,7 @@ LOCATIONS = {
     boss_enemy_id="lava_elemental",
     possible_enemies=["lava_elemental"],
     encounter_rate=1.0,
+    avg_enemy_level=10,
 ),
 
 "sky_isle": Location(
@@ -255,6 +277,7 @@ LOCATIONS = {
     possible_enemies=["sky_seraph", "thunder_eagle", "celestial_panther"],
     encounter_rate=0.8,
     hidden_connections={"更なる空の高みへ": "sky_isle_inner_sanctum"},
+    avg_enemy_level=10,
 ),
 
 "sky_isle_inner_sanctum": Location(
@@ -266,6 +289,7 @@ LOCATIONS = {
     possible_enemies=["sky_seraph"],
     encounter_rate=1.0,
     treasure_items=["celestial_feather", "elixir"],
+    avg_enemy_level=12,
 )
 # ------------------------------------------------------------
 # ▼ ここまで追加マップ
