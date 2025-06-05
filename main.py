@@ -53,6 +53,7 @@ def game_loop(hero: Player): # 型ヒントを追加
 
         print("9: ゲームをセーブ")
         print("10: マップを見る")
+        print("11: モンスター図鑑")
         print("0: ゲーム終了")
 
         action = input("行動を選んでください (番号): ")
@@ -98,7 +99,7 @@ def game_loop(hero: Player): # 型ヒントを追加
                         player_battle_party = hero.party_monsters 
 
                         # 敵パーティを生成
-                        enemy_battle_party = generate_enemy_party(new_location_data)
+                        enemy_battle_party = generate_enemy_party(new_location_data, hero)
                         
                         if not player_battle_party: # プレイヤーのパーティが空の場合
                             print("手持ちモンスターがいない！逃げるしかない！")
@@ -232,7 +233,7 @@ def game_loop(hero: Player): # 型ヒントを追加
             elif current_location_data.possible_enemies and random.random() < current_location_data.encounter_rate:
                 print("\n!!!モンスターが襲ってきた!!!")
                 player_battle_party = hero.party_monsters
-                enemy_battle_party = generate_enemy_party(current_location_data)
+                enemy_battle_party = generate_enemy_party(current_location_data, hero)
                 if enemy_battle_party:
                     battle_outcome_result_str = start_battle(player_battle_party, enemy_battle_party, hero)
                     if battle_outcome_result_str == "win":
@@ -292,6 +293,9 @@ def game_loop(hero: Player): # 型ヒントを追加
 
         elif action == "10":
             display_map()
+
+        elif action == "11":
+            hero.monster_book.show_book()
 
         elif action == "0": # ゲーム終了
             print("ゲームを終了します。お疲れ様でした！")
