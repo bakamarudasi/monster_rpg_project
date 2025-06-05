@@ -11,7 +11,7 @@ import random # 将来的にスキル継承などで使うかも
 DEBUG_MODE = False
 
 class Player:
-    def __init__(self, name, player_level=1, gold=50):
+    def __init__(self, name, player_level=1, gold=50, user_id=None):
         self.name = name
         self.player_level = player_level
         self.exp = 0
@@ -20,23 +20,50 @@ class Player:
         self.items = []
         self.current_location_id = STARTING_LOCATION_ID
         self.db_id = None # データベース上のID (ロード時に設定)
+        self.user_id = user_id
         self.exploration_progress = {}
 
-    def save_game(self, db_name):
+    def save_game(self, db_name, user_id=None):
         conn = sqlite3.connect(db_name)
         cursor = conn.cursor()
 
+        if user_id is not None:
+            self.user_id = user_id
+        if self.user_id is None:
+            self.user_id = 1
+
         if self.db_id:
-            cursor.execute("""
-            UPDATE player_data 
-            SET name=?, player_level=?, exp=?, gold=?, current_location_id=?
-            WHERE id=?
-            """, (self.name, self.player_level, self.exp, self.gold, self.current_location_id, self.db_id))
+            cursor.execute(
+                """
+                UPDATE player_data
+                SET name=?, player_level=?, exp=?, gold=?, current_location_id=?, user_id=?
+                WHERE id=?
+                """,
+                (
+                    self.name,
+                    self.player_level,
+                    self.exp,
+                    self.gold,
+                    self.current_location_id,
+                    self.user_id,
+                    self.db_id,
+                ),
+            )
         else:
-            cursor.execute("""
-            INSERT INTO player_data (name, player_level, exp, gold, current_location_id)
-            VALUES (?, ?, ?, ?, ?)
-            """, (self.name, self.player_level, self.exp, self.gold, self.current_location_id))
+            cursor.execute(
+                """
+                INSERT INTO player_data (user_id, name, player_level, exp, gold, current_location_id)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    self.user_id,
+                    self.name,
+                    self.player_level,
+                    self.exp,
+                    self.gold,
+                    self.current_location_id,
+                ),
+            )
             self.db_id = cursor.lastrowid
 
         # パーティモンスターを保存
@@ -342,17 +369,18 @@ class Player:
 
 
     @staticmethod
-    def load_game(db_name):
+    def load_game(db_name, user_id=1):
         conn = sqlite3.connect(db_name)
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT id, name, player_level, exp, gold, current_location_id FROM player_data ORDER BY id DESC LIMIT 1"
+            "SELECT id, name, player_level, exp, gold, current_location_id, user_id FROM player_data WHERE user_id=? ORDER BY id DESC LIMIT 1",
+            (user_id,),
         )
         row = cursor.fetchone()
 
         if row:
-            db_id, name, level, exp, gold, location_id = row
-            loaded_player = Player(name, player_level=level, gold=gold)
+            db_id, name, level, exp, gold, location_id, u_id = row
+            loaded_player = Player(name, player_level=level, gold=gold, user_id=u_id)
             loaded_player.exp = exp
             loaded_player.current_location_id = location_id
             loaded_player.db_id = db_id

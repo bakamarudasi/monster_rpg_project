@@ -1,10 +1,11 @@
 # Monster RPG
 
-This is a small text-based RPG prototype written in Python. It uses SQLite to store simple save data and is intended to run on the command line.
+This is a small text-based RPG prototype written in Python. It uses SQLite to store simple save data and now supports multiple user accounts. A minimal Flask web server is also included.
 
 ## Requirements
 - Python 3 (tested with Python 3.11)
-- No third-party packages are required. The standard library `sqlite3` module is used for save data.
+- `Flask` is required to run the optional web server.
+- The standard library `sqlite3` module is used for save data.
 
 ## Setup and Running the Game
 1. (Optional) Create and activate a virtual environment for Python 3.
@@ -13,11 +14,17 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
    python database_setup.py
    ```
    This creates `monster_rpg_save.db` if it does not already exist.
+   A default user `player1` will be created automatically. Use `database_setup.create_user()` to add more users.
 3. Start the game:
    ```bash
    python main.py
    ```
    You will be asked whether to load a save file or start a new game.
+4. To run the simple web server instead:
+   ```bash
+   pip install -r requirements.txt
+   python webapp.py
+   ```
 
 ## Project Structure
 
