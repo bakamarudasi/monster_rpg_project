@@ -5,6 +5,7 @@ from monsters.monster_class import Monster  # Monsterクラスをインポート
 from monsters.monster_data import ALL_MONSTERS  # モンスター定義をインポート
 from items.item_data import ALL_ITEMS
 from synthesis_rules import SYNTHESIS_RECIPES, SYNTHESIS_ITEMS_REQUIRED
+from monster_book import MonsterBook
 import random # 将来的にスキル継承などで使うかも
 
 # Debug flag to control verbose output
@@ -22,6 +23,7 @@ class Player:
         self.db_id = None # データベース上のID (ロード時に設定)
         self.user_id = user_id
         self.exploration_progress = {}
+        self.monster_book = MonsterBook()
 
     def save_game(self, db_name, user_id=None):
         conn = sqlite3.connect(db_name)
@@ -85,6 +87,8 @@ class Player:
 
         conn.commit()
         conn.close()
+        # Save monster book data
+        self.monster_book.save(db_name, self.user_id)
         print(f"{self.name} のデータがセーブされました。")
 
     def show_status(self):
@@ -137,6 +141,7 @@ class Player:
                 self.party_monsters.append(new_monster_instance)
                 print(f"{new_monster_instance.name} が仲間に加わった！")
                 newly_added_monster = new_monster_instance
+                self.monster_book.register_captured(new_monster_instance.monster_id, self)
             else:
                 print(f"エラー: モンスターID '{monster_id_key}' は存在しません。")
         elif isinstance(monster_id_or_object, Monster): # Monsterオブジェクトの場合
@@ -151,6 +156,7 @@ class Player:
             copied_monster.mp = copied_monster.max_mp
             print(f"{copied_monster.name} が仲間に加わった！")
             newly_added_monster = copied_monster
+            self.monster_book.register_captured(copied_monster.monster_id, self)
         else:
             print("エラー: add_monster_to_party の引数が不正です。")
         
@@ -378,7 +384,8 @@ class Player:
                     removed_monster_names.append(self.party_monsters.pop(idx).name)
                 
                 self.party_monsters.append(new_monster)
-                
+                self.monster_book.register_captured(new_monster.monster_id, self)
+
                 return True, f"{removed_monster_names[1]} と {removed_monster_names[0]} を合成して {new_monster.name} が誕生した！", new_monster
             else:
                 return False, f"エラー: 合成結果のモンスターID '{result_monster_id}' がモンスター定義に存在しません。", None
@@ -402,6 +409,7 @@ class Player:
             loaded_player.exp = exp
             loaded_player.current_location_id = location_id
             loaded_player.db_id = db_id
+            loaded_player.monster_book = MonsterBook.load(db_name, u_id)
 
             # パーティモンスターを読み込む
             cursor.execute(

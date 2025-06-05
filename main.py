@@ -53,6 +53,7 @@ def game_loop(hero: Player): # 型ヒントを追加
 
         print("9: ゲームをセーブ")
         print("10: マップを見る")
+        print("11: 図鑑を見る")
         print("0: ゲーム終了")
 
         action = input("行動を選んでください (番号): ")
@@ -292,6 +293,9 @@ def game_loop(hero: Player): # 型ヒントを追加
 
         elif action == "10":
             display_map()
+
+        elif action == "11":
+            hero.monster_book.display()
 
         elif action == "0": # ゲーム終了
             print("ゲームを終了します。お疲れ様でした！")

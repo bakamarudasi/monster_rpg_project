@@ -292,6 +292,10 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster], player
     active_player_party = [m for m in player_party if m.is_alive][:3]
     active_enemy_party = [m for m in enemy_party if m.is_alive][:3]
 
+    if player is not None and hasattr(player, "monster_book"):
+        for e in enemy_party:
+            player.monster_book.register_seen(e.monster_id)
+
     if not active_player_party:
         print("戦えるモンスターがプレイヤー側にいません！")
         return "lose" # 即時敗北
