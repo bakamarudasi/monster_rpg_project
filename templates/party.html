@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>パーティ</h2>
+<ul>
+{% for m in player.party_monsters %}
+<li>{{ m.name }} Lv.{{ m.level }} HP {{ m.hp }}/{{ m.max_hp }}</li>
+{% endfor %}
+</ul>
+<a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+{% endblock %}
