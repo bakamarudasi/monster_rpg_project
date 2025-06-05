@@ -21,7 +21,9 @@ class Player:
         self.name = name
         self.player_level = player_level
         self.exp = 0
-        self.party_monsters = [] # Monsterオブジェクトを格納
+        self.party_monsters = []  # Monsterオブジェクトを格納
+        # フォーメーション外の控えモンスターを保持するリスト
+        self.reserve_monsters: list[Monster] = []
         self.gold = gold
         self.items = []
         self.equipment_inventory = []
@@ -80,6 +82,14 @@ class Player:
         for monster in self.party_monsters:
             cursor.execute(
                 "INSERT INTO party_monsters (player_id, monster_id, level, exp) VALUES (?, ?, ?, ?)",
+                (self.db_id, monster.monster_id, monster.level, monster.exp),
+            )
+
+        # 控えモンスターを保存
+        cursor.execute("DELETE FROM storage_monsters WHERE player_id=?", (self.db_id,))
+        for monster in self.reserve_monsters:
+            cursor.execute(
+                "INSERT INTO storage_monsters (player_id, monster_id, level, exp) VALUES (?, ?, ?, ?)",
                 (self.db_id, monster.monster_id, monster.level, monster.exp),
             )
 
@@ -189,6 +199,30 @@ class Player:
         monster = self.party_monsters.pop(from_idx)
         self.party_monsters.insert(to_idx, monster)
         return True
+
+    def move_to_reserve(self, party_idx: int) -> bool:
+        """指定したパーティメンバーを控えに移動する。"""
+        if not (0 <= party_idx < len(self.party_monsters)):
+            return False
+        if len(self.party_monsters) <= 1:
+            # 最低1体はパーティに残す
+            return False
+        monster = self.party_monsters.pop(party_idx)
+        self.reserve_monsters.append(monster)
+        return True
+
+    def move_from_reserve(self, reserve_idx: int) -> bool:
+        """控えからパーティにモンスターを移動する。"""
+        if not (0 <= reserve_idx < len(self.reserve_monsters)):
+            return False
+        monster = self.reserve_monsters.pop(reserve_idx)
+        self.party_monsters.append(monster)
+        return True
+
+    def reset_formation(self) -> None:
+        """先頭のモンスターを残して他を控えに移す。"""
+        while len(self.party_monsters) > 1:
+            self.reserve_monsters.append(self.party_monsters.pop())
 
     def show_items(self):
         if not self.items:
@@ -490,6 +524,19 @@ class Player:
                         monster.gain_exp(monster.calculate_exp_to_next_level())
                     monster.exp = m_exp
                     loaded_player.party_monsters.append(monster)
+
+            # 控えモンスターを読み込む
+            cursor.execute(
+                "SELECT monster_id, level, exp FROM storage_monsters WHERE player_id=?",
+                (db_id,),
+            )
+            for monster_id, m_level, m_exp in cursor.fetchall():
+                if monster_id in ALL_MONSTERS:
+                    monster = ALL_MONSTERS[monster_id].copy()
+                    while monster.level < m_level:
+                        monster.gain_exp(monster.calculate_exp_to_next_level())
+                    monster.exp = m_exp
+                    loaded_player.reserve_monsters.append(monster)
 
             # 所持アイテムを読み込む
             cursor.execute(
