@@ -7,7 +7,7 @@ app = Flask(__name__)
 db_name = database_setup.DATABASE_NAME
 
 def get_or_create_user(username: str, password: str) -> int:
-    user_id = database_setup.get_user_id(username)
+    user_id = database_setup.get_user_id(username, password)
     if user_id is None:
         user_id = database_setup.create_user(username, password)
     return user_id
