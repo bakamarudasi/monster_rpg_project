@@ -7,4 +7,8 @@ from .monster_class import (
     GROWTH_TYPE_LATE,
 )
 from .monster_data import ALL_MONSTERS
+from .synthesis_rules import (
+    SYNTHESIS_RECIPES,
+    SYNTHESIS_ITEMS_REQUIRED,
+)
 

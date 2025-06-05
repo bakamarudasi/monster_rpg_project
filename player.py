@@ -4,7 +4,10 @@ from map_data import STARTING_LOCATION_ID
 from monsters.monster_class import Monster  # Monsterクラスをインポート
 from monsters.monster_data import ALL_MONSTERS  # モンスター定義をインポート
 from items.item_data import ALL_ITEMS
-from synthesis_rules import SYNTHESIS_RECIPES, SYNTHESIS_ITEMS_REQUIRED
+from monsters.synthesis_rules import (
+    SYNTHESIS_RECIPES,
+    SYNTHESIS_ITEMS_REQUIRED,
+)
 import random  # 将来的にスキル継承などで使うかも
 import copy
 from monster_book import MonsterBook
