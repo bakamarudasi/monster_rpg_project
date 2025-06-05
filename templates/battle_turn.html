@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Turn {{ battle.turn }}</h2>
+<h3>味方パーティ</h3>
+<ul>
+{% for m in player_party %}
+  <li>{{ m.name }} HP {{ m.hp }}/{{ m.max_hp }}{% if not m.is_alive %} (Down){% endif %}</li>
+{% endfor %}
+</ul>
+<h3>敵パーティ</h3>
+<ul>
+{% for e in enemy_party %}
+  <li>{{ e.name }} HP {{ e.hp }}/{{ e.max_hp }}{% if not e.is_alive %} (Down){% endif %}</li>
+{% endfor %}
+</ul>
+<form action="{{ url_for('battle', user_id=user_id) }}" method="post">
+{% for idx,m in enumerate(player_party) %}
+  {% if m.is_alive %}
+  <label>{{ m.name }} の攻撃対象:</label>
+  <select name="target_{{ idx }}">
+    {% for j,e in enumerate(enemy_party) %}
+      {% if e.is_alive %}
+      <option value="{{ j }}">{{ e.name }}</option>
+      {% endif %}
+    {% endfor %}
+  </select><br>
+  {% endif %}
+{% endfor %}
+  <button type="submit">行動</button>
+</form>
+<hr>
+<ul>
+{% for line in log %}
+  <li>{{ line }}</li>
+{% endfor %}
+</ul>
+<a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+{% endblock %}

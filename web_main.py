@@ -24,37 +24,90 @@ database_setup.initialize_database()
 # In-memory store of active players keyed by user_id
 active_players: dict[int, Player] = {}
 
+# Active battles keyed by user_id. Each value is a Battle instance
+active_battles: dict[int, "Battle"] = {}
+
+
+class Battle:
+    """Stateful battle handling one turn at a time."""
+
+    def __init__(self, player_party: list, enemy_party: list):
+        self.player_party = player_party
+        self.enemy_party = enemy_party
+        self.log: list[str] = []
+        self.turn = 1
+        self.finished = False
+        self.outcome: str | None = None
+
+    def next_turn(self, targets: list[int]):
+        """Process one turn using provided target indexes for each player monster."""
+        if self.finished:
+            return
+        self.log.append(f"-- Turn {self.turn} --")
+
+        # Player side
+        for idx, actor in enumerate(self.player_party):
+            if not actor.is_alive:
+                continue
+            t_idx = targets[idx] if idx < len(targets) else -1
+            target = None
+            if 0 <= t_idx < len(self.enemy_party) and self.enemy_party[t_idx].is_alive:
+                target = self.enemy_party[t_idx]
+            else:
+                target = next((e for e in self.enemy_party if e.is_alive), None)
+            if not target:
+                break
+            dmg = max(1, actor.attack - target.defense)
+            target.hp -= dmg
+            self.log.append(f"{actor.name} attacks {target.name} for {dmg}")
+            if target.hp <= 0:
+                target.is_alive = False
+                self.log.append(f"{target.name} was defeated")
+
+        if not any(e.is_alive for e in self.enemy_party):
+            self.finished = True
+            self.outcome = "win"
+            return
+
+        # Enemy side
+        for enemy in self.enemy_party:
+            if not enemy.is_alive:
+                continue
+            target = next((m for m in self.player_party if m.is_alive), None)
+            if not target:
+                break
+            dmg = max(1, enemy.attack - target.defense)
+            target.hp -= dmg
+            self.log.append(f"{enemy.name} attacks {target.name} for {dmg}")
+            if target.hp <= 0:
+                target.is_alive = False
+                self.log.append(f"{target.name} fell")
+
+        if not any(p.is_alive for p in self.player_party):
+            self.finished = True
+            self.outcome = "lose"
+            return
+
+        self.turn += 1
+
+
 
 def run_simple_battle(player_party: list, enemy_party: list):
-    """Very simplified auto battle returning outcome and log messages."""
-    log = []
-    while any(m.is_alive for m in player_party) and any(e.is_alive for e in enemy_party):
-        for p in player_party:
-            if not p.is_alive:
-                continue
-            target = next((e for e in enemy_party if e.is_alive), None)
-            if not target:
-                break
-            dmg = max(1, p.attack - target.defense)
-            target.hp -= dmg
-            log.append(f"{p.name} attacks {target.name} for {dmg}")
-            if target.hp <= 0:
-                target.is_alive = False
-                log.append(f"{target.name} was defeated")
-        for e in enemy_party:
-            if not e.is_alive:
-                continue
-            target = next((m for m in player_party if m.is_alive), None)
-            if not target:
-                break
-            dmg = max(1, e.attack - target.defense)
-            target.hp -= dmg
-            log.append(f"{e.name} attacks {target.name} for {dmg}")
-            if target.hp <= 0:
-                target.is_alive = False
-                log.append(f"{target.name} fell")
-    outcome = "win" if any(m.is_alive for m in player_party) else "lose"
-    return outcome, log
+    """Auto resolve a battle using the stateful ``Battle`` class."""
+    battle = Battle(player_party, enemy_party)
+    # Always attack the first available enemy
+    while not battle.finished:
+        targets = []
+        for _ in player_party:
+            # choose first alive enemy index
+            for j, enemy in enumerate(battle.enemy_party):
+                if enemy.is_alive:
+                    targets.append(j)
+                    break
+            else:
+                targets.append(-1)
+        battle.next_turn(targets)
+    return battle.outcome or "lose", battle.log
 
 
 def handle_battle(player: Player, location) -> list[str]:
@@ -288,17 +341,78 @@ def explore(user_id):
     return render_template('explore.html', messages=messages, user_id=user_id)
 
 
-@app.route('/battle/<int:user_id>', methods=['POST'])
+@app.route('/battle/<int:user_id>', methods=['GET', 'POST'])
 def battle(user_id):
-    """Initiate a simple battle and show the result log."""
+    """Interactive battle view. State is kept on the server."""
     player = active_players.get(user_id)
     if not player:
         return redirect(url_for('index'))
-    loc = LOCATIONS.get(player.current_location_id)
-    if not loc:
-        return redirect(url_for('play', user_id=user_id))
-    messages = handle_battle(player, loc)
-    return render_template('battle.html', messages=messages, user_id=user_id)
+
+    battle_obj = active_battles.get(user_id)
+
+    if request.method == 'GET':
+        if not battle_obj:
+            loc = LOCATIONS.get(player.current_location_id)
+            if not loc:
+                return redirect(url_for('play', user_id=user_id))
+            enemies = generate_enemy_party(loc, player)
+            if not enemies:
+                msg = 'モンスターは現れなかった。'
+                return render_template('result.html', message=msg, user_id=user_id)
+            battle_obj = Battle(player.party_monsters, enemies)
+            enemy_names = ", ".join(e.name for e in enemies)
+            battle_obj.log.append(f"{enemy_names} が現れた！")
+            active_battles[user_id] = battle_obj
+        return render_template(
+            'battle_turn.html',
+            user_id=user_id,
+            battle=battle_obj,
+            player_party=battle_obj.player_party,
+            enemy_party=battle_obj.enemy_party,
+            log=battle_obj.log,
+        )
+
+    # POST -> perform next turn
+    if not battle_obj:
+        return redirect(url_for('battle', user_id=user_id))
+
+    targets: list[int] = []
+    for i in range(len(battle_obj.player_party)):
+        val = request.form.get(f'target_{i}', '-1')
+        try:
+            targets.append(int(val))
+        except ValueError:
+            targets.append(-1)
+
+    battle_obj.next_turn(targets)
+
+    if battle_obj.finished:
+        outcome = battle_obj.outcome
+        msgs = battle_obj.log[:]
+        if outcome == 'win':
+            total_exp = sum(e.level * 10 for e in battle_obj.enemy_party)
+            gold_gain = sum(e.level * 5 for e in battle_obj.enemy_party)
+            alive_members = [m for m in player.party_monsters if m.is_alive]
+            if alive_members and total_exp:
+                share = total_exp // len(alive_members)
+                for m in alive_members:
+                    m.gain_exp(share)
+            player.gold += gold_gain
+            msgs.append(f"勝利した！ {gold_gain}G を得た。")
+        else:
+            msgs.append("敗北してしまった...")
+        player.last_battle_log = msgs
+        del active_battles[user_id]
+        return render_template('battle.html', messages=msgs, user_id=user_id)
+
+    return render_template(
+        'battle_turn.html',
+        user_id=user_id,
+        battle=battle_obj,
+        player_party=battle_obj.player_party,
+        enemy_party=battle_obj.enemy_party,
+        log=battle_obj.log,
+    )
 
 
 @app.route('/map/<int:user_id>')
