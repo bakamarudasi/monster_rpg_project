@@ -274,4 +274,25 @@ LOCATIONS = {
     
 }
 
-STARTING_LOCATION_ID = "village_square" # ゲーム開始時の場所ID
+STARTING_LOCATION_ID = "village_square"  # ゲーム開始時の場所ID
+
+
+def get_map_overview() -> str:
+    """LOCATIONS の概要をテキストで返す"""
+    lines = []
+    for loc in LOCATIONS.values():
+        conn_parts = []
+        for cmd, dest_id in loc.connections.items():
+            dest = LOCATIONS.get(dest_id)
+            dest_name = dest.name if dest else dest_id
+            conn_parts.append(f"{cmd}->{dest_name}")
+        conn_text = ", ".join(conn_parts) if conn_parts else "なし"
+        lines.append(f"{loc.name}: {conn_text}")
+    return "\n".join(lines)
+
+
+def display_map() -> None:
+    """ワールドマップを表示する"""
+    print("===== ワールドマップ =====")
+    print(get_map_overview())
+    print("========================")
