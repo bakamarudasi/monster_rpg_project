@@ -5,7 +5,8 @@ from monsters.monster_class import Monster  # Monsterクラスをインポート
 from monsters.monster_data import ALL_MONSTERS  # モンスター定義をインポート
 from items.item_data import ALL_ITEMS
 from synthesis_rules import SYNTHESIS_RECIPES, SYNTHESIS_ITEMS_REQUIRED
-import random # 将来的にスキル継承などで使うかも
+import random  # 将来的にスキル継承などで使うかも
+import copy
 
 # Debug flag to control verbose output
 DEBUG_MODE = False
@@ -349,8 +350,10 @@ class Player:
             # 合成に必要なアイテムがあればチェック
             required_item = SYNTHESIS_ITEMS_REQUIRED.get(recipe_key)
             if required_item:
-                item_index = next((i for i, itm in enumerate(self.items)
-                                   if getattr(itm, "item_id", None) == required_item), None)
+                item_index = next(
+                    (i for i, itm in enumerate(self.items) if getattr(itm, "item_id", None) == required_item),
+                    None,
+                )
                 if item_index is None:
                     item_name = ALL_ITEMS[required_item].name if required_item in ALL_ITEMS else required_item
                     return False, f"合成には {item_name} が必要だ。", None
@@ -358,28 +361,55 @@ class Player:
                 self.items.pop(item_index)
 
             result_monster_id = SYNTHESIS_RECIPES[recipe_key]
-            
+
             if result_monster_id in ALL_MONSTERS:
                 base_new_monster_template = ALL_MONSTERS[result_monster_id]
-                # print(f"[DEBUG player.py synthesize_monster] Template for new monster '{result_monster_id}': monster_id='{base_new_monster_template.monster_id}'")
                 new_monster = base_new_monster_template.copy()
-                if new_monster is None: # copy()が失敗した場合
+                if new_monster is None:  # copy()が失敗した場合
                     return False, f"エラー: 合成結果のモンスター '{result_monster_id}' の生成に失敗しました。", None
 
+                # --------------------------------------------------
+                # ▼ 継承システム: スキルとステータスボーナス
+                # --------------------------------------------------
+                inherited_skills = []
+                for parent in (parent1, parent2):
+                    if parent.skills:
+                        skill = random.choice(parent.skills)
+                        current_names = [s.name for s in new_monster.skills + inherited_skills]
+                        if getattr(skill, "name", None) not in current_names:
+                            inherited_skills.append(copy.deepcopy(skill))
+
+                new_monster.skills.extend(inherited_skills)
+
+                avg_level = (parent1.level + parent2.level) / 2
+                hp_bonus = int(avg_level * 2)
+                atk_bonus = int(avg_level)
+                def_bonus = int(avg_level)
+                spd_bonus = int(avg_level * 0.5)
+
+                new_monster.max_hp += hp_bonus
+                new_monster.attack += atk_bonus
+                new_monster.defense += def_bonus
+                new_monster.speed += spd_bonus
+
+                # 初期状態を整える
                 new_monster.level = 1
                 new_monster.exp = 0
-                new_monster.hp = new_monster.max_hp # HPは最大に
+                new_monster.hp = new_monster.max_hp
                 new_monster.is_alive = True
-                # print(f"[DEBUG player.py synthesize_monster] Newly synthesized monster: name='{new_monster.name}', monster_id='{new_monster.monster_id}'")
-                
+
                 indices_to_remove = sorted([monster1_idx, monster2_idx], reverse=True)
                 removed_monster_names = []
                 for idx in indices_to_remove:
                     removed_monster_names.append(self.party_monsters.pop(idx).name)
-                
+
                 self.party_monsters.append(new_monster)
-                
-                return True, f"{removed_monster_names[1]} と {removed_monster_names[0]} を合成して {new_monster.name} が誕生した！", new_monster
+
+                return (
+                    True,
+                    f"{removed_monster_names[1]} と {removed_monster_names[0]} を合成して {new_monster.name} が誕生した！",
+                    new_monster,
+                )
             else:
                 return False, f"エラー: 合成結果のモンスターID '{result_monster_id}' がモンスター定義に存在しません。", None
         else:
