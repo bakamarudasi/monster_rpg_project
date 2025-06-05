@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>ワールドマップ</h2>
+<pre>{{ overview }}</pre>
+<h3>探索度</h3>
+<ul>
+{% for loc_id, val in progress.items() %}
+  <li>{{ locations[loc_id].name }}: {{ val }}%</li>
+{% endfor %}
+</ul>
+<a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+{% endblock %}

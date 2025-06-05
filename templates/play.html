@@ -12,5 +12,14 @@
 {% endfor %}
 <form action="{{ url_for('status', user_id=user_id) }}" method="get"><button>ステータス</button></form>
 <form action="{{ url_for('party', user_id=user_id) }}" method="get"><button>パーティ</button></form>
+<form action="{{ url_for('explore', user_id=user_id) }}" method="post"><button>探索</button></form>
+<form action="{{ url_for('items', user_id=user_id) }}" method="get"><button>アイテム</button></form>
+<form action="{{ url_for('map', user_id=user_id) }}" method="get"><button>マップ</button></form>
+{% if loc.has_shop %}
+<form action="{{ url_for('shop', user_id=user_id) }}" method="get"><button>ショップ</button></form>
+{% endif %}
+{% if loc.has_inn %}
+<form action="{{ url_for('inn', user_id=user_id) }}" method="post"><button>宿屋 ({{ loc.inn_cost }})</button></form>
+{% endif %}
 <form action="{{ url_for('save', user_id=user_id) }}" method="post"><button>セーブ</button></form>
 {% endblock %}
