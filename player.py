@@ -8,6 +8,7 @@ from monsters.synthesis_rules import (
     SYNTHESIS_RECIPES,
     SYNTHESIS_ITEMS_REQUIRED,
 )
+from equipment import ALL_EQUIPMENT, CRAFTING_RECIPES
 import random  # 将来的にスキル継承などで使うかも
 import copy
 from monster_book import MonsterBook
@@ -23,11 +24,13 @@ class Player:
         self.party_monsters = [] # Monsterオブジェクトを格納
         self.gold = gold
         self.items = []
+        self.equipment_inventory = []
         self.current_location_id = STARTING_LOCATION_ID
         self.db_id = None # データベース上のID (ロード時に設定)
         self.user_id = user_id
         self.exploration_progress = {}
         self.monster_book = MonsterBook()
+        self.last_battle_log = []
 
     def save_game(self, db_name, user_id=None):
         conn = sqlite3.connect(db_name)
@@ -310,6 +313,42 @@ class Player:
         self.gold -= price
         self.add_monster_to_party(monster_id)
         print(f"{ALL_MONSTERS[monster_id].name} を {price}G で仲間にした。")
+        return True
+
+    def craft_equipment(self, equip_id):
+        recipe = CRAFTING_RECIPES.get(equip_id)
+        if not recipe:
+            print("その装備は作成できない。")
+            return None
+        for item_id, qty in recipe.items():
+            count = sum(1 for it in self.items if getattr(it, "item_id", None) == item_id)
+            if count < qty:
+                print("素材が足りない。")
+                return None
+        # consume items
+        for item_id, qty in recipe.items():
+            removed = 0
+            for i in range(len(self.items)-1, -1, -1):
+                if getattr(self.items[i], "item_id", None) == item_id and removed < qty:
+                    self.items.pop(i)
+                    removed += 1
+        equip = ALL_EQUIPMENT[equip_id]
+        self.equipment_inventory.append(equip)
+        print(f"{equip.name} を作成した！")
+        return equip
+
+    def equip_to_monster(self, party_idx, equip_id):
+        if not (0 <= party_idx < len(self.party_monsters)):
+            print("無効なモンスター番号")
+            return False
+        equip = next((e for e in self.equipment_inventory if e.equip_id == equip_id), None)
+        if not equip:
+            print("その装備を所持していない。")
+            return False
+        monster = self.party_monsters[party_idx]
+        monster.equip(equip)
+        self.equipment_inventory.remove(equip)
+        print(f"{monster.name} に {equip.name} を装備した。")
         return True
 
     def synthesize_monster(self, monster1_idx, monster2_idx, item_id=None): # item_id は将来用

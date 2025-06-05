@@ -11,4 +11,5 @@ from .synthesis_rules import (
     SYNTHESIS_RECIPES,
     SYNTHESIS_ITEMS_REQUIRED,
 )
+from .evolution_rules import EVOLUTION_RULES
 

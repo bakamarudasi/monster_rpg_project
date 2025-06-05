@@ -80,6 +80,7 @@ def handle_battle(player: Player, location) -> list[str]:
         msgs.append(f"勝利した！ {gold_gain}G を得た。")
     else:
         msgs.append("敗北してしまった...")
+    player.last_battle_log = msgs
     return msgs
 
 @app.route('/')
@@ -289,6 +290,15 @@ def world_map(user_id):
         return redirect(url_for('index'))
     overview = get_map_overview()
     return render_template('map.html', overview=overview, progress=player.exploration_progress, locations=LOCATIONS, user_id=user_id)
+
+
+@app.route('/battle_log/<int:user_id>')
+def battle_log(user_id):
+    player = active_players.get(user_id)
+    if not player:
+        return redirect(url_for('index'))
+    log = getattr(player, 'last_battle_log', [])
+    return render_template('battle_log.html', log=log, user_id=user_id)
 
 @app.route('/move/<int:user_id>', methods=['POST'])
 def move(user_id):
