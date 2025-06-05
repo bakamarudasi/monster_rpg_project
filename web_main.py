@@ -288,6 +288,19 @@ def explore(user_id):
     return render_template('explore.html', messages=messages, user_id=user_id)
 
 
+@app.route('/battle/<int:user_id>', methods=['POST'])
+def battle(user_id):
+    """Initiate a simple battle and show the result log."""
+    player = active_players.get(user_id)
+    if not player:
+        return redirect(url_for('index'))
+    loc = LOCATIONS.get(player.current_location_id)
+    if not loc:
+        return redirect(url_for('play', user_id=user_id))
+    messages = handle_battle(player, loc)
+    return render_template('battle.html', messages=messages, user_id=user_id)
+
+
 @app.route('/map/<int:user_id>')
 def world_map(user_id):
     player = active_players.get(user_id)
