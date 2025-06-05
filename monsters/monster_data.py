@@ -370,6 +370,85 @@ SKY_SERAPH = Monster(
     rank=RANK_S,
 )
 
+SPECTRAL_RAVEN = Monster(
+    name="スペクトラルレイヴン",
+    hp=55, attack=19, defense=11, level=4,
+    element="闇", speed=20,
+    skills=[ALL_SKILLS[s] for s in ("dark_pulse", "sleep_spell") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_EARLY,
+    monster_id="spectral_raven",
+    rank=RANK_C,
+)
+
+MIST_WRAITH = Monster(
+    name="ミストレイス",
+    hp=70, attack=24, defense=15, level=6,
+    element="氷", speed=13,
+    skills=[ALL_SKILLS[s] for s in ("ice_spear", "slow", "curse") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="mist_wraith",
+    rank=RANK_B,
+)
+
+CORAL_HYDRA = Monster(
+    name="コーラルハイドラ",
+    hp=115, attack=32, defense=28, level=8,
+    element="水", speed=9,
+    skills=[ALL_SKILLS[s] for s in ("heal", "poison_dart", "guard_up") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="coral_hydra",
+    rank=RANK_A,
+)
+
+IRON_JUGGERNAUT = Monster(
+    name="アイアンジャガーノート",
+    hp=140, attack=40, defense=45, level=10,
+    element="土", speed=4,
+    skills=[ALL_SKILLS[s] for s in ("earth_quake", "power_up") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_LATE,
+    monster_id="iron_juggernaut",
+    rank=RANK_A,
+)
+
+BLOOD_FIEND = Monster(
+    name="ブラッドフィーンド",
+    hp=105, attack=37, defense=23, level=9,
+    element="闇", speed=14,
+    skills=[ALL_SKILLS[s] for s in ("paralysis_shock", "dark_pulse", "regen") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="blood_fiend",
+    rank=RANK_A,
+)
+
+MOONLIT_DRYAD = Monster(
+    name="ムーンリットドリアード",
+    hp=85, attack=26, defense=20, level=7,
+    element="光", speed=16,
+    skills=[ALL_SKILLS[s] for s in ("holy_light", "heal", "speed_up") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_EARLY,
+    monster_id="moonlit_dryad",
+    rank=RANK_B,
+)
+
+OBSIDIAN_TITAN = Monster(
+    name="オブシディアンタイタン",
+    hp=165, attack=48, defense=48, level=12,
+    element="火", speed=6,
+    skills=[ALL_SKILLS[s] for s in ("meteor_strike", "guard_up", "power_up") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_LATE,
+    monster_id="obsidian_titan",
+    rank=RANK_S,
+)
+
+ELECTRO_MANTIS = Monster(
+    name="エレクトロマンティス",
+    hp=90, attack=31, defense=18, level=8,
+    element="雷", speed=22,
+    skills=[ALL_SKILLS[s] for s in ("thunder_bolt", "stun_blow", "speed_up") if s in ALL_SKILLS],
+    growth_type=GROWTH_TYPE_EARLY,
+    monster_id="electro_mantis",
+    rank=RANK_A,
+)
 
 ALL_MONSTERS = {
     "slime": SLIME,
@@ -407,4 +486,12 @@ ALL_MONSTERS = {
     "crystal_drake": CRYSTAL_DRAKE,
     "kraken": KRAKEN,
     "sky_seraph": SKY_SERAPH,
+    "spectral_raven": SPECTRAL_RAVEN,
+    "mist_wraith": MIST_WRAITH,
+    "coral_hydra": CORAL_HYDRA,
+    "iron_juggernaut": IRON_JUGGERNAUT,
+    "blood_fiend": BLOOD_FIEND,
+    "moonlit_dryad": MOONLIT_DRYAD,
+    "obsidian_titan": OBSIDIAN_TITAN,
+    "electro_mantis": ELECTRO_MANTIS,
 }
