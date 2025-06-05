@@ -10,6 +10,7 @@ except ImportError as e:  # pragma: no cover - dependency check
 import random
 
 import database_setup
+import sqlite3
 from player import Player
 from monsters.monster_data import ALL_MONSTERS, MONSTER_BOOK_DATA
 from items.item_data import ALL_ITEMS
@@ -92,7 +93,11 @@ def index():
 def start_game():
     """Create a new player and start the game."""
     name = request.form.get('username', 'Hero')
-    user_id = database_setup.create_user(name, 'pw')
+    try:
+        user_id = database_setup.create_user(name, 'pw')
+    except sqlite3.IntegrityError:
+        msg = "既に同じ名前の人が存在しています"
+        return render_template('result.html', message=msg, user_id=None)
     player = Player(name=name, user_id=user_id, gold=100)
     for mid in ("slime", "goblin", "wolf"):
         if mid in ALL_MONSTERS:

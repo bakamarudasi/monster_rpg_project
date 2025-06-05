@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
 <p>{{ message }}</p>
+{% if user_id %}
 <a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+{% else %}
+<a href="{{ url_for('index') }}">トップへ</a>
+{% endif %}
 {% endblock %}
