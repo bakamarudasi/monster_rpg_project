@@ -11,7 +11,7 @@ import random
 
 import database_setup
 from player import Player
-from monsters.monster_data import ALL_MONSTERS
+from monsters.monster_data import ALL_MONSTERS, MONSTER_BOOK_DATA
 from items.item_data import ALL_ITEMS
 from map_data import LOCATIONS, get_map_overview
 from exploration import generate_enemy_party
@@ -149,6 +149,28 @@ def party(user_id):
         return redirect(url_for('index'))
     return render_template("party.html", player=player, user_id=user_id)
 
+
+@app.route('/monster_book/<int:user_id>')
+def monster_book(user_id):
+    """Show the player's monster encyclopedia."""
+    player = active_players.get(user_id)
+    if not player:
+        return redirect(url_for('index'))
+    entries = []
+    for mid, entry in MONSTER_BOOK_DATA.items():
+        status = 'unknown'
+        if mid in player.monster_book.captured:
+            status = 'captured'
+        elif mid in player.monster_book.seen:
+            status = 'seen'
+        entries.append((entry, status))
+    completion = player.monster_book.completion_rate()
+    return render_template(
+        'monster_book.html',
+        entries=entries,
+        completion=completion,
+        user_id=user_id,
+    )
 
 @app.route('/formation/<int:user_id>', methods=['GET', 'POST'])
 def formation(user_id):

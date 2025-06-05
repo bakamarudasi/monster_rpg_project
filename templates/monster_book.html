@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>モンスター図鑑</h2>
+<p>発見率 {{ completion|round(1) }}%</p>
+<ul>
+{% for entry, status in entries %}
+  <li>
+  {% if status == 'captured' %}
+    <strong>{{ entry.monster_id }}</strong> [捕獲]<br>
+    {{ entry.description }}
+    {% if entry.location_hint %}<br>出現場所: {{ entry.location_hint }}{% endif %}
+    {% if entry.synthesis_hint %}<br>合成ヒント: {{ entry.synthesis_hint }}{% endif %}
+  {% elif status == 'seen' %}
+    {{ entry.monster_id }} [目撃]<br>
+    ??? 詳細は不明
+    {% if entry.location_hint %}<br>手掛かり: {{ entry.location_hint }}{% endif %}
+  {% else %}
+    ??? [未発見]
+  {% endif %}
+  </li>
+{% endfor %}
+</ul>
+<a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+{% endblock %}
