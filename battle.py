@@ -190,6 +190,40 @@ def determine_turn_order(party_a: list[Monster], party_b: list[Monster]) -> list
         reverse=True,
     )
 
+def enemy_take_action(enemy_actor: Monster, active_player_party: list[Monster], active_enemy_party: list[Monster]):
+    """Execute an enemy monster's turn. Chooses between a normal attack or using a skill."""
+    print(f"\n{enemy_actor.name} の行動！")
+    alive_player_targets = [m for m in active_player_party if m.is_alive]
+    if not alive_player_targets:
+        print(f"{enemy_actor.name} は様子を見ている...")
+        return
+
+    usable_skills = [s for s in enemy_actor.skills if enemy_actor.mp >= s.cost]
+    if usable_skills and random.random() < 0.5:
+        selected_skill = random.choice(usable_skills)
+        if selected_skill.target == "enemy":
+            if selected_skill.scope == "all":
+                skill_targets = alive_player_targets
+            else:
+                skill_targets = [random.choice(alive_player_targets)]
+        else:  # ally target
+            allies = [m for m in active_enemy_party if m.is_alive]
+            if selected_skill.scope == "all":
+                skill_targets = allies
+            else:
+                skill_targets = [random.choice(allies)]
+
+        apply_skill_effect(enemy_actor, skill_targets, selected_skill, active_enemy_party, active_player_party)
+    else:
+        target = random.choice(alive_player_targets)
+        print(f"{enemy_actor.name} の攻撃！ -> {target.name}")
+        damage = calculate_damage(enemy_actor, target)
+        target.hp -= damage
+        print(f"{target.name} は {damage} のダメージを受けた！ (残りHP: {max(0, target.hp)})")
+        if target.hp <= 0:
+            target.is_alive = False
+            print(f"{target.name} は倒れた！")
+
 RANK_EXP_MULTIPLIERS = {
     "S": 2.0,
     "A": 1.6,
@@ -417,20 +451,7 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster], player
                 if is_party_defeated(active_player_party):
                     break
 
-                print(f"\n{enemy_actor.name} の行動！")
-                alive_player_targets = [m for m in active_player_party if m.is_alive]
-                if not alive_player_targets:
-                    print(f"{enemy_actor.name} は様子を見ている...")
-                    continue
-
-                target = random.choice(alive_player_targets)
-                print(f"{enemy_actor.name} の攻撃！ -> {target.name}")
-                damage = calculate_damage(enemy_actor, target)
-                target.hp -= damage
-                print(f"{target.name} は {damage} のダメージを受けた！ (残りHP: {max(0, target.hp)})")
-                if target.hp <= 0:
-                    target.is_alive = False
-                    print(f"{target.name} は倒れた！")
+                enemy_take_action(enemy_actor, active_player_party, active_enemy_party)
 
         turn += 1
 
