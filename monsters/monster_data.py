@@ -26,7 +26,8 @@ SLIME = Monster(
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="slime",
     rank=RANK_D, # 例: スライムはDランク
-    drop_items=[(ALL_ITEMS["small_potion"], 0.5)]
+    drop_items=[(ALL_ITEMS["small_potion"], 0.5)],
+    image_filename="slime.png"
 )
 
 GOBLIN = Monster(
@@ -44,7 +45,8 @@ WOLF = Monster(
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="wolf",
     rank=RANK_C, # 例: ウルフはCランク
-    drop_items=[(ALL_ITEMS["medium_potion"], 0.1)]
+    drop_items=[(ALL_ITEMS["medium_potion"], 0.1)],
+    image_filename="wolf.png"
 )
 
 SLIME_GOBLIN_HYBRID = Monster(
@@ -58,7 +60,8 @@ SLIME_GOBLIN_HYBRID = Monster(
     skills=[], 
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="slime_goblin_hybrid",
-    rank=RANK_C # 例: 合成モンスターはCランク
+    rank=RANK_C ,# 例: 合成モンスターはCランク
+    image_filename="slime_goblin_hybrid.png",
 )
 
 # 例として高ランクモンスターを追加
@@ -73,7 +76,8 @@ DRAGON_PUP = Monster(
     skills=[ALL_SKILLS["fireball"]] if "fireball" in ALL_SKILLS else [], # 初期スキルは弱めでも良い
     growth_type=GROWTH_TYPE_LATE, # 大器晩成型
     monster_id="dragon_pup",
-    rank=RANK_A # 例: ドラゴンのこどもはAランク
+    rank=RANK_A, # 例: ドラゴンのこどもはAランク
+    image_filename="dragon_pup.png",
 )
 
 PHOENIX_CHICK = Monster(
@@ -87,7 +91,8 @@ PHOENIX_CHICK = Monster(
     skills=[ALL_SKILLS["heal"]] if "heal" in ALL_SKILLS else [], # 自己回復スキル持ち
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="phoenix_chick",
-    rank=RANK_S # 例: 不死鳥のヒナはSランク
+    rank=RANK_S, # 例: 不死鳥のヒナはSランク
+    image_filename="phoenix_chick.png",
 )
 ORC_WARRIOR = Monster(
     name="オークウォリアー",
@@ -97,6 +102,7 @@ ORC_WARRIOR = Monster(
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="orc_warrior",
     rank=RANK_C,
+    image_filename="orc_warrior.png",
 )
 
 SKELETON_ARCHER = Monster(
@@ -107,6 +113,7 @@ SKELETON_ARCHER = Monster(
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="skeleton_archer",
     rank=RANK_C,
+    image_filename="skeleton_archer.png",
 )
 
 ELF_MAGE = Monster(
@@ -120,6 +127,7 @@ ELF_MAGE = Monster(
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="elf_mage",
     rank=RANK_B,
+    image_filename="elf_mage.png",
 )
 
 TROLL_BRUTE = Monster(
@@ -130,6 +138,7 @@ TROLL_BRUTE = Monster(
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="troll_brute",
     rank=RANK_B,
+    image_filename="troll_brute.png",
 )
 
 MERMAID_SIREN = Monster(
@@ -208,6 +217,7 @@ WATER_WOLF = Monster(
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="water_wolf",
     rank=RANK_C,
+    image_filename="water_wolf.png",
 )
 
 POISON_ORC = Monster(
