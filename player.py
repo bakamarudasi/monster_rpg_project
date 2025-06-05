@@ -169,6 +169,17 @@ class Player:
             monster.show_status()
         print("=" * 30)
 
+    def move_monster(self, from_idx: int, to_idx: int) -> bool:
+        """パーティ内でモンスターの位置を移動する。"""
+        if not (
+            0 <= from_idx < len(self.party_monsters)
+            and 0 <= to_idx < len(self.party_monsters)
+        ):
+            return False
+        monster = self.party_monsters.pop(from_idx)
+        self.party_monsters.insert(to_idx, monster)
+        return True
+
     def show_items(self):
         if not self.items:
             print("アイテムを何も持っていない。")

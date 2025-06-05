@@ -6,5 +6,8 @@
 <li>{{ m.name }} Lv.{{ m.level }} HP {{ m.hp }}/{{ m.max_hp }}</li>
 {% endfor %}
 </ul>
+<form action="{{ url_for('formation', user_id=user_id) }}" method="get">
+  <button>編成</button>
+</form>
 <a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
 {% endblock %}
