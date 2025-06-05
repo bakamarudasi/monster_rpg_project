@@ -47,7 +47,7 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
 ### Maps
 - `map_data.py` &mdash; defines the `Location` class and the dictionary `LOCATIONS` which describes available areas and how they connect. `STARTING_LOCATION_ID` indicates where the player begins.
 
-Other notable modules include `player.py` (player data and save/load logic), `battle.py` (battle system), and `synthesis_rules.py` (monster fusion recipes).
+Other notable modules include `player.py` (player data and save/load logic), `battle.py` (battle system), and `monsters/synthesis_rules.py` (monster fusion recipes).
 
 ## New Features
 - Items can now be used both outside and during battle. The included potions restore HP and can turn the tide mid-fight.
