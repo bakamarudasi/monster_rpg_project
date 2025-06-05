@@ -7,133 +7,15 @@ from battle import start_battle  # battle.py から start_battle をインポー
 from map_data import LOCATIONS, Location
 from database_setup import initialize_database, DATABASE_NAME
 from items.item_data import ALL_ITEMS
+from exploration import (
+    show_exploration_progress,
+    get_monster_instance_copy,
+    generate_enemy_party,
+)
+from shop import open_shop
+from battle_manager import handle_battle_loss
 
 
-def show_exploration_progress(progress: int) -> None:
-    """表示用の簡易プログレスバーを描画する"""
-    bar_length = 20
-    filled = int(bar_length * progress / 100)
-    bar = "#" * filled + "-" * (bar_length - filled)
-    print(f"探索度: [{bar}] {progress}%")
-
-def get_monster_instance_copy(monster_id_or_object: Monster | str) -> Monster | None:
-    """
-    モンスターの新しいインスタンス（コピー）を返します。
-    引数がIDの場合はALL_MONSTERSからコピーを生成。
-    引数がMonsterオブジェクトの場合はそのコピーを生成。
-    戦闘開始時や仲間に加える際に使用します。
-    """
-    if isinstance(monster_id_or_object, str):
-        monster_id = monster_id_or_object.lower()
-        if monster_id in ALL_MONSTERS:
-            # ALL_MONSTERSのテンプレートから新しいインスタンスをコピー
-            new_monster = ALL_MONSTERS[monster_id].copy()
-            if new_monster:
-                # 戦闘や仲間にする際の初期状態（HP最大など）
-                new_monster.hp = new_monster.max_hp
-                new_monster.is_alive = True
-            return new_monster
-        else:
-            print(f"エラー: モンスターID '{monster_id}' は存在しません。")
-            return None
-    elif isinstance(monster_id_or_object, Monster):
-        # 渡されたMonsterオブジェクトのコピーを作成
-        new_monster = monster_id_or_object.copy()
-        if new_monster:
-            new_monster.hp = new_monster.max_hp # HPを最大にリセット
-            new_monster.is_alive = True
-        return new_monster
-    else:
-        print(f"エラー: 不正な引数です - {monster_id_or_object}")
-        return None
-
-def generate_enemy_party(location: Location) -> list[Monster]:
-    """指定された場所に基づいて敵パーティを生成します (1〜3体)。"""
-    enemy_party = []
-    if not location.possible_enemies:
-        return enemy_party
-
-    num_enemies = random.randint(1, min(3, len(location.possible_enemies))) # 最大3体まで、または出現可能数まで
-
-    for _ in range(num_enemies):
-        enemy_id = random.choice(location.possible_enemies)
-        enemy_instance = get_monster_instance_copy(enemy_id)
-        if enemy_instance:
-            enemy_party.append(enemy_instance)
-    
-    # 万が一、インスタンス生成に失敗して空になった場合も考慮
-    if not enemy_party and location.possible_enemies: # 敵がいるはずなのに空なら1体は保証
-        enemy_id = random.choice(location.possible_enemies)
-        enemy_instance = get_monster_instance_copy(enemy_id)
-        if enemy_instance:
-            enemy_party.append(enemy_instance)
-            
-    return enemy_party
-
-
-def open_shop(player: Player, location: Location):
-    if not getattr(location, 'has_shop', False):
-        print("ここにはお店はない。")
-        return
-
-    while True:
-        print("\n===== ショップ =====")
-        print(f"所持金: {player.gold}G")
-        options = []
-        idx = 1
-        for item_id, price in getattr(location, 'shop_items', {}).items():
-            item = ALL_ITEMS.get(item_id)
-            if item:
-                options.append(('item', item_id, price))
-                print(f"{idx}: {item.name} - {price}G")
-                idx += 1
-        for monster_id, price in getattr(location, 'shop_monsters', {}).items():
-            monster = ALL_MONSTERS.get(monster_id)
-            if monster:
-                options.append(('monster', monster_id, price))
-                print(f"{idx}: {monster.name} - {price}G")
-                idx += 1
-        print("0: やめる")
-
-        choice = input("購入する番号を選んでください: ")
-        if not choice.isdigit():
-            print("数字で入力してください。")
-            continue
-        c = int(choice)
-        if c == 0:
-            break
-        if 1 <= c <= len(options):
-            kind, obj_id, price = options[c-1]
-            if kind == 'item':
-                player.buy_item(obj_id, price)
-            else:
-                player.buy_monster(obj_id, price)
-        else:
-            print("無効な選択です。")
-
-
-def handle_battle_loss(hero: Player) -> str:
-    """Handle menu flow after the player loses a battle.
-
-    Returns one of "retry", "load", or "exit" depending on the player's choice.
-    """
-    while True:
-        print("\n--- GAME OVER ---")
-        print("1: リトライする")
-        print("2: セーブデータをロードする")
-        print("3: ゲームを終了する")
-        choice = input("選択: ").strip()
-        if choice == "1":
-            return "retry"
-        elif choice == "2":
-            loaded = Player.load_game(DATABASE_NAME)
-            if loaded:
-                hero.__dict__.update(loaded.__dict__)
-            return "load"
-        elif choice == "3":
-            return "exit"
-        else:
-            print("無効な選択です。")
 
 
 def game_loop(hero: Player): # 型ヒントを追加
