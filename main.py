@@ -4,7 +4,7 @@ from player import Player
 from monsters import ALL_MONSTERS, Monster
 from skills.skills import ALL_SKILLS
 from battle import start_battle  # battle.py から start_battle をインポート
-from map_data import LOCATIONS, Location
+from map_data import LOCATIONS, Location, display_map
 from database_setup import initialize_database, DATABASE_NAME
 from items.item_data import ALL_ITEMS
 from exploration import (
@@ -50,8 +50,9 @@ def game_loop(hero: Player): # 型ヒントを追加
         if hasattr(current_location_data, 'has_inn') and current_location_data.has_inn:
             inn_cost = current_location_data.inn_cost if hasattr(current_location_data, 'inn_cost') else 10
             print(f"8: 宿屋に泊まる ({inn_cost}G)")
-        
+
         print("9: ゲームをセーブ")
+        print("10: マップを見る")
         print("0: ゲーム終了")
 
         action = input("行動を選んでください (番号): ")
@@ -288,6 +289,9 @@ def game_loop(hero: Player): # 型ヒントを追加
 
         elif action == "9": # セーブ
             hero.save_game(DATABASE_NAME)
+
+        elif action == "10":
+            display_map()
 
         elif action == "0": # ゲーム終了
             print("ゲームを終了します。お疲れ様でした！")
