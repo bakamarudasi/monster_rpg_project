@@ -21,6 +21,10 @@ body{background:#0d0d0d;color:#e0e0e0;font-family:"Segoe UI",Tahoma,Verdana,sans
 .hp-fill.low{background:#ffb100;}
 .hp-fill.critical{background:#ff3c3c;}
 
+/* === images & actions === */
+.enemy-img{width:32px;height:32px;object-fit:contain;margin-right:.4rem;border-radius:4px;}
+.action-row{margin-bottom:.5rem;display:flex;gap:.5rem;align-items:center;}
+
 /* === form & buttons === */
 select,button{background:#2d2d2d;color:#e0e0e0;border:1px solid #555;border-radius:4px;padding:.25rem .6rem;}
 button{cursor:pointer;margin-top:1rem;background:#0066ff;border:none;padding:.5rem 1.25rem;border-radius:6px;font-weight:bold;transition:background .2s;}
@@ -67,6 +71,9 @@ button:hover{background:#004cd1;}
         {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}
         {% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
         <div class="member{% if not e.is_alive %} down{% endif %}" data-down="{{ not e.is_alive }}">
+          {% if e.image_filename %}
+            <img class="enemy-img" src="{{ url_for('static', filename='images/' + e.image_filename) }}" alt="{{ e.name }}">
+          {% endif %}
           <span>{{ e.name }}</span>
           <div class="hp-bar"><div class="{{ hp_cls }}" style="width:{{ hp_pct }}%"></div></div>
           <span>{{ e.hp }}/{{ e.max_hp }}</span>
@@ -77,12 +84,26 @@ button:hover{background:#004cd1;}
 
   <form action="{{ url_for('battle', user_id=user_id) }}" method="post">
     {% for idx, m in enumerate(player_party) if m.is_alive %}
-      <label>{{ m.name }} の攻撃対象:</label>
-      <select name="target_{{ idx }}">
-        {% for j, e in enumerate(enemy_party) if e.is_alive %}
-          <option value="{{ j }}">{{ e.name }}</option>
-        {% endfor %}
-      </select><br>
+      <div class="action-row">
+        <label>{{ m.name }}:</label>
+        <select name="action_{{ idx }}">
+          <option value="attack">攻撃</option>
+          {% for s_idx, sk in enumerate(m.skills) %}
+            <option value="skill{{ s_idx }}">{{ sk.name }}</option>
+          {% endfor %}
+          <option value="run">逃げる</option>
+        </select>
+        <select name="target_enemy_{{ idx }}">
+          {% for j, e in enumerate(enemy_party) if e.is_alive %}
+            <option value="{{ j }}">{{ e.name }}</option>
+          {% endfor %}
+        </select>
+        <select name="target_ally_{{ idx }}">
+          {% for j, a in enumerate(player_party) if a.is_alive %}
+            <option value="{{ j }}">{{ a.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
     {% endfor %}
     <button type="submit">行動</button>
   </form>

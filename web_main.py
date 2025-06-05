@@ -39,8 +39,8 @@ class Battle:
         self.finished = False
         self.outcome: str | None = None
 
-    def next_turn(self, targets: list[int]):
-        """Process one turn using provided target indexes for each player monster."""
+    def next_turn(self, actions: list[dict]):
+        """Process one turn using action dictionaries for each player monster."""
         if self.finished:
             return
         self.log.append(f"-- Turn {self.turn} --")
@@ -49,8 +49,58 @@ class Battle:
         for idx, actor in enumerate(self.player_party):
             if not actor.is_alive:
                 continue
-            t_idx = targets[idx] if idx < len(targets) else -1
-            target = None
+
+            act = actions[idx] if idx < len(actions) else {"type": "attack", "target_enemy": 0}
+
+            # attempt flee once
+            if act.get("type") == "run":
+                if random.random() < 0.5:
+                    self.log.append("うまく逃げ切れた！")
+                    self.finished = True
+                    self.outcome = "fled"
+                    return
+                else:
+                    self.log.append("しかし逃げられなかった！")
+                    continue
+
+            if act.get("type") == "skill":
+                s_idx = act.get("skill")
+                if s_idx is None or s_idx >= len(actor.skills):
+                    self.log.append(f"{actor.name} はスキルを使えなかった")
+                    continue
+                skill = actor.skills[s_idx]
+                if actor.mp < skill.cost:
+                    self.log.append(f"{actor.name} は {skill.name} を使うMPが足りない")
+                    continue
+                actor.mp -= skill.cost
+                if skill.target == "ally":
+                    t_idx = act.get("target_ally", idx)
+                    target = self.player_party[t_idx] if 0 <= t_idx < len(self.player_party) else actor
+                    if skill.skill_type == "heal":
+                        before = target.hp
+                        target.hp = min(target.max_hp, target.hp + skill.power)
+                        healed = target.hp - before
+                        self.log.append(f"{actor.name} は {target.name} を {skill.name} で {healed} 回復した")
+                    else:
+                        self.log.append(f"{skill.name} の効果はまだ実装されていない")
+                else:
+                    t_idx = act.get("target_enemy", -1)
+                    if 0 <= t_idx < len(self.enemy_party) and self.enemy_party[t_idx].is_alive:
+                        target = self.enemy_party[t_idx]
+                    else:
+                        target = next((e for e in self.enemy_party if e.is_alive), None)
+                    if not target:
+                        continue
+                    dmg = max(1, skill.power - target.defense)
+                    target.hp -= dmg
+                    self.log.append(f"{actor.name} は {skill.name} を使い {target.name} に {dmg} のダメージ")
+                    if target.hp <= 0:
+                        target.is_alive = False
+                        self.log.append(f"{target.name} was defeated")
+                continue
+
+            # default attack
+            t_idx = act.get("target_enemy", -1)
             if 0 <= t_idx < len(self.enemy_party) and self.enemy_party[t_idx].is_alive:
                 target = self.enemy_party[t_idx]
             else:
@@ -97,16 +147,15 @@ def run_simple_battle(player_party: list, enemy_party: list):
     battle = Battle(player_party, enemy_party)
     # Always attack the first available enemy
     while not battle.finished:
-        targets = []
+        actions = []
         for _ in player_party:
-            # choose first alive enemy index
+            tgt = -1
             for j, enemy in enumerate(battle.enemy_party):
                 if enemy.is_alive:
-                    targets.append(j)
+                    tgt = j
                     break
-            else:
-                targets.append(-1)
-        battle.next_turn(targets)
+            actions.append({"type": "attack", "target_enemy": tgt})
+        battle.next_turn(actions)
     return battle.outcome or "lose", battle.log
 
 
@@ -342,7 +391,23 @@ def explore(user_id):
     messages.append(f"探索度 {before}% -> {after}%")
 
     if loc.possible_enemies and random.random() < loc.encounter_rate:
-        messages.extend(handle_battle(player, loc))
+        enemies = generate_enemy_party(loc, player)
+        if enemies:
+            battle_obj = Battle(player.party_monsters, enemies)
+            battle_obj.log.append(f"探索度 {before}% -> {after}%")
+            enemy_names = ", ".join(e.name for e in enemies)
+            battle_obj.log.append(f"{enemy_names} が現れた！")
+            active_battles[user_id] = battle_obj
+            return render_template(
+                'battle_turn.html',
+                user_id=user_id,
+                battle=battle_obj,
+                player_party=battle_obj.player_party,
+                enemy_party=battle_obj.enemy_party,
+                log=battle_obj.log,
+            )
+        else:
+            messages.append('モンスターは現れなかった。')
     else:
         messages.append('モンスターは現れなかった。')
 
@@ -389,15 +454,40 @@ def battle(user_id):
     if not battle_obj:
         return redirect(url_for('battle', user_id=user_id))
 
-    targets: list[int] = []
-    for i in range(len(battle_obj.player_party)):
-        val = request.form.get(f'target_{i}', '-1')
-        try:
-            targets.append(int(val))
-        except ValueError:
-            targets.append(-1)
+    actions: list[dict] = []
+    for i, actor in enumerate(battle_obj.player_party):
+        if not actor.is_alive:
+            actions.append({})
+            continue
+        act_val = request.form.get(f'action_{i}', 'attack')
+        if act_val == 'run':
+            actions.append({'type': 'run'})
+            continue
+        if act_val.startswith('skill'):
+            try:
+                s_idx = int(act_val[5:])
+            except ValueError:
+                s_idx = 0
+            tgt_e = request.form.get(f'target_enemy_{i}', '-1')
+            tgt_a = request.form.get(f'target_ally_{i}', str(i))
+            try:
+                tgt_e = int(tgt_e)
+            except ValueError:
+                tgt_e = -1
+            try:
+                tgt_a = int(tgt_a)
+            except ValueError:
+                tgt_a = i
+            actions.append({'type': 'skill', 'skill': s_idx, 'target_enemy': tgt_e, 'target_ally': tgt_a})
+        else:
+            tgt = request.form.get(f'target_enemy_{i}', '-1')
+            try:
+                tgt = int(tgt)
+            except ValueError:
+                tgt = -1
+            actions.append({'type': 'attack', 'target_enemy': tgt})
 
-    battle_obj.next_turn(targets)
+    battle_obj.next_turn(actions)
 
     if battle_obj.finished:
         outcome = battle_obj.outcome
