@@ -25,6 +25,12 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
    pip install -r requirements.txt
    python webapp.py
    ```
+5. Another web interface exists in `web_main.py`:
+   ```bash
+   pip install -r requirements.txt
+   python web_main.py
+   ```
+   This starts the server at <http://localhost:5000/>.
 
 ## Project Structure
 
