@@ -6,5 +6,41 @@
   <li>{{ m }}</li>
 {% endfor %}
 </ul>
+
+<div class="progress-container">
+  <div class="progress-bar">
+    <div class="progress-fill" style="width: {{ progress }}%"></div>
+  </div>
+  <span class="progress-percent">{{ progress }}%</span>
+</div>
+
+<form action="{{ url_for('explore', user_id=user_id) }}" method="post">
+  <button type="submit">さらに探索する</button>
+</form>
 <a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+
+<style>
+  .progress-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .progress-bar {
+    width: 200px;
+    height: 16px;
+    background: #eee;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    background: linear-gradient(90deg, #5fffc2, #5e92fa 70%);
+    height: 100%;
+  }
+  .progress-percent {
+    width: 50px;
+    text-align: right;
+    font-weight: bold;
+  }
+</style>
 {% endblock %}

@@ -334,16 +334,24 @@ def explore(user_id):
     loc = LOCATIONS.get(player.current_location_id)
     if not loc:
         return redirect(url_for('play', user_id=user_id))
+
     messages = []
     before = player.get_exploration(player.current_location_id)
     gained = random.randint(15, 30)
     after = player.increase_exploration(player.current_location_id, gained)
     messages.append(f"探索度 {before}% -> {after}%")
+
     if loc.possible_enemies and random.random() < loc.encounter_rate:
         messages.extend(handle_battle(player, loc))
     else:
         messages.append('モンスターは現れなかった。')
-    return render_template('explore.html', messages=messages, user_id=user_id)
+
+    return render_template(
+        'explore.html',
+        messages=messages,
+        user_id=user_id,
+        progress=after,
+    )
 
 
 @app.route('/battle/<int:user_id>', methods=['GET', 'POST'])
