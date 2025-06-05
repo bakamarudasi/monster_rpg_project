@@ -8,6 +8,14 @@ from map_data import LOCATIONS, Location
 from database_setup import initialize_database, DATABASE_NAME
 from items.item_data import ALL_ITEMS
 
+
+def show_exploration_progress(progress: int) -> None:
+    """表示用の簡易プログレスバーを描画する"""
+    bar_length = 20
+    filled = int(bar_length * progress / 100)
+    bar = "#" * filled + "-" * (bar_length - filled)
+    print(f"探索度: [{bar}] {progress}%")
+
 def get_monster_instance_copy(monster_id_or_object: Monster | str) -> Monster | None:
     """
     モンスターの新しいインスタンス（コピー）を返します。
@@ -293,7 +301,8 @@ def game_loop(hero: Player): # 型ヒントを追加
             progress_before = hero.get_exploration(hero.current_location_id)
             gained = random.randint(15, 30)
             progress_after = hero.increase_exploration(hero.current_location_id, gained)
-            print(f"探索を行った。探索率が {progress_after}% になった。")
+            print(f"探索を行った！ (+{gained}%)")
+            show_exploration_progress(progress_after)
             if progress_before < 100 <= progress_after:
                 if getattr(current_location_data, 'hidden_connections', {}):
                     current_location_data.connections.update(current_location_data.hidden_connections)
