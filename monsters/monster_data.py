@@ -2,6 +2,7 @@
 
 from .monster_class import Monster, GROWTH_TYPE_AVERAGE, GROWTH_TYPE_EARLY, GROWTH_TYPE_LATE
 from skills.skills import ALL_SKILLS
+from items.item_data import ALL_ITEMS
 
 # モンスターランク定義
 RANK_S = "S"
@@ -16,7 +17,8 @@ SLIME = Monster(
     skills=[ALL_SKILLS["heal"]] if "heal" in ALL_SKILLS else [],
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="slime",
-    rank=RANK_D # 例: スライムはDランク
+    rank=RANK_D, # 例: スライムはDランク
+    drop_items=[(ALL_ITEMS["small_potion"], 0.5)]
 )
 
 GOBLIN = Monster(
@@ -24,15 +26,17 @@ GOBLIN = Monster(
     skills=[ALL_SKILLS["fireball"]] if "fireball" in ALL_SKILLS else [],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="goblin",
-    rank=RANK_D # 例: ゴブリンはDランク
+    rank=RANK_D, # 例: ゴブリンはDランク
+    drop_items=[(ALL_ITEMS["small_potion"], 0.2), (ALL_ITEMS["magic_stone"], 0.1)]
 )
 
 WOLF = Monster(
     name="ウルフ", hp=50, attack=15, defense=7, level=3, element="なし",speed=10,
-    skills=[], 
+    skills=[],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="wolf",
-    rank=RANK_C # 例: ウルフはCランク
+    rank=RANK_C, # 例: ウルフはCランク
+    drop_items=[(ALL_ITEMS["medium_potion"], 0.1)]
 )
 
 SLIME_GOBLIN_HYBRID = Monster(
