@@ -81,19 +81,47 @@ def apply_skill_effect(caster: Monster, targets: list[Monster], skill_obj: Skill
                 print(f"{target.name} のHPが {healed_amount} 回復した！ (現在HP: {target.hp})")
 
         elif skill_obj.skill_type == "buff":
-            if skill_obj.target == "ally" and callable(skill_obj.effect):
-                try:
-                    remove_func = skill_obj.effect(target)
-                    if skill_obj.duration > 0:
-                        target.status_effects.append({
-                            "name": skill_obj.name,
-                            "remaining": skill_obj.duration,
-                            "remove_func": remove_func,
-                        })
-                    print(f"{target.name} の何かが強化された！")
-                except Exception as e:
-                    print(f"スキル効果の適用中にエラー: {e}")
-            # TODO: 味方全体バフも
+            if skill_obj.target == "ally":
+                # effect が関数ならそれを実行、文字列の場合は簡易的なバフを実装
+                if callable(skill_obj.effect):
+                    try:
+                        remove_func = skill_obj.effect(target)
+                        if skill_obj.duration > 0:
+                            target.status_effects.append({
+                                "name": skill_obj.name,
+                                "remaining": skill_obj.duration,
+                                "remove_func": remove_func,
+                            })
+                        print(f"{target.name} の何かが強化された！")
+                    except Exception as e:
+                        print(f"スキル効果の適用中にエラー: {e}")
+                elif isinstance(skill_obj.effect, str):
+                    try:
+                        if skill_obj.effect == "speed_up":
+                            amount = 5
+                            target.speed += amount
+                            def revert(m=target, a=amount):
+                                m.speed -= a
+                        elif skill_obj.effect == "atk_def_up":
+                            amount = 5
+                            target.attack += amount
+                            target.defense += amount
+                            def revert(m=target, a=amount):
+                                m.attack -= a
+                                m.defense -= a
+                        else:
+                            print(f"{skill_obj.effect} の効果は未実装です。")
+                            continue
+                        if skill_obj.duration > 0:
+                            target.status_effects.append({
+                                "name": skill_obj.name,
+                                "remaining": skill_obj.duration,
+                                "remove_func": revert,
+                            })
+                        print(f"{target.name} の能力が上がった！")
+                    except Exception as e:
+                        print(f"スキル効果の適用中にエラー: {e}")
+            
         else:
             print(f"スキル「{skill_obj.name}」は効果がなかった...") # 未対応のスキルタイプなど
 
@@ -161,6 +189,39 @@ def determine_turn_order(party_a: list[Monster], party_b: list[Monster]) -> list
         key=lambda m: m.speed,
         reverse=True,
     )
+
+RANK_EXP_MULTIPLIERS = {
+    "S": 2.0,
+    "A": 1.6,
+    "B": 1.3,
+    "C": 1.1,
+    "D": 1.0,
+}
+
+def award_experience(alive_party: list[Monster], defeated_enemies: list[Monster], player: Player | None = None):
+    """与えられた敵モンスターリストから総経験値を計算し、味方に分配する"""
+    total_exp_reward = 0
+    for enemy in defeated_enemies:
+        base = (enemy.level * 10) + (enemy.max_hp // 5)
+        mult = RANK_EXP_MULTIPLIERS.get(getattr(enemy, "rank", "D"), 1.0)
+        total_exp_reward += int(base * mult)
+        if player is not None:
+            for item_obj, rate in getattr(enemy, "drop_items", []):
+                if random.random() < rate:
+                    player.items.append(item_obj)
+                    print(f"{item_obj.name} を手に入れた！")
+
+    alive_monsters = [m for m in alive_party if m.is_alive]
+    if alive_monsters and total_exp_reward > 0:
+        base_share = total_exp_reward // len(alive_monsters)
+        remainder = total_exp_reward % len(alive_monsters)
+        print("\n--- 経験値獲得 ---")
+        for idx, monster in enumerate(alive_monsters):
+            share = base_share + (1 if idx < remainder else 0)
+            if share > 0:
+                monster.gain_exp(share)
+    else:
+        print("獲得経験値はありませんでした。")
 
 def attempt_scout(player: Player, target: Monster, enemy_party: list[Monster]) -> bool:
     """敵モンスターをスカウトして仲間にする試みを行う。成功するとTrueを返す。"""
@@ -386,29 +447,9 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster], player
         print("敵パーティを全て倒した！味方の勝利！")
         battle_result = "win"
         
-        # 勝利時の経験値獲得処理 (生存している味方モンスターに分配)
-        # TODO: より詳細な経験値計算ロジック
-        total_exp_reward = 0
-        for defeated_enemy in enemy_party:  # 元のenemy_partyを参照して倒した敵の情報を得る
-            if not defeated_enemy.is_alive:  # この戦闘で倒された敵
-                total_exp_reward += (defeated_enemy.level * 10) + (defeated_enemy.max_hp // 5)
-                if player is not None:
-                    for item_obj, rate in getattr(defeated_enemy, "drop_items", []):
-                        if random.random() < rate:
-                            player.items.append(item_obj)
-                            print(f"{item_obj.name} を手に入れた！")
-        
-        alive_player_monsters_after_battle = [m for m in active_player_party if m.is_alive]
-        if alive_player_monsters_after_battle and total_exp_reward > 0:
-            exp_per_monster = total_exp_reward // len(alive_player_monsters_after_battle)
-            if exp_per_monster > 0:
-                print(f"\n--- 経験値獲得 ---")
-                for monster in alive_player_monsters_after_battle:
-                    # player_party内の元のモンスターインスタンスに経験値を与える
-                    # active_player_party のモンスターは player_party の要素への参照なので、直接変更が反映される
-                    monster.gain_exp(exp_per_monster)
-            else:
-                print("獲得経験値はありませんでした。")
+        # 勝利時の経験値獲得処理
+        defeated = [e for e in enemy_party if not e.is_alive]
+        award_experience(active_player_party, defeated, player)
 
     else:
         print("戦いは決着がつかなかったようだ...") # 引き分けなど特殊なケース
