@@ -1,28 +1,178 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>{{ loc.name }}</h2>
-<p>{{ loc.description }}</p>
-<p>Player: {{ player.name }} Lv.{{ player.player_level }} Gold {{ player.gold }}</p>
-<h3>移動</h3>
-{% for cmd, dest, name in connections %}
-<form action="{{ url_for('move', user_id=user_id) }}" method="post">
-  <input type="hidden" name="dest" value="{{ dest }}">
-  <button type="submit">{{ cmd }} -> {{ name }}</button>
-</form>
-{% endfor %}
-<form action="{{ url_for('status', user_id=user_id) }}" method="get"><button>ステータス</button></form>
-<form action="{{ url_for('party', user_id=user_id) }}" method="get"><button>パーティ</button></form>
-<form action="{{ url_for('explore', user_id=user_id) }}" method="post"><button>探索</button></form>
-<form action="{{ url_for('battle', user_id=user_id) }}" method="get"><button>戦闘</button></form>
-<form action="{{ url_for('battle_log', user_id=user_id) }}" method="get"><button>バトルログ</button></form>
-<form action="{{ url_for('items', user_id=user_id) }}" method="get"><button>アイテム</button></form>
-<form action="{{ url_for('monster_book', user_id=user_id) }}" method="get"><button>図鑑</button></form>
-<form action="{{ url_for('world_map', user_id=user_id) }}" method="get"><button>マップ</button></form>
-{% if loc.has_shop %}
-<form action="{{ url_for('shop', user_id=user_id) }}" method="get"><button>ショップ</button></form>
-{% endif %}
-{% if loc.has_inn %}
-<form action="{{ url_for('inn', user_id=user_id) }}" method="post"><button>宿屋 ({{ loc.inn_cost }})</button></form>
-{% endif %}
-<form action="{{ url_for('save', user_id=user_id) }}" method="post"><button>セーブ</button></form>
+<div class="field-container">
+  <div class="loc-header">
+    <h2>{{ loc.name }}</h2>
+    <p class="loc-desc">{{ loc.description }}</p>
+    <div class="player-status">
+      <span class="player-label">プレイヤー:</span>
+      <span class="player-name">{{ player.name }}</span>
+      <span class="player-lv">Lv.{{ player.player_level }}</span>
+      <span class="player-gold">Gold <b>{{ player.gold }}</b></span>
+    </div>
+  </div>
+
+  <div class="actions-group">
+    <h3>移動</h3>
+    <div class="move-btn-list">
+      {% for cmd, dest, name in connections %}
+        <form action="{{ url_for('move', user_id=user_id) }}" method="post" class="move-form">
+          <input type="hidden" name="dest" value="{{ dest }}">
+          <button type="submit" class="move-btn">{{ cmd }} → <b>{{ name }}</b></button>
+        </form>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="menu-group">
+    <form action="{{ url_for('status', user_id=user_id) }}" method="get"><button class="menu-btn">ステータス</button></form>
+    <form action="{{ url_for('party', user_id=user_id) }}" method="get"><button class="menu-btn">パーティ</button></form>
+    <form action="{{ url_for('explore', user_id=user_id) }}" method="post"><button class="menu-btn">探索</button></form>
+    <form action="{{ url_for('battle', user_id=user_id) }}" method="get"><button class="menu-btn">戦闘</button></form>
+    <form action="{{ url_for('battle_log', user_id=user_id) }}" method="get"><button class="menu-btn">バトルログ</button></form>
+    <form action="{{ url_for('items', user_id=user_id) }}" method="get"><button class="menu-btn">アイテム</button></form>
+    <form action="{{ url_for('monster_book', user_id=user_id) }}" method="get"><button class="menu-btn">図鑑</button></form>
+    <form action="{{ url_for('world_map', user_id=user_id) }}" method="get"><button class="menu-btn">マップ</button></form>
+    {% if loc.has_shop %}
+      <form action="{{ url_for('shop', user_id=user_id) }}" method="get"><button class="menu-btn">ショップ</button></form>
+    {% endif %}
+    {% if loc.has_inn %}
+      <form action="{{ url_for('inn', user_id=user_id) }}" method="post"><button class="menu-btn">宿屋 ({{ loc.inn_cost }})</button></form>
+    {% endif %}
+    <form action="{{ url_for('save', user_id=user_id) }}" method="post"><button class="menu-btn save-btn">セーブ</button></form>
+  </div>
+</div>
+<style>
+  body {
+    background: linear-gradient(120deg, #ffe9e4 0%, #d2e7ff 100%);
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+  }
+  .field-container {
+    max-width: 500px;
+    margin: 48px auto;
+    background: rgba(255,255,255,0.96);
+    border-radius: 18px;
+    box-shadow: 0 10px 36px rgba(60,90,180,0.11);
+    padding: 26px 18px 38px 18px;
+  }
+  .loc-header h2 {
+    color: #6043a2;
+    margin-bottom: 8px;
+    font-size: 1.7rem;
+    letter-spacing: 1.1px;
+    text-shadow: 0 1px 0 #fff8, 0 0 8px #e3e3ff44;
+  }
+  .loc-desc {
+    color: #3b3c61;
+    font-size: 1.07rem;
+    margin-bottom: 18px;
+    background: #f2f4ff;
+    padding: 10px 13px;
+    border-radius: 10px;
+    box-shadow: 0 1px 7px #a0a9ff19;
+  }
+  .player-status {
+    margin-bottom: 16px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #f7f8ff;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 13px 10px;
+    font-size: 1.06rem;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 1px 7px #a0a9ff13;
+  }
+  .player-label {
+    color: #7e6aad;
+    font-weight: 600;
+    margin-right: 6px;
+  }
+  .player-name {
+    color: #5950ba;
+    font-weight: bold;
+    letter-spacing: .7px;
+    margin-right: 6px;
+  }
+  .player-lv {
+    color: #50708b;
+    margin-right: 6px;
+    font-weight: 500;
+  }
+  .player-gold {
+    color: #ec9b3b;
+    font-weight: bold;
+    margin-left: 6px;
+  }
+  .actions-group {
+    margin-bottom: 28px;
+  }
+  .actions-group h3 {
+    margin-bottom: 8px;
+    color: #376fd0;
+    font-size: 1.18rem;
+    letter-spacing: 1px;
+  }
+  .move-btn-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+  .move-form {
+    margin: 0;
+  }
+  .move-btn {
+    background: linear-gradient(90deg, #6ee7b7 10%, #3b82f6 80%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.06rem;
+    padding: 8px 18px;
+    margin-bottom: 2px;
+    font-weight: bold;
+    letter-spacing: .8px;
+    cursor: pointer;
+    transition: background .17s, box-shadow .18s;
+    box-shadow: 0 2px 8px rgba(66,150,225,0.09);
+  }
+  .move-btn:hover {
+    background: linear-gradient(90deg, #3b82f6 20%, #6ee7b7 100%);
+    box-shadow: 0 4px 16px rgba(66,150,225,0.14);
+  }
+  .menu-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 18px;
+    margin-top: 14px;
+    justify-items: stretch;
+  }
+  .menu-btn {
+    background: linear-gradient(90deg, #a18ff7 10%, #f586c1 80%);
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    font-size: 1.02rem;
+    padding: 10px 0;
+    font-weight: 500;
+    letter-spacing: .7px;
+    margin-bottom: 0;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(161,143,247,0.09);
+    transition: background .18s, box-shadow .17s;
+    width: 100%;
+  }
+  .menu-btn:hover {
+    background: linear-gradient(90deg, #f586c1 10%, #a18ff7 90%);
+    box-shadow: 0 4px 12px rgba(230,70,160,0.13);
+  }
+  .save-btn {
+    background: linear-gradient(90deg,#fec163,#de4313 90%);
+    font-weight: bold;
+  }
+  .save-btn:hover {
+    background: linear-gradient(90deg,#de4313,#fec163 90%);
+  }
+</style>
 {% endblock %}
