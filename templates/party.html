@@ -1,39 +1,180 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>パーティ</h2>
-<ul class="party-list">
-{% for m in player.party_monsters %}
-  <li class="party-member">
-    {% if m.image_filename %}
-      <img class="monster-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
-    {% endif %}
-    <div class="member-info">{{ m.name }} Lv.{{ m.level }} HP {{ m.hp }}/{{ m.max_hp }}</div>
-  </li>
-{% endfor %}
-</ul>
-<form action="{{ url_for('formation', user_id=user_id) }}" method="get">
-  <button>編成</button>
-</form>
-<a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+<div class="book-bg">
+  <div class="book-page fade-in">
+    <h2 class="book-title">パーティ</h2>
+    <ul class="party-list">
+      {% for m in player.party_monsters %}
+        <li class="party-member">
+          {% if m.image_filename %}
+            <img class="monster-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
+          {% endif %}
+          <div class="member-info">
+            <span class="monster-name">{{ m.name }}</span>
+            <span class="monster-level">Lv.{{ m.level }}</span>
+            <span class="monster-hp">HP <b>{{ m.hp }}</b>/<span class="hp-max">{{ m.max_hp }}</span></span>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+    <form action="{{ url_for('formation', user_id=user_id) }}" method="get">
+      <button class="book-btn">編成</button>
+    </form>
+    <a class="book-link" href="{{ url_for('play', user_id=user_id) }}">← 戻る</a>
+  </div>
+</div>
 <style>
+  body {
+    background: #f9eee0 url("https://www.transparenttextures.com/patterns/old-mathematics.png");
+    min-height: 100vh;
+  }
+  .book-bg {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding-top: 48px;
+  }
+  .book-page {
+    background: #f7f2e6;
+    border: 4px solid #b68b4c;
+    border-radius: 18px;
+    max-width: 420px;
+    width: 98%;
+    box-shadow:
+      0 4px 32px #7b51120a,
+      0 0 0 10px #e6d3b6;
+    padding: 32px 22px 38px 22px;
+    position: relative;
+    /* 演出用fade-inの初期状態はJSで追加するので不要 */
+  }
+  .book-title {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    text-align: center;
+    font-size: 2.1rem;
+    margin-bottom: 1.2em;
+    color: #895c1a;
+    letter-spacing: 2.5px;
+    text-shadow: 0 2px 1px #f4e3bd, 0 0 6px #f4e3bd99;
+    border-bottom: 2px solid #b68b4c55;
+    padding-bottom: .2em;
+  }
   .party-list {
     list-style: none;
     padding: 0;
-    margin: 0 0 1em 0;
+    margin: 0 0 1.5em 0;
   }
   .party-member {
     display: flex;
     align-items: center;
-    gap: 0.6em;
-    margin-bottom: 0.6em;
+    gap: 1.1em;
+    margin-bottom: 1.2em;
+    background: linear-gradient(90deg, #f6e9d1 80%, #e6d3b6 100%);
+    border-radius: 10px;
+    box-shadow: 0 1px 5px #c1b28b33 inset;
+    border-left: 5px solid #b68b4cbb;
+    padding: 8px 13px 8px 10px;
+    position: relative;
+    z-index: 1;
+    transition: box-shadow .35s cubic-bezier(.19,1,.22,1), border-color .28s;
+  }
+  .party-member.magic-hover {
+    box-shadow: 0 0 22px 5px #ffc85788, 0 0 0 8px #e0c38a22 inset;
+    border-color: #c39b3d;
   }
   .monster-img {
-    width: 60px;
-    height: 60px;
+    width: 56px;
+    height: 56px;
     object-fit: contain;
+    border-radius: 8px;
+    background: #e3dac0;
+    border: 2px solid #c9b383;
+    box-shadow: 0 2px 5px #b68b4c1a;
   }
   .member-info {
-    font-weight: bold;
+    font-family: 'Georgia', serif;
+    font-size: 1.12rem;
+    color: #5d4b29;
+    letter-spacing: 1.1px;
+    line-height: 1.35;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
   }
+  .monster-name {
+    font-weight: bold;
+    font-size: 1.16em;
+    color: #865e2a;
+    letter-spacing: 1.2px;
+  }
+  .monster-level {
+    font-size: 1em;
+    color: #7c653b;
+  }
+  .monster-hp {
+    font-size: 0.97em;
+    color: #ab2a2a;
+    font-variant-numeric: tabular-nums;
+  }
+  .hp-max {
+    color: #74571b;
+    opacity: .8;
+  }
+  .book-btn {
+    display: block;
+    margin: 0 auto 12px auto;
+    padding: 11px 44px;
+    background: linear-gradient(90deg,#a17c4b 30%,#d3b173 100%);
+    color: #fffbe6;
+    border: none;
+    border-radius: 9px;
+    font-size: 1.12rem;
+    font-family: 'Georgia', serif;
+    letter-spacing: 1px;
+    font-weight: bold;
+    box-shadow: 0 2px 9px #8c6d3b33;
+    cursor: pointer;
+    transition: background .18s, box-shadow .17s;
+    border-bottom: 3px solid #c9b383;
+  }
+  .book-btn:hover {
+    background: linear-gradient(90deg,#d3b173 0%,#a17c4b 100%);
+    box-shadow: 0 4px 13px #a17c4b44;
+  }
+  .book-link {
+    display: block;
+    margin: 0 auto;
+    color: #9c7228;
+    font-family: 'Georgia', serif;
+    font-size: 1.05em;
+    text-decoration: underline wavy #b68b4c66;
+    letter-spacing: 1.1px;
+    padding-top: 8px;
+    text-align: center;
+    transition: color .17s;
+  }
+  .book-link:hover {
+    color: #ad8236;
+    text-decoration: underline wavy #a17c4b;
+  }
+
+  /* ふわっと現れるページ */
+  .fade-in { opacity: 0; transform: translateY(32px) scale(.98); transition: .9s cubic-bezier(.19,1,.22,1);}
+  .fade-in.show { opacity: 1; transform: none; }
 </style>
+<script>
+  // ページ開いたらふわっと出現
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('.fade-in').classList.add('show');
+    // パーティメンバーの魔法の光演出
+    document.querySelectorAll('.party-member').forEach(function(el) {
+      el.addEventListener('mouseenter', function() {
+        el.classList.add('magic-hover');
+      });
+      el.addEventListener('mouseleave', function() {
+        el.classList.remove('magic-hover');
+      });
+    });
+  });
+</script>
 {% endblock %}
