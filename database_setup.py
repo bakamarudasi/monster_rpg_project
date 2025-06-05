@@ -1,7 +1,13 @@
 # database_setup.py (新規作成)
 import sqlite3
+import hashlib
 
 DATABASE_NAME = "monster_rpg_save.db"
+
+
+def _hash_password(password: str) -> str:
+    """Return a SHA-256 hash of the given password."""
+    return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
 
 def _ensure_default_user(cursor):
@@ -11,7 +17,7 @@ def _ensure_default_user(cursor):
     if count == 0:
         cursor.execute(
             "INSERT INTO users (username, password) VALUES (?, ?)",
-            ("player1", "password"),
+            ("player1", _hash_password("password")),
         )
 
 def initialize_database():
@@ -78,7 +84,7 @@ def create_user(username: str, password: str) -> int:
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO users (username, password) VALUES (?, ?)",
-        (username, password),
+        (username, _hash_password(password)),
     )
     conn.commit()
     user_id = cursor.lastrowid
@@ -86,11 +92,17 @@ def create_user(username: str, password: str) -> int:
     return user_id
 
 
-def get_user_id(username: str) -> int | None:
-    """Return user id for given username, or None if not found."""
+def get_user_id(username: str, password: str | None = None) -> int | None:
+    """Return user id for given username. If password is provided, verify it."""
     conn = sqlite3.connect(DATABASE_NAME)
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM users WHERE username=?", (username,))
+    if password is None:
+        cursor.execute("SELECT id FROM users WHERE username=?", (username,))
+    else:
+        cursor.execute(
+            "SELECT id FROM users WHERE username=? AND password=?",
+            (username, _hash_password(password)),
+        )
     row = cursor.fetchone()
     conn.close()
     return row[0] if row else None
