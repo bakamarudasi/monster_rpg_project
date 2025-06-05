@@ -36,7 +36,7 @@ def get_monster_instance_copy(monster_id_or_object: Monster | str) -> Monster | 
         return None
 
 
-def generate_enemy_party(location: Location) -> list[Monster]:
+def generate_enemy_party(location: Location, player=None) -> list[Monster]:
     """指定された場所に基づいて敵パーティを生成します (1〜3体)。"""
     enemy_party = []
     if not location.possible_enemies:
@@ -49,6 +49,8 @@ def generate_enemy_party(location: Location) -> list[Monster]:
         enemy_id = random.choice(location.possible_enemies)
         enemy_instance = get_monster_instance_copy(enemy_id)
         if enemy_instance:
+            if player is not None and hasattr(player, "monster_book"):
+                player.monster_book.record_seen(enemy_instance.monster_id)
             target_level = max(1, base_level + random.randint(-1, 1))
             while enemy_instance.level < target_level:
                 enemy_instance.level_up()
@@ -58,6 +60,8 @@ def generate_enemy_party(location: Location) -> list[Monster]:
         enemy_id = random.choice(location.possible_enemies)
         enemy_instance = get_monster_instance_copy(enemy_id)
         if enemy_instance:
+            if player is not None and hasattr(player, "monster_book"):
+                player.monster_book.record_seen(enemy_instance.monster_id)
             target_level = max(1, base_level + random.randint(-1, 1))
             while enemy_instance.level < target_level:
                 enemy_instance.level_up()

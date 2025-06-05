@@ -59,7 +59,7 @@ def run_simple_battle(player_party: list, enemy_party: list):
 def handle_battle(player: Player, location) -> list[str]:
     """Generate enemies and run a simple battle, returning log messages."""
     msgs: list[str] = []
-    enemies = generate_enemy_party(location)
+    enemies = generate_enemy_party(location, player)
     if not enemies:
         msgs.append("モンスターは現れなかった。")
         return msgs

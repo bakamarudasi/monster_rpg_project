@@ -7,6 +7,7 @@ from items.item_data import ALL_ITEMS
 from synthesis_rules import SYNTHESIS_RECIPES, SYNTHESIS_ITEMS_REQUIRED
 import random  # 将来的にスキル継承などで使うかも
 import copy
+from monster_book import MonsterBook
 
 # Debug flag to control verbose output
 DEBUG_MODE = False
@@ -23,6 +24,7 @@ class Player:
         self.db_id = None # データベース上のID (ロード時に設定)
         self.user_id = user_id
         self.exploration_progress = {}
+        self.monster_book = MonsterBook()
 
     def save_game(self, db_name, user_id=None):
         conn = sqlite3.connect(db_name)
@@ -157,6 +159,7 @@ class Player:
         
         if newly_added_monster:
             print(f"[DEBUG player.py add_monster_to_party] Actual monster_id of added monster '{newly_added_monster.name}': '{newly_added_monster.monster_id}' (type: {type(newly_added_monster.monster_id)})")
+            self.monster_book.record_captured(newly_added_monster.monster_id)
 
 
     def show_all_party_monsters_status(self):
