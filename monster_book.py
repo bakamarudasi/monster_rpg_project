@@ -1,35 +1,5 @@
-from dataclasses import dataclass
-from typing import Dict, Set
-
-@dataclass
-class MonsterBookEntry:
-    monster_id: str
-    description: str
-    location_hint: str = ""
-    synthesis_hint: str = ""
-    reward: int = 0
-
-# 図鑑に登録するモンスター情報
-MONSTER_BOOK_DATA: Dict[str, MonsterBookEntry] = {
-    "slime": MonsterBookEntry(
-        monster_id="slime",
-        description="ぷるぷるした弱小モンスター。水属性で、初心者の相手に最適。",
-        location_hint="村の近くの草原などに出現",
-        synthesis_hint="別種族と掛け合わせると特殊なモンスターが生まれるかも。",
-    ),
-    "wolf": MonsterBookEntry(
-        monster_id="wolf",
-        description="俊敏な牙獣。群れで行動することが多い。",
-        location_hint="妖精の森の奥地や丘陵街道に出現",
-        synthesis_hint="水に関連したモンスターと相性が良い。",
-    ),
-    "water_wolf": MonsterBookEntry(
-        monster_id="water_wolf",
-        description="水辺に潜むウルフ。鋭い爪で襲いかかる。",
-        location_hint="神秘の湖に出現",
-        synthesis_hint="スライムとウルフを組み合わせると誕生するらしい。",
-    ),
-}
+from typing import Set
+from monster_book_data import MONSTER_BOOK_DATA, MonsterBookEntry
 
 class MonsterBook:
     """プレイヤー毎に所持するモンスター図鑑。"""
