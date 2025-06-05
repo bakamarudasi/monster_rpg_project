@@ -1,4 +1,6 @@
-from flask import Flask, request, redirect, url_for, render_template_string
+"""Simple web interface for the Monster RPG game."""
+
+from flask import Flask, request, redirect, url_for, render_template
 
 import database_setup
 from player import Player
@@ -14,19 +16,12 @@ active_players: dict[int, Player] = {}
 
 @app.route('/')
 def index():
-    return render_template_string(
-        '''<h1>Monster RPG Web Test</h1>
-<form action="{{ url_for('start_game') }}" method="post">
-    <input name="username" placeholder="名前">
-    <button type="submit">新規ゲーム</button>
-</form>
-<form action="{{ url_for('load_existing') }}" method="post">
-    <input name="user_id" placeholder="User ID">
-    <button type="submit">ロード</button>
-</form>''')
+    """Show the landing page for starting or loading a game."""
+    return render_template("index.html")
 
 @app.route('/start', methods=['POST'])
 def start_game():
+    """Create a new player and start the game."""
     name = request.form.get('username', 'Hero')
     user_id = database_setup.create_user(name, 'pw')
     player = Player(name=name, user_id=user_id, gold=100)
@@ -39,6 +34,7 @@ def start_game():
 
 @app.route('/load', methods=['POST'])
 def load_existing():
+    """Load an existing player by user id."""
     user_id = request.form.get('user_id')
     try:
         u_id = int(user_id)
@@ -61,50 +57,33 @@ def play(user_id):
         for cmd, dest in loc.connections.items():
             dest_name = LOCATIONS.get(dest).name if dest in LOCATIONS else dest
             connections.append((cmd, dest, dest_name))
-    return render_template_string('''
-<h2>{{ loc.name }}</h2>
-<p>{{ loc.description }}</p>
-<p>Player: {{ player.name }} Lv.{{ player.player_level }} Gold {{ player.gold }}</p>
-<h3>移動</h3>
-{% for cmd, dest, name in connections %}
-<form action="{{ url_for('move', user_id=user_id) }}" method="post">
-    <input type="hidden" name="dest" value="{{ dest }}">
-    <button type="submit">{{ cmd }} -> {{ name }}</button>
-</form>
-{% endfor %}
-<form action="{{ url_for('status', user_id=user_id) }}" method="get"><button>ステータス</button></form>
-<form action="{{ url_for('party', user_id=user_id) }}" method="get"><button>パーティ</button></form>
-<form action="{{ url_for('save', user_id=user_id) }}" method="post"><button>セーブ</button></form>
-''', player=player, loc=loc, connections=connections, user_id=user_id)
+    return render_template(
+        "play.html",
+        player=player,
+        loc=loc,
+        connections=connections,
+        user_id=user_id,
+    )
 
 @app.route('/status/<int:user_id>')
 def status(user_id):
+    """Display player status."""
     player = active_players.get(user_id)
     if not player:
         return redirect(url_for('index'))
-    return render_template_string('''
-<h2>{{ player.name }} のステータス</h2>
-<p>Lv {{ player.player_level }} EXP {{ player.exp }} Gold {{ player.gold }}</p>
-<a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
-''', player=player, user_id=user_id)
+    return render_template("status.html", player=player, user_id=user_id)
 
 @app.route('/party/<int:user_id>')
 def party(user_id):
+    """Show the player's party."""
     player = active_players.get(user_id)
     if not player:
         return redirect(url_for('index'))
-    return render_template_string('''
-<h2>パーティ</h2>
-<ul>
-{% for m in player.party_monsters %}
-<li>{{ m.name }} Lv.{{ m.level }} HP {{ m.hp }}/{{ m.max_hp }}</li>
-{% endfor %}
-</ul>
-<a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
-''', player=player, user_id=user_id)
+    return render_template("party.html", player=player, user_id=user_id)
 
 @app.route('/move/<int:user_id>', methods=['POST'])
 def move(user_id):
+    """Move the player to another location."""
     player = active_players.get(user_id)
     if not player:
         return redirect(url_for('index'))
@@ -115,6 +94,7 @@ def move(user_id):
 
 @app.route('/save/<int:user_id>', methods=['POST'])
 def save(user_id):
+    """Persist the current player state to the database."""
     player = active_players.get(user_id)
     if player:
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)

@@ -30,7 +30,8 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
    pip install -r requirements.txt
    python web_main.py
    ```
-   This starts the server at <http://localhost:5000/>.
+   This starts the server at <http://localhost:5000/> and now uses
+   Flask templates for a slightly nicer appearance.
 
 ## Project Structure
 

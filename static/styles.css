@@ -1,0 +1,16 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 1rem;
+}
+header {
+    background-color: #444;
+    color: white;
+    padding: 1rem;
+}
+main {
+    margin-top: 1rem;
+}
+button {
+    margin-top: 0.5rem;
+}

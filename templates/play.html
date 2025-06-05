@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>{{ loc.name }}</h2>
+<p>{{ loc.description }}</p>
+<p>Player: {{ player.name }} Lv.{{ player.player_level }} Gold {{ player.gold }}</p>
+<h3>移動</h3>
+{% for cmd, dest, name in connections %}
+<form action="{{ url_for('move', user_id=user_id) }}" method="post">
+  <input type="hidden" name="dest" value="{{ dest }}">
+  <button type="submit">{{ cmd }} -> {{ name }}</button>
+</form>
+{% endfor %}
+<form action="{{ url_for('status', user_id=user_id) }}" method="get"><button>ステータス</button></form>
+<form action="{{ url_for('party', user_id=user_id) }}" method="get"><button>パーティ</button></form>
+<form action="{{ url_for('save', user_id=user_id) }}" method="post"><button>セーブ</button></form>
+{% endblock %}
