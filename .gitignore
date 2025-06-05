@@ -176,3 +176,7 @@ cython_debug/
 # Local database and caches
 monster_rpg_save.db
 __pycache__/
+
+# Monster images (local only)
+static/images/*
+!static/images/.gitkeep
