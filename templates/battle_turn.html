@@ -1,38 +1,121 @@
 {% extends "layout.html" %}
+
+{% block head_extra %}
+<style>
+/* === layout & typography === */
+body{background:#0d0d0d;color:#e0e0e0;font-family:"Segoe UI",Tahoma,Verdana,sans-serif;}
+.container-battle{max-width:960px;margin:0 auto;padding:1rem;}
+.turn-banner{font-size:1.8rem;font-weight:bold;text-align:center;margin-bottom:1rem;}
+
+/* === party cards === */
+.party-wrapper{display:flex;flex-wrap:wrap;gap:1rem;}
+.party-card{flex:1 1 300px;background:#1f1f1f;border:1px solid #333;border-radius:8px;padding:1rem;box-shadow:0 0 10px rgba(0,255,255,.15);}
+.party-card h3{margin-top:0;color:#00b3ff;text-shadow:0 0 6px rgba(0,179,255,.6);}
+.party-card.enemy h3{color:#ff4c4c;text-shadow:0 0 6px rgba(255,76,76,.6);}
+
+/* === members & hp bar === */
+.member{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;}
+.member.down{opacity:.35;}
+.hp-bar{flex:1;height:8px;background:#444;margin:0 .5rem;border-radius:4px;overflow:hidden;}
+.hp-fill{height:100%;background:#00ff85;}
+.hp-fill.low{background:#ffb100;}
+.hp-fill.critical{background:#ff3c3c;}
+
+/* === form & buttons === */
+select,button{background:#2d2d2d;color:#e0e0e0;border:1px solid #555;border-radius:4px;padding:.25rem .6rem;}
+button{cursor:pointer;margin-top:1rem;background:#0066ff;border:none;padding:.5rem 1.25rem;border-radius:6px;font-weight:bold;transition:background .2s;}
+button:hover{background:#004cd1;}
+
+/* === log & link === */
+.log{margin-top:1.5rem;max-height:220px;overflow-y:auto;background:#1a1a1a;border:1px solid #333;border-radius:6px;padding:.75rem;}
+.log li{margin-bottom:.25rem;font-size:.9rem;}
+.back-link{display:inline-block;margin-top:1rem;color:#00b3ff;}
+
+/* === critical blink === */
+@keyframes blink-red{0%,100%{filter:brightness(1);}50%{filter:brightness(1.4);}}
+.hp-fill.critical.blink{animation:blink-red 1s infinite;}
+</style>
+{% endblock %}
+
 {% block content %}
-<h2>Turn {{ battle.turn }}</h2>
-<h3>味方パーティ</h3>
-<ul>
-{% for m in player_party %}
-  <li>{{ m.name }} HP {{ m.hp }}/{{ m.max_hp }}{% if not m.is_alive %} (Down){% endif %}</li>
-{% endfor %}
-</ul>
-<h3>敵パーティ</h3>
-<ul>
-{% for e in enemy_party %}
-  <li>{{ e.name }} HP {{ e.hp }}/{{ e.max_hp }}{% if not e.is_alive %} (Down){% endif %}</li>
-{% endfor %}
-</ul>
-<form action="{{ url_for('battle', user_id=user_id) }}" method="post">
-{% for idx,m in enumerate(player_party) %}
-  {% if m.is_alive %}
-  <label>{{ m.name }} の攻撃対象:</label>
-  <select name="target_{{ idx }}">
-    {% for j,e in enumerate(enemy_party) %}
-      {% if e.is_alive %}
-      <option value="{{ j }}">{{ e.name }}</option>
-      {% endif %}
+<div class="container-battle">
+  <div class="turn-banner">Turn {{ battle.turn }}</div>
+
+  <div class="party-wrapper">
+    <!-- Ally Party -->
+    <div class="party-card ally">
+      <h3>味方パーティ</h3>
+      {% for m in player_party %}
+        {% set hp_pct = (m.hp / m.max_hp * 100)|round(0) %}
+        {% set hp_cls = 'hp-fill' %}
+        {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}
+        {% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
+        <div class="member{% if not m.is_alive %} down{% endif %}" data-down="{{ not m.is_alive }}">
+          <span>{{ m.name }}</span>
+          <div class="hp-bar"><div class="{{ hp_cls }}" style="width:{{ hp_pct }}%"></div></div>
+          <span>{{ m.hp }}/{{ m.max_hp }}</span>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Enemy Party -->
+    <div class="party-card enemy">
+      <h3>敵パーティ</h3>
+      {% for e in enemy_party %}
+        {% set hp_pct = (e.hp / e.max_hp * 100)|round(0) %}
+        {% set hp_cls = 'hp-fill' %}
+        {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}
+        {% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
+        <div class="member{% if not e.is_alive %} down{% endif %}" data-down="{{ not e.is_alive }}">
+          <span>{{ e.name }}</span>
+          <div class="hp-bar"><div class="{{ hp_cls }}" style="width:{{ hp_pct }}%"></div></div>
+          <span>{{ e.hp }}/{{ e.max_hp }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <form action="{{ url_for('battle', user_id=user_id) }}" method="post">
+    {% for idx, m in enumerate(player_party) if m.is_alive %}
+      <label>{{ m.name }} の攻撃対象:</label>
+      <select name="target_{{ idx }}">
+        {% for j, e in enumerate(enemy_party) if e.is_alive %}
+          <option value="{{ j }}">{{ e.name }}</option>
+        {% endfor %}
+      </select><br>
     {% endfor %}
-  </select><br>
-  {% endif %}
-{% endfor %}
-  <button type="submit">行動</button>
-</form>
-<hr>
-<ul>
-{% for line in log %}
-  <li>{{ line }}</li>
-{% endfor %}
-</ul>
-<a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+    <button type="submit">行動</button>
+  </form>
+
+  <ul class="log">
+    {% for line in log %}
+      <li>{{ line }}</li>
+    {% endfor %}
+  </ul>
+
+  <a href="{{ url_for('play', user_id=user_id) }}" class="back-link">戻る</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  /* smooth HP bar */
+  document.querySelectorAll('.hp-fill').forEach(fill=>{
+    const finalWidth=fill.style.width;
+    fill.style.width='0%';
+    requestAnimationFrame(()=>{
+      fill.style.transition='width 0.6s ease-out';
+      fill.style.width=finalWidth;
+    });
+  });
+  /* blink on critical */
+  document.querySelectorAll('.hp-fill.critical').forEach(el=>el.classList.add('blink'));
+  /* fade defeated */
+  document.querySelectorAll('.member[data-down="True"]').forEach(el=>{
+    el.style.transition='opacity 0.8s ease';
+    el.style.opacity='0.25';
+  });
+});
+</script>
 {% endblock %}
