@@ -1,13 +1,39 @@
 {% extends "layout.html" %}
 {% block content %}
 <h2>パーティ</h2>
-<ul>
+<ul class="party-list">
 {% for m in player.party_monsters %}
-<li>{{ m.name }} Lv.{{ m.level }} HP {{ m.hp }}/{{ m.max_hp }}</li>
+  <li class="party-member">
+    {% if m.image_filename %}
+      <img class="monster-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
+    {% endif %}
+    <div class="member-info">{{ m.name }} Lv.{{ m.level }} HP {{ m.hp }}/{{ m.max_hp }}</div>
+  </li>
 {% endfor %}
 </ul>
 <form action="{{ url_for('formation', user_id=user_id) }}" method="get">
   <button>編成</button>
 </form>
 <a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+<style>
+  .party-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1em 0;
+  }
+  .party-member {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    margin-bottom: 0.6em;
+  }
+  .monster-img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+  }
+  .member-info {
+    font-weight: bold;
+  }
+</style>
 {% endblock %}
