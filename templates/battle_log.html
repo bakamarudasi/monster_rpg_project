@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>最新のバトルログ</h2>
+<ul>
+{% for m in log %}
+  <li>{{ m }}</li>
+{% endfor %}
+</ul>
+<a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+{% endblock %}

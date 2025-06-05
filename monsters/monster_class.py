@@ -1,5 +1,6 @@
 from skills.skills import ALL_SKILLS
-import copy # deepcopyのためにインポート
+import copy  # deepcopyのためにインポート
+from .evolution_rules import EVOLUTION_RULES
 
 GROWTH_TYPE_AVERAGE = "平均型"
 GROWTH_TYPE_EARLY = "早熟型"
@@ -130,6 +131,8 @@ class Monster:
         self.speed = speed  # speed 属性を保存
         self.drop_items = drop_items if drop_items else []
         self.scout_rate = scout_rate  # スカウト成功率(0.0-1.0)
+        # 装備品スロット (weapon, armor など)
+        self.equipment = {}
 
     def show_status(self):
         print(f"名前: {self.name} (ID: {self.monster_id}, Lv.{self.level}, Rank: {self.rank})") 
@@ -155,6 +158,39 @@ class Monster:
             effect_names = ", ".join(effect['name'] for effect in self.status_effects)
             print(f"状態異常: {effect_names}")
         print("-" * 20)
+
+    def equip(self, equipment):
+        """Equip an Equipment object to this monster."""
+        if equipment is None:
+            return
+        self.equipment[equipment.slot] = equipment
+
+    def total_attack(self):
+        bonus = sum(getattr(e, 'attack', 0) for e in self.equipment.values())
+        return self.attack + bonus
+
+    def total_defense(self):
+        bonus = sum(getattr(e, 'defense', 0) for e in self.equipment.values())
+        return self.defense + bonus
+
+    def _try_evolution(self):
+        """Check evolution rules and evolve if conditions are met."""
+        rule = EVOLUTION_RULES.get(self.monster_id)
+        if not rule:
+            return
+        if self.level < rule.get('level', 0):
+            return
+        from .monster_data import ALL_MONSTERS  # local import to avoid cycle
+        new_id = rule.get('evolves_to')
+        template = ALL_MONSTERS.get(new_id)
+        if not template:
+            return
+        evolved = template.copy()
+        evolved.level = self.level
+        evolved.exp = self.exp
+        evolved.equipment = getattr(self, 'equipment', {}).copy()
+        self.__dict__.update(evolved.__dict__)
+        print(f"{template.name} に進化した！")
 
     def calculate_exp_to_next_level(self):
         try:
@@ -234,6 +270,8 @@ class Monster:
             print(
                 f"最大HPが {hp_increase}、攻撃力が {attack_increase}、防御力が {defense_increase}、素早さが {speed_increase} 上昇した！"
             )
+
+            self._try_evolution()
         except Exception as e:
             raise
 

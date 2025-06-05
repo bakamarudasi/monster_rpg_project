@@ -53,6 +53,9 @@ Other notable modules include `player.py` (player data and save/load logic), `ba
 - Items can now be used both outside and during battle. The included potions restore HP and can turn the tide mid-fight.
 - The starting village has a shop where you can buy Small Potions or even purchase a Slime companion.
 - Defeated monsters may drop items, which are automatically added to your inventory.
+- Basic equipment crafting has been added. Use collected items to craft simple weapons and armor.
+- Some monsters now evolve once they reach certain levels.
+- The web interface provides a battle log page showing the results of your last fight.
 
 ## Saving
 The game saves player data to `monster_rpg_save.db`. Only basic information is stored at the moment, but the structure is ready for expansion.
