@@ -8,6 +8,7 @@ except ImportError as e:  # pragma: no cover - dependency check
         "Install dependencies with 'pip install -r requirements.txt'."
     ) from e
 import random
+from dataclasses import dataclass, field
 
 import database_setup
 import sqlite3
@@ -23,6 +24,26 @@ database_setup.initialize_database()
 
 # In-memory store of active players keyed by user_id
 active_players: dict[int, Player] = {}
+
+
+@dataclass
+class Battle:
+    """Simple in-memory battle state for the web UI."""
+    player: Player
+    enemies: list
+    log: list[str] = field(default_factory=list)
+    turn: int = 1
+    finished: bool = False
+    outcome: str | None = None
+
+    @property
+    def player_party(self) -> list:
+        return [m for m in self.player.party_monsters if m.is_alive]
+
+
+# Active battles per user
+active_battles: dict[int, Battle] = {}
+
 
 
 def run_simple_battle(player_party: list, enemy_party: list):
@@ -288,17 +309,125 @@ def explore(user_id):
     return render_template('explore.html', messages=messages, user_id=user_id)
 
 
-@app.route('/battle/<int:user_id>', methods=['POST'])
+@app.route('/battle/<int:user_id>', methods=['GET', 'POST'])
 def battle(user_id):
-    """Initiate a simple battle and show the result log."""
+    """Interactive battle page with simple command selection."""
     player = active_players.get(user_id)
     if not player:
         return redirect(url_for('index'))
-    loc = LOCATIONS.get(player.current_location_id)
-    if not loc:
-        return redirect(url_for('play', user_id=user_id))
-    messages = handle_battle(player, loc)
-    return render_template('battle.html', messages=messages, user_id=user_id)
+
+    battle_obj = active_battles.get(user_id)
+
+    if request.method == 'GET':
+        if not battle_obj:
+            loc = LOCATIONS.get(player.current_location_id)
+            if not loc:
+                return redirect(url_for('play', user_id=user_id))
+            enemies = generate_enemy_party(loc, player)
+            if not enemies:
+                msgs = ['モンスターは現れなかった。']
+                return render_template(
+                    'battle.html',
+                    player_party=player.party_monsters,
+                    enemy_party=[],
+                    messages=msgs,
+                    finished=True,
+                    user_id=user_id,
+                )
+            battle_obj = Battle(player=player, enemies=enemies)
+            first_names = ', '.join(e.name for e in enemies)
+            battle_obj.log.append(f"{first_names} が現れた！")
+            active_battles[user_id] = battle_obj
+        return render_template(
+            'battle.html',
+            player_party=battle_obj.player_party,
+            enemy_party=battle_obj.enemies,
+            messages=battle_obj.log,
+            finished=battle_obj.finished,
+            user_id=user_id,
+        )
+
+    # POST: player action
+    if not battle_obj:
+        return redirect(url_for('battle', user_id=user_id))
+
+    action = request.form.get('action')
+    actor = next((m for m in battle_obj.player_party if m.is_alive), None)
+    target = next((e for e in battle_obj.enemies if e.is_alive), None)
+
+    if not battle_obj.finished and actor and target:
+        if action == 'attack':
+            dmg = max(1, actor.attack - target.defense)
+            target.hp -= dmg
+            battle_obj.log.append(f"{actor.name} の攻撃！ {target.name} に {dmg} ダメージ")
+            if target.hp <= 0:
+                target.is_alive = False
+                battle_obj.log.append(f"{target.name} を倒した！")
+        elif action == 'run':
+            if random.random() < 0.5:
+                battle_obj.log.append('うまく逃げ切れた。')
+                battle_obj.finished = True
+                battle_obj.outcome = 'fled'
+            else:
+                battle_obj.log.append('しかし逃げられなかった。')
+        else:
+            battle_obj.log.append('その行動はまだ使えない。')
+
+        # Enemy actions if battle still ongoing
+        if not battle_obj.finished:
+            alive_enemies = [e for e in battle_obj.enemies if e.is_alive]
+            alive_players = [m for m in battle_obj.player_party if m.is_alive]
+            if not alive_enemies:
+                battle_obj.finished = True
+                battle_obj.outcome = 'win'
+            elif not alive_players:
+                battle_obj.finished = True
+                battle_obj.outcome = 'lose'
+            else:
+                for ene in alive_enemies:
+                    ptarget = next((m for m in battle_obj.player_party if m.is_alive), None)
+                    if not ptarget:
+                        break
+                    dmg = max(1, ene.attack - ptarget.defense)
+                    ptarget.hp -= dmg
+                    battle_obj.log.append(f"{ene.name} の攻撃！ {ptarget.name} に {dmg} ダメージ")
+                    if ptarget.hp <= 0:
+                        ptarget.is_alive = False
+                        battle_obj.log.append(f"{ptarget.name} は倒れた！")
+
+                alive_enemies = [e for e in battle_obj.enemies if e.is_alive]
+                alive_players = [m for m in battle_obj.player_party if m.is_alive]
+                if not alive_enemies:
+                    battle_obj.finished = True
+                    battle_obj.outcome = 'win'
+                elif not alive_players:
+                    battle_obj.finished = True
+                    battle_obj.outcome = 'lose'
+
+    if battle_obj.finished:
+        if battle_obj.outcome == 'win':
+            total_exp = sum(e.level * 10 for e in battle_obj.enemies)
+            gold_gain = sum(e.level * 5 for e in battle_obj.enemies)
+            alive_members = [m for m in player.party_monsters if m.is_alive]
+            if alive_members and total_exp:
+                share = total_exp // len(alive_members)
+                for m in alive_members:
+                    m.gain_exp(share)
+            player.gold += gold_gain
+            battle_obj.log.append(f"勝利した！ {gold_gain}G を得た。")
+        elif battle_obj.outcome == 'lose':
+            battle_obj.log.append('敗北してしまった...')
+        active_battles.pop(user_id, None)
+        player.last_battle_log = list(battle_obj.log)
+
+    return render_template(
+        'battle.html',
+        player_party=battle_obj.player_party,
+        enemy_party=battle_obj.enemies,
+        messages=battle_obj.log,
+        finished=battle_obj.finished,
+        user_id=user_id,
+    )
 
 
 @app.route('/map/<int:user_id>')

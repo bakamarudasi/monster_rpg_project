@@ -1,11 +1,31 @@
 {% extends "layout.html" %}
 {% block content %}
-<h2>戦闘結果</h2>
+<h2>バトル</h2>
+<h3>味方</h3>
+<ul>
+{% for m in player_party %}
+  <li>{{ m.name }} HP {{ m.hp }}/{{ m.max_hp }}</li>
+{% endfor %}
+</ul>
+<h3>敵</h3>
+<ul>
+{% for e in enemy_party %}
+  <li>{{ e.name }} HP {{ e.hp }}/{{ e.max_hp }}</li>
+{% endfor %}
+</ul>
+<hr>
 <ul>
 {% for m in messages %}
   <li>{{ m }}</li>
 {% endfor %}
 </ul>
+{% if not finished %}
+<form action="{{ url_for('battle', user_id=user_id) }}" method="post">
+  <button name="action" value="attack">たたかう</button>
+  <button name="action" value="run">にげる</button>
+</form>
+{% else %}
 <a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+{% endif %}
 {% endblock %}
 
