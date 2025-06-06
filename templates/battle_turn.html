@@ -181,6 +181,36 @@ button:hover { background: #003c88; }
 .hp-fill.critical.blink {
   animation: blink-red 1s infinite;
 }
+
+/* === 敵詳細パネル === */
+.enemy-detail-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 260px;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 1rem;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.5);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+  z-index: 100;
+}
+.enemy-detail-panel.open {
+  transform: translateX(0);
+}
+.enemy-detail-panel .close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
 </style>
 {% endblock %}
 
@@ -192,7 +222,10 @@ button:hover { background: #003c88; }
       {% set hp_cls = 'hp-fill' %}
       {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}
       {% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
-      <div class="enemy{% if not e.is_alive %} down{% endif %}" data-down="{{ not e.is_alive }}">
+      <div class="enemy{% if not e.is_alive %} down{% endif %}" data-down="{{ not e.is_alive }}"
+           data-name="{{ e.name }}" data-level="{{ e.level }}" data-hp="{{ e.hp }}"
+           data-max-hp="{{ e.max_hp }}" data-mp="{{ e.mp }}" data-max-mp="{{ e.max_mp }}"
+           data-attack="{{ e.attack }}" data-defense="{{ e.defense }}" data-speed="{{ e.speed }}">
         {% if e.image_filename %}
           <img class="enemy-img" src="{{ url_for('static', filename='images/' + e.image_filename) }}" alt="{{ e.name }}">
         {% endif %}
@@ -262,6 +295,18 @@ button:hover { background: #003c88; }
     </ul>
 
     <a href="{{ url_for('play', user_id=user_id) }}" class="back-link">戻る</a>
+    <div class="enemy-detail-panel" id="enemy-detail">
+      <button class="close-btn" type="button">&times;</button>
+      <h3 id="detail-name"></h3>
+      <ul>
+        <li>Lv <span id="detail-level"></span></li>
+        <li>HP <span id="detail-hp"></span>/<span id="detail-max-hp"></span></li>
+        <li>MP <span id="detail-mp"></span>/<span id="detail-max-mp"></span></li>
+        <li>攻撃 <span id="detail-attack"></span></li>
+        <li>防御 <span id="detail-defense"></span></li>
+        <li>素早さ <span id="detail-speed"></span></li>
+      </ul>
+    </div>
   </div>
 
 </div>
@@ -317,6 +362,37 @@ document.addEventListener('DOMContentLoaded', () => {
     actionSel.addEventListener('change', () => updateTargets(row));
     updateTargets(row);
   });
+
+  const detailPanel = document.getElementById('enemy-detail');
+  const closeBtn = detailPanel.querySelector('.close-btn');
+  const fields = {
+    name: document.getElementById('detail-name'),
+    level: document.getElementById('detail-level'),
+    hp: document.getElementById('detail-hp'),
+    maxHp: document.getElementById('detail-max-hp'),
+    mp: document.getElementById('detail-mp'),
+    maxMp: document.getElementById('detail-max-mp'),
+    attack: document.getElementById('detail-attack'),
+    defense: document.getElementById('detail-defense'),
+    speed: document.getElementById('detail-speed'),
+  };
+
+  document.querySelectorAll('.enemy').forEach(el => {
+    el.addEventListener('click', () => {
+      fields.name.textContent = el.dataset.name || '';
+      fields.level.textContent = el.dataset.level || '';
+      fields.hp.textContent = el.dataset.hp || '';
+      fields.maxHp.textContent = el.dataset.maxHp || '';
+      fields.mp.textContent = el.dataset.mp || '';
+      fields.maxMp.textContent = el.dataset.maxMp || '';
+      fields.attack.textContent = el.dataset.attack || '';
+      fields.defense.textContent = el.dataset.defense || '';
+      fields.speed.textContent = el.dataset.speed || '';
+      detailPanel.classList.add('open');
+    });
+  });
+
+  closeBtn.addEventListener('click', () => detailPanel.classList.remove('open'));
 });
 </script>
 {% endblock %}
