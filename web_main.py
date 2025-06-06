@@ -355,6 +355,24 @@ def items(user_id):
     return render_template('items.html', player=player, user_id=user_id, message=message)
 
 
+@app.route('/synthesize/<int:user_id>', methods=['GET', 'POST'])
+def synthesize(user_id):
+    """Combine two monsters from the player's party."""
+    player = active_players.get(user_id)
+    if not player:
+        return redirect(url_for('index'))
+    message = None
+    if request.method == 'POST':
+        try:
+            idx1 = int(request.form.get('mon1', -1))
+            idx2 = int(request.form.get('mon2', -1))
+        except (TypeError, ValueError):
+            idx1 = idx2 = -1
+        success, msg, _ = player.synthesize_monster(idx1, idx2)
+        message = msg
+    return render_template('synthesize.html', player=player, user_id=user_id, message=message)
+
+
 @app.route('/shop/<int:user_id>', methods=['GET', 'POST'])
 def shop(user_id):
     player = active_players.get(user_id)

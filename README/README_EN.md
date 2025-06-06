@@ -15,11 +15,11 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
    ```
    This creates `monster_rpg_save.db` if it does not already exist.
    A default user `player1` will be created automatically. Use `database_setup.create_user()` to add more users.
-3. Start the game:
+3. (Optional) Run the classic CLI version:
    ```bash
-   python main.py
+   python old_cli/main.py
    ```
-   You will be asked whether to load a save file or start a new game.
+   This older interface will ask whether to load a save file or start a new game.
 4. To run the simple web server instead:
    ```bash
    pip install -r requirements.txt

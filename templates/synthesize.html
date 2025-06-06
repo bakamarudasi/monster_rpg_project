@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>モンスター合成</h2>
+{% if message %}<p>{{ message }}</p>{% endif %}
+{% if player.party_monsters|length >= 2 %}
+<form action="{{ url_for('synthesize', user_id=user_id) }}" method="post">
+  <select name="mon1">
+    {% for m in player.party_monsters %}
+    <option value="{{ loop.index0 }}">{{ m.name }} Lv.{{ m.level }}</option>
+    {% endfor %}
+  </select>
+  <select name="mon2">
+    {% for m in player.party_monsters %}
+    <option value="{{ loop.index0 }}">{{ m.name }} Lv.{{ m.level }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit">合成</button>
+</form>
+{% else %}
+<p>モンスターが2体以上いません。</p>
+{% endif %}
+<a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+{% endblock %}
