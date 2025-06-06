@@ -25,12 +25,13 @@ Pythonで作られた小さなテキストベースRPGのプロトタイプで�
    pip install -r requirements.txt
    python webapp.py
    ```
+   `webapp.py` は `/new_game` や `/load_game` といった最低限のJSON APIのみを提供し、戦闘機能は含まれていません。
 5. `web_main.py` でも別のウェブインターフェースを利用できます:
    ```bash
    pip install -r requirements.txt
    python web_main.py
    ```
-   これにより <http://localhost:5000/> でサーバーが起動し、Flaskテンプレートを使用した少し見やすい表示になります。
+   これにより <http://localhost:5000/> でサーバーが起動し、Flaskテンプレートを使用した画面で戦闘を含む完全なゲームを楽しめます。
 
 ## プロジェクト構成
 
