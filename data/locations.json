@@ -22,7 +22,9 @@
     "rare_enemies": [],
     "treasure_items": [],
     "event_chance": 0.0,
-    "avg_enemy_level": 1
+    "avg_enemy_level": 1,
+    "x": 0,
+    "y": 0
   },
   "field_near_village": {
     "location_id": "field_near_village",
@@ -46,7 +48,9 @@
     "rare_enemies": [],
     "treasure_items": [],
     "event_chance": 0.0,
-    "avg_enemy_level": 1
+    "avg_enemy_level": 1,
+    "x": 1,
+    "y": 0
   },
   "forest_entrance": {
     "location_id": "forest_entrance",
@@ -72,7 +76,9 @@
     "rare_enemies": [],
     "treasure_items": [],
     "event_chance": 0.0,
-    "avg_enemy_level": 2
+    "avg_enemy_level": 2,
+    "x": 2,
+    "y": 0
   },
   "mystic_lake": {
     "location_id": "mystic_lake",
@@ -96,7 +102,9 @@
     "rare_enemies": [],
     "treasure_items": [],
     "event_chance": 0.0,
-    "avg_enemy_level": 3
+    "avg_enemy_level": 3,
+    "x": 3,
+    "y": 0
   },
   "deep_forest": {
     "location_id": "deep_forest",
@@ -127,7 +135,9 @@
       "small_potion"
     ],
     "event_chance": 0.3,
-    "avg_enemy_level": 4
+    "avg_enemy_level": 4,
+    "x": 4,
+    "y": 0
   },
   "forest_boss_room": {
     "location_id": "forest_boss_room",
@@ -150,7 +160,9 @@
     "rare_enemies": [],
     "treasure_items": [],
     "event_chance": 0.0,
-    "avg_enemy_level": 5
+    "avg_enemy_level": 5,
+    "x": 0,
+    "y": 1
   },
   "hill_road": {
     "location_id": "hill_road",
@@ -175,7 +187,9 @@
     "rare_enemies": [],
     "treasure_items": [],
     "event_chance": 0.0,
-    "avg_enemy_level": 3
+    "avg_enemy_level": 3,
+    "x": 1,
+    "y": 1
   },
   "mountain_foothills": {
     "location_id": "mountain_foothills",
@@ -204,7 +218,9 @@
       "medium_potion"
     ],
     "event_chance": 0.0,
-    "avg_enemy_level": 4
+    "avg_enemy_level": 4,
+    "x": 2,
+    "y": 1
   },
   "thunder_peak": {
     "location_id": "thunder_peak",
@@ -232,7 +248,9 @@
       "thunder_core"
     ],
     "event_chance": 0.0,
-    "avg_enemy_level": 6
+    "avg_enemy_level": 6,
+    "x": 3,
+    "y": 1
   },
   "ancient_ruins": {
     "location_id": "ancient_ruins",
@@ -258,7 +276,9 @@
     "rare_enemies": [],
     "treasure_items": [],
     "event_chance": 0.25,
-    "avg_enemy_level": 5
+    "avg_enemy_level": 5,
+    "x": 4,
+    "y": 1
   },
   "catacombs_entrance": {
     "location_id": "catacombs_entrance",
@@ -286,7 +306,9 @@
       "frost_crystal"
     ],
     "event_chance": 0.0,
-    "avg_enemy_level": 6
+    "avg_enemy_level": 6,
+    "x": 0,
+    "y": 2
   },
   "catacombs_deep": {
     "location_id": "catacombs_deep",
@@ -315,7 +337,9 @@
       "abyss_shard"
     ],
     "event_chance": 0.0,
-    "avg_enemy_level": 8
+    "avg_enemy_level": 8,
+    "x": 1,
+    "y": 2
   },
   "abyssal_chasm": {
     "location_id": "abyssal_chasm",
@@ -341,7 +365,9 @@
     "rare_enemies": [],
     "treasure_items": [],
     "event_chance": 0.0,
-    "avg_enemy_level": 9
+    "avg_enemy_level": 9,
+    "x": 2,
+    "y": 2
   },
   "celestial_tower": {
     "location_id": "celestial_tower",
@@ -372,7 +398,9 @@
       "elixir"
     ],
     "event_chance": 0.0,
-    "avg_enemy_level": 10
+    "avg_enemy_level": 10,
+    "x": 3,
+    "y": 2
   },
   "desert_outskirts": {
     "location_id": "desert_outskirts",
@@ -397,7 +425,9 @@
     "rare_enemies": [],
     "treasure_items": [],
     "event_chance": 0.0,
-    "avg_enemy_level": 4
+    "avg_enemy_level": 4,
+    "x": 4,
+    "y": 2
   },
   "desert_oasis": {
     "location_id": "desert_oasis",
@@ -424,7 +454,9 @@
     "rare_enemies": [],
     "treasure_items": [],
     "event_chance": 0.0,
-    "avg_enemy_level": 3
+    "avg_enemy_level": 3,
+    "x": 0,
+    "y": 3
   },
   "sunken_temple": {
     "location_id": "sunken_temple",
@@ -452,7 +484,9 @@
       "frost_crystal"
     ],
     "event_chance": 0.0,
-    "avg_enemy_level": 7
+    "avg_enemy_level": 7,
+    "x": 1,
+    "y": 3
   },
   "abyssal_marsh": {
     "location_id": "abyssal_marsh",
@@ -478,7 +512,9 @@
     "rare_enemies": [],
     "treasure_items": [],
     "event_chance": 0.0,
-    "avg_enemy_level": 8
+    "avg_enemy_level": 8,
+    "x": 2,
+    "y": 3
   },
   "volcanic_ridge": {
     "location_id": "volcanic_ridge",
@@ -508,7 +544,9 @@
       "dragon_scale"
     ],
     "event_chance": 0.0,
-    "avg_enemy_level": 9
+    "avg_enemy_level": 9,
+    "x": 3,
+    "y": 3
   },
   "lava_core": {
     "location_id": "lava_core",
@@ -532,7 +570,9 @@
     "rare_enemies": [],
     "treasure_items": [],
     "event_chance": 0.0,
-    "avg_enemy_level": 10
+    "avg_enemy_level": 10,
+    "x": 4,
+    "y": 3
   },
   "sky_isle": {
     "location_id": "sky_isle",
@@ -560,7 +600,9 @@
     "rare_enemies": [],
     "treasure_items": [],
     "event_chance": 0.0,
-    "avg_enemy_level": 10
+    "avg_enemy_level": 10,
+    "x": 0,
+    "y": 4
   },
   "sky_isle_inner_sanctum": {
     "location_id": "sky_isle_inner_sanctum",
@@ -586,6 +628,8 @@
       "elixir"
     ],
     "event_chance": 0.0,
-    "avg_enemy_level": 12
+    "avg_enemy_level": 12,
+    "x": 1,
+    "y": 4
   }
 }
