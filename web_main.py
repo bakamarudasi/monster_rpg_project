@@ -1,7 +1,7 @@
 """Simple web interface for the Monster RPG game."""
 
 try:
-    from flask import Flask, request, redirect, url_for, render_template
+    from flask import Flask, request, redirect, url_for, render_template, jsonify
 except ImportError as e:  # pragma: no cover - dependency check
     raise SystemExit(
         "Flask is required to run this web interface. "
@@ -363,12 +363,30 @@ def synthesize(user_id):
         return redirect(url_for('index'))
     message = None
     if request.method == 'POST':
-        try:
-            idx1 = int(request.form.get('mon1', -1))
-            idx2 = int(request.form.get('mon2', -1))
-        except (TypeError, ValueError):
-            idx1 = idx2 = -1
-        success, msg, _ = player.synthesize_monster(idx1, idx2)
+        idx1 = idx2 = -1
+        if request.is_json:
+            data = request.get_json(silent=True) or {}
+            try:
+                idx1 = int(data.get('mon1', -1))
+                idx2 = int(data.get('mon2', -1))
+            except (TypeError, ValueError):
+                idx1 = idx2 = -1
+        else:
+            try:
+                idx1 = int(request.form.get('mon1', -1))
+                idx2 = int(request.form.get('mon2', -1))
+            except (TypeError, ValueError):
+                idx1 = idx2 = -1
+        success, msg, new_mon = player.synthesize_monster(idx1, idx2)
+        if request.is_json:
+            new_mon_dict = None
+            if new_mon:
+                new_mon_dict = {
+                    'name': new_mon.name,
+                    'monster_id': getattr(new_mon, 'monster_id', None),
+                    'level': new_mon.level,
+                }
+            return jsonify({'success': success, 'message': msg, 'new_monster': new_mon_dict})
         message = msg
     return render_template('synthesize.html', player=player, user_id=user_id, message=message)
 
