@@ -1,23 +1,342 @@
 {% extends "layout.html" %}
+
+{% block head_extra %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+
+<style>
+/* === 基本スタイル === */
+body {
+    background: #1a1a1a;
+    color: #f0f0f0;
+    font-family: 'DotGothic16', sans-serif;
+    font-size: 18px;
+    line-height: 1.6;
+}
+a { color: #87cefa; }
+
+/* === ウィンドウ全体 === */
+.synthesis-container {
+    max-width: 720px;
+    margin: 2rem auto;
+    background: #001a33;
+    border: 3px solid #ccc;
+    outline: 3px solid #001a33;
+    border-radius: 4px;
+    padding: 1rem 1.5rem;
+}
+h2 {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 1rem;
+    text-shadow: 1px 1px 2px #000;
+}
+.message {
+    text-align: center;
+    color: #ffdd00;
+    min-height: 24px;
+    margin-bottom: 1rem;
+}
+
+/* === 合成結果表示エリア === */
+#result-area {
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.result-card {
+    text-align: center;
+    padding: 1rem;
+    border: 2px solid #ffdd00;
+    background: rgba(255, 221, 0, 0.1);
+    border-radius: 4px;
+    opacity: 0; /* 初期状態は非表示 */
+}
+.result-card.reveal {
+    animation: fadeInZoom 0.5s forwards;
+}
+
+/* === 合成スロット === */
+.synthesis-board {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+.synthesis-slot {
+    width: 200px;
+    height: 100px;
+    border: 2px dashed #556;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #777;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+.synthesis-slot.drag-over {
+    background-color: rgba(0, 255, 128, 0.1);
+    border-color: #00ff80;
+}
+.synthesis-slot .monster-card {
+    cursor: default;
+    border-color: #87cefa;
+}
+.plus-icon { font-size: 2rem; color: #777; }
+
+/* === モンスター・ストックヤード === */
+.stockyard-header {
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+    border-left: 4px solid #87cefa;
+}
+#monster-stockyard {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    min-height: 100px;
+    border-radius: 4px;
+}
+.monster-card {
+    background: #112a44;
+    border: 2px solid #4a90e2;
+    padding: 0.5rem;
+    text-align: center;
+    border-radius: 4px;
+    cursor: grab;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.monster-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 128, 255, 0.3);
+}
+.monster-card.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+}
+
+/* === ボタンとリンク === */
+#synthesis-button {
+    display: block;
+    margin: 2rem auto 1rem;
+    font-family: inherit;
+    font-size: 1.2rem;
+    padding: 0.5rem 2rem;
+    background: #555;
+    color: #999;
+    border: 2px solid #777;
+    border-radius: 4px;
+    cursor: not-allowed;
+}
+#synthesis-button:not(:disabled) {
+    background: #0055aa;
+    color: #fff;
+    border-color: #0088ff;
+    cursor: pointer;
+}
+#synthesis-button:not(:disabled):hover {
+    background: #003c88;
+}
+
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+/* === アニメーション === */
+@keyframes fadeInZoom {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+}
+@keyframes flash {
+    0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0); }
+    50% { box-shadow: 0 0 30px 15px rgba(255, 255, 255, 0.7); }
+}
+.synthesis-flash {
+    animation: flash 0.6s ease-out;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<h2>モンスター合成</h2>
-{% if message %}<p>{{ message }}</p>{% endif %}
-{% if player.party_monsters|length >= 2 %}
-<form action="{{ url_for('synthesize', user_id=user_id) }}" method="post">
-  <select name="mon1">
-    {% for m in player.party_monsters %}
-    <option value="{{ loop.index0 }}">{{ m.name }} Lv.{{ m.level }}</option>
-    {% endfor %}
-  </select>
-  <select name="mon2">
-    {% for m in player.party_monsters %}
-    <option value="{{ loop.index0 }}">{{ m.name }} Lv.{{ m.level }}</option>
-    {% endfor %}
-  </select>
-  <button type="submit">合成</button>
-</form>
-{% else %}
-<p>モンスターが2体以上いません。</p>
-{% endif %}
-<a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+<div class="synthesis-container">
+    <h2>モンスター合成</h2>
+    <p class="message" id="message-area">{% if message %}{{ message }}{% else %}合成するモンスターを下のリストからドラッグしてください{% endif %}</p>
+
+    <div id="result-area">
+        </div>
+
+    {% if player.party_monsters|length >= 2 %}
+    <div class="synthesis-board">
+        <div class="synthesis-slot" id="slot-1" data-monster-index="">ここにドラッグ</div>
+        <span class="plus-icon">+</span>
+        <div class="synthesis-slot" id="slot-2" data-monster-index="">ここにドラッグ</div>
+    </div>
+    
+    <button id="synthesis-button" type="button" disabled>合成</button>
+
+    <h3 class="stockyard-header">手持ちのモンスター</h3>
+    <div id="monster-stockyard">
+        {% for m in player.party_monsters %}
+        <div class="monster-card" draggable="true" data-monster-index="{{ loop.index0 }}" data-monster-name="{{ m.name }}" data-monster-level="{{ m.level }}">
+            <div>{{ m.name }}</div>
+            <div>Lv.{{ m.level }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>モンスターが2体以上いません。</p>
+    {% endif %}
+
+    <a href="{{ url_for('play', user_id=user_id) }}" class="back-link">戻る</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const stockyard = document.getElementById('monster-stockyard');
+    if (!stockyard) return;
+
+    const slots = [document.getElementById('slot-1'), document.getElementById('slot-2')];
+    const monsters = document.querySelectorAll('.monster-card');
+    const synthesisButton = document.getElementById('synthesis-button');
+    const messageArea = document.getElementById('message-area');
+    const resultArea = document.getElementById('result-area');
+    const url = "{{ url_for('synthesize', user_id=user_id) }}";
+
+    // --- ドラッグ＆ドロップの処理 ---
+    let draggedItem = null;
+
+    monsters.forEach(monster => {
+        monster.addEventListener('dragstart', (e) => {
+            draggedItem = e.target;
+            setTimeout(() => e.target.classList.add('dragging'), 0);
+        });
+
+        monster.addEventListener('dragend', (e) => {
+            e.target.classList.remove('dragging');
+        });
+    });
+
+    slots.forEach(slot => {
+        slot.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            slot.classList.add('drag-over');
+        });
+
+        slot.addEventListener('dragleave', () => {
+            slot.classList.remove('drag-over');
+        });
+
+        slot.addEventListener('drop', (e) => {
+            e.preventDefault();
+            slot.classList.remove('drag-over');
+
+            // 既にスロットにモンスターがいればストックヤードに戻す
+            if (slot.hasChildNodes() && slot.firstChild.classList?.contains('monster-card')) {
+                stockyard.appendChild(slot.firstChild);
+            }
+
+            // ドロップされたモンスターをスロットに配置
+            const monsterCard = draggedItem.cloneNode(true); // ストックのものをコピー
+            monsterCard.classList.remove('dragging');
+            monsterCard.draggable = false;
+            
+            slot.innerHTML = ''; // 「ここにドラッグ」の文字を消す
+            slot.appendChild(monsterCard);
+            slot.dataset.monsterIndex = draggedItem.dataset.monsterIndex;
+            
+            // ストックヤードから元アイテムを非表示（または削除）
+            draggedItem.style.display = 'none';
+
+            checkSlots();
+        });
+    });
+
+    // --- 合成ボタンの状態管理 ---
+    function checkSlots() {
+        const slot1_idx = slots[0].dataset.monsterIndex;
+        const slot2_idx = slots[1].dataset.monsterIndex;
+
+        if (slot1_idx !== "" && slot2_idx !== "") {
+            if (slot1_idx === slot2_idx) {
+                messageArea.textContent = "同じモンスターは合成できません。";
+                synthesisButton.disabled = true;
+            } else {
+                messageArea.textContent = "準備完了！";
+                synthesisButton.disabled = false;
+            }
+        } else {
+            synthesisButton.disabled = true;
+        }
+    }
+
+    // --- 合成実行 (AJAX) ---
+    synthesisButton.addEventListener('click', () => {
+        const mon1_idx = slots[0].dataset.monsterIndex;
+        const mon2_idx = slots[1].dataset.monsterIndex;
+
+        if (synthesisButton.disabled) return;
+        synthesisButton.disabled = true;
+        messageArea.textContent = "合成中...";
+        
+        // 演出：スロットを光らせる
+        slots.forEach(s => s.classList.add('synthesis-flash'));
+
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mon1: mon1_idx, mon2: mon2_idx })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                messageArea.textContent = "合成成功！";
+                resultArea.innerHTML = `
+                    <div class="result-card">
+                        <h3>${data.new_monster.name} が誕生した！</h3>
+                        <p>Lv.${data.new_monster.level}</p>
+                    </div>
+                `;
+                // 演出：結果を表示
+                resultArea.querySelector('.result-card').classList.add('reveal');
+                // スロットとストックを空にする
+                resetBoard();
+            } else {
+                messageArea.textContent = data.error || "合成に失敗しました。";
+                synthesisButton.disabled = false; // 失敗時は再試行可能に
+            }
+        })
+        .catch(error => {
+            messageArea.textContent = "エラーが発生しました。";
+            console.error('Error:', error);
+            synthesisButton.disabled = false;
+        })
+        .finally(() => {
+             // 演出：光を消す
+            slots.forEach(s => s.classList.remove('synthesis-flash'));
+        });
+    });
+
+    function resetBoard() {
+        // ここに合成成功後のリセット処理を実装する
+        // 例えば、3秒後にページをリロードして最新のパーティを表示するなど
+        setTimeout(() => {
+            window.location.reload();
+        }, 3000);
+    }
+});
+</script>
 {% endblock %}
