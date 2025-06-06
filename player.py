@@ -8,7 +8,7 @@ from monsters.synthesis_rules import (
     SYNTHESIS_RECIPES,
     SYNTHESIS_ITEMS_REQUIRED,
 )
-from equipment import ALL_EQUIPMENT, CRAFTING_RECIPES
+from items.equipment import ALL_EQUIPMENT, CRAFTING_RECIPES
 import random  # 将来的にスキル継承などで使うかも
 import copy
 from monster_book import MonsterBook
