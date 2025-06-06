@@ -42,6 +42,7 @@
                 <form action="{{ url_for('explore', user_id=user_id) }}" method="post"><button class="menu-btn"><span>たんさく</span></button></form>
                 <form action="{{ url_for('battle_log', user_id=user_id) }}" method="get"><button class="menu-btn"><span>せんとうログ</span></button></form>
                 <form action="{{ url_for('items', user_id=user_id) }}" method="get"><button class="menu-btn"><span>アイテム</span></button></form>
+                <form action="{{ url_for('synthesize', user_id=user_id) }}" method="get"><button class="menu-btn"><span>ごうせい</span></button></form>
                 <form action="{{ url_for('monster_book', user_id=user_id) }}" method="get"><button class="menu-btn"><span>ずかん</span></button></form>
                 <form action="{{ url_for('world_map', user_id=user_id) }}" method="get"><button class="menu-btn"><span>マップ</span></button></form>
                 {% if loc.has_shop %}

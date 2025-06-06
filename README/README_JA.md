@@ -15,9 +15,9 @@ Pythonで作られた小さなテキストベースRPGのプロトタイプで�
    ```
    既に存在しない場合 `monster_rpg_save.db` が作成されます。
    デフォルトユーザー `player1` が自動で作成されます。追加ユーザーを作る場合は `database_setup.create_user()` を利用してください。
-3. ゲームを開始します:
+3. (任意) 旧版のCLIを実行する場合:
    ```bash
-   python main.py
+   python old_cli/main.py
    ```
    セーブをロードするか新しく始めるか尋ねられます。
 4. 代わりに簡易ウェブサーバーを起動するには:
