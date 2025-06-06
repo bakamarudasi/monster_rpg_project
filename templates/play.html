@@ -1,177 +1,192 @@
 {% extends "layout.html" %}
+
+{% block head_extra %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
 <div class="field-container">
-  <div class="loc-header">
-    <h2>{{ loc.name }}</h2>
-    <p class="loc-desc">{{ loc.description }}</p>
-    <div class="player-status">
-      <span class="player-label">プレイヤー:</span>
-      <span class="player-name">{{ player.name }}</span>
-      <span class="player-lv">Lv.{{ player.player_level }}</span>
-      <span class="player-gold">Gold <b>{{ player.gold }}</b></span>
+    <div class="loc-header">
+        <div class="header-top">
+            <h2>{{ loc.name }}</h2>
+            <div class="player-status">
+                <span>Lv.{{ player.player_level }}</span>
+                <span>{{ player.gold }} G</span>
+            </div>
+        </div>
+        <p class="loc-desc">{{ loc.description }}</p>
     </div>
-  </div>
 
-  <div class="actions-group">
-    <h3>移動</h3>
-    <div class="move-btn-list">
-      {% for cmd, dest, name in connections %}
-        <form action="{{ url_for('move', user_id=user_id) }}" method="post" class="move-form">
-          <input type="hidden" name="dest" value="{{ dest }}">
-          <button type="submit" class="move-btn">{{ cmd }} → <b>{{ name }}</b></button>
-        </form>
-      {% endfor %}
+    <hr class="window-divider">
+
+    <div class="command-area">
+        <div class="actions-group">
+            <h3>いどう</h3>
+            <div class="move-btn-list">
+                {% for cmd, dest, name in connections %}
+                <form action="{{ url_for('move', user_id=user_id) }}" method="post">
+                    <input type="hidden" name="dest" value="{{ dest }}">
+                    <button type="submit" class="menu-btn"><span>{{ cmd }} → {{ name }}</span></button>
+                </form>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="actions-group">
+            <h3>コマンド</h3>
+            <div class="menu-group">
+                <form action="{{ url_for('status', user_id=user_id) }}" method="get"><button class="menu-btn"><span>ステータス</span></button></form>
+                <form action="{{ url_for('party', user_id=user_id) }}" method="get"><button class="menu-btn"><span>パーティ</span></button></form>
+                <form action="{{ url_for('explore', user_id=user_id) }}" method="post"><button class="menu-btn"><span>たんさく</span></button></form>
+                <form action="{{ url_for('battle_log', user_id=user_id) }}" method="get"><button class="menu-btn"><span>せんとうログ</span></button></form>
+                <form action="{{ url_for('items', user_id=user_id) }}" method="get"><button class="menu-btn"><span>アイテム</span></button></form>
+                <form action="{{ url_for('monster_book', user_id=user_id) }}" method="get"><button class="menu-btn"><span>ずかん</span></button></form>
+                <form action="{{ url_for('world_map', user_id=user_id) }}" method="get"><button class="menu-btn"><span>マップ</span></button></form>
+                {% if loc.has_shop %}
+                <form action="{{ url_for('shop', user_id=user_id) }}" method="get"><button class="menu-btn"><span>ショップ</span></button></form>
+                {% endif %}
+                {% if loc.has_inn %}
+                <form action="{{ url_for('inn', user_id=user_id) }}" method="post"><button class="menu-btn"><span>やどや ({{ loc.inn_cost }}G)</span></button></form>
+                {% endif %}
+                <form action="{{ url_for('save', user_id=user_id) }}" method="post"><button class="menu-btn save-btn"><span>セーブ</span></button></form>
+            </div>
+        </div>
     </div>
-  </div>
-
-  <div class="menu-group">
-    <form action="{{ url_for('status', user_id=user_id) }}" method="get"><button class="menu-btn">ステータス</button></form>
-    <form action="{{ url_for('party', user_id=user_id) }}" method="get"><button class="menu-btn">パーティ</button></form>
-    <form action="{{ url_for('explore', user_id=user_id) }}" method="post"><button class="menu-btn">探索</button></form>
-    <form action="{{ url_for('battle_log', user_id=user_id) }}" method="get"><button class="menu-btn">バトルログ</button></form>
-    <form action="{{ url_for('items', user_id=user_id) }}" method="get"><button class="menu-btn">アイテム</button></form>
-    <form action="{{ url_for('monster_book', user_id=user_id) }}" method="get"><button class="menu-btn">図鑑</button></form>
-    <form action="{{ url_for('world_map', user_id=user_id) }}" method="get"><button class="menu-btn">マップ</button></form>
-    {% if loc.has_shop %}
-      <form action="{{ url_for('shop', user_id=user_id) }}" method="get"><button class="menu-btn">ショップ</button></form>
-    {% endif %}
-    {% if loc.has_inn %}
-      <form action="{{ url_for('inn', user_id=user_id) }}" method="post"><button class="menu-btn">宿屋 ({{ loc.inn_cost }})</button></form>
-    {% endif %}
-    <form action="{{ url_for('save', user_id=user_id) }}" method="post"><button class="menu-btn save-btn">セーブ</button></form>
-  </div>
 </div>
+
 <style>
-  body {
-    background: linear-gradient(120deg, #ffe9e4 0%, #d2e7ff 100%);
-    font-family: 'Segoe UI', 'Arial', sans-serif;
-  }
-  .field-container {
-    max-width: 500px;
-    margin: 48px auto;
-    background: rgba(255,255,255,0.96);
-    border-radius: 18px;
-    box-shadow: 0 10px 36px rgba(60,90,180,0.11);
-    padding: 26px 18px 38px 18px;
-  }
-  .loc-header h2 {
-    color: #6043a2;
-    margin-bottom: 8px;
-    font-size: 1.7rem;
-    letter-spacing: 1.1px;
-    text-shadow: 0 1px 0 #fff8, 0 0 8px #e3e3ff44;
-  }
-  .loc-desc {
-    color: #3b3c61;
-    font-size: 1.07rem;
-    margin-bottom: 18px;
-    background: #f2f4ff;
-    padding: 10px 13px;
-    border-radius: 10px;
-    box-shadow: 0 1px 7px #a0a9ff19;
-  }
-  .player-status {
-    margin-bottom: 16px;
-    padding: 8px 12px;
-    border-radius: 10px;
-    background: #f7f8ff;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 13px 10px;
-    font-size: 1.06rem;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 1px 7px #a0a9ff13;
-  }
-  .player-label {
-    color: #7e6aad;
-    font-weight: 600;
-    margin-right: 6px;
-  }
-  .player-name {
-    color: #5950ba;
-    font-weight: bold;
-    letter-spacing: .7px;
-    margin-right: 6px;
-  }
-  .player-lv {
-    color: #50708b;
-    margin-right: 6px;
-    font-weight: 500;
-  }
-  .player-gold {
-    color: #ec9b3b;
-    font-weight: bold;
-    margin-left: 6px;
-  }
-  .actions-group {
-    margin-bottom: 28px;
-  }
-  .actions-group h3 {
-    margin-bottom: 8px;
-    color: #376fd0;
-    font-size: 1.18rem;
-    letter-spacing: 1px;
-  }
-  .move-btn-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-  }
-  .move-form {
-    margin: 0;
-  }
-  .move-btn {
-    background: linear-gradient(90deg, #6ee7b7 10%, #3b82f6 80%);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.06rem;
-    padding: 8px 18px;
-    margin-bottom: 2px;
-    font-weight: bold;
-    letter-spacing: .8px;
-    cursor: pointer;
-    transition: background .17s, box-shadow .18s;
-    box-shadow: 0 2px 8px rgba(66,150,225,0.09);
-  }
-  .move-btn:hover {
-    background: linear-gradient(90deg, #3b82f6 20%, #6ee7b7 100%);
-    box-shadow: 0 4px 16px rgba(66,150,225,0.14);
-  }
-  .menu-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px 18px;
-    margin-top: 14px;
-    justify-items: stretch;
-  }
-  .menu-btn {
-    background: linear-gradient(90deg, #a18ff7 10%, #f586c1 80%);
-    color: #fff;
-    border: none;
-    border-radius: 7px;
-    font-size: 1.02rem;
-    padding: 10px 0;
-    font-weight: 500;
-    letter-spacing: .7px;
-    margin-bottom: 0;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(161,143,247,0.09);
-    transition: background .18s, box-shadow .17s;
-    width: 100%;
-  }
-  .menu-btn:hover {
-    background: linear-gradient(90deg, #f586c1 10%, #a18ff7 90%);
-    box-shadow: 0 4px 12px rgba(230,70,160,0.13);
-  }
-  .save-btn {
-    background: linear-gradient(90deg,#fec163,#de4313 90%);
-    font-weight: bold;
-  }
-  .save-btn:hover {
-    background: linear-gradient(90deg,#de4313,#fec163 90%);
-  }
+    /* === 全体レイアウト & 基本スタイル === */
+    body {
+        background: #1a1a1a; /* 暗い背景 */
+        color: #f0f0f0;
+        font-family: 'DotGothic16', "Segoe UI", Tahoma, Verdana, sans-serif; /* ドットフォント */
+        font-size: 18px;
+        line-height: 1.6;
+    }
+
+    /* === RPGのウィンドウ風コンテナ === */
+    .field-container {
+        max-width: 640px;
+        margin: 2rem auto;
+        background: #001a33; /* 深い青色のウィンドウ背景 */
+        border: 3px solid #ccc;
+        outline: 3px solid #001a33;
+        border-radius: 4px;
+        box-shadow: 0 0 20px rgba(0, 128, 255, 0.2);
+        padding: 8px;
+    }
+
+    /* === 上部: ヘッダーエリア === */
+    .loc-header {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 1rem;
+        border-radius: 2px;
+    }
+    .header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 0.5rem;
+    }
+    .loc-header h2 {
+        color: #fff;
+        font-size: 1.5rem;
+        margin: 0;
+        text-shadow: 1px 1px 2px #000;
+    }
+    .player-status {
+        color: #ffdd00; /* ゴールドの色 */
+        font-size: 1.1rem;
+    }
+    .player-status span {
+        margin-left: 1.5rem;
+    }
+    .loc-desc {
+        color: #ddd;
+        font-size: 1rem;
+        margin: 0;
+        padding-left: 0.5rem;
+        border-left: 3px solid #4a90e2; /* 説明文の左にアクセント */
+    }
+
+    /* === 区切り線 === */
+    .window-divider {
+        border: 0;
+        height: 2px;
+        background: linear-gradient(to right, transparent, #556, transparent);
+        margin: 8px 0;
+    }
+
+    /* === 下部: コマンドエリア === */
+    .command-area {
+        padding: 0.5rem;
+    }
+    .actions-group h3 {
+        color: #87cefa; /* ライトブルー */
+        font-size: 1.1rem;
+        margin-top: 0;
+        margin-bottom: 0.75rem;
+        padding-left: 0.5rem;
+    }
+    
+    /* === ボタン共通スタイル === */
+    .move-btn-list, .menu-group {
+        display: grid;
+        gap: 8px 16px;
+    }
+    .menu-group {
+        grid-template-columns: 1fr 1fr; /* 2列グリッド */
+    }
+    .move-btn-list {
+        grid-template-columns: 1fr; /* 移動は1列 */
+    }
+    form {
+        margin: 0; /* formによる余白をなくす */
+    }
+    .menu-btn {
+        background: transparent;
+        color: #f0f0f0;
+        border: none;
+        border-radius: 0;
+        font-size: 1.1rem;
+        padding: 4px 12px;
+        font-family: inherit;
+        cursor: pointer;
+        transition: background .15s;
+        width: 100%;
+        text-align: left;
+        position: relative; /* 疑似要素の位置の基準 */
+    }
+
+    /* === ホバー時のカーソル表現 === */
+    .menu-btn::before {
+        content: '▶';
+        position: absolute;
+        left: 0px;
+        top: 4px;
+        color: #fff;
+        opacity: 0; /* 通常は非表示 */
+        transition: opacity 0.15s;
+    }
+    .menu-btn span {
+        margin-left: 24px; /* カーソル分のスペースを確保 */
+    }
+    .menu-btn:hover,
+    .menu-btn:focus {
+        background: rgba(255, 255, 255, 0.15);
+        outline: none;
+    }
+    .menu-btn:hover::before,
+    .menu-btn:focus::before {
+        opacity: 1; /* ホバー/フォーカス時に表示 */
+    }
+
+    /* === セーブボタンの特別スタイル（任意） === */
+    .save-btn span {
+        color: #ffb3b3; /* セーブは少し赤っぽく */
+    }
+
 </style>
 {% endblock %}
