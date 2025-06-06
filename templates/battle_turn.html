@@ -48,6 +48,15 @@ body {
   image-rendering: pixelated; /* ドット絵がぼやけないように */
 }
 
+/* 味方モンスター画像 */
+.ally-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  margin-right: 1rem;
+  image-rendering: pixelated;
+}
+
 /* === 中央の区分け線 === */
 .divider {
   border: 0;
@@ -248,6 +257,9 @@ button:hover { background: #003c88; }
         {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}
         {% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
         <div class="ally{% if not m.is_alive %} down{% endif %}" data-down="{{ not m.is_alive }}">
+            {% if m.image_filename %}
+              <img class="ally-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
+            {% endif %}
             <div class="member-info">
                 <div class="member-name">{{ m.name }}</div>
                 <div class="hp-bar"><div class="{{ hp_cls }}" style="width:{{ hp_pct }}%"></div></div>
