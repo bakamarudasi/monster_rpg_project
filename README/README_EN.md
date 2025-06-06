@@ -64,3 +64,6 @@ The game saves player data to `monster_rpg_save.db`. Only basic information is s
 Place monster pictures under `static/images/` on your local machine. The folder is kept in the repository via an empty `.gitkeep` file but ignored by Git so large image files do not get uploaded.
 
 Enjoy exploring the world and training your monsters!
+
+## License
+This project is licensed under the [MIT License](../LICENSE).
