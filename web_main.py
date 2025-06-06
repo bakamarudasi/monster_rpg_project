@@ -493,6 +493,14 @@ def explore(user_id):
             enemy_names = ", ".join(e.name for e in enemies)
             battle_obj.log.append(f"{enemy_names} が現れた！")
             active_battles[user_id] = battle_obj
+
+            # Process enemy turns automatically until it's the player's turn
+            while (
+                not battle_obj.finished
+                and battle_obj.current_actor() not in battle_obj.player_party
+            ):
+                battle_obj.step()
+
             return render_template(
                 'battle_turn.html',
                 user_id=user_id,
@@ -500,6 +508,7 @@ def explore(user_id):
                 player_party=battle_obj.player_party,
                 enemy_party=battle_obj.enemy_party,
                 log=battle_obj.log,
+                current_actor=battle_obj.current_actor(),
             )
         else:
             messages.append('モンスターは現れなかった。')
