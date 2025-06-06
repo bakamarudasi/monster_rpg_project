@@ -14,12 +14,13 @@ import sqlite3
 from player import Player
 from monsters.monster_data import ALL_MONSTERS, MONSTER_BOOK_DATA
 from items.item_data import ALL_ITEMS
-from map_data import LOCATIONS, get_map_overview
+from map_data import LOCATIONS, get_map_overview, load_locations
 from exploration import generate_enemy_party
 
 app = Flask(__name__)
 
 database_setup.initialize_database()
+load_locations()
 
 # In-memory store of active players keyed by user_id
 active_players: dict[int, Player] = {}
