@@ -3,7 +3,7 @@ import random # エンカウント判定で使います
 
 class Location:
     def __init__(self, location_id, name, description, connections=None,
-                 possible_enemies=None, encounter_rate=0.0, has_inn=False,
+                 possible_enemies=None, enemy_weights=None, encounter_rate=0.0, has_inn=False,
                  inn_cost=0, hidden_connections=None, has_shop=False,
                  shop_items=None, shop_monsters=None, boss_enemy_id=None,
                  rare_enemies=None, treasure_items=None, event_chance=0.0,
@@ -17,6 +17,8 @@ class Location:
                             例: {"北へ進む": "forest_path_1", "南へ戻る": "village_square"}
         possible_enemies (list): その場所で出現する可能性のあるモンスターのID (ALL_MONSTERSのキー)のリスト。
                                  例: ["slime", "goblin"]
+        enemy_weights (dict): possible_enemies の各モンスターを引く確率の重み
+                              例: {"slime": 0.8, "goblin": 0.2}
         encounter_rate (float): その場所でのエンカウント率 (0.0 から 1.0)。0ならエンカウントしない。
         """
         self.location_id = location_id
@@ -24,6 +26,7 @@ class Location:
         self.description = description
         self.connections = connections if connections else {}
         self.possible_enemies = possible_enemies if possible_enemies else []
+        self.enemy_weights = enemy_weights
         self.encounter_rate = encounter_rate
         self.has_inn = has_inn  # 宿屋があるかどうかのフラグ (True/False)
         self.inn_cost = inn_cost  # 宿泊料金**
@@ -40,6 +43,10 @@ class Location:
     def get_random_enemy_id(self):
         """この場所で出現する可能性のあるモンスターIDをランダムに1つ返す。"""
         if self.possible_enemies:
+            if self.enemy_weights:
+                enemies = list(self.enemy_weights.keys())
+                weights = list(self.enemy_weights.values())
+                return random.choices(enemies, weights=weights, k=1)[0]
             return random.choice(self.possible_enemies)
         return None
 
@@ -74,6 +81,7 @@ LOCATIONS = {
         description="薄暗い森の入り口。奥からはかすかに獣の気配がする。",
         connections={"南西": "field_near_village", "奥へ": "deep_forest", "東": "mystic_lake"},
         possible_enemies=["goblin", "slime"],
+        enemy_weights={"goblin": 0.7, "slime": 0.3},
         encounter_rate=0.75,
         avg_enemy_level=2
     ),
@@ -92,6 +100,7 @@ LOCATIONS = {
         description="木々が鬱蒼と茂り、昼なお暗い。強力なモンスターが生息しているようだ。",
         connections={"入り口へ": "forest_entrance"},
         possible_enemies=["wolf", "goblin", "forest_spirit"],
+        enemy_weights={"wolf": 0.5, "goblin": 0.3, "forest_spirit": 0.2},
         encounter_rate=0.9,
         hidden_connections={"さらに奥へ": "forest_boss_room"},
         boss_enemy_id="dragon_pup",
