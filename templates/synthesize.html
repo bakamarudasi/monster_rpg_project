@@ -32,6 +32,29 @@ h2 {
     margin-bottom: 1rem;
     text-shadow: 1px 1px 2px #000;
 }
+.tab-buttons {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+    gap: 0.5rem;
+}
+.tab-btn {
+    flex: 1;
+    padding: 0.5rem;
+    background: #003355;
+    color: #fff;
+    border: 1px solid #777;
+    cursor: pointer;
+}
+.tab-btn.active {
+    background: #0055aa;
+}
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
 .message {
     text-align: center;
     color: #ffdd00;
@@ -125,6 +148,15 @@ h2 {
     cursor: grabbing;
 }
 
+/* === アイテムリスト === */
+#item-list {
+    list-style: none;
+    padding-left: 1rem;
+}
+.item-entry {
+    margin: 0.25rem 0;
+}
+
 /* === ボタンとリンク === */
 #synthesis-button {
     display: block;
@@ -172,32 +204,51 @@ h2 {
 {% block content %}
 <div class="synthesis-container">
     <h2>モンスター合成</h2>
-    <p class="message" id="message-area">{% if message %}{{ message }}{% else %}合成するモンスターを下のリストからドラッグしてください{% endif %}</p>
+    <div class="tab-buttons">
+        <button class="tab-btn active" data-target="monster-tab">モンスター</button>
+        <button class="tab-btn" data-target="item-tab">アイテム</button>
+    </div>
 
-    <div id="result-area">
+    <div id="monster-tab" class="tab-content active">
+        <p class="message" id="message-area">{% if message %}{{ message }}{% else %}合成するモンスターを下のリストからドラッグしてください{% endif %}</p>
+
+        <div id="result-area"></div>
+
+        {% if player.party_monsters|length >= 2 %}
+        <div class="synthesis-board">
+            <div class="synthesis-slot" id="slot-1" data-monster-index="">ここにドラッグ</div>
+            <span class="plus-icon">+</span>
+            <div class="synthesis-slot" id="slot-2" data-monster-index="">ここにドラッグ</div>
         </div>
 
-    {% if player.party_monsters|length >= 2 %}
-    <div class="synthesis-board">
-        <div class="synthesis-slot" id="slot-1" data-monster-index="">ここにドラッグ</div>
-        <span class="plus-icon">+</span>
-        <div class="synthesis-slot" id="slot-2" data-monster-index="">ここにドラッグ</div>
-    </div>
-    
-    <button id="synthesis-button" type="button" disabled>合成</button>
+        <button id="synthesis-button" type="button" disabled>合成</button>
 
-    <h3 class="stockyard-header">手持ちのモンスター</h3>
-    <div id="monster-stockyard">
-        {% for m in player.party_monsters %}
-        <div class="monster-card" draggable="true" data-monster-index="{{ loop.index0 }}" data-monster-name="{{ m.name }}" data-monster-level="{{ m.level }}">
-            <div>{{ m.name }}</div>
-            <div>Lv.{{ m.level }}</div>
+        <h3 class="stockyard-header">手持ちのモンスター</h3>
+        <div id="monster-stockyard">
+            {% for m in player.party_monsters %}
+            <div class="monster-card" draggable="true" data-monster-index="{{ loop.index0 }}" data-monster-name="{{ m.name }}" data-monster-level="{{ m.level }}">
+                <div>{{ m.name }}</div>
+                <div>Lv.{{ m.level }}</div>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+        {% else %}
+        <p>モンスターが2体以上いません。</p>
+        {% endif %}
     </div>
-    {% else %}
-    <p>モンスターが2体以上いません。</p>
-    {% endif %}
+
+    <div id="item-tab" class="tab-content">
+        <h3 class="stockyard-header">手持ちのアイテム</h3>
+        {% if player.items %}
+        <ul id="item-list">
+            {% for item in player.items %}
+            <li class="item-entry">{{ item.name }}</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>アイテムを持っていない。</p>
+        {% endif %}
+    </div>
 
     <a href="{{ url_for('play', user_id=user_id) }}" class="back-link">戻る</a>
 </div>
@@ -206,6 +257,24 @@ h2 {
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.dataset.target;
+            tabButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            tabContents.forEach(c => {
+                if (c.id === target) {
+                    c.classList.add('active');
+                } else {
+                    c.classList.remove('active');
+                }
+            });
+        });
+    });
+
     const stockyard = document.getElementById('monster-stockyard');
     if (!stockyard) return;
 
