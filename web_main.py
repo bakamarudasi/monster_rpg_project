@@ -14,7 +14,7 @@ import sqlite3
 from player import Player
 from monsters.monster_data import ALL_MONSTERS, MONSTER_BOOK_DATA
 from items.item_data import ALL_ITEMS
-from map_data import LOCATIONS, get_map_overview, load_locations
+from map_data import LOCATIONS, get_map_overview, get_map_grid, load_locations
 from exploration import generate_enemy_party
 
 app = Flask(__name__)
@@ -536,7 +536,16 @@ def world_map(user_id):
     if not player:
         return redirect(url_for('index'))
     overview = get_map_overview()
-    return render_template('map.html', overview=overview, progress=player.exploration_progress, locations=LOCATIONS, user_id=user_id)
+    map_grid = get_map_grid()
+    return render_template(
+        'map.html',
+        overview=overview,
+        progress=player.exploration_progress,
+        locations=LOCATIONS,
+        user_id=user_id,
+        map_grid=map_grid,
+        current_loc_id=player.current_location_id,
+    )
 
 
 @app.route('/battle_log/<int:user_id>')

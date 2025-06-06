@@ -136,6 +136,28 @@ def get_map_overview() -> str:
     return "\n".join(lines)
 
 
+def get_map_grid() -> list[list[Location | None]]:
+    """LOCATIONS の座標から2次元グリッドを生成して返す"""
+    if not LOCATIONS:
+        return []
+
+    xs = [loc.x for loc in LOCATIONS.values()]
+    ys = [loc.y for loc in LOCATIONS.values()]
+    min_x, max_x = min(xs), max(xs)
+    min_y, max_y = min(ys), max(ys)
+
+    width = max_x - min_x + 1
+    height = max_y - min_y + 1
+    grid: list[list[Location | None]] = [
+        [None for _ in range(width)] for _ in range(height)
+    ]
+
+    for loc in LOCATIONS.values():
+        grid[loc.y - min_y][loc.x - min_x] = loc
+
+    return grid
+
+
 def display_map() -> None:
     """ワールドマップを表示する"""
     print("===== ワールドマップ =====")
