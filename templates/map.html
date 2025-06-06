@@ -3,7 +3,19 @@
 <div class="map-container">
   <h2>ワールドマップ</h2>
   <div class="map-overview">
-    <pre>{{ overview }}</pre>
+    <table class="map-grid">
+      {% for row in map_grid %}
+        <tr>
+          {% for cell in row %}
+            {% if cell %}
+              <td class="map-cell {% if current_loc_id == cell.location_id %}current{% endif %}">{{ cell.name }}</td>
+            {% else %}
+              <td class="map-cell empty"></td>
+            {% endif %}
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </table>
   </div>
   <h3>探索度</h3>
   <ul class="progress-list">
@@ -33,17 +45,26 @@
     padding: 24px 22px 32px 22px;
     text-align: center;
   }
-  .map-overview pre {
-    font-family: "Consolas", "Menlo", monospace;
-    font-size: 1.1rem;
+  .map-grid {
+    margin: 12px auto 24px auto;
+    border-collapse: collapse;
+  }
+  .map-cell {
+    width: 80px;
+    height: 60px;
+    border: 1px solid #cbd2ff;
     background: #e9eefa;
-    padding: 14px;
-    border-radius: 12px;
-    box-shadow: 0 1px 8px #a0a9ff2c;
-    margin-bottom: 24px;
-    margin-top: 12px;
-    overflow-x: auto;
-    text-align: left;
+    font-size: 0.9rem;
+    padding: 4px;
+    text-align: center;
+  }
+  .map-cell.empty {
+    background: none;
+    border: none;
+  }
+  .map-cell.current {
+    background: #ffe8b6;
+    font-weight: bold;
   }
   h2, h3 {
     color: #2d355e;
