@@ -10,7 +10,10 @@ class MapDisplayTests(unittest.TestCase):
     def test_overview_contains_start(self):
         load_locations()
         overview = get_map_overview()
-        self.assertIn(LOCATIONS["village_square"].name, overview)
+        start = LOCATIONS["village_square"]
+        self.assertIn(start.name, overview)
+        coord_text = f"({start.x},{start.y})"
+        self.assertIn(coord_text, overview)
 
 if __name__ == '__main__':
     unittest.main()
