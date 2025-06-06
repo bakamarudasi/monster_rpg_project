@@ -86,7 +86,8 @@ def load_locations(filepath: str | None = None) -> None:
         filepath = os.path.join(os.path.dirname(__file__), "map", "locations.json")
 
     with open(filepath, encoding="utf-8") as f:
-        data = json.load(f)
+        text = f.read().replace("\u00a0", " ")
+        data = json.loads(text)
 
     loaded: dict[str, Location] = {}
     for loc_id, attrs in data.items():

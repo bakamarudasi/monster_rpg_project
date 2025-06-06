@@ -7,6 +7,7 @@ from items.item_data import ALL_ITEMS
 from monsters.synthesis_rules import (
     SYNTHESIS_RECIPES,
     SYNTHESIS_ITEMS_REQUIRED,
+    MONSTER_ITEM_RECIPES,
 )
 from items.equipment import ALL_EQUIPMENT, CRAFTING_RECIPES
 import random  # 将来的にスキル継承などで使うかも
@@ -493,6 +494,47 @@ class Player:
                 return False, f"エラー: 合成結果のモンスターID '{result_monster_id}' がモンスター定義に存在しません。", None
         else:
             return False, f"{parent1.name} と {parent2.name} の組み合わせでは何も生まれなかった...", None
+
+
+    def synthesize_monster_with_item(self, monster_idx, item_id):
+        """Combine a single monster and an item to create a new monster."""
+        if not (0 <= monster_idx < len(self.party_monsters)):
+            return False, "無効なモンスターの選択です。", None
+
+        item_index = next(
+            (i for i, it in enumerate(self.items) if getattr(it, "item_id", None) == item_id),
+            None,
+        )
+        if item_index is None:
+            return False, "そのアイテムを所持していない。", None
+
+        parent = self.party_monsters[monster_idx]
+        recipe_key = (parent.monster_id.lower(), item_id)
+
+        if recipe_key not in MONSTER_ITEM_RECIPES:
+            item_name = ALL_ITEMS[item_id].name if item_id in ALL_ITEMS else item_id
+            return False, f"{parent.name} と {item_name} では何も起こらなかった...", None
+
+        result_id = MONSTER_ITEM_RECIPES[recipe_key]
+        if result_id not in ALL_MONSTERS:
+            return False, f"エラー: 合成結果のモンスターID '{result_id}' が見つかりません。", None
+
+        new_mon = ALL_MONSTERS[result_id].copy()
+        if new_mon is None:
+            return False, f"エラー: 合成結果のモンスター '{result_id}' の生成に失敗しました。", None
+
+        # consume materials
+        removed_name = self.party_monsters.pop(monster_idx).name
+        self.items.pop(item_index)
+
+        new_mon.level = 1
+        new_mon.exp = 0
+        new_mon.hp = new_mon.max_hp
+        new_mon.is_alive = True
+        self.party_monsters.append(new_mon)
+
+        item_name = ALL_ITEMS[item_id].name if item_id in ALL_ITEMS else item_id
+        return True, f"{removed_name} と {item_name} を合成して {new_mon.name} が誕生した！", new_mon
 
 
     @staticmethod

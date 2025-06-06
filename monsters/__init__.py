@@ -10,6 +10,7 @@ from .monster_data import ALL_MONSTERS
 from .synthesis_rules import (
     SYNTHESIS_RECIPES,
     SYNTHESIS_ITEMS_REQUIRED,
+    MONSTER_ITEM_RECIPES,
 )
 from .evolution_rules import EVOLUTION_RULES
 

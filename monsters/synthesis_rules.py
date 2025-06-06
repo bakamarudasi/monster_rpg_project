@@ -23,3 +23,10 @@ SYNTHESIS_ITEMS_REQUIRED = {
     ("giant_golem", "thunder_eagle"): "thunder_core",
     ("celestial_dragon", "shadow_panther"): "celestial_feather",
 }
+
+# モンスター1体とアイテム1つで行う特殊合成のレシピ
+# キーは (モンスターID, アイテムID) のタプル、値は生成されるモンスターID
+MONSTER_ITEM_RECIPES = {
+    ("slime", "dragon_scale"): "dragon_pup",  # スライム + ドラゴンスケイル
+    ("wolf", "frost_crystal"): "water_wolf",  # ウルフ + フロストクリスタル
+}
