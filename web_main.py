@@ -32,9 +32,10 @@ active_battles: dict[int, "Battle"] = {}
 class Battle:
     """Stateful battle handling one turn at a time."""
 
-    def __init__(self, player_party: list, enemy_party: list):
+    def __init__(self, player_party: list, enemy_party: list, player: Player | None = None):
         self.player_party = player_party
         self.enemy_party = enemy_party
+        self.player = player
         self.log: list[str] = []
         self.turn = 1
         self.finished = False
@@ -98,6 +99,25 @@ class Battle:
                     if target.hp <= 0:
                         target.is_alive = False
                         self.log.append(f"{target.name} was defeated")
+                continue
+
+            if act.get("type") == "scout":
+                t_idx = act.get("target_enemy", -1)
+                if 0 <= t_idx < len(self.enemy_party) and self.enemy_party[t_idx].is_alive:
+                    target = self.enemy_party[t_idx]
+                else:
+                    target = next((e for e in self.enemy_party if e.is_alive), None)
+                if not target:
+                    continue
+                self.log.append(f"{actor.name} は {target.name} をスカウトしている...")
+                rate = getattr(target, "scout_rate", 0.25)
+                if random.random() < rate:
+                    self.log.append(f"{target.name} は仲間になりたそうにこちらを見ている！")
+                    if self.player:
+                        self.player.add_monster_to_party(target)
+                    target.is_alive = False
+                else:
+                    self.log.append(f"{target.name} は警戒している。仲間にならなかった。")
                 continue
 
             # default attack
@@ -405,7 +425,7 @@ def explore(user_id):
     if loc.possible_enemies and random.random() < loc.encounter_rate:
         enemies = generate_enemy_party(loc, player)
         if enemies:
-            battle_obj = Battle(player.party_monsters, enemies)
+            battle_obj = Battle(player.party_monsters, enemies, player)
             battle_obj.log.append(f"探索度 {before}% -> {after}%")
             enemy_names = ", ".join(e.name for e in enemies)
             battle_obj.log.append(f"{enemy_names} が現れた！")
@@ -450,7 +470,7 @@ def battle(user_id):
             if not enemies:
                 msg = 'モンスターは現れなかった。'
                 return render_template('result.html', message=msg, user_id=user_id)
-            battle_obj = Battle(player.party_monsters, enemies)
+            battle_obj = Battle(player.party_monsters, enemies, player)
             enemy_names = ", ".join(e.name for e in enemies)
             battle_obj.log.append(f"{enemy_names} が現れた！")
             active_battles[user_id] = battle_obj
@@ -492,6 +512,13 @@ def battle(user_id):
             except ValueError:
                 tgt_a = i
             actions.append({'type': 'skill', 'skill': s_idx, 'target_enemy': tgt_e, 'target_ally': tgt_a})
+        elif act_val == 'scout':
+            tgt = request.form.get(f'target_enemy_{i}', '-1')
+            try:
+                tgt = int(tgt)
+            except ValueError:
+                tgt = -1
+            actions.append({'type': 'scout', 'target_enemy': tgt})
         else:
             tgt = request.form.get(f'target_enemy_{i}', '-1')
             try:

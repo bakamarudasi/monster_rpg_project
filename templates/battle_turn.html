@@ -268,6 +268,7 @@ button:hover { background: #003c88; }
                     {% for s_idx, sk in enumerate(m.skills) %}
                     <option value="skill{{ s_idx }}" data-target="{{ sk.target }}" data-scope="{{ sk.scope }}">{{ sk.name }}</option>
                     {% endfor %}
+                    <option value="scout" data-target="enemy" data-scope="single">スカウト</option>
                     <option value="run" data-target="none" data-scope="none">逃げる</option>
                 </select>
                 <div>
