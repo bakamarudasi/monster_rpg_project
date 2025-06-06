@@ -428,6 +428,7 @@ def explore(user_id):
         messages=messages,
         user_id=user_id,
         progress=after,
+        player=player,
     )
 
 
