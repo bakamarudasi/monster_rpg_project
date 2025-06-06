@@ -4,7 +4,7 @@ from player import Player
 from monsters import ALL_MONSTERS, Monster
 from skills.skills import ALL_SKILLS
 from battle import start_battle  # battle.py から start_battle をインポート
-from map_data import LOCATIONS, Location, display_map
+from map_data import LOCATIONS, Location, display_map, load_locations
 from database_setup import initialize_database, DATABASE_NAME
 from items.item_data import ALL_ITEMS
 from exploration import (
@@ -20,6 +20,9 @@ from battle_manager import handle_battle_loss
 
 def game_loop(hero: Player): # 型ヒントを追加
     """ゲームのメインループ"""
+    if not LOCATIONS:
+        load_locations()
+
     game_over = False
     
     while not game_over:
@@ -305,7 +308,8 @@ def game_loop(hero: Player): # 型ヒントを追加
 
 
 def main():
-    initialize_database() 
+    initialize_database()
+    load_locations()
     print("モンスターRPGへようこそ！")
 
     hero = None

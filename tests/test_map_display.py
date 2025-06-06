@@ -4,10 +4,11 @@ import unittest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from map_data import get_map_overview, LOCATIONS
+from map_data import get_map_overview, LOCATIONS, load_locations
 
 class MapDisplayTests(unittest.TestCase):
     def test_overview_contains_start(self):
+        load_locations()
         overview = get_map_overview()
         self.assertIn(LOCATIONS["village_square"].name, overview)
 
