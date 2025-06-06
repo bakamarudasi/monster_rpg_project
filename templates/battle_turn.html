@@ -259,14 +259,13 @@ button:hover { background: #003c88; }
 
     <div class="command-window">
         <div class="turn-banner">Turn {{ battle.turn }}</div>
+        {% if current_actor and current_actor in player_party %}
         <form action="{{ url_for('battle', user_id=user_id) }}" method="post">
-            {% for m in player_party if m.is_alive %}
-            {% set idx = loop.index0 %}
             <div class="action-row">
-                <label for="action_{{ idx }}">{{ m.name }}:</label>
-                <select name="action_{{ idx }}" id="action_{{ idx }}">
+                <label for="action">{{ current_actor.name }}:</label>
+                <select name="action" id="action">
                     <option value="attack" data-target="enemy" data-scope="single">攻撃</option>
-                    {% for sk in m.skills %}
+                    {% for sk in current_actor.skills %}
                     {% set s_idx = loop.index0 %}
                     <option value="skill{{ s_idx }}" data-target="{{ sk.target }}" data-scope="{{ sk.scope }}">{{ sk.name }}</option>
                     {% endfor %}
@@ -274,21 +273,23 @@ button:hover { background: #003c88; }
                     <option value="run" data-target="none" data-scope="none">逃げる</option>
                 </select>
                 <div>
-                    <select name="target_enemy_{{ idx }}">
+                    <select name="target_enemy">
                         {% for e in enemy_party if e.is_alive %}
                         <option value="{{ loop.index0 }}">{{ e.name }}</option>
                         {% endfor %}
                     </select>
-                    <select name="target_ally_{{ idx }}">
+                    <select name="target_ally">
                         {% for a in player_party if a.is_alive %}
                         <option value="{{ loop.index0 }}">{{ a.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
             </div>
-            {% endfor %}
             <button type="submit">行動決定</button>
         </form>
+        {% else %}
+        <div class="turn-banner">敵の行動中...</div>
+        {% endif %}
     </div>
 
     <ul class="log">
@@ -340,10 +341,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  function updateTargets(row) {
-    const actionSel = row.querySelector('select[id^="action_"]');
-    const enemySel = row.querySelector('select[name^="target_enemy_"]');
-    const allySel = row.querySelector('select[name^="target_ally_"]');
+  function updateTargets() {
+    const actionSel = document.getElementById('action');
+    if (!actionSel) return;
+    const enemySel = document.querySelector('select[name="target_enemy"]');
+    const allySel = document.querySelector('select[name="target_ally"]');
     const opt = actionSel.selectedOptions[0];
     const target = opt.dataset.target || 'enemy';
     const scope = opt.dataset.scope || 'single';
@@ -360,11 +362,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  document.querySelectorAll('.action-row').forEach(row => {
-    const actionSel = row.querySelector('select[id^="action_"]');
-    actionSel.addEventListener('change', () => updateTargets(row));
-    updateTargets(row);
-  });
+  const actionSel = document.getElementById('action');
+  if (actionSel) {
+    actionSel.addEventListener('change', updateTargets);
+    updateTargets();
+  }
 
   const detailPanel = document.getElementById('enemy-detail');
   const closeBtn = detailPanel.querySelector('.close-btn');
