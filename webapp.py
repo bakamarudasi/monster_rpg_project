@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+import sqlite3
 import database_setup
 from player import Player
 
@@ -6,10 +7,14 @@ app = Flask(__name__)
 
 db_name = database_setup.DATABASE_NAME
 
-def get_or_create_user(username: str, password: str) -> int:
+def get_or_create_user(username: str, password: str):
+    """Return user id or an error tuple if the username already exists."""
     user_id = database_setup.get_user_id(username, password)
     if user_id is None:
-        user_id = database_setup.create_user(username, password)
+        try:
+            user_id = database_setup.create_user(username, password)
+        except sqlite3.IntegrityError:
+            return jsonify({'error': 'username already exists'}), 409
     return user_id
 
 @app.route('/')
@@ -23,7 +28,11 @@ def new_game():
     password = data.get('password', 'pw')
     if not username:
         return jsonify({'error': 'username required'}), 400
-    user_id = get_or_create_user(username, password)
+    result = get_or_create_user(username, password)
+    if isinstance(result, tuple):
+        # Username conflict
+        return result
+    user_id = result
     player = Player(username, user_id=user_id, gold=100)
     player.save_game(db_name)
     return jsonify({'user_id': user_id, 'message': 'created'})
