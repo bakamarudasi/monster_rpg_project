@@ -7,6 +7,25 @@
 {% endfor %}
 </ul>
 
+<div class="party-preview">
+  {% for m in player.party_monsters %}
+    {% set hp_pct = (m.hp / m.max_hp * 100)|round(0) %}
+    {% set hp_cls = 'hp-fill' %}
+    {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}
+    {% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
+    <div class="monster-card">
+      {% if m.image_filename %}
+        <img class="monster-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
+      {% endif %}
+      <div class="monster-name">{{ m.name }}</div>
+      <div class="hp-container">
+        <div class="hp-bar"><div class="{{ hp_cls }}" style="width: {{ hp_pct }}%"></div></div>
+        <span class="hp-text">{{ m.hp }}/{{ m.max_hp }}</span>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
 <div class="progress-container">
   <div class="progress-bar">
     <div class="progress-fill" style="width: {{ progress }}%"></div>
@@ -20,6 +39,53 @@
 <a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
 
 <style>
+  .party-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .monster-card {
+    width: 120px;
+    background: #f7f8ff;
+    border-radius: 10px;
+    box-shadow: 0 1px 5px #b5b5b533;
+    padding: 10px;
+    text-align: center;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+  }
+  .monster-img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    margin-bottom: 6px;
+  }
+  .monster-name {
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #5d4b29;
+  }
+  .hp-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    color: #333;
+  }
+  .hp-bar {
+    flex: 1;
+    height: 8px;
+    background: #444;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .hp-fill {
+    height: 100%;
+    background: #00ff85;
+  }
+  .hp-fill.low { background: #ffb100; }
+  .hp-fill.critical { background: #ff3c3c; }
+  .hp-text { font-variant-numeric: tabular-nums; }
   .progress-container {
     display: flex;
     align-items: center;
