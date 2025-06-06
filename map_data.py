@@ -23,6 +23,7 @@ class Location:
         treasure_items=None,
         event_chance=0.0,
         avg_enemy_level=1,
+        enemy_weights: dict[str, float] | None = None,
         x: int = 0,
         y: int = 0,
     ):
@@ -57,9 +58,18 @@ class Location:
         self.avg_enemy_level = avg_enemy_level
         self.x = x
         self.y = y
+        self.enemy_weights = enemy_weights
 
     def get_random_enemy_id(self):
         """この場所で出現する可能性のあるモンスターIDをランダムに1つ返す。"""
+        if self.enemy_weights:
+            total = sum(self.enemy_weights.values())
+            r = random.random() * total
+            cum = 0.0
+            for enemy_id, weight in self.enemy_weights.items():
+                cum += weight
+                if r < cum:
+                    return enemy_id
         if self.possible_enemies:
             return random.choice(self.possible_enemies)
         return None
@@ -100,6 +110,7 @@ def load_locations(filepath: str | None = None) -> None:
             treasure_items=attrs.get("treasure_items"),
             event_chance=attrs.get("event_chance", 0.0),
             avg_enemy_level=attrs.get("avg_enemy_level", 1),
+            enemy_weights=attrs.get("enemy_weights"),
             x=attrs.get("x", 0),
             y=attrs.get("y", 0),
         )

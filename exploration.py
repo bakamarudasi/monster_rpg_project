@@ -46,7 +46,9 @@ def generate_enemy_party(location: Location, player=None) -> list[Monster]:
     base_level = getattr(location, "avg_enemy_level", 1)
 
     for _ in range(num_enemies):
-        enemy_id = random.choice(location.possible_enemies)
+        enemy_id = location.get_random_enemy_id()
+        if not enemy_id:
+            enemy_id = random.choice(location.possible_enemies)
         enemy_instance = get_monster_instance_copy(enemy_id)
         if enemy_instance:
             if player is not None and hasattr(player, "monster_book"):
@@ -57,7 +59,7 @@ def generate_enemy_party(location: Location, player=None) -> list[Monster]:
             enemy_party.append(enemy_instance)
 
     if not enemy_party and location.possible_enemies:
-        enemy_id = random.choice(location.possible_enemies)
+        enemy_id = location.get_random_enemy_id() or random.choice(location.possible_enemies)
         enemy_instance = get_monster_instance_copy(enemy_id)
         if enemy_instance:
             if player is not None and hasattr(player, "monster_book"):
