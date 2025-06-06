@@ -285,9 +285,11 @@ class Player:
             if target_monster is None:
                 print("対象モンスターがいません。")
                 return False
+            if not target_monster.is_alive:
+                print(f"{target_monster.name} は倒れているため回復できない。")
+                return False
             target_monster.hp = target_monster.max_hp
             target_monster.mp = target_monster.max_mp
-            target_monster.is_alive = True
             print(f"{target_monster.name} のHPとMPが全回復した！")
             self.items.pop(item_idx)
             return True
