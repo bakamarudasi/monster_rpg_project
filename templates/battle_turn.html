@@ -8,408 +8,345 @@
 <style>
 /* === 全体レイアウト & 基本スタイル === */
 body {
-  background: #111; /* 真っ黒より少しだけ明るい背景 */
-  color: #f0f0f0;
-  font-family: 'DotGothic16', "Segoe UI", Tahoma, Verdana, sans-serif; /* ドットフォントを優先 */
-  font-size: 18px; /* 基本の文字サイズを少し大きく */
+    background: #111;
+    color: #f0f0f0;
+    font-family: 'DotGothic16', "Segoe UI", Tahoma, Verdana, sans-serif;
+    font-size: 18px;
 }
 .container-battle {
-  max-width: 800px;
-  margin: 1rem auto;
-  border: 2px solid #888;
-  background: #001a33; /* 深い青色のウィンドウ背景 */
-  box-shadow: inset 0 0 0 3px #001a33, 0 0 15px rgba(0, 128, 255, 0.4); /* 内側の影で立体感を */
-  border-radius: 8px;
+    max-width: 960px; /* 横幅を少し広げる */
+    margin: 1rem auto;
+    border: 2px solid #888;
+    background: #001a33;
+    box-shadow: inset 0 0 0 3px #001a33, 0 0 15px rgba(0, 128, 255, 0.4);
+    border-radius: 8px;
+    padding: 1rem;
 }
 
-/* === 上部：敵エリア === */
+/* === 上部：敵エリア (横並びレイアウトに変更) === */
 .enemy-area {
-  padding: 1.5rem;
-  min-height: 200px; /* 敵が少なくてもエリアの高さを確保 */
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* 敵を上下中央に配置 */
-  gap: 1rem;
-}
-.enemy {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.enemy.down {
-  opacity: .4;
-  filter: grayscale(80%); /* 倒れた敵は色褪せる */
-}
-.enemy-img {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  margin-right: 1rem;
-  image-rendering: pixelated; /* ドット絵がぼやけないように */
-}
-
-/* 味方モンスター画像 */
-.ally-img {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  margin-right: 1rem;
-  image-rendering: pixelated;
+    padding: 1rem;
+    min-height: 220px;
+    display: flex; /* 横並びに変更 */
+    justify-content: center; /* 中央寄せ */
+    align-items: flex-end; /* 下揃え */
+    gap: 1.5rem; /* ユニット間の隙間 */
 }
 
 /* === 中央の区分け線 === */
 .divider {
-  border: 0;
-  height: 2px;
-  background-image: linear-gradient(to right, transparent, #888, transparent);
+    border: 0;
+    height: 2px;
+    background-image: linear-gradient(to right, transparent, #888, transparent);
+    margin: 0.5rem 0;
 }
 
 /* === 下部：味方・コマンドエリア === */
 .ally-area {
-  padding: 1.5rem;
-  background: rgba(0, 0, 0, 0.2); /* 少し背景色を変える */
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
 }
 .ally-party-display {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 人数が増えても改行して対応 */
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+    padding: 1rem;
+    min-height: 220px;
+    display: flex; /* 横並びに変更 */
+    justify-content: center; /* 中央寄せ */
+    align-items: flex-end; /* 下揃え */
+    gap: 1.5rem; /* ユニット間の隙間 */
+    margin-bottom: 1.5rem;
 }
 
-/* === HPバー & メンバー表示 (敵・味方共通) === */
-.member-info { /* 名前とHPバーをまとめるコンテナ */
-  flex-grow: 1;
+/* === バトルユニット (敵・味方共通のカードスタイル) === */
+.battle-unit {
+    display: flex;
+    flex-direction: column; /* 画像と情報を縦に並べる */
+    align-items: center;
+    width: 140px; /* ユニットの幅を固定 */
+    text-align: center;
+    position: relative;
+    transition: transform 0.3s ease-out; /* アニメーション用 */
+}
+.battle-unit.down {
+    opacity: .4;
+    filter: grayscale(80%);
+}
+.unit-img {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    margin-bottom: 0.5rem;
+    filter: drop-shadow(2px 4px 6px #000); /* 画像に影をつける */
+}
+.battle-unit .member-info {
+    width: 100%;
 }
 .member-name {
-  margin-bottom: 0.25rem;
-  text-shadow: 1px 1px 3px #000;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    text-shadow: 1px 1px 3px #000;
+    white-space: nowrap; /* 名前が改行しないように */
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .hp-bar {
-  width: 100%;
-  height: 10px;
-  background: #444;
-  border: 1px solid #222;
-  border-radius: 4px;
-  overflow: hidden;
+    width: 100%;
+    height: 10px;
+    background: #444;
+    border: 1px solid #222;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 4px;
 }
 .hp-fill {
-  height: 100%;
-  background: #00e075;
-  box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.4);
+    height: 100%;
+    background: #00e075;
+    box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.4);
 }
 .hp-fill.low { background: #ffb100; }
 .hp-fill.critical { background: #ff3c3c; }
-
 .hp-text {
-  font-size: 1rem;
-  font-weight: bold;
-  margin-left: 1rem;
-  min-width: 100px; /* HP表示の幅を固定してガタつきを防ぐ */
-  text-align: right;
+    font-size: 0.9rem;
+    font-weight: bold;
 }
-.ally.down { opacity: .4; }
-
-/* === コマンド入力フォーム === */
-.command-window {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  border: 2px solid #666;
-  border-radius: 6px;
-  background: #112a44;
-}
-.turn-banner {
-  font-size: 1.5rem;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 1rem;
-  color: #ffdd00;
-  text-shadow: 1px 1px 2px #000;
-}
-.action-row {
-  display: grid;
-  grid-template-columns: 100px 1fr 1fr; /* 名前、アクション、ターゲット */
-  gap: .75rem;
-  align-items: center;
-  margin-bottom: .75rem;
-}
-.action-row label {
-  font-weight: bold;
-  color: #fff;
-}
-select, button {
-  background: #2d2d2d;
-  color: #e0e0e0;
-  border: 1px solid #777;
-  border-radius: 4px;
-  padding: .4rem .6rem;
-  font-family: inherit; /* bodyのフォントを継承 */
-  font-size: 1rem;
-}
-button {
-  cursor: pointer;
-  display: block; /* ボタンをブロック要素に */
-  margin: 1.5rem auto 0; /* 中央寄せ */
-  background: #0055aa;
-  border: 1px solid #0088ff;
-  padding: .5rem 2rem;
-  font-weight: bold;
-  transition: background .2s;
-  box-shadow: 0 0 8px rgba(0, 136, 255, 0.5);
-}
-button:hover { background: #003c88; }
-
-/* === ログ & リンク === */
-.log {
-  margin-top: 1.5rem;
-  height: 180px; /* 高さを固定 */
-  overflow-y: auto;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid #555;
-  border-radius: 6px;
-  padding: .75rem;
-  list-style: none; /* listの点を消す */
-  padding-left: .75rem;
-}
-.log li {
-  margin-bottom: .4rem;
-  font-size: 1rem;
-  line-height: 1.4;
-}
-.back-link {
-  display: block; /* ブロック要素にして中央寄せしやすくする */
-  text-align: center;
-  margin-top: 1.5rem;
-  color: #00b3ff;
+/* クリック可能な敵ユニットにカーソルを表示 */
+.enemy.battle-unit {
+    cursor: pointer;
 }
 
-/* === アニメーション (元のものを継承・調整) === */
-@keyframes blink-red {
-  0%, 100% { filter: brightness(1); }
-  50% { filter: brightness(1.6); }
+
+/* === ★行動権を持つキャラのハイライト表示★ === */
+.battle-unit.active-turn {
+    transform: translateY(-15px); /* 少し上に移動 */
+    filter: drop-shadow(0 0 10px #ffdd00); /* 黄色い光で囲む */
 }
-.hp-fill.critical.blink {
-  animation: blink-red 1s infinite;
+/* 頭上の矢印 */
+.battle-unit.active-turn::before {
+    content: '▼';
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffdd00;
+    font-size: 1.5rem;
+    text-shadow: 0 0 5px #000;
+    animation: bounce-arrow 1s infinite;
+}
+@keyframes bounce-arrow {
+    0%, 100% { top: -25px; }
+    50% { top: -20px; }
 }
 
-/* === 敵詳細パネル === */
-.enemy-detail-panel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 260px;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  color: #fff;
-  padding: 1rem;
-  box-shadow: -2px 0 5px rgba(0,0,0,0.5);
-  transform: translateX(100%);
-  transition: transform 0.3s ease;
-  overflow-y: auto;
-  z-index: 100;
-}
-.enemy-detail-panel.open {
-  transform: translateX(0);
-}
-.enemy-detail-panel .close-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 1.5rem;
-  cursor: pointer;
-}
+/* === コマンド入力フォーム (変更なし) === */
+.command-window { margin-top: 1.5rem; padding: 1rem; border: 2px solid #666; border-radius: 6px; background: #112a44; }
+.turn-banner { font-size: 1.5rem; font-weight: bold; text-align: center; margin-bottom: 1rem; color: #ffdd00; text-shadow: 1px 1px 2px #000; }
+.action-row { display: grid; grid-template-columns: 100px 1fr 1fr; gap: .75rem; align-items: center; margin-bottom: .75rem; }
+.action-row label { font-weight: bold; color: #fff; }
+select, button { background: #2d2d2d; color: #e0e0e0; border: 1px solid #777; border-radius: 4px; padding: .4rem .6rem; font-family: inherit; font-size: 1rem; }
+button { cursor: pointer; display: block; margin: 1.5rem auto 0; background: #0055aa; border: 1px solid #0088ff; padding: .5rem 2rem; font-weight: bold; transition: background .2s; box-shadow: 0 0 8px rgba(0, 136, 255, 0.5); }
+button:hover { background: #004cd1; }
+
+/* === ログ & リンク (変更なし) === */
+.log { margin-top: 1.5rem; height: 180px; overflow-y: auto; background: rgba(0, 0, 0, 0.4); border: 1px solid #555; border-radius: 6px; padding: .75rem; list-style: none; padding-left: .75rem; }
+.log li { margin-bottom: .4rem; font-size: 1rem; line-height: 1.4; }
+.back-link { display: block; text-align: center; margin-top: 1rem; color: #00b3ff; }
+
+/* === アニメーション (変更なし) === */
+@keyframes blink-red { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.6); } }
+.hp-fill.critical.blink { animation: blink-red 1s infinite; }
+
+/* === 敵詳細パネル (変更なし) === */
+.enemy-detail-panel { position: fixed; top: 0; right: 0; width: 260px; height: 100%; background: rgba(0, 0, 0, 0.85); color: #fff; padding: 1rem; box-shadow: -2px 0 5px rgba(0,0,0,0.5); transform: translateX(100%); transition: transform 0.3s ease; overflow-y: auto; z-index: 100; }
+.enemy-detail-panel.open { transform: translateX(0); }
+.enemy-detail-panel .close-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container-battle">
-  <div class="enemy-area">
-    {% for e in enemy_party %}
-      {% set hp_pct = (e.hp / e.max_hp * 100)|round(0) %}
-      {% set hp_cls = 'hp-fill' %}
-      {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}
-      {% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
-      <div class="enemy{% if not e.is_alive %} down{% endif %}" data-down="{{ not e.is_alive }}"
-           data-name="{{ e.name }}" data-level="{{ e.level }}" data-hp="{{ e.hp }}"
-           data-max-hp="{{ e.max_hp }}" data-mp="{{ e.mp }}" data-max-mp="{{ e.max_mp }}"
-           data-attack="{{ e.attack }}" data-defense="{{ e.defense }}" data-speed="{{ e.speed }}">
-        {% if e.image_filename %}
-          <img class="enemy-img" src="{{ url_for('static', filename='images/' + e.image_filename) }}" alt="{{ e.name }}">
-        {% endif %}
-        <div class="member-info">
-          <div class="member-name">{{ e.name }}</div>
-          <div class="hp-bar"><div class="{{ hp_cls }}" style="width:{{ hp_pct }}%"></div></div>
-        </div>
-        <div class="hp-text">{{ e.hp }}/{{ e.max_hp }}</div>
-      </div>
-    {% endfor %}
-  </div>
-
-  <hr class="divider">
-
-  <div class="ally-area">
-    <div class="ally-party-display">
-      {% for m in player_party %}
-        {% set hp_pct = (m.hp / m.max_hp * 100)|round(0) %}
-        {% set hp_cls = 'hp-fill' %}
-        {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}
-        {% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
-        <div class="ally{% if not m.is_alive %} down{% endif %}" data-down="{{ not m.is_alive }}">
-            {% if m.image_filename %}
-              <img class="ally-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
-            {% endif %}
-            <div class="member-info">
-                <div class="member-name">{{ m.name }}</div>
-                <div class="hp-bar"><div class="{{ hp_cls }}" style="width:{{ hp_pct }}%"></div></div>
-            </div>
-            <div class="hp-text">{{ m.hp }}/{{ m.max_hp }}</div>
-        </div>
-      {% endfor %}
-    </div>
-
-    <div class="command-window">
-        <div class="turn-banner">Turn {{ battle.turn }}</div>
-        {% if current_actor and current_actor in player_party %}
-        <form action="{{ url_for('battle', user_id=user_id) }}" method="post">
-            <div class="action-row">
-                <label for="action">{{ current_actor.name }}:</label>
-                <select name="action" id="action">
-                    <option value="attack" data-target="enemy" data-scope="single">攻撃</option>
-                    {% for sk in current_actor.skills %}
-                    {% set s_idx = loop.index0 %}
-                    <option value="skill{{ s_idx }}" data-target="{{ sk.target }}" data-scope="{{ sk.scope }}">{{ sk.name }}</option>
-                    {% endfor %}
-                    <option value="scout" data-target="enemy" data-scope="single">スカウト</option>
-                    <option value="run" data-target="none" data-scope="none">逃げる</option>
-                </select>
-                <div>
-                    <select name="target_enemy">
-                        {% for e in enemy_party if e.is_alive %}
-                        <option value="{{ loop.index0 }}">{{ e.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <select name="target_ally">
-                        {% for a in player_party if a.is_alive %}
-                        <option value="{{ loop.index0 }}">{{ a.name }}</option>
-                        {% endfor %}
-                    </select>
+    <div class="enemy-area">
+        {% for e in enemy_party %}
+            {% set hp_pct = (e.hp / e.max_hp * 100)|round(0) %}
+            {% set hp_cls = 'hp-fill' %}
+            {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}{% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
+            
+            <div class="battle-unit enemy{% if not e.is_alive %} down{% endif %}"
+                 data-down="{{ not e.is_alive }}"
+                 data-name="{{ e.name }}" data-level="{{ e.level }}" data-hp="{{ e.hp }}"
+                 data-max-hp="{{ e.max_hp }}" data-mp="{{ e.mp }}" data-max-mp="{{ e.max_mp }}"
+                 data-attack="{{ e.attack }}" data-defense="{{ e.defense }}" data-speed="{{ e.speed }}">
+                
+                {% if e.image_filename %}
+                    <img class="unit-img" src="{{ url_for('static', filename='images/' + e.image_filename) }}" alt="{{ e.name }}">
+                {% endif %}
+                <div class="member-info">
+                    <div class="member-name">{{ e.name }}</div>
+                    <div class="hp-bar"><div class="{{ hp_cls }}" style="width:{{ hp_pct }}%"></div></div>
                 </div>
+                <div class="hp-text">{{ e.hp }}/{{ e.max_hp }}</div>
             </div>
-            <button type="submit">行動決定</button>
-        </form>
-        {% else %}
-        <div class="turn-banner">敵の行動中...</div>
-        {% endif %}
+        {% endfor %}
     </div>
 
-    <ul class="log">
-      {% for line in log %}
-        <li>{{ line }}</li>
-      {% endfor %}
-    </ul>
+    <hr class="divider">
 
-    <a href="{{ url_for('play', user_id=user_id) }}" class="back-link">戻る</a>
+    <div class="ally-area">
+        <div class="ally-party-display">
+            {% for m in player_party %}
+                {% set hp_pct = (m.hp / m.max_hp * 100)|round(0) %}
+                {% set hp_cls = 'hp-fill' %}
+                {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}{% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
+
+                <div class="battle-unit ally{% if not m.is_alive %} down{% endif %}{% if current_actor and m.id == current_actor.id %} active-turn{% endif %}"
+                     data-down="{{ not m.is_alive }}">
+                    
+                    {% if m.image_filename %}
+                        <img class="unit-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
+                    {% endif %}
+                    <div class="member-info">
+                        <div class="member-name">{{ m.name }}</div>
+                        <div class="hp-bar"><div class="{{ hp_cls }}" style="width:{{ hp_pct }}%"></div></div>
+                    </div>
+                    <div class="hp-text">{{ m.hp }}/{{ m.max_hp }}</div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="command-window">
+            <div class="turn-banner">Turn {{ battle.turn }}</div>
+            {% if current_actor and current_actor in player_party %}
+            <form action="{{ url_for('battle', user_id=user_id) }}" method="post">
+                <div class="action-row">
+                    <label for="action">{{ current_actor.name }}:</label>
+                    <select name="action" id="action">
+                        <option value="attack" data-target="enemy" data-scope="single">攻撃</option>
+                        {% for sk in current_actor.skills %}
+                        {% set s_idx = loop.index0 %}
+                        <option value="skill{{ s_idx }}" data-target="{{ sk.target }}" data-scope="{{ sk.scope }}">{{ sk.name }}</option>
+                        {% endfor %}
+                        <option value="scout" data-target="enemy" data-scope="single">スカウト</option>
+                        <option value="run" data-target="none" data-scope="none">逃げる</option>
+                    </select>
+                    <div>
+                        <select name="target_enemy">
+                            {% for e in enemy_party if e.is_alive %}
+                            <option value="{{ loop.index0 }}">{{ e.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="target_ally">
+                            {% for a in player_party if a.is_alive %}
+                            <option value="{{ loop.index0 }}">{{ a.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <button type="submit">行動決定</button>
+            </form>
+            {% else %}
+            <div class="turn-banner">敵の行動中...</div>
+            {% endif %}
+        </div>
+
+        <ul class="log">
+            {% for line in log %}
+            <li>{{ line }}</li>
+            {% endfor %}
+        </ul>
+
+        <a href="{{ url_for('play', user_id=user_id) }}" class="back-link">戻る</a>
+    </div>
+
     <div class="enemy-detail-panel" id="enemy-detail">
-      <button class="close-btn" type="button">&times;</button>
-      <h3 id="detail-name"></h3>
-      <ul>
-        <li>Lv <span id="detail-level"></span></li>
-        <li>HP <span id="detail-hp"></span>/<span id="detail-max-hp"></span></li>
-        <li>MP <span id="detail-mp"></span>/<span id="detail-max-mp"></span></li>
-        <li>攻撃 <span id="detail-attack"></span></li>
-        <li>防御 <span id="detail-defense"></span></li>
-        <li>素早さ <span id="detail-speed"></span></li>
-      </ul>
+        <button class="close-btn" type="button">&times;</button>
+        <h3 id="detail-name"></h3>
+        <ul>
+            <li>Lv <span id="detail-level"></span></li>
+            <li>HP <span id="detail-hp"></span>/<span id="detail-max-hp"></span></li>
+            <li>MP <span id="detail-mp"></span>/<span id="detail-max-mp"></span></li>
+            <li>攻撃 <span id="detail-attack"></span></li>
+            <li>防御 <span id="detail-defense"></span></li>
+            <li>素早さ <span id="detail-speed"></span></li>
+        </ul>
     </div>
-  </div>
-
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  /* HPバーのアニメーション */
-  document.querySelectorAll('.hp-fill').forEach(fill => {
-    const finalWidth = fill.style.width;
-    fill.style.width = '0%'; // い一旦0%にする
-    requestAnimationFrame(() => { // 描画タイミングでアニメーション開始
-      fill.style.transition = 'width 1s cubic-bezier(0.25, 1, 0.5, 1)'; // 少しゆっくりなイージング
-      fill.style.width = finalWidth;
+    /* HPバーのアニメーション */
+    document.querySelectorAll('.hp-fill').forEach(fill => {
+        const finalWidth = fill.style.width;
+        fill.style.width = '0%';
+        requestAnimationFrame(() => {
+            fill.style.transition = 'width 1s cubic-bezier(0.25, 1, 0.5, 1)';
+            fill.style.width = finalWidth;
+        });
     });
-  });
 
-  /* HP低下時の点滅 */
-  document.querySelectorAll('.hp-fill.critical').forEach(el => el.classList.add('blink'));
+    /* HP低下時の点滅 */
+    document.querySelectorAll('.hp-fill.critical').forEach(el => el.classList.add('blink'));
 
-  /* 倒れたメンバーをフェードアウト */
-  document.querySelectorAll('.enemy.down, .ally.down').forEach(el => {
-    el.style.transition = 'opacity 0.8s ease, filter 0.8s ease';
-    el.style.opacity = '0.4';
-    if(el.classList.contains('enemy')) {
-        el.style.filter = 'grayscale(80%)';
+    /* 倒れたメンバーをフェードアウト */
+    document.querySelectorAll('.battle-unit.down').forEach(el => {
+        el.style.transition = 'opacity 0.8s ease, filter 0.8s ease';
+        el.style.opacity = '0.4';
+        if(el.classList.contains('enemy')) {
+            el.style.filter = 'grayscale(80%)';
+        }
+    });
+
+    /* ターゲット選択の表示切り替え */
+    function updateTargets() {
+        const actionSel = document.getElementById('action');
+        if (!actionSel) return;
+        const enemySel = document.querySelector('select[name="target_enemy"]');
+        const allySel = document.querySelector('select[name="target_ally"]');
+        const opt = actionSel.selectedOptions[0];
+        const target = opt.dataset.target || 'enemy';
+        const scope = opt.dataset.scope || 'single';
+
+        if (target === 'none' || scope === 'all') {
+            enemySel.style.display = 'none';
+            allySel.style.display = 'none';
+        } else if (target === 'ally') {
+            enemySel.style.display = 'none';
+            allySel.style.display = '';
+        } else {
+            enemySel.style.display = '';
+            allySel.style.display = 'none';
+        }
     }
-  });
-
-  function updateTargets() {
     const actionSel = document.getElementById('action');
-    if (!actionSel) return;
-    const enemySel = document.querySelector('select[name="target_enemy"]');
-    const allySel = document.querySelector('select[name="target_ally"]');
-    const opt = actionSel.selectedOptions[0];
-    const target = opt.dataset.target || 'enemy';
-    const scope = opt.dataset.scope || 'single';
-
-    if (target === 'none' || scope === 'all') {
-      enemySel.style.display = 'none';
-      allySel.style.display = 'none';
-    } else if (target === 'ally') {
-      enemySel.style.display = 'none';
-      allySel.style.display = '';
-    } else {
-      enemySel.style.display = '';
-      allySel.style.display = 'none';
+    if (actionSel) {
+        actionSel.addEventListener('change', updateTargets);
+        updateTargets();
     }
-  }
 
-  const actionSel = document.getElementById('action');
-  if (actionSel) {
-    actionSel.addEventListener('change', updateTargets);
-    updateTargets();
-  }
-
-  const detailPanel = document.getElementById('enemy-detail');
-  const closeBtn = detailPanel.querySelector('.close-btn');
-  const fields = {
-    name: document.getElementById('detail-name'),
-    level: document.getElementById('detail-level'),
-    hp: document.getElementById('detail-hp'),
-    maxHp: document.getElementById('detail-max-hp'),
-    mp: document.getElementById('detail-mp'),
-    maxMp: document.getElementById('detail-max-mp'),
-    attack: document.getElementById('detail-attack'),
-    defense: document.getElementById('detail-defense'),
-    speed: document.getElementById('detail-speed'),
-  };
-
-  document.querySelectorAll('.enemy').forEach(el => {
-    el.addEventListener('click', () => {
-      fields.name.textContent = el.dataset.name || '';
-      fields.level.textContent = el.dataset.level || '';
-      fields.hp.textContent = el.dataset.hp || '';
-      fields.maxHp.textContent = el.dataset.maxHp || '';
-      fields.mp.textContent = el.dataset.mp || '';
-      fields.maxMp.textContent = el.dataset.maxMp || '';
-      fields.attack.textContent = el.dataset.attack || '';
-      fields.defense.textContent = el.dataset.defense || '';
-      fields.speed.textContent = el.dataset.speed || '';
-      detailPanel.classList.add('open');
+    /* 敵詳細パネルの表示 */
+    const detailPanel = document.getElementById('enemy-detail');
+    const closeBtn = detailPanel.querySelector('.close-btn');
+    const fields = {
+        name: document.getElementById('detail-name'),
+        level: document.getElementById('detail-level'),
+        hp: document.getElementById('detail-hp'),
+        maxHp: document.getElementById('detail-max-hp'),
+        mp: document.getElementById('detail-mp'),
+        maxMp: document.getElementById('detail-max-mp'),
+        attack: document.getElementById('detail-attack'),
+        defense: document.getElementById('detail-defense'),
+        speed: document.getElementById('detail-speed'),
+    };
+    document.querySelectorAll('.enemy.battle-unit').forEach(el => {
+        el.addEventListener('click', () => {
+            for (const key in fields) {
+                const dataKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+                fields[key].textContent = el.dataset[dataKey] || '';
+            }
+            detailPanel.classList.add('open');
+        });
     });
-  });
-
-  closeBtn.addEventListener('click', () => detailPanel.classList.remove('open'));
+    closeBtn.addEventListener('click', () => detailPanel.classList.remove('open'));
 });
 </script>
 {% endblock %}
