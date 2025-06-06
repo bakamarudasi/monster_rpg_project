@@ -65,6 +65,10 @@
       "goblin",
       "slime"
     ],
+    "enemy_weights": {
+      "goblin": 0.7,
+      "slime": 0.3
+    },
     "encounter_rate": 0.75,
     "has_inn": false,
     "inn_cost": 0,
