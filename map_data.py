@@ -4,12 +4,28 @@ import os
 import random  # エンカウント判定で使います
 
 class Location:
-    def __init__(self, location_id, name, description, connections=None,
-                 possible_enemies=None, encounter_rate=0.0, has_inn=False,
-                 inn_cost=0, hidden_connections=None, has_shop=False,
-                 shop_items=None, shop_monsters=None, boss_enemy_id=None,
-                 rare_enemies=None, treasure_items=None, event_chance=0.0,
-                 avg_enemy_level=1):
+    def __init__(
+        self,
+        location_id,
+        name,
+        description,
+        connections=None,
+        possible_enemies=None,
+        encounter_rate=0.0,
+        has_inn=False,
+        inn_cost=0,
+        hidden_connections=None,
+        has_shop=False,
+        shop_items=None,
+        shop_monsters=None,
+        boss_enemy_id=None,
+        rare_enemies=None,
+        treasure_items=None,
+        event_chance=0.0,
+        avg_enemy_level=1,
+        x: int = 0,
+        y: int = 0,
+    ):
         """
         場所の情報を保持するクラス。
         location_id (str): 場所を識別するユニークなID
@@ -20,6 +36,7 @@ class Location:
         possible_enemies (list): その場所で出現する可能性のあるモンスターのID (ALL_MONSTERSのキー)のリスト。
                                  例: ["slime", "goblin"]
         encounter_rate (float): その場所でのエンカウント率 (0.0 から 1.0)。0ならエンカウントしない。
+        x, y (int): ワールドマップ上の座標。未指定なら 0,0。
         """
         self.location_id = location_id
         self.name = name
@@ -38,6 +55,8 @@ class Location:
         self.treasure_items = treasure_items if treasure_items else []
         self.event_chance = event_chance
         self.avg_enemy_level = avg_enemy_level
+        self.x = x
+        self.y = y
 
     def get_random_enemy_id(self):
         """この場所で出現する可能性のあるモンスターIDをランダムに1つ返す。"""
@@ -81,6 +100,8 @@ def load_locations(filepath: str | None = None) -> None:
             treasure_items=attrs.get("treasure_items"),
             event_chance=attrs.get("event_chance", 0.0),
             avg_enemy_level=attrs.get("avg_enemy_level", 1),
+            x=attrs.get("x", 0),
+            y=attrs.get("y", 0),
         )
         loaded[loc_id] = loc
 
@@ -100,7 +121,7 @@ def get_map_overview() -> str:
             dest_name = dest.name if dest else dest_id
             conn_parts.append(f"{cmd}->{dest_name}")
         conn_text = ", ".join(conn_parts) if conn_parts else "なし"
-        lines.append(f"{loc.name}: {conn_text}")
+        lines.append(f"{loc.name}({loc.x},{loc.y}): {conn_text}")
     return "\n".join(lines)
 
 
