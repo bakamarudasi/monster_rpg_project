@@ -271,9 +271,10 @@ button:hover { background: #004cd1; }
 </div>
 {% endblock %}
 
+
 {% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+function setupBattleUI() {
     /* HPバーのアニメーション */
     document.querySelectorAll('.hp-fill').forEach(fill => {
         const finalWidth = fill.style.width;
@@ -347,6 +348,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     closeBtn.addEventListener('click', () => detailPanel.classList.remove('open'));
-});
+
+    /* --- AJAXでコマンド送信 --- */
+    const form = document.querySelector('.command-window form');
+    if (form) {
+        form.addEventListener('submit', evt => {
+            evt.preventDefault();
+            const formData = new FormData(form);
+            fetch(form.action, { method: 'POST', body: formData })
+                .then(resp => resp.text())
+                .then(html => {
+                    if (html.includes('container-battle')) {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newCont = doc.querySelector('.container-battle');
+                        if (newCont) {
+                            document.querySelector('.container-battle').replaceWith(newCont);
+                            setupBattleUI();
+                        } else {
+                            document.open();
+                            document.write(html);
+                            document.close();
+                        }
+                    } else {
+                        document.open();
+                        document.write(html);
+                        document.close();
+                    }
+                });
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', setupBattleUI);
 </script>
 {% endblock %}
