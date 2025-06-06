@@ -2,84 +2,123 @@
 {% block content %}
 <div class="map-container">
   <h2>ワールドマップ</h2>
-  <div class="map-overview">
-    <table class="map-grid">
-      {% for row in map_grid %}
-        <tr>
-          {% for cell in row %}
-            {% if cell %}
-              <td class="map-cell {% if current_loc_id == cell.location_id %}current{% endif %}">{{ cell.name }}</td>
-            {% else %}
-              <td class="map-cell empty"></td>
-            {% endif %}
-          {% endfor %}
-        </tr>
+  <div class="map-grid" data-cols="{{ map_grid[0]|length }}">
+    {% for row in map_grid %}
+      {% for cell in row %}
+        {% if cell %}
+          <div
+            class="map-cell"
+            data-loc="{{ cell.location_id }}"
+            {% if current_loc_id == cell.location_id %}class="map-cell current"{% endif %}
+          >
+            {{ cell.name }}
+          </div>
+        {% else %}
+          <div class="map-cell empty"></div>
+        {% endif %}
       {% endfor %}
-    </table>
+    {% endfor %}
   </div>
+
   <h3>探索度</h3>
   <ul class="progress-list">
     {% for loc_id, val in progress.items() %}
-      <li>
+      <li class="progress-item">
         <span class="loc-name">{{ locations[loc_id].name }}</span>
         <div class="progress-bar">
-          <div class="progress-fill" style="width: {{ val }}%"></div>
+          <div class="progress-fill" style="width: 0%;" data-target="{{ val }}"></div>
         </div>
-        <span class="progress-percent">{{ val }}%</span>
+        <span class="progress-percent">0%</span>
       </li>
     {% endfor %}
   </ul>
+
   <a class="back-btn" href="{{ url_for('play', user_id=user_id) }}">← 戻る</a>
 </div>
+
 <style>
   body {
     background: linear-gradient(120deg, #d2ffe9 0%, #c3c9ff 100%);
     font-family: 'Segoe UI', 'Arial', sans-serif;
   }
   .map-container {
-    max-width: 480px;
-    margin: 48px auto;
+    max-width: 520px;
+    margin: 40px auto;
     background: rgba(255,255,255,0.95);
     border-radius: 16px;
     box-shadow: 0 8px 32px rgba(50,70,160,0.13);
     padding: 24px 22px 32px 22px;
     text-align: center;
   }
+  h2, h3 {
+    color: #2d355e;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  /* CSS Grid for map */
   .map-grid {
-    margin: 12px auto 24px auto;
-    border-collapse: collapse;
+    display: grid;
+    grid-gap: 4px;
+    margin: 0 auto 24px auto;
+    width: 100%;
   }
   .map-cell {
-    width: 80px;
-    height: 60px;
-    border: 1px solid #cbd2ff;
     background: #e9eefa;
+    border: 1px solid #cbd2ff;
+    border-radius: 4px;
     font-size: 0.9rem;
-    padding: 4px;
+    color: #2d355e;
+    padding: 8px 4px;
     text-align: center;
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: background 0.2s ease, transform 0.3s ease;
+    position: relative;
   }
   .map-cell.empty {
-    background: none;
+    background: transparent;
     border: none;
+    cursor: default;
   }
   .map-cell.current {
     background: #ffe8b6;
     font-weight: bold;
+    border-color: #f4c242;
   }
-  h2, h3 {
-    color: #2d355e;
-    letter-spacing: 1px;
+  .map-cell:hover:not(.empty) {
+    background: #cce4f6;
+    transform: scale(1.05);
   }
+
+  /* Tooltip */
+  .map-cell.tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(45,53,94,0.9);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Exploration list */
   .progress-list {
     list-style: none;
     padding: 0;
     margin: 0 0 28px 0;
   }
-  .progress-list li {
+  .progress-item {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
     background: #f2f5fc;
     border-radius: 8px;
     padding: 8px 12px;
@@ -91,6 +130,7 @@
     color: #52518f;
     letter-spacing: .5px;
     text-align: left;
+    font-size: 0.95rem;
   }
   .progress-bar {
     flex: 1 1 auto;
@@ -106,7 +146,8 @@
     background: linear-gradient(90deg, #5fffc2, #5e92fa 70%);
     height: 100%;
     border-radius: 7px 0 0 7px;
-    transition: width .6s cubic-bezier(.22,.7,.42,1.01);
+    width: 0%;
+    transition: width 1s ease-in-out;
   }
   .progress-percent {
     flex: 0 0 50px;
@@ -114,6 +155,7 @@
     font-weight: 500;
     text-align: right;
     font-variant-numeric: tabular-nums;
+    font-size: 0.9rem;
   }
   .back-btn {
     display: inline-block;
@@ -135,4 +177,48 @@
     box-shadow: 0 4px 16px rgba(66,150,225,0.19);
   }
 </style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Set up CSS grid columns based on data attribute
+    const grid = document.querySelector('.map-grid');
+    const cols = parseInt(grid.getAttribute('data-cols'));
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
+    // 2. Animate cells appearing one-by-one
+    const cells = document.querySelectorAll('.map-cell');
+    cells.forEach((cell, idx) => {
+      setTimeout(() => {
+        cell.style.opacity = '1';
+        cell.style.transform = 'scale(1)';
+      }, idx * 80);
+    });
+
+    // 3. Optional: add tooltip text for each cell (e.g., show coords or info)
+    //    You can inject data-tooltip attribute in template if needed.
+    //    Example: <div class="map-cell tooltip" data-tooltip="詳細情報">...
+
+    // 4. Click on a cell to navigate/move
+    cells.forEach(cell => {
+      if (!cell.classList.contains('empty')) {
+        cell.addEventListener('click', () => {
+          const locId = cell.getAttribute('data-loc');
+          // Redirect to move endpoint with destination=locId
+          window.location.href = "{{ url_for('move', user_id=user_id) }}?dest=" + locId;
+        });
+      }
+    });
+
+    // 5. Animate exploration bars
+    document.querySelectorAll('.progress-item').forEach(item => {
+      const fill = item.querySelector('.progress-fill');
+      const percentText = item.querySelector('.progress-percent');
+      const target = parseInt(fill.getAttribute('data-target'));
+      setTimeout(() => {
+        fill.style.width = target + '%';
+        percentText.textContent = target + '%';
+      }, 500);
+    });
+  });
+</script>
 {% endblock %}
