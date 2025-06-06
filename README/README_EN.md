@@ -55,6 +55,7 @@ Other notable modules include `player.py` (player data and save/load logic), `ba
 - Defeated monsters may drop items, which are automatically added to your inventory.
 - Basic equipment crafting has been added. Use collected items to craft simple weapons and armor.
 - Some monsters now evolve once they reach certain levels.
+- Monsters can also be fused with special items to create entirely new creatures.
 - The web interface provides a battle log page showing the results of your last fight.
 
 ## Saving
