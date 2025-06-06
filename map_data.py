@@ -83,7 +83,7 @@ def load_locations(filepath: str | None = None) -> None:
     """JSON ファイルから場所データを読み込み LOCATIONS を初期化する."""
     global LOCATIONS
     if filepath is None:
-        filepath = os.path.join(os.path.dirname(__file__), "data", "locations.json")
+        filepath = os.path.join(os.path.dirname(__file__), "map", "locations.json")
 
     with open(filepath, encoding="utf-8") as f:
         data = json.load(f)
