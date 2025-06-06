@@ -27,10 +27,10 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
    ```
    `webapp.py` exposes only a couple JSON endpoints (like `/new_game` and
    `/load_game`) and does not include the battle system.
-5. Another web interface exists in `web_main.py`:
+5. Another web interface exists. Use the provided launcher script:
    ```bash
    pip install -r requirements.txt
-   python web_main.py
+   python start_rpg.py
    ```
    This starts the server at <http://localhost:5000/> using Flask templates
    and provides the full game including battles.
