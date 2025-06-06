@@ -231,11 +231,11 @@ button:hover { background: #003c88; }
             <div class="action-row">
                 <label for="action_{{ idx }}">{{ m.name }}:</label>
                 <select name="action_{{ idx }}" id="action_{{ idx }}">
-                    <option value="attack">攻撃</option>
+                    <option value="attack" data-target="enemy" data-scope="single">攻撃</option>
                     {% for s_idx, sk in enumerate(m.skills) %}
-                    <option value="skill{{ s_idx }}">{{ sk.name }}</option>
+                    <option value="skill{{ s_idx }}" data-target="{{ sk.target }}" data-scope="{{ sk.scope }}">{{ sk.name }}</option>
                     {% endfor %}
-                    <option value="run">逃げる</option>
+                    <option value="run" data-target="none" data-scope="none">逃げる</option>
                 </select>
                 <div>
                     <select name="target_enemy_{{ idx }}">
@@ -292,9 +292,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // TODO: アクションに応じてターゲット選択の表示/非表示を切り替える
-  // 例:「攻撃」なら敵リスト、「回復」なら味方リストのみ表示など
-  // この機能を追加すると、より使いやすくなります。
+  function updateTargets(row) {
+    const actionSel = row.querySelector('select[id^="action_"]');
+    const enemySel = row.querySelector('select[name^="target_enemy_"]');
+    const allySel = row.querySelector('select[name^="target_ally_"]');
+    const opt = actionSel.selectedOptions[0];
+    const target = opt.dataset.target || 'enemy';
+    const scope = opt.dataset.scope || 'single';
+
+    if (target === 'none' || scope === 'all') {
+      enemySel.style.display = 'none';
+      allySel.style.display = 'none';
+    } else if (target === 'ally') {
+      enemySel.style.display = 'none';
+      allySel.style.display = '';
+    } else {
+      enemySel.style.display = '';
+      allySel.style.display = 'none';
+    }
+  }
+
+  document.querySelectorAll('.action-row').forEach(row => {
+    const actionSel = row.querySelector('select[id^="action_"]');
+    actionSel.addEventListener('change', () => updateTargets(row));
+    updateTargets(row);
+  });
 });
 </script>
 {% endblock %}
