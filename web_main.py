@@ -514,6 +514,11 @@ def battle(user_id):
                 for m in alive_members:
                     m.gain_exp(share)
             player.gold += gold_gain
+            for enemy in battle_obj.enemy_party:
+                for item_obj, rate in getattr(enemy, "drop_items", []):
+                    if random.random() < rate:
+                        player.items.append(item_obj)
+                        msgs.append(f"{item_obj.name} を手に入れた！")
             msgs.append(f"勝利した！ {gold_gain}G を得た。")
         else:
             msgs.append("敗北してしまった...")
