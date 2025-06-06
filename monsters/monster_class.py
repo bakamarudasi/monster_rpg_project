@@ -180,6 +180,10 @@ class Monster:
             return
         if self.level < rule.get('level', 0):
             return
+        req_skill = rule.get('requires_skill')
+        if req_skill:
+            if not any(getattr(s, 'name', '') == req_skill for s in self.skills):
+                return
         from .monster_data import ALL_MONSTERS  # local import to avoid cycle
         new_id = rule.get('evolves_to')
         template = ALL_MONSTERS.get(new_id)

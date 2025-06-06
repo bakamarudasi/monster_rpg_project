@@ -16,6 +16,60 @@ ELEMENTAL_MULTIPLIERS = {
 CRITICAL_HIT_CHANCE = 0.1
 CRITICAL_HIT_MULTIPLIER = 2.0
 
+# --- 状態異常定義 -------------------------------------------------------
+def _status_damage(monster: Monster, amount: int):
+    monster.hp -= amount
+    print(f"{monster.name} は {amount} のダメージを受けた！ (残りHP: {max(0, monster.hp)})")
+    if monster.hp <= 0:
+        monster.is_alive = False
+        print(f"{monster.name} は倒れた！")
+
+def _status_heal(monster: Monster, amount: int):
+    if not monster.is_alive:
+        return
+    before = monster.hp
+    monster.hp = min(monster.max_hp, monster.hp + amount)
+    healed = monster.hp - before
+    if healed:
+        print(f"{monster.name} は {healed} 回復した！ (HP: {monster.hp})")
+
+STATUS_DEFINITIONS = {
+    "burn": {
+        "duration": 3,
+        "on_turn": lambda m: _status_damage(m, 3),
+        "message": "やけど",
+    },
+    "poison": {
+        "duration": 4,
+        "on_turn": lambda m: _status_damage(m, 2),
+        "message": "毒",
+    },
+    "freeze": {
+        "duration": 2,
+        "skip_turn": True,
+        "message": "こおりつき",
+    },
+    "paralyze": {
+        "duration": 3,
+        "skip_chance": 0.5,
+        "message": "まひ",
+    },
+    "regen": {
+        "duration": 4,
+        "on_turn": lambda m: _status_heal(m, 3),
+        "message": "リジェネ",
+    },
+}
+
+def apply_status(target: Monster, status_name: str, duration: int | None = None):
+    data = STATUS_DEFINITIONS.get(status_name)
+    if not data:
+        print(f"{status_name} の効果は未実装です。")
+        return
+    dur = duration if duration is not None else data.get("duration", 1)
+    target.status_effects.append({"name": status_name, "remaining": dur})
+    print(f"{target.name} は{data['message']}状態になった！")
+
 def calculate_damage(attacker: Monster, defender: Monster) -> int:
     """通常攻撃のダメージを計算します。"""
     base = attacker.attack - defender.defense
@@ -71,6 +125,8 @@ def apply_skill_effect(caster: Monster, targets: list[Monster], skill_obj: Skill
             if target.hp <= 0:
                 target.is_alive = False
                 print(f"{target.name} は倒れた！")
+            if isinstance(skill_obj.effect, str):
+                apply_status(target, skill_obj.effect)
 
         elif skill_obj.skill_type == "heal":
             if skill_obj.target == "ally":
@@ -121,7 +177,13 @@ def apply_skill_effect(caster: Monster, targets: list[Monster], skill_obj: Skill
                         print(f"{target.name} の能力が上がった！")
                     except Exception as e:
                         print(f"スキル効果の適用中にエラー: {e}")
-            
+
+        elif skill_obj.skill_type in ("debuff", "status"):
+            if isinstance(skill_obj.effect, str):
+                apply_status(target, skill_obj.effect, skill_obj.duration)
+            else:
+                print(f"{skill_obj.name} の効果は未実装です。")
+
         else:
             print(f"スキル「{skill_obj.name}」は効果がなかった...") # 未対応のスキルタイプなど
 
@@ -134,9 +196,21 @@ def display_party_status(party: list[Monster], party_name: str):
             f"  {i + 1}. {monster.name} (Lv.{monster.level}, HP: {monster.hp}/{monster.max_hp}, MP: {monster.mp}/{monster.max_mp}) {status_mark}"
         )
 
-def process_status_effects(monster: Monster):
+def process_status_effects(monster: Monster) -> bool:
+    """状態異常を処理し、行動不能ならTrueを返す"""
     expired = []
-    for effect in monster.status_effects:
+    skip_turn = False
+    for effect in list(monster.status_effects):
+        name = effect["name"]
+        data = STATUS_DEFINITIONS.get(name, {})
+        if callable(data.get("on_turn")):
+            data["on_turn"](monster)
+            if not monster.is_alive:
+                return True
+        if data.get("skip_turn"):
+            skip_turn = True
+        if "skip_chance" in data and random.random() < data["skip_chance"]:
+            skip_turn = True
         effect["remaining"] -= 1
         if effect["remaining"] <= 0:
             if callable(effect.get("remove_func")):
@@ -147,7 +221,9 @@ def process_status_effects(monster: Monster):
             expired.append(effect)
     for e in expired:
         monster.status_effects.remove(e)
-        print(f"{monster.name} の {e['name']} の効果が切れた。")
+        msg = STATUS_DEFINITIONS.get(e["name"], {}).get("message", e["name"])
+        print(f"{monster.name} の {msg} が治った。")
+    return skip_turn
 
 def get_player_choice(prompt: str, max_choice: int) -> int:
     """プレイヤーに番号で選択させ、有効な値を返すまでループします。"""
@@ -323,7 +399,9 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster], player
             if not actor.is_alive:
                 continue
 
-            process_status_effects(actor)
+            skip = process_status_effects(actor)
+            if skip or not actor.is_alive:
+                continue
 
             if actor in active_player_party:
                 while True:
