@@ -9,7 +9,9 @@ from map_data import get_map_overview, LOCATIONS
 class MapDisplayTests(unittest.TestCase):
     def test_overview_contains_start(self):
         overview = get_map_overview()
-        self.assertIn(LOCATIONS["village_square"].name, overview)
+        loc = LOCATIONS["village_square"]
+        self.assertIn(loc.name, overview)
+        self.assertIn(f"({loc.x},{loc.y})", overview)
 
 if __name__ == '__main__':
     unittest.main()
