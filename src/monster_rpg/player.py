@@ -10,7 +10,6 @@ from .monsters.synthesis_rules import (
     MONSTER_ITEM_RECIPES,
 )
 from .items.equipment import (
-    ALL_EQUIPMENT,
     CRAFTING_RECIPES,
     create_titled_equipment,
     EquipmentInstance,
