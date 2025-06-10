@@ -78,6 +78,14 @@ class Location:
                 cum += weight
                 if r < cum:
                     return enemy_id
+        if self.enemy_pool:
+            total = sum(self.enemy_pool.values())
+            r = random.random() * total
+            cum = 0.0
+            for enemy_id, weight in self.enemy_pool.items():
+                cum += weight
+                if r < cum:
+                    return enemy_id
         if self.possible_enemies:
             return random.choice(self.possible_enemies)
         return None

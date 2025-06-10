@@ -29,7 +29,7 @@
     "description": "薄暗い森の入り口。奥からはかすかに獣の気配がする。",
     "connections": { "南西": "field_near_village", "奥へ": "deep_forest", "東": "mystic_lake" },
     "encounter_rate": 0.75,
-    "enemy_pool": { "goblin": 50, "slime": 30, "wolf": 20 },
+    "enemy_pool": { "goblin": 50, "wolf": 20, "slime": 30 },
     "party_size": [1, 3],
     "avg_enemy_level": 2,
     "x": 2, "y": 0
@@ -50,7 +50,12 @@
     "connections": { "入り口へ": "forest_entrance" },
     "hidden_connections": { "さらに奥へ": "forest_boss_room" },
     "encounter_rate": 0.9,
-    "enemy_pool": { "wolf": 40, "elf_mage": 30, "shadow_panther": 20, "moonlit_dryad": 10 },
+    "enemy_pool": {
+      "wolf": 40,
+      "shadow_panther": 20,
+      "elf_mage": 30,
+      "moonlit_dryad": 10
+    },
     "party_size": [1, 3],
     "boss_enemy_id": "dragon_pup",
     "rare_enemies": ["phoenix_chick"],
@@ -191,7 +196,13 @@
     "description": "半ば湖に沈んだ古代神殿。水棲モンスターの巣窟。",
     "connections": { "南": "desert_oasis", "深部へ": "abyssal_marsh" },
     "encounter_rate": 0.85,
-    "enemy_pool": { "kraken": 15, "mermaid_siren": 30, "water_wolf": 25, "coral_hydra": 20, "gravetide_hollow": 10 },
+    "enemy_pool": {
+      "kraken": 15,
+      "mermaid_siren": 30,
+      "water_wolf": 25,
+      "coral_hydra": 20,
+      "gravetide_hollow": 10
+    },
     "party_size": [2, 4],
     "treasure_items": ["frost_crystal"],
     "avg_enemy_level": 7,
@@ -212,7 +223,12 @@
     "description": "赤熱した溶岩が流れ、空気が揺らめく灼熱地帯。",
     "connections": { "西": "abyssal_marsh", "北": "lava_core" },
     "encounter_rate": 0.9,
-    "enemy_pool": { "lava_elemental": 40, "troll_brute": 20, "cinder_sentinel": 25, "ashen_drake": 15 },
+    "enemy_pool": {
+      "lava_elemental": 40,
+      "troll_brute": 20,
+      "cinder_sentinel": 25,
+      "ashen_drake": 15
+    },
     "party_size": [2, 3],
     "rare_enemies": ["cinder_sentinel"],
     "treasure_items": ["dragon_scale"],
