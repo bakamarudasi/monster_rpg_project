@@ -282,6 +282,38 @@ def load_existing():
     session['user_id'] = u_id
     return redirect(url_for('play', user_id=u_id))
 
+
+@app.route('/login', methods=['POST'])
+def login():
+    """Authenticate an existing user by username/password."""
+    username = request.form.get('username')
+    password = request.form.get('password')
+    if not username or not password:
+        return render_template(
+            "result.html",
+            message="ユーザー名またはパスワードが不正です",
+            user_id=None,
+        )
+
+    user_id = database_setup.get_user_id(username, password)
+    if not user_id:
+        return render_template(
+            "result.html",
+            message="ユーザー名またはパスワードが違います",
+            user_id=None,
+        )
+
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    if not player:
+        return render_template(
+            "result.html",
+            message="セーブデータが見つかりません",
+            user_id=None,
+        )
+
+    session['user_id'] = user_id
+    return redirect(url_for('play', user_id=user_id))
+
 @app.route('/play/<int:user_id>')
 def play(user_id):
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
