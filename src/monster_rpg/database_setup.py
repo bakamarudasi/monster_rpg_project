@@ -111,8 +111,10 @@ def create_user(username: str, password: str) -> int:
             (username, _hash_password(password)),
         )
         conn.commit()
-        user_id = cursor.lastrowid
-    return user_id
+        user_id_raw = cursor.lastrowid
+        if user_id_raw is None:
+            raise RuntimeError("Failed to retrieve user id")
+        return int(user_id_raw)
 
 
 def get_user_id(username: str, password: str | None = None) -> int | None:
