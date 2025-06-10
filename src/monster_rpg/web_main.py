@@ -451,6 +451,7 @@ def synthesize(user_id):
             except (TypeError, ValueError):
                 idx1 = idx2 = -1
         success, msg, new_mon = player.synthesize_monster(idx1, idx2)
+        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
         if request.is_json:
             new_mon_dict = None
             if new_mon:
@@ -461,7 +462,6 @@ def synthesize(user_id):
                 }
             return jsonify({'success': success, 'message': msg, 'new_monster': new_mon_dict})
         message = msg
-        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
     return render_template('synthesize.html', player=player, user_id=user_id, message=message)
 
 
