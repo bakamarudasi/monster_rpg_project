@@ -38,6 +38,12 @@ def _status_heal(monster: Monster, amount: int):
     if healed:
         print(f"{monster.name} は {healed} 回復した！ (HP: {monster.hp})")
 
+def _slow_apply(monster: Monster):
+    monster.speed = max(1, monster.speed - 5)
+    def revert(m: Monster = monster):
+        m.speed += 5
+    return revert
+
 STATUS_DEFINITIONS = {
     "burn": {
         "duration": 3,
@@ -64,6 +70,45 @@ STATUS_DEFINITIONS = {
         "on_turn": lambda m: _status_heal(m, 3),
         "message": "リジェネ",
     },
+    "fear": {
+        "duration": 2,
+        "skip_chance": 0.25,
+        "message": "おびえ",
+    },
+    "blind": {
+        "duration": 3,
+        "skip_chance": 0.2,
+        "message": "盲目",
+    },
+    "slow": {
+        "duration": 3,
+        "message": "スロウ",
+        "on_apply": lambda m: _slow_apply(m),
+    },
+    "silence": {
+        "duration": 3,
+        "message": "サイレンス",
+    },
+    "curse": {
+        "duration": 4,
+        "on_turn": lambda m: _status_damage(m, 1),
+        "message": "呪い",
+    },
+    "stun": {
+        "duration": 1,
+        "skip_turn": True,
+        "message": "気絶",
+    },
+    "sleep": {
+        "duration": 3,
+        "skip_turn": True,
+        "message": "睡眠",
+    },
+    "confuse": {
+        "duration": 3,
+        "skip_chance": 0.5,
+        "message": "混乱",
+    },
 }
 
 def apply_status(target: Monster, status_name: str, duration: int | None = None):
@@ -72,7 +117,15 @@ def apply_status(target: Monster, status_name: str, duration: int | None = None)
         print(f"{status_name} の効果は未実装です。")
         return
     dur = duration if duration is not None else data.get("duration", 1)
-    target.status_effects.append({"name": status_name, "remaining": dur})
+    entry = {"name": status_name, "remaining": dur}
+    if callable(data.get("on_apply")):
+        try:
+            remove_func = data["on_apply"](target)
+            if remove_func:
+                entry["remove_func"] = remove_func
+        except Exception:
+            pass
+    target.status_effects.append(entry)
     print(f"{target.name} は{data['message']}状態になった！")
 
 def calculate_damage(attacker: Monster, defender: Monster) -> int:
