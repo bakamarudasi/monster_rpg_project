@@ -76,6 +76,7 @@ The game saves player data to `monster_rpg_save.db`. Only basic information is s
 
 ## Monster Images
 Place monster pictures under `src/monster_rpg/static/images/` on your local machine. The folder is kept in the repository via an empty `.gitkeep` file but ignored by Git so large image files do not get uploaded.
+The game does **not** include any monster artwork. You must supply PNG files whose names match the `image_filename` entries in `monsters/monster_data.py`. Example files are `slime.png` and `wolf.png`.
 
 Enjoy exploring the world and training your monsters!
 
