@@ -148,18 +148,43 @@ class Monster:
         print("-" * 20)
 
     def equip(self, equipment):
-        """Equip an Equipment object to this monster."""
+        """Equip an Equipment or EquipmentInstance to this monster."""
         if equipment is None:
             return
         self.equipment[equipment.slot] = equipment
 
     def total_attack(self):
-        bonus = sum(getattr(e, 'attack', 0) for e in self.equipment.values())
+        bonus = 0
+        for e in self.equipment.values():
+            if hasattr(e, 'total_attack'):
+                bonus += e.total_attack
+            else:
+                bonus += getattr(e, 'attack', 0)
         return self.attack + bonus
 
     def total_defense(self):
-        bonus = sum(getattr(e, 'defense', 0) for e in self.equipment.values())
+        bonus = 0
+        for e in self.equipment.values():
+            if hasattr(e, 'total_defense'):
+                bonus += e.total_defense
+            else:
+                bonus += getattr(e, 'defense', 0)
         return self.defense + bonus
+
+    def total_speed(self):
+        bonus = 0
+        for e in self.equipment.values():
+            if hasattr(e, 'total_speed'):
+                bonus += e.total_speed
+        return self.speed + bonus
+
+    @property
+    def total_skills(self):
+        skills = self.skills[:]
+        for e in self.equipment.values():
+            if hasattr(e, 'granted_skills'):
+                skills.extend(e.granted_skills)
+        return skills
 
     def _try_evolution(self):
         """Check evolution rules and evolve if conditions are met."""
