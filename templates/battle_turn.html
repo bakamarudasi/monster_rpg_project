@@ -355,7 +355,8 @@ function setupBattleUI() {
         form.addEventListener('submit', evt => {
             evt.preventDefault();
             const formData = new FormData(form);
-            fetch(form.action, { method: 'POST', body: formData })
+            const postUrl = "{{ url_for('battle', user_id=user_id) }}";
+            fetch(postUrl, { method: 'POST', body: formData })
                 .then(resp => resp.text())
                 .then(html => {
                     if (html.includes('container-battle')) {
