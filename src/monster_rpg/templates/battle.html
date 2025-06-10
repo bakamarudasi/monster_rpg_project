@@ -3,7 +3,7 @@
 <h2>戦闘結果</h2>
 <ul>
 {% for m in messages %}
-  <li>{{ m }}</li>
+  <li class="log-message-{{ m.type }}">{{ m.message }}</li>
 {% endfor %}
 </ul>
 <a href="{{ url_for('play', user_id=user_id) }}">戻る</a>

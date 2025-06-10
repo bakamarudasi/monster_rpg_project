@@ -42,7 +42,7 @@ class Battle:
         self.player_party = player_party
         self.enemy_party = enemy_party
         self.player = player
-        self.log: list[str] = []
+        self.log: list[dict] = []
         self.turn = 1
         self.turn_order: list = []
         self.current_index = 0
@@ -55,7 +55,7 @@ class Battle:
         alive = [m for m in self.player_party + self.enemy_party if m.is_alive]
         self.turn_order = sorted(alive, key=lambda m: m.speed, reverse=True)
         self.current_index = 0
-        self.log.append(f"-- Turn {self.turn} --")
+        self.log.append({"type": "info", "message": f"-- Turn {self.turn} --"})
 
     def current_actor(self):
         """Return the monster whose action is pending."""
@@ -83,30 +83,33 @@ class Battle:
             return
         dmg = max(1, actor.attack - target.defense)
         target.hp -= dmg
-        self.log.append(f"{actor.name} attacks {target.name} for {dmg}")
+        self.log.append({
+            "type": "player_damage",
+            "message": f"{actor.name}のこうげき！{target.name}は{dmg}のダメージを受けた！",
+        })
         if target.hp <= 0:
             target.is_alive = False
-            self.log.append(f"{target.name} fell")
+            self.log.append({"type": "info", "message": f"{target.name}はたおれてしまった…"})
 
     def _player_action(self, actor, action: dict | None):
         act = action or {"type": "attack", "target_enemy": 0}
         if act.get("type") == "run":
             if random.random() < 0.5:
-                self.log.append("うまく逃げ切れた！")
+                self.log.append({"type": "info", "message": "うまく逃げ切れた！"})
                 self.finished = True
                 self.outcome = "fled"
                 return
-            self.log.append("しかし逃げられなかった！")
+            self.log.append({"type": "info", "message": "しかし逃げられなかった！"})
             return
 
         if act.get("type") == "skill":
             s_idx = act.get("skill")
             if s_idx is None or s_idx >= len(actor.skills):
-                self.log.append(f"{actor.name} はスキルを使えなかった")
+                self.log.append({"type": "info", "message": f"{actor.name} はスキルを使えなかった"})
                 return
             skill = actor.skills[s_idx]
             if actor.mp < skill.cost:
-                self.log.append(f"{actor.name} は {skill.name} を使うMPが足りない")
+                self.log.append({"type": "info", "message": f"{actor.name} は {skill.name} を使うMPが足りない"})
                 return
             actor.mp -= skill.cost
             if skill.target == "ally":
@@ -119,9 +122,9 @@ class Battle:
                     before = target.hp
                     target.hp = min(target.max_hp, target.hp + skill.power)
                     healed = target.hp - before
-                    self.log.append(f"{actor.name} は {target.name} を {skill.name} で {healed} 回復した")
+                    self.log.append({"type": "info", "message": f"{actor.name} は {target.name} を {skill.name} で {healed} 回復した"})
                 else:
-                    self.log.append(f"{skill.name} の効果はまだ実装されていない")
+                    self.log.append({"type": "info", "message": f"{skill.name} の効果はまだ実装されていない"})
             else:
                 t_idx = act.get("target_enemy", -1)
                 if 0 <= t_idx < len(self.enemy_party) and self.enemy_party[t_idx].is_alive:
@@ -132,10 +135,13 @@ class Battle:
                     return
                 dmg = max(1, skill.power - target.defense)
                 target.hp -= dmg
-                self.log.append(f"{actor.name} は {skill.name} を使い {target.name} に {dmg} のダメージ")
+                self.log.append({
+                    "type": "player_attack",
+                    "message": f"{actor.name} の\u300c{skill.name}\u300d！{target.name}に{dmg}のダメージ！",
+                })
                 if target.hp <= 0:
                     target.is_alive = False
-                    self.log.append(f"{target.name} was defeated")
+                    self.log.append({"type": "info", "message": f"{target.name}をたおした！"})
             return
 
         if act.get("type") == "scout":
@@ -146,15 +152,15 @@ class Battle:
                 target = next((e for e in self.enemy_party if e.is_alive), None)
             if not target:
                 return
-            self.log.append(f"{actor.name} は {target.name} をスカウトしている...")
+            self.log.append({"type": "info", "message": f"{actor.name} は {target.name} をスカウトしている..."})
             rate = getattr(target, "scout_rate", 0.25)
             if random.random() < rate:
-                self.log.append(f"{target.name} は仲間になりたそうにこちらを見ている！")
+                self.log.append({"type": "info", "message": f"{target.name} は仲間になりたそうにこちらを見ている！"})
                 if self.player:
                     self.player.add_monster_to_party(target)
                 target.is_alive = False
             else:
-                self.log.append(f"{target.name} は警戒している。仲間にならなかった。")
+                self.log.append({"type": "info", "message": f"{target.name} は警戒している。仲間にならなかった。"})
             return
 
         # default attack
@@ -167,10 +173,10 @@ class Battle:
             return
         dmg = max(1, actor.attack - target.defense)
         target.hp -= dmg
-        self.log.append(f"{actor.name} attacks {target.name} for {dmg}")
+        self.log.append({"type": "player_attack", "message": f"{actor.name}のこうげき！{target.name}に{dmg}のダメージ！"})
         if target.hp <= 0:
             target.is_alive = False
-            self.log.append(f"{target.name} was defeated")
+            self.log.append({"type": "info", "message": f"{target.name}をたおした！"})
 
     def step(self, action: dict | None = None):
         """Process a single actor's action."""
@@ -224,7 +230,7 @@ def handle_battle(player: Player, location) -> list[str]:
     msgs.append(f"{enemy_names} が現れた！")
     party = player.party_monsters
     outcome, battle_log = run_simple_battle(party, enemies)
-    msgs.extend(battle_log)
+    msgs.extend([e["message"] if isinstance(e, dict) else e for e in battle_log])
     if outcome == "win":
         total_exp = sum(e.level * 10 for e in enemies)
         gold_gain = sum(e.level * 5 for e in enemies)
@@ -500,9 +506,9 @@ def explore(user_id):
         enemies = generate_enemy_party(loc, player)
         if enemies:
             battle_obj = Battle(player.party_monsters, enemies, player)
-            battle_obj.log.append(f"探索度 {before}% -> {after}%")
+            battle_obj.log.append({"type": "info", "message": f"探索度 {before}% -> {after}%"})
             enemy_names = ", ".join(e.name for e in enemies)
-            battle_obj.log.append(f"{enemy_names} が現れた！")
+            battle_obj.log.append({"type": "info", "message": f"{enemy_names} が現れた！"})
             active_battles[user_id] = battle_obj
 
             # Process enemy turns automatically until it's the player's turn
@@ -560,7 +566,7 @@ def battle(user_id):
             return render_template('result.html', message=msg, user_id=user_id)
         battle_obj = Battle(player.party_monsters, enemies, player)
         enemy_names = ", ".join(e.name for e in enemies)
-        battle_obj.log.append(f"{enemy_names} が現れた！")
+        battle_obj.log.append({"type": "info", "message": f"{enemy_names} が現れた！"})
         active_battles[user_id] = battle_obj
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
 
@@ -632,10 +638,10 @@ def battle(user_id):
                 for item_obj, rate in getattr(enemy, "drop_items", []):
                     if random.random() < rate:
                         player.items.append(item_obj)
-                        msgs.append(f"{item_obj.name} を手に入れた！")
-            msgs.append(f"勝利した！ {gold_gain}G を得た。")
+                        msgs.append({"type": "info", "message": f"{item_obj.name} を手に入れた！"})
+            msgs.append({"type": "info", "message": f"勝利した！ {gold_gain}G を得た。"})
         else:
-            msgs.append("敗北してしまった...")
+            msgs.append({"type": "info", "message": "敗北してしまった..."})
         player.last_battle_log = msgs
         del active_battles[user_id]
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
