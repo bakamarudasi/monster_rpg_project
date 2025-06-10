@@ -534,7 +534,11 @@ def explore(user_id):
     after = player.increase_exploration(player.current_location_id, gained)
     messages.append(f"探索度 {before}% -> {after}%")
 
-    if loc.possible_enemies and random.random() < loc.encounter_rate:
+    # Locations often define enemies via `enemy_pool` instead of
+    # `possible_enemies`. The previous condition only checked
+    # `possible_enemies`, preventing battles from triggering when
+    # `enemy_pool` was present but `possible_enemies` was empty.
+    if (loc.possible_enemies or getattr(loc, "enemy_pool", None)) and random.random() < loc.encounter_rate:
         enemies = generate_enemy_party(loc, player)
         if enemies:
             battle_obj = Battle(player.party_monsters, enemies, player)
