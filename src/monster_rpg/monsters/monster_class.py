@@ -186,6 +186,16 @@ class Monster:
                 skills.extend(e.granted_skills)
         return skills
 
+    def get_skill_details(self):
+        """Return skill name and description for all skills this monster can use."""
+        details = []
+        for sk in self.total_skills:
+            details.append({
+                'name': getattr(sk, 'name', ''),
+                'description': getattr(sk, 'description', '')
+            })
+        return details
+
     def _try_evolution(self):
         """Check evolution rules and evolve if conditions are met."""
         rule = EVOLUTION_RULES.get(self.monster_id)
