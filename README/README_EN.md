@@ -9,8 +9,9 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
 
 ## Setup and Running the Game
 1. (Optional) Create and activate a virtual environment for Python 3.
-2. Initialize the SQLite database by running:
+2. Install the package in editable mode and initialize the SQLite database:
    ```bash
+   pip install -e .
    python -m monster_rpg.database_setup
    ```
    This creates `monster_rpg_save.db` if it does not already exist.
@@ -74,7 +75,7 @@ Other notable modules include `player.py` (player data and save/load logic), `ba
 The game saves player data to `monster_rpg_save.db`. Only basic information is stored at the moment, but the structure is ready for expansion.
 
 ## Monster Images
-Place monster pictures under `static/images/` on your local machine. The folder is kept in the repository via an empty `.gitkeep` file but ignored by Git so large image files do not get uploaded.
+Place monster pictures under `src/monster_rpg/static/images/` on your local machine. The folder is kept in the repository via an empty `.gitkeep` file but ignored by Git so large image files do not get uploaded.
 
 Enjoy exploring the world and training your monsters!
 
