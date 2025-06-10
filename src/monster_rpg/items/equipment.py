@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 import uuid
 import random
 from typing import List
+import copy
 
 from .titles import Title, ALL_TITLES
 from ..skills.skills import ALL_SKILLS
@@ -62,7 +63,7 @@ class EquipmentInstance:
         objs = []
         for sid in self.title.added_skills:
             if sid in ALL_SKILLS:
-                objs.append(ALL_SKILLS[sid])
+                objs.append(copy.deepcopy(ALL_SKILLS[sid]))
         return objs
 
 
