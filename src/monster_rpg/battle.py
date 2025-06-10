@@ -130,7 +130,7 @@ def apply_status(target: Monster, status_name: str, duration: int | None = None)
 
 def calculate_damage(attacker: Monster, defender: Monster) -> int:
     """通常攻撃のダメージを計算します。"""
-    base = attacker.attack - defender.defense
+    base = attacker.total_attack() - defender.total_defense()
     damage = max(1, base)
 
     multiplier = ELEMENTAL_MULTIPLIERS.get((attacker.element, defender.element))
