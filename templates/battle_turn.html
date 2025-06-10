@@ -357,28 +357,57 @@ function setupBattleUI() {
             const formData = new FormData(form);
             const postUrl = "{{ url_for('battle', user_id=user_id) }}";
             fetch(postUrl, { method: 'POST', body: formData })
-                .then(resp => resp.text())
-                .then(html => {
-                    if (html.includes('container-battle')) {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-                        const newCont = doc.querySelector('.container-battle');
-                        if (newCont) {
-                            document.querySelector('.container-battle').replaceWith(newCont);
-                            setupBattleUI();
-                        } else {
-                            document.open();
-                            document.write(html);
-                            document.close();
-                        }
-                    } else {
+                .then(resp => resp.json())
+                .then(data => {
+                    if (data.finished) {
                         document.open();
-                        document.write(html);
+                        document.write(data.html);
                         document.close();
+                        return;
                     }
+                    applyBattleData(data);
                 });
         });
     }
+}
+
+function applyBattleData(data) {
+    const allyUnits = document.querySelectorAll('.ally-party-display .battle-unit');
+    data.hp_values.player.forEach((info, idx) => {
+        const unit = allyUnits[idx];
+        if (!unit) return;
+        if (!info.alive) unit.classList.add('down');
+        const fill = unit.querySelector('.hp-fill');
+        const pct = Math.round(info.hp / info.max_hp * 100);
+        if (fill) fill.style.width = pct + '%';
+        const text = unit.querySelector('.hp-text');
+        if (text) text.textContent = info.hp + '/' + info.max_hp;
+    });
+
+    const enemyUnits = document.querySelectorAll('.enemy-area .battle-unit');
+    data.hp_values.enemy.forEach((info, idx) => {
+        const unit = enemyUnits[idx];
+        if (!unit) return;
+        if (!info.alive) unit.classList.add('down');
+        const fill = unit.querySelector('.hp-fill');
+        const pct = Math.round(info.hp / info.max_hp * 100);
+        if (fill) fill.style.width = pct + '%';
+        const text = unit.querySelector('.hp-text');
+        if (text) text.textContent = info.hp + '/' + info.max_hp;
+    });
+
+    const logEl = document.querySelector('.log');
+    if (logEl) {
+        logEl.innerHTML = '';
+        data.log.forEach(line => {
+            const li = document.createElement('li');
+            li.textContent = line;
+            logEl.appendChild(li);
+        });
+    }
+
+    const banner = document.querySelector('.turn-banner');
+    if (banner) banner.textContent = 'Turn ' + data.turn;
 }
 
 document.addEventListener('DOMContentLoaded', setupBattleUI);

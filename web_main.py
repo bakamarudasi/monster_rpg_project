@@ -603,9 +603,7 @@ def battle(user_id):
                 action = {'type': 'attack', 'target_enemy': tgt}
             battle_obj.step(action)
             player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
-        else:
-            # ignore posts when it's not player's turn
-            pass
+        # ignore posts when it's not player's turn
 
         # After the player's action, process enemy turns automatically
         while not battle_obj.finished and battle_obj.current_actor() not in battle_obj.player_party:
@@ -641,9 +639,29 @@ def battle(user_id):
         player.last_battle_log = msgs
         del active_battles[user_id]
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+        if request.method == 'POST':
+            html = render_template('battle.html', messages=msgs, user_id=user_id)
+            hp_vals = {
+                'player': [{'hp': m.hp, 'max_hp': m.max_hp, 'alive': m.is_alive} for m in battle_obj.player_party],
+                'enemy': [{'hp': m.hp, 'max_hp': m.max_hp, 'alive': m.is_alive} for m in battle_obj.enemy_party],
+            }
+            return jsonify({'hp_values': hp_vals, 'log': battle_obj.log, 'finished': True, 'turn': battle_obj.turn, 'html': html})
         return render_template('battle.html', messages=msgs, user_id=user_id)
 
     current_actor = battle_obj.current_actor()
+    if request.method == 'POST':
+        hp_vals = {
+            'player': [{'hp': m.hp, 'max_hp': m.max_hp, 'alive': m.is_alive} for m in battle_obj.player_party],
+            'enemy': [{'hp': m.hp, 'max_hp': m.max_hp, 'alive': m.is_alive} for m in battle_obj.enemy_party],
+        }
+        return jsonify(
+            {
+                'hp_values': hp_vals,
+                'log': battle_obj.log,
+                'finished': False,
+                'turn': battle_obj.turn,
+            }
+        )
     return render_template(
         'battle_turn.html',
         user_id=user_id,
