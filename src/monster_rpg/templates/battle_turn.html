@@ -323,6 +323,7 @@ function setupBattleUI() {
         actionSel.addEventListener('change', updateTargets);
         updateTargets();
     }
+    window.updateTargets = updateTargets;
 
     /* 敵詳細パネルの表示 */
     const detailPanel = document.getElementById('enemy-detail');
@@ -409,6 +410,46 @@ function applyBattleData(data) {
 
     const banner = document.querySelector('.turn-banner');
     if (banner) banner.textContent = 'Turn ' + data.turn;
+
+    if (data.current_actor) {
+        const label = document.querySelector('label[for="action"]');
+        const actionSel = document.getElementById('action');
+        if (label) label.textContent = data.current_actor.name + ':';
+        if (actionSel) {
+            actionSel.innerHTML = '';
+            const atkOpt = document.createElement('option');
+            atkOpt.value = 'attack';
+            atkOpt.dataset.target = 'enemy';
+            atkOpt.dataset.scope = 'single';
+            atkOpt.textContent = '攻撃';
+            actionSel.appendChild(atkOpt);
+
+            data.current_actor.skills.forEach((sk, idx) => {
+                const opt = document.createElement('option');
+                opt.value = 'skill' + idx;
+                opt.dataset.target = sk.target;
+                opt.dataset.scope = sk.scope;
+                opt.textContent = sk.name;
+                actionSel.appendChild(opt);
+            });
+
+            const scoutOpt = document.createElement('option');
+            scoutOpt.value = 'scout';
+            scoutOpt.dataset.target = 'enemy';
+            scoutOpt.dataset.scope = 'single';
+            scoutOpt.textContent = 'スカウト';
+            actionSel.appendChild(scoutOpt);
+
+            const runOpt = document.createElement('option');
+            runOpt.value = 'run';
+            runOpt.dataset.target = 'none';
+            runOpt.dataset.scope = 'none';
+            runOpt.textContent = '逃げる';
+            actionSel.appendChild(runOpt);
+
+            updateTargets();
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', setupBattleUI);
