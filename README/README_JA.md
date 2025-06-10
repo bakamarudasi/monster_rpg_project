@@ -71,6 +71,7 @@ Pythonで作られた小さなテキストベースRPGのプロトタイプで�
 
 ## セーブについて
 プレイヤーデータは `monster_rpg_save.db` に保存されます。現在は最低限の情報のみですが、拡張を見据えた構造になっています。
+ゲームをアップデートした際は `python -m monster_rpg.database_setup` を再実行するか、コード内で `database_setup.initialize_database()` を呼び出すことで、`exploration_progress` テーブルなどの新しいテーブルが既存のセーブに追加されます。
 
 ## モンスター画像
 モンスターの画像はローカルの `src/monster_rpg/static/images/` 以下に配置してください。リポジトリには空の `.gitkeep` ファイルのみ含め、大きな画像ファイルはGitにアップロードされないようにしています。

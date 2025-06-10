@@ -52,5 +52,13 @@ class SaveLoadTests(unittest.TestCase):
         self.assertEqual(len(l2.party_monsters), 1)
         self.assertEqual(l2.party_monsters[0].monster_id, 'goblin')
 
+    def test_exploration_progress_saved_and_loaded(self):
+        player = Player('Explorer', user_id=self.user1)
+        player.increase_exploration('forest_entrance', 40)
+        player.save_game(self.db_path)
+
+        loaded = Player.load_game(self.db_path, user_id=self.user1)
+        self.assertEqual(loaded.get_exploration('forest_entrance'), 40)
+
 if __name__ == '__main__':
     unittest.main()

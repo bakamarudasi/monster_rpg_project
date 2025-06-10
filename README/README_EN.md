@@ -73,6 +73,9 @@ Other notable modules include `player.py` (player data and save/load logic), `ba
 
 ## Saving
 The game saves player data to `monster_rpg_save.db`. Only basic information is stored at the moment, but the structure is ready for expansion.
+If you upgrade the game, run `python -m monster_rpg.database_setup` again (or
+call `database_setup.initialize_database()` in code) to add any new tables such
+as the `exploration_progress` table to existing save files.
 
 ## Monster Images
 Place monster pictures under `src/monster_rpg/static/images/` on your local machine. The folder is kept in the repository via an empty `.gitkeep` file but ignored by Git so large image files do not get uploaded.
