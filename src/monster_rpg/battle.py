@@ -1,7 +1,8 @@
 # battle.py
 import random
+from typing import cast
 from .player import Player  # Playerクラスは直接使わないが、型ヒントなどで参照される可能性を考慮
-from .monsters import Monster, ALL_MONSTERS  # MonsterクラスとALL_MONSTERSを参照
+from .monsters import Monster  # Monsterクラスのみ参照
 from .skills.skills import Skill  # Skillクラスを参照
 from .skills.skill_actions import (
     SKILL_EFFECT_MAP,
@@ -111,22 +112,25 @@ STATUS_DEFINITIONS = {
     },
 }
 
-def apply_status(target: Monster, status_name: str, duration: int | None = None):
+
+def apply_status(target: Monster, status_name: str, duration: int | None = None) -> None:
     data = STATUS_DEFINITIONS.get(status_name)
     if not data:
         print(f"{status_name} の効果は未実装です。")
         return
     dur = duration if duration is not None else data.get("duration", 1)
     entry = {"name": status_name, "remaining": dur}
-    if callable(data.get("on_apply")):
+    on_apply = data.get("on_apply")
+    if callable(on_apply):
         try:
-            remove_func = data["on_apply"](target)
+            remove_func = on_apply(target)
             if remove_func:
                 entry["remove_func"] = remove_func
         except Exception:
             pass
     target.status_effects.append(entry)
     print(f"{target.name} は{data['message']}状態になった！")
+
 
 def calculate_damage(attacker: Monster, defender: Monster) -> int:
     """通常攻撃のダメージを計算します。"""
@@ -150,7 +154,13 @@ def calculate_damage(attacker: Monster, defender: Monster) -> int:
 
     return max(1, damage)  # 最低1ダメージは保証
 
-def apply_skill_effect(caster: Monster, targets: list[Monster], skill_obj: Skill, all_allies: list[Monster] = None, all_enemies: list[Monster] = None):
+def apply_skill_effect(
+    caster: Monster,
+    targets: list[Monster],
+    skill_obj: Skill,
+    all_allies: list[Monster] | None = None,
+    all_enemies: list[Monster] | None = None,
+) -> None:
     """
     スキル効果を対象モンスター(複数可)に適用します。
     caster: スキル使用者
@@ -223,19 +233,21 @@ def process_status_effects(monster: Monster) -> bool:
     for effect in list(monster.status_effects):
         name = effect["name"]
         data = STATUS_DEFINITIONS.get(name, {})
-        if callable(data.get("on_turn")):
-            data["on_turn"](monster)
+        on_turn = data.get("on_turn")
+        if callable(on_turn):
+            on_turn(monster)
             if not monster.is_alive:
                 return True
         if data.get("skip_turn"):
             skip_turn = True
-        if "skip_chance" in data and random.random() < data["skip_chance"]:
+        if "skip_chance" in data and random.random() < float(cast(float, data["skip_chance"])):
             skip_turn = True
         effect["remaining"] -= 1
         if effect["remaining"] <= 0:
-            if callable(effect.get("remove_func")):
+            remove_cb = effect.get("remove_func")
+            if callable(remove_cb):
                 try:
-                    effect["remove_func"]()
+                    remove_cb()
                 except Exception:
                     pass
             expired.append(effect)
@@ -298,7 +310,7 @@ def enemy_take_action(enemy_actor: Monster, active_player_party: list[Monster], 
 
     role = getattr(enemy_actor, "ai_role", "attacker")
     selected_skill = None
-    skill_targets: list[Monster] | None = None
+    skill_targets: list[Monster] = []
 
     if role == "healer":
         heal_skills = [s for s in usable_skills if s.skill_type == "heal" and s.target == "ally"]
@@ -387,7 +399,7 @@ def award_experience(alive_party: list[Monster], defeated_enemies: list[Monster]
     else:
         print("獲得経験値はありませんでした。")
 
-def attempt_scout(player: Player, target: Monster, enemy_party: list[Monster]) -> bool:
+def attempt_scout(player: Player | None, target: Monster, enemy_party: list[Monster]) -> bool:
     """敵モンスターをスカウトして仲間にする試みを行う。成功するとTrueを返す。"""
     if target is None or not target.is_alive:
         print("対象がいません。")

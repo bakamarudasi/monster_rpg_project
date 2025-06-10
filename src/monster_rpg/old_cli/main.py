@@ -70,7 +70,8 @@ def game_loop(hero: Player): # 型ヒントを追加
             possible_moves = list(current_location_data.connections.items())
             
             for i, (direction_command, destination_id) in enumerate(possible_moves):
-                destination_name = LOCATIONS.get(destination_id).name if LOCATIONS.get(destination_id) else "不明な場所"
+                dest = LOCATIONS.get(destination_id)
+                destination_name = dest.name if dest else "不明な場所"
                 print(f"  {i + 1}: {direction_command} ({destination_name} へ)")
             print(f"  0: 移動をやめる")
 

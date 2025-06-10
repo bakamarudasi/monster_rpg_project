@@ -83,7 +83,7 @@ def _status_applier(name: str) -> Callable[[Monster, Monster, Skill], None]:
     return func
 
 
-SKILL_EFFECT_MAP: Dict[str, Callable[[Monster, Monster, Skill], None]] = {
+SKILL_EFFECT_MAP: Dict[str, Callable[..., None]] = {
     "speed_up": buff_speed_up,
     "atk_def_up": buff_atk_def_up,
     "revive": revive_target,

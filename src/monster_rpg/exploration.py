@@ -62,24 +62,24 @@ def generate_enemy_party(location: Location, player=None) -> list[Monster]:
         enemy_id = location.get_random_enemy_id()
         if not enemy_id:
             enemy_id = random.choice(location.possible_enemies)
-        enemy_instance = get_monster_instance_copy(enemy_id)
-        if enemy_instance:
+        enemy_copy = get_monster_instance_copy(enemy_id)
+        if enemy_copy:
             if player is not None and hasattr(player, "monster_book"):
-                player.monster_book.record_seen(enemy_instance.monster_id)
+                player.monster_book.record_seen(enemy_copy.monster_id)
             target_level = max(1, base_level + random.randint(-1, 1))
-            while enemy_instance.level < target_level:
-                enemy_instance.level_up()
-            enemy_party.append(enemy_instance)
+            while enemy_copy.level < target_level:
+                enemy_copy.level_up()
+            enemy_party.append(enemy_copy)
 
     if not enemy_party and location.possible_enemies:
         enemy_id = location.get_random_enemy_id() or random.choice(location.possible_enemies)
-        enemy_instance = get_monster_instance_copy(enemy_id)
-        if enemy_instance:
+        enemy_copy = get_monster_instance_copy(enemy_id)
+        if enemy_copy:
             if player is not None and hasattr(player, "monster_book"):
-                player.monster_book.record_seen(enemy_instance.monster_id)
+                player.monster_book.record_seen(enemy_copy.monster_id)
             target_level = max(1, base_level + random.randint(-1, 1))
-            while enemy_instance.level < target_level:
-                enemy_instance.level_up()
-            enemy_party.append(enemy_instance)
+            while enemy_copy.level < target_level:
+                enemy_copy.level_up()
+            enemy_party.append(enemy_copy)
 
     return enemy_party
