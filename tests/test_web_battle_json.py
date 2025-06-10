@@ -1,13 +1,10 @@
 import os
-import sys
 import unittest
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-import database_setup
-from web_main import app, Battle, active_battles
-from player import Player
-from monsters.monster_class import Monster
+from monster_rpg import database_setup
+from monster_rpg.web_main import app, Battle, active_battles
+from monster_rpg.player import Player
+from monster_rpg.monsters.monster_class import Monster
 
 class BattleViewJsonTests(unittest.TestCase):
     def setUp(self):

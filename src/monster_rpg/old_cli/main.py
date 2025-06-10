@@ -1,19 +1,19 @@
 # main.py
 import random
-from player import Player
-from monsters import ALL_MONSTERS, Monster
-from skills.skills import ALL_SKILLS
-from battle import start_battle  # battle.py から start_battle をインポート
-from map_data import LOCATIONS, Location, display_map, load_locations
-from database_setup import initialize_database, DATABASE_NAME
-from items.item_data import ALL_ITEMS
-from exploration import (
+from ..player import Player
+from ..monsters import ALL_MONSTERS, Monster
+from ..skills.skills import ALL_SKILLS
+from ..battle import start_battle  # battle.py から start_battle をインポート
+from ..map_data import LOCATIONS, Location, display_map, load_locations
+from ..database_setup import initialize_database, DATABASE_NAME
+from ..items.item_data import ALL_ITEMS
+from ..exploration import (
     show_exploration_progress,
     get_monster_instance_copy,
     generate_enemy_party,
 )
-from shop import open_shop
-from battle_manager import handle_battle_loss
+from ..shop import open_shop
+from ..battle_manager import handle_battle_loss
 
 
 

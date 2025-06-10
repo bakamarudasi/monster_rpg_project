@@ -1,11 +1,7 @@
-import os
-import sys
 import unittest
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from battle import award_experience
-from monsters.monster_class import Monster
+from monster_rpg.battle import award_experience
+from monster_rpg.monsters.monster_class import Monster
 
 class ExperienceDistributionTests(unittest.TestCase):
     def test_experience_split_with_remainder(self):

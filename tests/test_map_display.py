@@ -1,10 +1,6 @@
-import os
-import sys
 import unittest
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from map_data import get_map_overview, get_map_grid, LOCATIONS, load_locations
+from monster_rpg.map_data import get_map_overview, get_map_grid, LOCATIONS, load_locations
 
 class MapDisplayTests(unittest.TestCase):
     def test_overview_contains_start(self):

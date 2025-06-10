@@ -1,6 +1,6 @@
 # battle_manager.py
-from player import Player
-from database_setup import DATABASE_NAME
+from .player import Player
+from .database_setup import DATABASE_NAME
 
 
 def handle_battle_loss(hero: Player) -> str:

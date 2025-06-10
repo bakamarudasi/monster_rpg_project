@@ -1,11 +1,7 @@
-import os
-import sys
 import unittest
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from player import Player
-from monsters.monster_data import ALL_MONSTERS
+from monster_rpg.player import Player
+from monster_rpg.monsters.monster_data import ALL_MONSTERS
 
 class PartyFormationTests(unittest.TestCase):
     def setUp(self):

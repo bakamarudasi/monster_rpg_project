@@ -1,15 +1,10 @@
 import os
-import sys
 import unittest
 
-# Ensure the repository root is on the Python path so imports work when
-# running the tests directly without installing the package.
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-import database_setup
-from player import Player
-from monsters.monster_data import ALL_MONSTERS
-from items.item_data import ALL_ITEMS
+from monster_rpg import database_setup
+from monster_rpg.player import Player
+from monster_rpg.monsters.monster_data import ALL_MONSTERS
+from monster_rpg.items.item_data import ALL_ITEMS
 
 class SaveLoadTests(unittest.TestCase):
     def setUp(self):

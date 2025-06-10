@@ -9,8 +9,8 @@ from .monster_class import (
     GROWTH_TYPE_EARLY,
     GROWTH_TYPE_LATE,
 )
-from skills.skills import ALL_SKILLS
-from items.item_data import ALL_ITEMS
+from ..skills.skills import ALL_SKILLS
+from ..items.item_data import ALL_ITEMS
 
 # モンスターランク定義
 RANK_S = "S"

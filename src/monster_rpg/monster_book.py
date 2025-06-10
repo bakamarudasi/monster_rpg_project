@@ -1,5 +1,5 @@
 from typing import Set
-from monsters.monster_data import MONSTER_BOOK_DATA, MonsterBookEntry
+from .monsters.monster_data import MONSTER_BOOK_DATA, MonsterBookEntry
 
 class MonsterBook:
     """プレイヤー毎に所持するモンスター図鑑。"""

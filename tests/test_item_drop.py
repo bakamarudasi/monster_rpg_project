@@ -1,14 +1,10 @@
-import os
-import sys
 import random
 import unittest
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from battle import award_experience
-from items.item_data import ALL_ITEMS
-from monsters.monster_class import Monster
-from player import Player
+from monster_rpg.battle import award_experience
+from monster_rpg.items.item_data import ALL_ITEMS
+from monster_rpg.monsters.monster_class import Monster
+from monster_rpg.player import Player
 
 class ItemDropTests(unittest.TestCase):
     def test_drop_item_added_to_player(self):

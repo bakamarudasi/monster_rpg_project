@@ -1,10 +1,6 @@
-import os
-import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from battle import enemy_take_action
-from monsters.monster_class import Monster
-from skills.skills import ALL_SKILLS
+from monster_rpg.battle import enemy_take_action
+from monster_rpg.monsters.monster_class import Monster
+from monster_rpg.skills.skills import ALL_SKILLS
 
 
 def test_enemy_heals_when_using_skill(monkeypatch):
