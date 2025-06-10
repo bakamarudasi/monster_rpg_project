@@ -696,12 +696,27 @@ def battle(user_id):
             'player': [{'hp': m.hp, 'max_hp': m.max_hp, 'alive': m.is_alive} for m in battle_obj.player_party],
             'enemy': [{'hp': m.hp, 'max_hp': m.max_hp, 'alive': m.is_alive} for m in battle_obj.enemy_party],
         }
+        actor = battle_obj.current_actor()
+        actor_data = None
+        if actor and actor in battle_obj.player_party:
+            actor_data = {
+                'name': actor.name,
+                'skills': [
+                    {
+                        'name': sk.name,
+                        'target': getattr(sk, 'target', 'enemy'),
+                        'scope': getattr(sk, 'scope', 'single'),
+                    }
+                    for sk in actor.skills
+                ],
+            }
         return jsonify(
             {
                 'hp_values': hp_vals,
                 'log': battle_obj.log,
                 'finished': False,
                 'turn': battle_obj.turn,
+                'current_actor': actor_data,
             }
         )
     return render_template(
