@@ -91,8 +91,10 @@ def game_loop(hero: Player): # 型ヒントを追加
                     new_location_name = new_location_data.name
                     print(f"{new_location_name} へ移動しました。")
 
-                    if new_location_data.possible_enemies and \
-                       random.random() < new_location_data.encounter_rate:
+                    if (
+                        new_location_data.enemy_pool
+                        or new_location_data.possible_enemies
+                    ) and random.random() < new_location_data.encounter_rate:
                         
                         print("\n!!!モンスターに遭遇した!!!")
                         
@@ -102,7 +104,7 @@ def game_loop(hero: Player): # 型ヒントを追加
                         player_battle_party = hero.party_monsters 
 
                         # 敵パーティを生成
-                        enemy_battle_party = generate_enemy_party(new_location_data, hero)
+                        enemy_battle_party = new_location_data.create_enemy_party()
                         
                         if not player_battle_party: # プレイヤーのパーティが空の場合
                             print("手持ちモンスターがいない！逃げるしかない！")
@@ -133,7 +135,7 @@ def game_loop(hero: Player): # 型ヒントを追加
                         # なぜなら、player_battle_party は hero.party_monsters の参照であり、
                         # battle.py 内でその要素（モンスターオブジェクト）の属性が直接変更されるため。
 
-                    elif not new_location_data.possible_enemies:
+                    elif not new_location_data.enemy_pool and not new_location_data.possible_enemies:
                          print("この場所にはモンスターはいないようだ。")
                     else:
                         print("モンスターは現れなかったようだ...")
@@ -233,10 +235,13 @@ def game_loop(hero: Player): # 型ヒントを追加
                                 break
                         elif outcome == "fled":
                             print(f"{hero.name} は戦闘から逃げ出した。")
-            elif current_location_data.possible_enemies and random.random() < current_location_data.encounter_rate:
+            elif (
+                current_location_data.enemy_pool
+                or current_location_data.possible_enemies
+            ) and random.random() < current_location_data.encounter_rate:
                 print("\n!!!モンスターが襲ってきた!!!")
                 player_battle_party = hero.party_monsters
-                enemy_battle_party = generate_enemy_party(current_location_data, hero)
+                enemy_battle_party = current_location_data.create_enemy_party()
                 if enemy_battle_party:
                     battle_outcome_result_str = start_battle(player_battle_party, enemy_battle_party, hero)
                     if battle_outcome_result_str == "win":
