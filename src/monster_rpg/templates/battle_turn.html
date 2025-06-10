@@ -248,8 +248,8 @@ button:hover { background: #004cd1; }
         </div>
 
         <ul class="log">
-            {% for line in log %}
-            <li>{{ line }}</li>
+            {% for entry in log %}
+            <li class="log-message-{{ entry.type }}">{{ entry.message }}</li>
             {% endfor %}
         </ul>
 
@@ -399,9 +399,10 @@ function applyBattleData(data) {
     const logEl = document.querySelector('.log');
     if (logEl) {
         logEl.innerHTML = '';
-        data.log.forEach(line => {
+        data.log.forEach(entry => {
             const li = document.createElement('li');
-            li.textContent = line;
+            li.textContent = entry.message;
+            li.className = 'log-message-' + entry.type;
             logEl.appendChild(li);
         });
     }
