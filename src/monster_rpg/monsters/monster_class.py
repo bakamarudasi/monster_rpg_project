@@ -96,6 +96,8 @@ class Monster:
         self.max_mp = mp
         self.attack = attack
         self.defense = defense
+        # 魔力パラメータ。魔法に関するバフ等で利用される
+        self.magic = 0
         self.level = level
         self.exp = exp
         self.element = element
@@ -127,6 +129,7 @@ class Monster:
         print(f"MP: {self.mp}/{self.max_mp}")
         print(f"攻撃力: {self.attack}")
         print(f"防御力: {self.defense}")
+        print(f"魔力: {self.magic}")
         print(f"素早さ: {self.speed}") # 素早さを表示
         exp_needed = self.calculate_exp_to_next_level()
         print(f"経験値: {self.exp}/{exp_needed if exp_needed is not None else 'N/A'}")
@@ -300,5 +303,6 @@ class Monster:
         new_monster.hp = new_monster.max_hp
         new_monster.max_mp = self.max_mp
         new_monster.mp = new_monster.max_mp
-        new_monster.is_alive = True 
+        new_monster.magic = self.magic
+        new_monster.is_alive = True
         return new_monster
