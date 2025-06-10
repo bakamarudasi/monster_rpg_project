@@ -53,7 +53,7 @@ class Battle:
     def _prepare_turn(self):
         """Calculate turn order for the new turn."""
         alive = [m for m in self.player_party + self.enemy_party if m.is_alive]
-        self.turn_order = sorted(alive, key=lambda m: m.speed, reverse=True)
+        self.turn_order = sorted(alive, key=lambda m: m.total_speed(), reverse=True)
         self.current_index = 0
         self.log.append({"type": "info", "message": f"-- Turn {self.turn} --"})
 

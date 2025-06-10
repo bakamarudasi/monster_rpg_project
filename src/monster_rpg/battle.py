@@ -282,7 +282,7 @@ def determine_turn_order(party_a: list[Monster], party_b: list[Monster]) -> list
     """Return the action order for this turn sorted by speed."""
     return sorted(
         [m for m in party_a + party_b if m.is_alive],
-        key=lambda m: m.speed,
+        key=lambda m: m.total_speed(),
         reverse=True,
     )
 
