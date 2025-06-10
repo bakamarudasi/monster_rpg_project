@@ -81,6 +81,18 @@ def initialize_database():
     )
     """)
 
+    # exploration_progress テーブルの作成
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS exploration_progress (
+            player_id INTEGER,
+            location_id TEXT,
+            progress INTEGER,
+            PRIMARY KEY(player_id, location_id)
+        )
+        """
+    )
+
     _ensure_default_user(cursor)
 
     conn.commit()

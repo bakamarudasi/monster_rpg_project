@@ -107,6 +107,17 @@ class Player:
                 (self.db_id, item_id),
             )
 
+        # 探索進捗を保存
+        cursor.execute(
+            "DELETE FROM exploration_progress WHERE player_id=?", (self.db_id,)
+        )
+        for loc_id, prog in self.exploration_progress.items():
+            cursor.execute(
+                "INSERT INTO exploration_progress (player_id, location_id, progress)"
+                " VALUES (?, ?, ?)",
+                (self.db_id, loc_id, prog),
+            )
+
         conn.commit()
         conn.close()
         print(f"{self.name} のデータがセーブされました。")
@@ -606,6 +617,14 @@ class Player:
             for (item_id,) in cursor.fetchall():
                 if item_id in ALL_ITEMS:
                     loaded_player.items.append(ALL_ITEMS[item_id])
+
+            # 探索進捗を読み込む
+            cursor.execute(
+                "SELECT location_id, progress FROM exploration_progress WHERE player_id=?",
+                (db_id,),
+            )
+            for loc_id, prog in cursor.fetchall():
+                loaded_player.exploration_progress[loc_id] = prog
 
             conn.close()
             print(f"{name} のデータがロードされました。")
