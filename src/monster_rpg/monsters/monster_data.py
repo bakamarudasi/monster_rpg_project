@@ -823,3 +823,14 @@ ALL_MONSTERS = {
     "electro_mantis": ELECTRO_MANTIS,
 }
 
+# レベルアップ時に習得するスキル設定
+LEARNSETS = {
+    "slime": {2: ["guard_up"]},
+    "goblin": {3: ["power_up"]},
+    "wolf": {4: ["speed_up"]},
+}
+
+for mid, ls in LEARNSETS.items():
+    if mid in ALL_MONSTERS:
+        ALL_MONSTERS[mid].learnset = ls
+

@@ -86,8 +86,8 @@ def calculate_exp_for_late(current_level):
 
 class Monster:
     def __init__(self, name, hp, attack, defense, mp=30, level=1, exp=0, element=None, skills=None,
-             growth_type=GROWTH_TYPE_AVERAGE, monster_id=None, image_filename=None,
-             rank=RANK_D, speed=5, drop_items=None, scout_rate=0.25):
+                 growth_type=GROWTH_TYPE_AVERAGE, monster_id=None, image_filename=None,
+                 rank=RANK_D, speed=5, drop_items=None, scout_rate=0.25, learnset=None):
         self.name = name
         self.hp = hp
         self.max_hp = hp
@@ -115,6 +115,7 @@ class Monster:
         self.scout_rate = scout_rate  # スカウト成功率(0.0-1.0)
         # 装備品スロット (weapon, armor など)
         self.equipment = {}
+        self.learnset = learnset if learnset else {}
 
     def show_status(self):
         print(f"名前: {self.name} (ID: {self.monster_id}, Lv.{self.level}, Rank: {self.rank})") 
@@ -177,6 +178,23 @@ class Monster:
         evolved.equipment = getattr(self, 'equipment', {}).copy()
         self.__dict__.update(evolved.__dict__)
         print(f"{template.name} に進化した！")
+
+    def _learn_skills_for_level(self):
+        if not isinstance(getattr(self, "learnset", None), dict):
+            return
+        skill_ids = self.learnset.get(self.level)
+        if not skill_ids:
+            return
+        if isinstance(skill_ids, str):
+            skill_ids = [skill_ids]
+        for sid in skill_ids:
+            template = ALL_SKILLS.get(sid)
+            if template is None:
+                continue
+            if any(getattr(s, "name", None) == template.name for s in self.skills):
+                continue
+            self.skills.append(copy.deepcopy(template))
+            print(f"{self.name} は {template.name} を覚えた！")
 
     def calculate_exp_to_next_level(self):
         if self.growth_type == GROWTH_TYPE_EARLY:
@@ -251,6 +269,7 @@ class Monster:
         )
 
         self._try_evolution()
+        self._learn_skills_for_level()
 
     def copy(self):
         new_skills = [copy.deepcopy(skill) for skill in self.skills]
@@ -271,7 +290,8 @@ class Monster:
             rank=self.rank,
             speed=self.speed,  # speed 属性をコピー時に引き継ぐ
             drop_items=copy.deepcopy(self.drop_items),
-            scout_rate=self.scout_rate
+            scout_rate=self.scout_rate,
+            learnset=copy.deepcopy(self.learnset)
         )
         new_monster.max_hp = self.max_hp
         new_monster.hp = new_monster.max_hp
