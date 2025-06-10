@@ -7,6 +7,7 @@ from .equipment import (
     create_titled_equipment,
 )
 from .titles import Title, ALL_TITLES
+from .item_effects import apply_item_effect
 
 __all__ = [
     "Item",
@@ -18,4 +19,5 @@ __all__ = [
     "create_titled_equipment",
     "Title",
     "ALL_TITLES",
+    "apply_item_effect",
 ]

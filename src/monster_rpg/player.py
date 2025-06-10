@@ -258,76 +258,12 @@ class Player:
             return False
 
         item = self.items[item_idx]
-        if not getattr(item, "usable", False):
-            print(f"{item.name} はここでは使えない。")
-            return False
+        from .items import apply_item_effect
 
-        effect = getattr(item, "effect", {})
-        if not effect:
-            print("このアイテムはまだ効果が実装されていない。")
-            return False
-
-        etype = effect.get("type")
-
-        if etype == "heal_hp":
-            if target_monster is None:
-                print("対象モンスターがいません。")
-                return False
-            if not target_monster.is_alive:
-                print(f"{target_monster.name} は倒れているため回復できない。")
-                return False
-            amount = effect.get("amount", 0)
-            before = target_monster.hp
-            target_monster.hp = min(target_monster.max_hp, target_monster.hp + amount)
-            healed = target_monster.hp - before
-            print(f"{target_monster.name} のHPが {healed} 回復した。")
+        success = apply_item_effect(item, target_monster)
+        if success:
             self.items.pop(item_idx)
-            return True
-
-        if etype == "heal_mp":
-            if target_monster is None:
-                print("対象モンスターがいません。")
-                return False
-            amount = effect.get("amount", 0)
-            before = target_monster.mp
-            target_monster.mp = min(target_monster.max_mp, target_monster.mp + amount)
-            restored = target_monster.mp - before
-            print(f"{target_monster.name} のMPが {restored} 回復した。")
-            self.items.pop(item_idx)
-            return True
-
-        if etype == "heal_full":
-            if target_monster is None:
-                print("対象モンスターがいません。")
-                return False
-            if not target_monster.is_alive:
-                print(f"{target_monster.name} は倒れているため回復できない。")
-                return False
-            target_monster.hp = target_monster.max_hp
-            target_monster.mp = target_monster.max_mp
-            print(f"{target_monster.name} のHPとMPが全回復した！")
-            self.items.pop(item_idx)
-            return True
-
-        if etype == "revive":
-            if target_monster is None:
-                print("対象モンスターがいません。")
-                return False
-            if target_monster.is_alive:
-                print(f"{target_monster.name} はまだ倒れていない。")
-                return False
-            target_monster.is_alive = True
-            amount = effect.get("amount", "half")
-            if amount == "half":
-                target_monster.hp = target_monster.max_hp // 2
-            else:
-                target_monster.hp = min(target_monster.max_hp, int(amount))
-            print(f"{target_monster.name} が復活した！ HPが半分回復した。")
-            self.items.pop(item_idx)
-            return True
-
-        print("このアイテムはまだ効果が実装されていない。")
-        return False
+        return success
 
     def rest_at_inn(self, cost):
         if self.gold >= cost:
