@@ -9,7 +9,12 @@ from .monsters.synthesis_rules import (
     SYNTHESIS_ITEMS_REQUIRED,
     MONSTER_ITEM_RECIPES,
 )
-from .items.equipment import ALL_EQUIPMENT, CRAFTING_RECIPES
+from .items.equipment import (
+    ALL_EQUIPMENT,
+    CRAFTING_RECIPES,
+    create_titled_equipment,
+    EquipmentInstance,
+)
 import random  # 将来的にスキル継承などで使うかも
 import copy
 from .monster_book import MonsterBook
@@ -369,16 +374,28 @@ class Player:
                 if getattr(self.items[i], "item_id", None) == item_id and removed < qty:
                     self.items.pop(i)
                     removed += 1
-        equip = ALL_EQUIPMENT[equip_id]
-        self.equipment_inventory.append(equip)
-        print(f"{equip.name} を作成した！")
-        return equip
+        new_equip = create_titled_equipment(equip_id)
+        if new_equip:
+            self.equipment_inventory.append(new_equip)
+            print(f"{new_equip.name} を作成した！")
+            return new_equip
+        print("装備の作成に失敗した。")
+        return None
 
     def equip_to_monster(self, party_idx, equip_id):
         if not (0 <= party_idx < len(self.party_monsters)):
             print("無効なモンスター番号")
             return False
-        equip = next((e for e in self.equipment_inventory if e.equip_id == equip_id), None)
+        equip = None
+        for e in self.equipment_inventory:
+            if isinstance(e, EquipmentInstance):
+                if e.instance_id == equip_id or e.base_item.equip_id == equip_id:
+                    equip = e
+                    break
+            else:
+                if getattr(e, "equip_id", None) == equip_id:
+                    equip = e
+                    break
         if not equip:
             print("その装備を所持していない。")
             return False
