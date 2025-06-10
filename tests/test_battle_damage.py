@@ -1,13 +1,8 @@
-import os
-import sys
 import random
 import unittest
 
-# Ensure the repository root is on the Python path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from battle import calculate_damage
-from monsters.monster_class import Monster
+from monster_rpg.battle import calculate_damage
+from monster_rpg.monsters.monster_class import Monster
 
 class DamageCalculationTests(unittest.TestCase):
     def test_elemental_multiplier(self):

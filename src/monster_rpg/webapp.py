@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 import sqlite3
-import database_setup
-from player import Player
+from . import database_setup
+from .player import Player
 
 app = Flask(__name__)
 

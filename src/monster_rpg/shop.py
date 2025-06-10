@@ -1,8 +1,8 @@
 # shop.py
-from player import Player
-from monsters import ALL_MONSTERS
-from map_data import Location
-from items.item_data import ALL_ITEMS
+from .player import Player
+from .monsters import ALL_MONSTERS
+from .map_data import Location
+from .items.item_data import ALL_ITEMS
 
 
 def open_shop(player: Player, location: Location):

@@ -1,18 +1,18 @@
 # player.py
 import sqlite3
-from map_data import STARTING_LOCATION_ID
-from monsters.monster_class import Monster  # Monsterクラスをインポート
-from monsters.monster_data import ALL_MONSTERS  # モンスター定義をインポート
-from items.item_data import ALL_ITEMS
-from monsters.synthesis_rules import (
+from .map_data import STARTING_LOCATION_ID
+from .monsters.monster_class import Monster  # Monsterクラスをインポート
+from .monsters.monster_data import ALL_MONSTERS  # モンスター定義をインポート
+from .items.item_data import ALL_ITEMS
+from .monsters.synthesis_rules import (
     SYNTHESIS_RECIPES,
     SYNTHESIS_ITEMS_REQUIRED,
     MONSTER_ITEM_RECIPES,
 )
-from items.equipment import ALL_EQUIPMENT, CRAFTING_RECIPES
+from .items.equipment import ALL_EQUIPMENT, CRAFTING_RECIPES
 import random  # 将来的にスキル継承などで使うかも
 import copy
-from monster_book import MonsterBook
+from .monster_book import MonsterBook
 
 # Debug flag to control verbose output
 DEBUG_MODE = False

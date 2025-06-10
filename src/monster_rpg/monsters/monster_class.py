@@ -1,4 +1,4 @@
-from skills.skills import ALL_SKILLS
+from ..skills.skills import ALL_SKILLS
 import copy  # deepcopyのためにインポート
 from .evolution_rules import EVOLUTION_RULES
 

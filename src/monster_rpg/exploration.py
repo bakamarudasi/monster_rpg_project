@@ -1,7 +1,7 @@
 # exploration.py
 import random
-from monsters import Monster, ALL_MONSTERS
-from map_data import Location
+from .monsters import Monster, ALL_MONSTERS
+from .map_data import Location
 
 
 def show_exploration_progress(progress: int) -> None:

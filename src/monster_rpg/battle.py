@@ -1,8 +1,8 @@
 # battle.py
 import random
-from player import Player  # Playerクラスは直接使わないが、型ヒントなどで参照される可能性を考慮
-from monsters import Monster, ALL_MONSTERS  # MonsterクラスとALL_MONSTERSを参照
-from skills.skills import Skill  # Skillクラスを参照
+from .player import Player  # Playerクラスは直接使わないが、型ヒントなどで参照される可能性を考慮
+from .monsters import Monster, ALL_MONSTERS  # MonsterクラスとALL_MONSTERSを参照
+from .skills.skills import Skill  # Skillクラスを参照
 # import traceback # デバッグ時に必要なら再度有効化
 
 # 属性相性倍率定義

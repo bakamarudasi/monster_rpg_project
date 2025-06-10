@@ -1,5 +1,5 @@
 """Compatibility wrapper for the deprecated CLI version."""
-from old_cli import main as _old_main
+from .old_cli import main as _old_main
 
 start_battle = _old_main.start_battle
 handle_battle_loss = _old_main.handle_battle_loss

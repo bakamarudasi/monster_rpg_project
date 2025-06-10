@@ -1,11 +1,7 @@
-import os
-import sys
 import unittest
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from battle import determine_turn_order
-from monsters.monster_class import Monster
+from monster_rpg.battle import determine_turn_order
+from monster_rpg.monsters.monster_class import Monster
 
 class TurnOrderTests(unittest.TestCase):
     def test_determine_turn_order_by_speed(self):
