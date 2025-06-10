@@ -1,7 +1,15 @@
 """Simple web interface for the Monster RPG game."""
 
 try:
-    from flask import Flask, request, redirect, url_for, render_template, jsonify
+    from flask import (
+        Flask,
+        request,
+        redirect,
+        url_for,
+        render_template,
+        jsonify,
+        session,
+    )
 except ImportError as e:  # pragma: no cover - dependency check
     raise SystemExit(
         "Flask is required to run this web interface. "
@@ -18,12 +26,10 @@ from map_data import LOCATIONS, get_map_overview, get_map_grid, load_locations
 from exploration import generate_enemy_party
 
 app = Flask(__name__)
+app.secret_key = "dev-secret"
 
 database_setup.initialize_database()
 load_locations()
-
-# In-memory store of active players keyed by user_id
-active_players: dict[int, Player] = {}
 
 # Active battles keyed by user_id. Each value is a Battle instance
 active_battles: dict[int, "Battle"] = {}
@@ -253,7 +259,7 @@ def start_game():
         if mid in ALL_MONSTERS:
             player.add_monster_to_party(mid)
     player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
-    active_players[user_id] = player
+    session['user_id'] = user_id
     return redirect(url_for('play', user_id=user_id))
 
 @app.route('/load', methods=['POST'])
@@ -267,12 +273,12 @@ def load_existing():
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=u_id)
     if not player:
         return 'save not found', 404
-    active_players[u_id] = player
+    session['user_id'] = u_id
     return redirect(url_for('play', user_id=u_id))
 
 @app.route('/play/<int:user_id>')
 def play(user_id):
-    player = active_players.get(user_id)
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('index'))
     loc = LOCATIONS.get(player.current_location_id)
@@ -292,7 +298,7 @@ def play(user_id):
 @app.route('/status/<int:user_id>')
 def status(user_id):
     """Display player status."""
-    player = active_players.get(user_id)
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('index'))
     return render_template("status.html", player=player, user_id=user_id)
@@ -300,7 +306,7 @@ def status(user_id):
 @app.route('/party/<int:user_id>')
 def party(user_id):
     """Show the player's party."""
-    player = active_players.get(user_id)
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('index'))
     return render_template("party.html", player=player, user_id=user_id)
@@ -309,7 +315,7 @@ def party(user_id):
 @app.route('/monster_book/<int:user_id>')
 def monster_book(user_id):
     """Show the player's monster encyclopedia."""
-    player = active_players.get(user_id)
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('index'))
     entries = []
@@ -336,7 +342,7 @@ def monster_book(user_id):
 @app.route('/formation/<int:user_id>', methods=['GET', 'POST'])
 def formation(user_id):
     """Allow reordering of the player's party."""
-    player = active_players.get(user_id)
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('index'))
     if request.method == 'POST':
@@ -360,12 +366,13 @@ def formation(user_id):
                 pass
         if 'reset' in request.form:
             player.reset_formation()
+        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
     return render_template('formation.html', player=player, user_id=user_id)
 
 
 @app.route('/items/<int:user_id>', methods=['GET', 'POST'])
 def items(user_id):
-    player = active_players.get(user_id)
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('index'))
     message = None
@@ -379,13 +386,14 @@ def items(user_id):
             item_name = player.items[idx].name
             success = player.use_item(idx, player.party_monsters[target_idx])
             message = f"{item_name} を使った。" if success else "アイテムを使えなかった。"
+        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
     return render_template('items.html', player=player, user_id=user_id, message=message)
 
 
 @app.route('/synthesize/<int:user_id>', methods=['GET', 'POST'])
 def synthesize(user_id):
     """Combine two monsters from the player's party."""
-    player = active_players.get(user_id)
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('index'))
     message = None
@@ -415,12 +423,13 @@ def synthesize(user_id):
                 }
             return jsonify({'success': success, 'message': msg, 'new_monster': new_mon_dict})
         message = msg
+        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
     return render_template('synthesize.html', player=player, user_id=user_id, message=message)
 
 
 @app.route('/shop/<int:user_id>', methods=['GET', 'POST'])
 def shop(user_id):
-    player = active_players.get(user_id)
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('index'))
     loc = LOCATIONS.get(player.current_location_id)
@@ -445,6 +454,7 @@ def shop(user_id):
                 message = f"{mname} を仲間にした。"
             else:
                 message = "購入できなかった。"
+        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
 
     entries = []
     for iid, pr in loc.shop_items.items():
@@ -458,7 +468,7 @@ def shop(user_id):
 
 @app.route('/inn/<int:user_id>', methods=['POST'])
 def inn(user_id):
-    player = active_players.get(user_id)
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('index'))
     loc = LOCATIONS.get(player.current_location_id)
@@ -467,12 +477,13 @@ def inn(user_id):
     cost = getattr(loc, 'inn_cost', 10)
     success = player.rest_at_inn(cost)
     msg = '宿屋で休んだ。' if success else 'お金が足りない。'
+    player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
     return render_template('result.html', message=msg, user_id=user_id)
 
 
 @app.route('/explore/<int:user_id>', methods=['POST'])
 def explore(user_id):
-    player = active_players.get(user_id)
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('index'))
     loc = LOCATIONS.get(player.current_location_id)
@@ -501,6 +512,7 @@ def explore(user_id):
             ):
                 battle_obj.step()
 
+            player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
             return render_template(
                 'battle_turn.html',
                 user_id=user_id,
@@ -515,6 +527,7 @@ def explore(user_id):
     else:
         messages.append('モンスターは現れなかった。')
 
+    player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
     return render_template(
         'explore.html',
         messages=messages,
@@ -527,11 +540,13 @@ def explore(user_id):
 @app.route('/battle/<int:user_id>', methods=['GET', 'POST'])
 def battle(user_id):
     """Interactive battle view. State is kept on the server."""
-    player = active_players.get(user_id)
-    if not player:
-        return redirect(url_for('index'))
-
     battle_obj = active_battles.get(user_id)
+    if battle_obj:
+        player = battle_obj.player
+    else:
+        player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+        if not player:
+            return redirect(url_for('index'))
 
     if not battle_obj:
         if request.method == 'POST':
@@ -547,6 +562,7 @@ def battle(user_id):
         enemy_names = ", ".join(e.name for e in enemies)
         battle_obj.log.append(f"{enemy_names} が現れた！")
         active_battles[user_id] = battle_obj
+        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
 
     if request.method == 'POST':
         current_actor = battle_obj.current_actor()
@@ -586,6 +602,7 @@ def battle(user_id):
                     tgt = -1
                 action = {'type': 'attack', 'target_enemy': tgt}
             battle_obj.step(action)
+            player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
         else:
             # ignore posts when it's not player's turn
             pass
@@ -593,11 +610,13 @@ def battle(user_id):
         # After the player's action, process enemy turns automatically
         while not battle_obj.finished and battle_obj.current_actor() not in battle_obj.player_party:
             battle_obj.step()
+        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
 
     else:
         # GET request - resolve enemy actions until a player turn
         while not battle_obj.finished and battle_obj.current_actor() not in battle_obj.player_party:
             battle_obj.step()
+        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
 
     if battle_obj.finished:
         outcome = battle_obj.outcome
@@ -621,6 +640,7 @@ def battle(user_id):
             msgs.append("敗北してしまった...")
         player.last_battle_log = msgs
         del active_battles[user_id]
+        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
         return render_template('battle.html', messages=msgs, user_id=user_id)
 
     current_actor = battle_obj.current_actor()
@@ -637,7 +657,7 @@ def battle(user_id):
 
 @app.route('/map/<int:user_id>')
 def world_map(user_id):
-    player = active_players.get(user_id)
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('index'))
     overview = get_map_overview()
@@ -655,7 +675,7 @@ def world_map(user_id):
 
 @app.route('/battle_log/<int:user_id>')
 def battle_log(user_id):
-    player = active_players.get(user_id)
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('index'))
     log = getattr(player, 'last_battle_log', [])
@@ -664,18 +684,19 @@ def battle_log(user_id):
 @app.route('/move/<int:user_id>', methods=['POST'])
 def move(user_id):
     """Move the player to another location."""
-    player = active_players.get(user_id)
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('index'))
     dest = request.form.get('dest')
     if dest in LOCATIONS:
         player.current_location_id = dest
+        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
     return redirect(url_for('play', user_id=user_id))
 
 @app.route('/save/<int:user_id>', methods=['POST'])
 def save(user_id):
     """Persist the current player state to the database."""
-    player = active_players.get(user_id)
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if player:
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
     return redirect(url_for('play', user_id=user_id))
