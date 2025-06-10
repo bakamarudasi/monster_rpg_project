@@ -11,25 +11,25 @@ Pythonで作られた小さなテキストベースRPGのプロトタイプで�
 1. (任意) Python 3 用の仮想環境を作成して有効化します。
 2. 以下を実行してSQLiteデータベースを初期化します:
    ```bash
-   python database_setup.py
+   python -m monster_rpg.database_setup
    ```
    既に存在しない場合 `monster_rpg_save.db` が作成されます。
    デフォルトユーザー `player1` が自動で作成されます。追加ユーザーを作る場合は `database_setup.create_user()` を利用してください。
 3. (任意) 旧版のCLIを実行する場合:
    ```bash
-   python old_cli/main.py
+   python -m monster_rpg.old_cli.main
    ```
    セーブをロードするか新しく始めるか尋ねられます。
 4. 代わりに簡易ウェブサーバーを起動するには:
    ```bash
    pip install -r requirements.txt
-   python webapp.py
+   python -m monster_rpg.webapp
    ```
    `webapp.py` は `/new_game` や `/load_game` といった最低限のJSON APIのみを提供し、戦闘機能は含まれていません。
 5. `start_rpg.py` を使うと、完全なウェブ版を起動できます:
    ```bash
    pip install -r requirements.txt
-   python start_rpg.py
+   python -m monster_rpg.start_rpg
    ```
    これにより <http://localhost:5000/> でサーバーが起動し、Flaskテンプレートを使用した画面で戦闘を含む完全なゲームを楽しめます。
 

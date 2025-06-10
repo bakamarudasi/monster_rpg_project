@@ -11,26 +11,26 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
 1. (Optional) Create and activate a virtual environment for Python 3.
 2. Initialize the SQLite database by running:
    ```bash
-   python database_setup.py
+   python -m monster_rpg.database_setup
    ```
    This creates `monster_rpg_save.db` if it does not already exist.
    A default user `player1` will be created automatically. Use `database_setup.create_user()` to add more users.
 3. (Optional) Run the classic CLI version:
    ```bash
-   python old_cli/main.py
+   python -m monster_rpg.old_cli.main
    ```
    This older interface will ask whether to load a save file or start a new game.
 4. To run the simple web server instead:
    ```bash
    pip install -r requirements.txt
-   python webapp.py
+   python -m monster_rpg.webapp
    ```
    `webapp.py` exposes only a couple JSON endpoints (like `/new_game` and
    `/load_game`) and does not include the battle system.
 5. Another web interface exists. Use the provided launcher script:
    ```bash
    pip install -r requirements.txt
-   python start_rpg.py
+   python -m monster_rpg.start_rpg
    ```
    This starts the server at <http://localhost:5000/> using Flask templates
    and provides the full game including battles.
