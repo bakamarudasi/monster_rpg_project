@@ -68,6 +68,7 @@ Other notable modules include `player.py` (player data and save/load logic), `ba
 - Some monsters now evolve once they reach certain levels.
 - Monsters can also be fused with special items to create entirely new creatures.
 - The web interface provides a battle log page showing the results of your last fight.
+- A dedicated login form lets you authenticate with your username and password.
 
 ## Saving
 The game saves player data to `monster_rpg_save.db`. Only basic information is stored at the moment, but the structure is ready for expansion.
