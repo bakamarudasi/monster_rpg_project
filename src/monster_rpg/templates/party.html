@@ -5,7 +5,17 @@
     <h2 class="book-title">パーティ</h2>
     <ul class="party-list">
       {% for m in player.party_monsters %}
-        <li class="party-member">
+        <li class="party-member"
+            data-details='{{ {
+              "name": m.name,
+              "level": m.level,
+              "hp": m.hp,
+              "max_hp": m.max_hp,
+              "image": url_for("static", filename="images/" + m.image_filename) if m.image_filename else "",
+              "stats": {"attack": m.attack, "defense": m.defense, "speed": m.speed},
+              "skills": m.get_skill_details(),
+              "description": monster_book.get(m.monster_id).description if monster_book.get(m.monster_id) else "このモンスターに関する詳しい説明はまだ見つかっていない。"
+            } | tojson | forceescape }}'>
           {% if m.image_filename %}
             <img class="monster-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
           {% endif %}
@@ -23,6 +33,16 @@
     <a class="book-link" href="{{ url_for('play', user_id=user_id) }}">← 戻る</a>
   </div>
 </div>
+
+<div id="monster-detail-modal" class="modal-backdrop">
+  <div class="modal-card">
+    <button class="modal-close-btn">&times;</button>
+    <div id="modal-card-body">
+      <!-- モンスターの詳細はここにJavaScriptで挿入されます -->
+    </div>
+  </div>
+</div>
+
 <style>
   body {
     background: #f9eee0 url("https://www.transparenttextures.com/patterns/old-mathematics.png");
@@ -34,6 +54,7 @@
     align-items: flex-start;
     min-height: 100vh;
     padding-top: 48px;
+    padding-bottom: 48px;
   }
   .book-page {
     background: #f7f2e6;
@@ -46,7 +67,6 @@
       0 0 0 10px #e6d3b6;
     padding: 32px 22px 38px 22px;
     position: relative;
-    /* 演出用fade-inの初期状態はJSで追加するので不要 */
   }
   .book-title {
     font-family: 'Georgia', 'Times New Roman', serif;
@@ -76,7 +96,11 @@
     padding: 8px 13px 8px 10px;
     position: relative;
     z-index: 1;
-    transition: box-shadow .35s cubic-bezier(.19,1,.22,1), border-color .28s;
+    transition: box-shadow .35s cubic-bezier(.19,1,.22,1), border-color .28s, transform .2s ease;
+    cursor: pointer;
+  }
+  .party-member:hover {
+    transform: scale(1.02);
   }
   .party-member.magic-hover {
     box-shadow: 0 0 22px 5px #ffc85788, 0 0 0 8px #e0c38a22 inset;
@@ -158,22 +182,206 @@
     text-decoration: underline wavy #a17c4b;
   }
 
-  /* ふわっと現れるページ */
   .fade-in { opacity: 0; transform: translateY(32px) scale(.98); transition: .9s cubic-bezier(.19,1,.22,1);}
   .fade-in.show { opacity: 1; transform: none; }
+
+  .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(66, 45, 12, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .modal-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .modal-card {
+    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    border: 2px solid #fff;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 380px;
+    max-height: 90vh;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 50px rgba(0,0,0,0.4), 0 0 0 5px #b68b4c;
+    transform: scale(0.9) rotateY(15deg);
+    transition: transform 0.4s cubic-bezier(.19,1,.22,1);
+    display: flex;
+    flex-direction: column;
+  }
+  .modal-backdrop.show .modal-card {
+      transform: scale(1) rotateY(0deg);
+  }
+  .modal-close-btn {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      background: rgba(0,0,0,0.3);
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 1.5rem;
+      color: #fff;
+      cursor: pointer;
+      z-index: 10;
+      line-height: 30px;
+      text-align: center;
+  }
+  #modal-card-body {
+      overflow-y: auto;
+      font-family: 'Georgia', serif;
+  }
+  .card-image-area {
+      height: 200px;
+      background: #c3d4e0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-bottom: 4px solid #b68b4c;
+  }
+  .card-monster-img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+  }
+  .card-header {
+      padding: 16px;
+      text-align: center;
+      background: #f7f2e6;
+  }
+  .card-monster-name {
+      font-size: 1.7rem;
+      color: #865e2a;
+      font-weight: bold;
+      margin-bottom: 4px;
+  }
+  .card-monster-lvhp {
+      font-size: 1rem;
+      color: #7c653b;
+  }
+  .card-content {
+      padding: 16px;
+  }
+  .card-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 12px;
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+      color: #5d4b29;
+  }
+  .card-stats-grid span {
+      background: #ede6d8;
+      padding: 4px 8px;
+      border-radius: 6px;
+  }
+  .card-section h3 {
+      font-size: 1.3rem;
+      color: #865e2a;
+      border-bottom: 1px solid #b68b4c55;
+      padding-bottom: 4px;
+      margin-bottom: 8px;
+  }
+  .card-skills-list ul {
+      list-style: none;
+      padding: 0;
+   }
+  .card-skills-list li {
+      background: #ede6d8;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+   }
+   .card-description p {
+       line-height: 1.5;
+       font-size: 1rem;
+       color: #5d4b29;
+       padding: 8px;
+       background: #ede6d8;
+       border-radius: 6px;
+   }
 </style>
 <script>
-  // ページ開いたらふわっと出現
   window.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.fade-in').classList.add('show');
-    // パーティメンバーの魔法の光演出
-    document.querySelectorAll('.party-member').forEach(function(el) {
-      el.addEventListener('mouseenter', function() {
-        el.classList.add('magic-hover');
+    const modal = document.getElementById('monster-detail-modal');
+    const modalCardBody = document.getElementById('modal-card-body');
+    const partyMembers = document.querySelectorAll('.party-member');
+
+    partyMembers.forEach(member => {
+      member.addEventListener('click', () => {
+        const monsterData = JSON.parse(member.dataset.details);
+        displayMonsterDetails(monsterData);
       });
-      el.addEventListener('mouseleave', function() {
-        el.classList.remove('magic-hover');
-      });
+
+      member.addEventListener('mouseenter', () => member.classList.add('magic-hover'));
+      member.addEventListener('mouseleave', () => member.classList.remove('magic-hover'));
+    });
+
+    function displayMonsterDetails(data) {
+      let skillsHtml = '';
+      if (data.skills && data.skills.length > 0) {
+        skillsHtml = `<ul>${data.skills.map(skill => `<li><strong>${skill.name}</strong>: ${skill.description}</li>`).join('')}</ul>`;
+      } else {
+        skillsHtml = '<p>覚えているスキルはない。</p>';
+      }
+
+      modalCardBody.innerHTML = `
+        <div class="card-image-area">
+          <img src="${data.image}" alt="${data.name}" class="card-monster-img">
+        </div>
+
+        <div class="card-header">
+            <h2 class="card-monster-name">${data.name}</h2>
+            <div class="card-monster-lvhp">
+                <span>Lv. ${data.level}</span> | <span>HP: ${data.hp} / ${data.max_hp}</span>
+            </div>
+        </div>
+        
+        <div class="card-content">
+            <div class="card-stats-grid">
+              <span>こうげき: <strong>${data.stats.attack}</strong></span>
+              <span>ぼうぎょ: <strong>${data.stats.defense}</strong></span>
+              <span>すばやさ: <strong>${data.stats.speed}</strong></span>
+            </div>
+    
+            <div class="card-section card-skills-list">
+                <h3>スキル</h3>
+                ${skillsHtml}
+            </div>
+            
+            <div class="card-section card-description" style="margin-top: 16px;">
+                <h3>説明</h3>
+                <p>${data.description}</p>
+            </div>
+        </div>
+      `;
+      modal.classList.add('show');
+    }
+
+    function closeModal() {
+      modal.classList.remove('show');
+    }
+
+    modal.querySelector('.modal-close-btn').addEventListener('click', closeModal);
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        closeModal();
+      }
     });
   });
 </script>

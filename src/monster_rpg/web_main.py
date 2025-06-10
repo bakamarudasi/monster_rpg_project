@@ -347,7 +347,12 @@ def party(user_id):
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('index'))
-    return render_template("party.html", player=player, user_id=user_id)
+    return render_template(
+        "party.html",
+        player=player,
+        user_id=user_id,
+        monster_book=MONSTER_BOOK_DATA,
+    )
 
 
 @app.route('/monster_book/<int:user_id>')
