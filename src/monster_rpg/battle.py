@@ -242,13 +242,43 @@ def enemy_take_action(enemy_actor: Monster, active_player_party: list[Monster], 
         return
 
     usable_skills = [s for s in enemy_actor.skills if enemy_actor.mp >= s.cost]
-    if usable_skills and random.random() < 0.5:
+
+    role = getattr(enemy_actor, "ai_role", "attacker")
+    selected_skill = None
+    skill_targets: list[Monster] | None = None
+
+    if role == "healer":
+        heal_skills = [s for s in usable_skills if s.skill_type == "heal" and s.target == "ally"]
+        low_allies = [m for m in active_enemy_party if m.is_alive and m.hp < m.max_hp * 0.5]
+        if heal_skills and low_allies:
+            ally = min(low_allies, key=lambda m: m.hp / m.max_hp)
+            selected_skill = random.choice(heal_skills)
+            if selected_skill.scope == "all":
+                skill_targets = [m for m in active_enemy_party if m.is_alive]
+            else:
+                skill_targets = [ally]
+
+    if role == "debuffer" and selected_skill is None:
+        debuff_skills = [s for s in usable_skills if s.skill_type == "debuff"]
+        if debuff_skills and alive_player_targets:
+            target = max(alive_player_targets, key=lambda m: m.attack)
+            selected_skill = random.choice(debuff_skills)
+            if selected_skill.scope == "all":
+                skill_targets = alive_player_targets
+            else:
+                skill_targets = [target]
+
+    if selected_skill is None and usable_skills and random.random() < 0.5:
         selected_skill = random.choice(usable_skills)
         if selected_skill.target == "enemy":
             if selected_skill.scope == "all":
                 skill_targets = alive_player_targets
             else:
-                skill_targets = [random.choice(alive_player_targets)]
+                if role == "attacker":
+                    target = min(alive_player_targets, key=lambda m: m.hp)
+                else:
+                    target = random.choice(alive_player_targets)
+                skill_targets = [target]
         else:  # ally target
             allies = [m for m in active_enemy_party if m.is_alive]
             if selected_skill.scope == "all":
@@ -256,9 +286,13 @@ def enemy_take_action(enemy_actor: Monster, active_player_party: list[Monster], 
             else:
                 skill_targets = [random.choice(allies)]
 
+    if selected_skill is not None:
         apply_skill_effect(enemy_actor, skill_targets, selected_skill, active_enemy_party, active_player_party)
     else:
-        target = random.choice(alive_player_targets)
+        if role == "attacker":
+            target = min(alive_player_targets, key=lambda m: m.hp)
+        else:
+            target = random.choice(alive_player_targets)
         print(f"{enemy_actor.name} の攻撃！ -> {target.name}")
         damage = calculate_damage(enemy_actor, target)
         target.hp -= damage

@@ -31,6 +31,7 @@ MONSTER_BOOK_DATA: Dict[str, MonsterBookEntry] = {}
 
 SLIME = Monster(
     name="スライム", hp=25, attack=8, defense=5, level=1, element="水",speed=5,
+    ai_role="attacker",
     # スライムは初期スキルとして回復スキルを持つ
     skills=[ALL_SKILLS["heal"]] if "heal" in ALL_SKILLS else [],
     growth_type=GROWTH_TYPE_EARLY,
@@ -49,6 +50,7 @@ MONSTER_BOOK_DATA["slime"] = MonsterBookEntry(
 
 GOBLIN = Monster(
     name="ゴブリン", hp=40, attack=12, defense=8, level=2, element="なし",speed=7,
+    ai_role="attacker",
     skills=[ALL_SKILLS["fireball"]] if "fireball" in ALL_SKILLS else [],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="goblin",
@@ -59,6 +61,7 @@ GOBLIN = Monster(
 
 WOLF = Monster(
     name="ウルフ", hp=50, attack=15, defense=7, level=3, element="なし",speed=10,
+    ai_role="attacker",
     skills=[],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="wolf",
@@ -82,6 +85,7 @@ SLIME_GOBLIN_HYBRID = Monster(
     level=1, 
     element="混合",
     speed=6,
+    ai_role="attacker",
     skills=[], 
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="slime_goblin_hybrid",
@@ -105,6 +109,7 @@ DRAGON_PUP = Monster(
     level=5,
     element="火",
     speed=7,
+    ai_role="attacker",
     skills=[ALL_SKILLS["fireball"]] if "fireball" in ALL_SKILLS else [], # 初期スキルは弱めでも良い
     growth_type=GROWTH_TYPE_LATE, # 大器晩成型
     monster_id="dragon_pup",
@@ -127,6 +132,7 @@ PHOENIX_CHICK = Monster(
     level=5,
     element="火",
     speed=8,
+    ai_role="attacker",
     skills=[ALL_SKILLS["heal"]] if "heal" in ALL_SKILLS else [], # 自己回復スキル持ち
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="phoenix_chick",
@@ -144,6 +150,7 @@ ORC_WARRIOR = Monster(
     name="オークウォリアー",
     hp=60, attack=22, defense=15, level=4,
     element="土", speed=6,
+    ai_role="attacker",
     skills=[ALL_SKILLS["power_up"]] if "power_up" in ALL_SKILLS else [],
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="orc_warrior",
@@ -162,6 +169,7 @@ SKELETON_ARCHER = Monster(
     name="スケルトンアーチャー",
     hp=45, attack=18, defense=8, level=3,
     element="闇", speed=9,
+    ai_role="attacker",
     skills=[ALL_SKILLS["poison_dart"]] if "poison_dart" in ALL_SKILLS else [],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="skeleton_archer",
@@ -180,6 +188,7 @@ ELF_MAGE = Monster(
     name="エルフメイジ",
     hp=55, attack=14, defense=10, level=4,
     element="風", speed=11,
+    ai_role="attacker",
     skills=[
         ALL_SKILLS[s] for s in ("ice_spear", "heal")
         if s in ALL_SKILLS
@@ -201,6 +210,7 @@ TROLL_BRUTE = Monster(
     name="トロールブルート",
     hp=90, attack=28, defense=18, level=6,
     element="土", speed=4,
+    ai_role="attacker",
     skills=[ALL_SKILLS["regen"]] if "regen" in ALL_SKILLS else [],
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="troll_brute",
@@ -219,6 +229,7 @@ MERMAID_SIREN = Monster(
     name="マーメイドサイレン",
     hp=65, attack=20, defense=14, level=6,
     element="水", speed=10,
+    ai_role="attacker",
     skills=[ALL_SKILLS["sleep_spell"]] if "sleep_spell" in ALL_SKILLS else [],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="mermaid_siren",
@@ -236,6 +247,7 @@ THUNDER_EAGLE = Monster(
     name="サンダーイーグル",
     hp=70, attack=24, defense=16, level=7,
     element="雷", speed=14,
+    ai_role="attacker",
     skills=[ALL_SKILLS["thunder_bolt"]] if "thunder_bolt" in ALL_SKILLS else [],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="thunder_eagle",
@@ -253,6 +265,7 @@ GIANT_GOLEM = Monster(
     name="ジャイアントゴーレム",
     hp=120, attack=32, defense=35, level=8,
     element="土", speed=3,
+    ai_role="attacker",
     skills=[
         ALL_SKILLS[s] for s in ("earth_quake", "guard_up")
         if s in ALL_SKILLS
@@ -273,6 +286,7 @@ SHADOW_PANTHER = Monster(
     name="シャドウパンサー",
     hp=80, attack=30, defense=18, level=8,
     element="闇", speed=18,
+    ai_role="attacker",
     skills=[ALL_SKILLS["dark_pulse"]] if "dark_pulse" in ALL_SKILLS else [],
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="shadow_panther",
@@ -290,6 +304,7 @@ VAMPIRE_LORD = Monster(
     name="ヴァンパイアロード",
     hp=95, attack=35, defense=22, level=10,
     element="闇", speed=15,
+    ai_role="attacker",
     skills=[
         ALL_SKILLS[s] for s in ("dark_pulse", "cure", "paralysis_shock")
         if s in ALL_SKILLS
@@ -310,6 +325,7 @@ CELESTIAL_DRAGON = Monster(
     name="セレスティアルドラゴン",
     hp=150, attack=45, defense=40, level=12,
     element="光", speed=12,
+    ai_role="attacker",
     skills=[
         ALL_SKILLS[s] for s in ("meteor_strike", "holy_light", "revive")
         if s in ALL_SKILLS
@@ -329,6 +345,7 @@ MONSTER_BOOK_DATA["celestial_dragon"] = MonsterBookEntry(
 WATER_WOLF = Monster(
     name="ウォーターワルフ", hp=55, attack=17, defense=9, level=4,
     element="水", speed=11,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("ice_spear",) if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="water_wolf",
@@ -346,6 +363,7 @@ MONSTER_BOOK_DATA["water_wolf"] = MonsterBookEntry(
 POISON_ORC = Monster(
     name="ポイズンオーク", hp=70, attack=24, defense=16, level=5,
     element="毒", speed=7,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("poison_dart", "weaken_armor") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="poison_orc",
@@ -362,6 +380,7 @@ MONSTER_BOOK_DATA["poison_orc"] = MonsterBookEntry(
 FROST_ELF = Monster(
     name="フロストエルフ", hp=60, attack=16, defense=12, level=5,
     element="氷", speed=12,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("ice_spear", "heal", "speed_up") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="frost_elf",
@@ -378,6 +397,7 @@ MONSTER_BOOK_DATA["frost_elf"] = MonsterBookEntry(
 UNDEAD_WARRIOR = Monster(
     name="アンデッドウォリアー", hp=75, attack=25, defense=17, level=6,
     element="闇", speed=8,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("dark_pulse", "stun_blow", "guard_up") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="undead_warrior",
@@ -394,6 +414,7 @@ MONSTER_BOOK_DATA["undead_warrior"] = MonsterBookEntry(
 STORM_GOLEM = Monster(
     name="ストームゴーレム", hp=130, attack=35, defense=38, level=9,
     element="雷", speed=4,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("earth_quake", "thunder_bolt", "guard_up") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_LATE,
     monster_id="storm_golem",
@@ -410,6 +431,7 @@ MONSTER_BOOK_DATA["storm_golem"] = MonsterBookEntry(
 CELESTIAL_PANTHER = Monster(
     name="セレスティアルパンサー", hp=110, attack=38, defense=28, level=11,
     element="光", speed=19,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("holy_light", "meteor_strike", "speed_up", "power_up") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_LATE,
     monster_id="celestial_panther",
@@ -427,6 +449,7 @@ ABYSS_WATCHER = Monster(
     name="アビスウォッチャー",
     hp=95, attack=34, defense=24, level=9,
     element="闇", speed=17,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("dark_pulse", "stun_blow", "speed_up") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="abyss_watcher",
@@ -444,6 +467,7 @@ CINDER_SENTINEL = Monster(
     name="シンダーセンチネル",
     hp=140, attack=42, defense=42, level=11,
     element="火", speed=8,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("meteor_strike", "guard_up", "power_up") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_LATE,
     monster_id="cinder_sentinel",
@@ -461,6 +485,7 @@ ASHEN_DRAKE = Monster(
     name="アシェンドレイク",
     hp=125, attack=38, defense=30, level=10,
     element="火", speed=13,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("dragon_breath", "thunder_bolt") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_LATE,
     monster_id="ashen_drake",
@@ -478,6 +503,7 @@ BLIGHTED_KNIGHT = Monster(
     name="ブライテッドナイト",
     hp=110, attack=36, defense=28, level=9,
     element="毒", speed=10,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("poison_dart", "weaken_armor", "guard_up") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="blighted_knight",
@@ -495,6 +521,7 @@ GRAVETIDE_HOLLOW = Monster(
     name="グレイブタイドホロウ",
     hp=90, attack=30, defense=18, level=8,
     element="闇", speed=11,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("sleep_spell", "dark_pulse") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="gravetide_hollow",
@@ -512,6 +539,7 @@ NAMELESS_KINGLING = Monster(
     name="ネームレスキングリング",
     hp=155, attack=48, defense=35, level=12,
     element="雷", speed=16,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("thunder_bolt", "meteor_strike", "power_up") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_LATE,
     monster_id="nameless_kingling",
@@ -529,6 +557,7 @@ PONTIFF_SHADE = Monster(
     name="ポンティフシェイド",
     hp=100, attack=32, defense=22, level=9,
     element="氷", speed=15,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("ice_spear", "curse", "slow") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="pontiff_shade",
@@ -548,6 +577,7 @@ MONSTER_BOOK_DATA["pontiff_shade"] = MonsterBookEntry(
 DESERT_SCORPION = Monster(
     name="デザートスコーピオン", hp=60, attack=20, defense=14, level=4,
     element="毒", speed=9,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("poison_dart", "stun_blow") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="desert_scorpion",
@@ -564,6 +594,7 @@ MONSTER_BOOK_DATA["desert_scorpion"] = MonsterBookEntry(
 SAND_WYRM = Monster(
     name="サンドワーム", hp=95, attack=28, defense=22, level=6,
     element="土", speed=14,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("earth_quake", "power_up", "poison_dart") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="sand_wyrm",
@@ -580,6 +611,7 @@ MONSTER_BOOK_DATA["sand_wyrm"] = MonsterBookEntry(
 LAVA_ELEMENTAL = Monster(
     name="ラヴァエレメンタル", hp=110, attack=35, defense=30, level=8,
     element="火", speed=5,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("meteor_strike", "dragon_breath") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_LATE,
     monster_id="lava_elemental",
@@ -596,6 +628,7 @@ MONSTER_BOOK_DATA["lava_elemental"] = MonsterBookEntry(
 CRYSTAL_DRAKE = Monster(
     name="クリスタルドレイク", hp=100, attack=33, defense=25, level=8,
     element="氷", speed=12,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("ice_spear", "guard_up", "power_up") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="crystal_drake",
@@ -612,6 +645,7 @@ MONSTER_BOOK_DATA["crystal_drake"] = MonsterBookEntry(
 KRAKEN = Monster(
     name="クラーケン", hp=140, attack=38, defense=32, level=10,
     element="水", speed=7,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("ice_spear", "heal", "slow") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_LATE,
     monster_id="kraken",
@@ -628,6 +662,7 @@ MONSTER_BOOK_DATA["kraken"] = MonsterBookEntry(
 SKY_SERAPH = Monster(
     name="スカイセラフ", hp=120, attack=40, defense=28, level=11,
     element="光", speed=18,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("holy_light", "thunder_bolt", "revive") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_LATE,
     monster_id="sky_seraph",
@@ -645,6 +680,7 @@ SPECTRAL_RAVEN = Monster(
     name="スペクトラルレイヴン",
     hp=55, attack=19, defense=11, level=4,
     element="闇", speed=20,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("dark_pulse", "sleep_spell") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="spectral_raven",
@@ -662,6 +698,7 @@ MIST_WRAITH = Monster(
     name="ミストレイス",
     hp=70, attack=24, defense=15, level=6,
     element="氷", speed=13,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("ice_spear", "slow", "curse") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="mist_wraith",
@@ -679,6 +716,7 @@ CORAL_HYDRA = Monster(
     name="コーラルハイドラ",
     hp=115, attack=32, defense=28, level=8,
     element="水", speed=9,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("heal", "poison_dart", "guard_up") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="coral_hydra",
@@ -696,6 +734,7 @@ IRON_JUGGERNAUT = Monster(
     name="アイアンジャガーノート",
     hp=140, attack=40, defense=45, level=10,
     element="土", speed=4,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("earth_quake", "power_up") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_LATE,
     monster_id="iron_juggernaut",
@@ -713,6 +752,7 @@ BLOOD_FIEND = Monster(
     name="ブラッドフィーンド",
     hp=105, attack=37, defense=23, level=9,
     element="闇", speed=14,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("paralysis_shock", "dark_pulse", "regen") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="blood_fiend",
@@ -730,6 +770,7 @@ MOONLIT_DRYAD = Monster(
     name="ムーンリットドリアード",
     hp=85, attack=26, defense=20, level=7,
     element="光", speed=16,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("holy_light", "heal", "speed_up") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="moonlit_dryad",
@@ -747,6 +788,7 @@ OBSIDIAN_TITAN = Monster(
     name="オブシディアンタイタン",
     hp=165, attack=48, defense=48, level=12,
     element="火", speed=6,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("meteor_strike", "guard_up", "power_up") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_LATE,
     monster_id="obsidian_titan",
@@ -764,6 +806,7 @@ ELECTRO_MANTIS = Monster(
     name="エレクトロマンティス",
     hp=90, attack=31, defense=18, level=8,
     element="雷", speed=22,
+    ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("thunder_bolt", "stun_blow", "speed_up") if s in ALL_SKILLS],
     growth_type=GROWTH_TYPE_EARLY,
     monster_id="electro_mantis",
