@@ -2,6 +2,8 @@
 import json
 import os
 import random  # エンカウント判定で使います
+import copy
+from .monsters import Monster, ALL_MONSTERS
 
 class Location:
     def __init__(
@@ -11,6 +13,8 @@ class Location:
         description,
         connections=None,
         possible_enemies=None,
+        enemy_pool=None,
+        party_size=None,
         encounter_rate=0.0,
         has_inn=False,
         inn_cost=0,
@@ -34,8 +38,10 @@ class Location:
         description (str): 場所の説明文
         connections (dict): 接続されている場所の情報。 {"方向コマンド": "行き先のlocation_id"} の形式。
                             例: {"北へ進む": "forest_path_1", "南へ戻る": "village_square"}
-        possible_enemies (list): その場所で出現する可能性のあるモンスターのID (ALL_MONSTERSのキー)のリスト。
+        possible_enemies (list): その場所で出現する可能性のあるモンスターIDリスト。
                                  例: ["slime", "goblin"]
+        enemy_pool (dict): モンスターIDをキーとした出現率(重み)の辞書。
+        party_size (list|tuple): 出現する敵パーティの数の最小・最大値。
         encounter_rate (float): その場所でのエンカウント率 (0.0 から 1.0)。0ならエンカウントしない。
         x, y (int): ワールドマップ上の座標。未指定なら 0,0。
         """
@@ -44,6 +50,8 @@ class Location:
         self.description = description
         self.connections = connections if connections else {}
         self.possible_enemies = possible_enemies if possible_enemies else []
+        self.enemy_pool = enemy_pool if enemy_pool else {}
+        self.party_size = party_size if party_size else [1, 1]
         self.encounter_rate = encounter_rate
         self.has_inn = has_inn  # 宿屋があるかどうかのフラグ (True/False)
         self.inn_cost = inn_cost  # 宿泊料金**
@@ -74,6 +82,30 @@ class Location:
             return random.choice(self.possible_enemies)
         return None
 
+    def create_enemy_party(self) -> list[Monster] | None:
+        """出現モンスタープールから敵パーティを生成する"""
+        if not self.enemy_pool or random.random() > self.encounter_rate:
+            return None
+
+        min_size, max_size = self.party_size
+        num_enemies = random.randint(min_size, max_size)
+
+        enemy_ids = list(self.enemy_pool.keys())
+        weights = list(self.enemy_pool.values())
+        if not enemy_ids:
+            return None
+
+        chosen_ids = random.choices(enemy_ids, weights=weights, k=num_enemies)
+        party = []
+        for eid in chosen_ids:
+            base_monster = ALL_MONSTERS.get(eid)
+            if base_monster:
+                party.append(copy.deepcopy(base_monster))
+            else:
+                print(f"警告: モンスターID '{eid}' が見つかりません。")
+
+        return party if party else None
+
 # --- 場所の定義 ---
 # LOCATIONS は JSON ファイルからロードして初期化される
 LOCATIONS: dict[str, Location] = {}
@@ -99,6 +131,8 @@ def load_locations(filepath: str | None = None) -> None:
             description=attrs.get("description", ""),
             connections=attrs.get("connections"),
             possible_enemies=attrs.get("possible_enemies"),
+            enemy_pool=attrs.get("enemy_pool"),
+            party_size=attrs.get("party_size"),
             encounter_rate=attrs.get("encounter_rate", 0.0),
             has_inn=attrs.get("has_inn", False),
             inn_cost=attrs.get("inn_cost", 0),
