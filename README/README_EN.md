@@ -47,7 +47,16 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
 - `skills/__init__.py` &mdash; an empty module used to mark the directory as a package.
 
 ### Maps
-- `map_data.py` &mdash; defines the `Location` class and the dictionary `LOCATIONS` which describes available areas and how they connect. `STARTING_LOCATION_ID` indicates where the player begins.
+- `map_data.py` &mdash; defines the `Location` class and the dictionary `LOCATIONS` which describes available areas and how they connect. `STARTING_LOCATION_ID` indicates where the player begins. Locations can include an `enemy_pool` dict for weighted encounters and a `party_size` range for the number of enemies.
+
+Example weighted enemy pool:
+
+```json
+{
+  "enemy_pool": { "slime": 70, "goblin": 30 },
+  "party_size": [1, 2]
+}
+```
 
 Other notable modules include `player.py` (player data and save/load logic), `battle.py` (battle system), and `monsters/synthesis_rules.py` (monster fusion recipes).
 

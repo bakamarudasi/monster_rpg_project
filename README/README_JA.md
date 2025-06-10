@@ -45,7 +45,16 @@ Pythonで作られた小さなテキストベースRPGのプロトタイプで�
 - `skills/__init__.py` — ディレクトリをパッケージとして扱うための空モジュールです。
 
 ### マップ
-- `map_data.py` — `Location` クラスと、各エリアの接続関係を示す辞書 `LOCATIONS` を定義します。 `STARTING_LOCATION_ID` がプレイヤーの初期位置です。
+- `map_data.py` — `Location` クラスと、各エリアの接続関係を示す辞書 `LOCATIONS` を定義します。 `STARTING_LOCATION_ID` がプレイヤーの初期位置です。各場所では、出現モンスターとその重みを設定する `enemy_pool` と、敵の数範囲を指定する `party_size` を利用できます。
+
+例:
+
+```json
+{
+  "enemy_pool": { "slime": 70, "goblin": 30 },
+  "party_size": [1, 2]
+}
+```
 
 その他、`player.py` (プレイヤーデータとセーブ/ロード処理)、`battle.py` (戦闘システム)、`monsters/synthesis_rules.py` (モンスター合成レシピ) などのモジュールがあります。
 
