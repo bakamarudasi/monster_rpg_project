@@ -1,0 +1,32 @@
+{
+  "slime": {
+    "name": "スライム",
+    "ai_role": "attacker",
+    "rank": "D",
+    "element": "水",
+    "image_filename": "slime.png",
+    "stats": {"hp": 25, "attack": 8, "defense": 5, "speed": 5, "mp": 30},
+    "skills": ["heal"],
+    "drop_items": [["small_potion", 0.5]],
+    "learnset": {"2": ["guard_up"]},
+    "book": {
+      "description": "ぷるぷるした弱小モンスター。水属性で、初心者の相手に最適。",
+      "location_hint": "村の近くの草原などに出現",
+      "synthesis_hint": "別種族と掛け合わせると特殊なモンスターが生まれるかも。"
+    }
+  },
+  "goblin": {
+    "name": "ゴブリン",
+    "ai_role": "attacker",
+    "rank": "D",
+    "element": "なし",
+    "stats": {"hp": 40, "attack": 12, "defense": 8, "speed": 7, "mp": 30},
+    "skills": ["fireball"],
+    "drop_items": [["small_potion", 0.2], ["magic_stone", 0.1], ["bronze_sword", 0.2]],
+    "book": {
+      "description": "粗暴な小型モンスター。集団で現れることが多い。",
+      "location_hint": "森や洞窟などの薄暗い場所に出没",
+      "synthesis_hint": "毒や闇のモンスターと掛け合わせると凶悪化するかも。"
+    }
+  }
+}
