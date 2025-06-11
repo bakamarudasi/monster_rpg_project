@@ -348,7 +348,7 @@ MONSTER_BOOK_DATA["celestial_dragon"] = MonsterBookEntry(
 
 
 WATER_WOLF = Monster(
-    name="ウォーターワルフ", hp=55, attack=17, defense=9, level=4,
+    name="ウォーターウルフ", hp=55, attack=17, defense=9, level=4,
     element="水", speed=11,
     ai_role="attacker",
     skills=[ALL_SKILLS[s] for s in ("ice_spear",) if s in ALL_SKILLS],
