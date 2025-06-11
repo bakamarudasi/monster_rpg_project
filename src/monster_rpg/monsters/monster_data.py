@@ -11,6 +11,7 @@ from .monster_class import (
 )
 from ..skills.skills import ALL_SKILLS
 from ..items.item_data import ALL_ITEMS
+from ..items.equipment import ALL_EQUIPMENT
 
 # モンスターランク定義
 RANK_S = "S"
@@ -55,7 +56,11 @@ GOBLIN = Monster(
     growth_type=GROWTH_TYPE_AVERAGE,
     monster_id="goblin",
     rank=RANK_D, # 例: ゴブリンはDランク
-    drop_items=[(ALL_ITEMS["small_potion"], 0.2), (ALL_ITEMS["magic_stone"], 0.1),(ALL_ITEMS["bronze_sword"],0.2),0]
+    drop_items=[
+        (ALL_ITEMS["small_potion"], 0.2),
+        (ALL_ITEMS["magic_stone"], 0.1),
+        (ALL_EQUIPMENT["bronze_sword"], 0.2),
+    ]
 )
 
 
