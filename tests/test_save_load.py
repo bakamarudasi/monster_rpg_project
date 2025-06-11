@@ -5,6 +5,7 @@ from monster_rpg import database_setup
 from monster_rpg.player import Player
 from monster_rpg.monsters.monster_data import ALL_MONSTERS
 from monster_rpg.items.item_data import ALL_ITEMS
+from monster_rpg.items.equipment import ALL_EQUIPMENT
 
 class SaveLoadTests(unittest.TestCase):
     def setUp(self):
@@ -59,6 +60,15 @@ class SaveLoadTests(unittest.TestCase):
 
         loaded = Player.load_game(self.db_path, user_id=self.user1)
         self.assertEqual(loaded.get_exploration('forest_entrance'), 40)
+
+    def test_save_and_load_equipment(self):
+        player = Player('EquipTester', user_id=self.user1)
+        player.equipment_inventory.append(ALL_EQUIPMENT['bronze_sword'])
+        player.save_game(self.db_path)
+
+        loaded = Player.load_game(self.db_path, user_id=self.user1)
+        self.assertEqual(len(loaded.equipment_inventory), 1)
+        self.assertEqual(loaded.equipment_inventory[0].equip_id, 'bronze_sword')
 
 if __name__ == '__main__':
     unittest.main()

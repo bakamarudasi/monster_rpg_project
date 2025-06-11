@@ -3,6 +3,7 @@ import random
 from typing import cast
 from .player import Player  # Playerクラスは直接使わないが、型ヒントなどで参照される可能性を考慮
 from .monsters import Monster  # Monsterクラスのみ参照
+from .items.equipment import Equipment, EquipmentInstance
 from .skills.skills import Skill  # Skillクラスを参照
 from .skills.skill_actions import (
     SKILL_EFFECT_MAP,
@@ -384,7 +385,10 @@ def award_experience(alive_party: list[Monster], defeated_enemies: list[Monster]
         if player is not None:
             for item_obj, rate in getattr(enemy, "drop_items", []):
                 if random.random() < rate:
-                    player.items.append(item_obj)
+                    if isinstance(item_obj, (Equipment, EquipmentInstance)):
+                        player.equipment_inventory.append(item_obj)
+                    else:
+                        player.items.append(item_obj)
                     print(f"{item_obj.name} を手に入れた！")
 
     alive_monsters = [m for m in alive_party if m.is_alive]

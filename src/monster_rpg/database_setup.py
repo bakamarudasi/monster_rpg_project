@@ -81,6 +81,15 @@ def initialize_database():
     )
     """)
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS player_equipment (
+        player_id INTEGER,
+        equip_id TEXT,
+        title_id TEXT,
+        instance_id TEXT
+    )
+    """)
+
     # exploration_progress テーブルの作成
     cursor.execute(
         """

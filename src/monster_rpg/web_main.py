@@ -20,6 +20,7 @@ import random
 import sqlite3
 from . import database_setup
 from .player import Player
+from .items.equipment import Equipment, EquipmentInstance
 from .monsters.monster_data import ALL_MONSTERS, MONSTER_BOOK_DATA
 from .items.item_data import ALL_ITEMS
 from .map_data import LOCATIONS, get_map_overview, get_map_grid, load_locations
@@ -678,7 +679,10 @@ def battle(user_id):
             for enemy in battle_obj.enemy_party:
                 for item_obj, rate in getattr(enemy, "drop_items", []):
                     if random.random() < rate:
-                        player.items.append(item_obj)
+                        if isinstance(item_obj, (Equipment, EquipmentInstance)):
+                            player.equipment_inventory.append(item_obj)
+                        else:
+                            player.items.append(item_obj)
                         msgs.append({"type": "info", "message": f"{item_obj.name} を手に入れた！"})
             msgs.append({"type": "info", "message": f"勝利した！ {gold_gain}G を得た。"})
         else:

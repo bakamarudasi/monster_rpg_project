@@ -13,7 +13,9 @@ from .items.equipment import (
     CRAFTING_RECIPES,
     create_titled_equipment,
     EquipmentInstance,
+    ALL_EQUIPMENT,
 )
+from .items.titles import ALL_TITLES
 import random  # 将来的にスキル継承などで使うかも
 import copy
 from .monster_book import MonsterBook
@@ -105,6 +107,21 @@ class Player:
             cursor.execute(
                 "INSERT INTO player_items (player_id, item_id) VALUES (?, ?)",
                 (self.db_id, item_id),
+            )
+
+        cursor.execute("DELETE FROM player_equipment WHERE player_id=?", (self.db_id,))
+        for equip in self.equipment_inventory:
+            if hasattr(equip, "base_item"):
+                equip_id = equip.base_item.equip_id
+                title_id = equip.title.title_id if getattr(equip, "title", None) else None
+                instance_id = getattr(equip, "instance_id", None)
+            else:
+                equip_id = getattr(equip, "equip_id", str(equip))
+                title_id = None
+                instance_id = None
+            cursor.execute(
+                "INSERT INTO player_equipment (player_id, equip_id, title_id, instance_id) VALUES (?, ?, ?, ?)",
+                (self.db_id, equip_id, title_id, instance_id),
             )
 
         # 探索進捗を保存
@@ -553,6 +570,20 @@ class Player:
             for (item_id,) in cursor.fetchall():
                 if item_id in ALL_ITEMS:
                     loaded_player.items.append(ALL_ITEMS[item_id])
+
+            cursor.execute(
+                "SELECT equip_id, title_id, instance_id FROM player_equipment WHERE player_id=?",
+                (db_id,),
+            )
+            for equip_id, title_id, instance_id in cursor.fetchall():
+                if equip_id in ALL_EQUIPMENT:
+                    base = ALL_EQUIPMENT[equip_id]
+                    if title_id and title_id in ALL_TITLES:
+                        title = ALL_TITLES[title_id]
+                        equip = EquipmentInstance(base_item=base, title=title, instance_id=instance_id)
+                    else:
+                        equip = base
+                    loaded_player.equipment_inventory.append(equip)
 
             # 探索進捗を読み込む
             cursor.execute(
