@@ -6,6 +6,10 @@
   <li class="log-message-{{ m.type }}">{{ m.message }}</li>
 {% endfor %}
 </ul>
+<form action="{{ url_for('battle', user_id=user_id) }}" method="post">
+  <input type="hidden" name="continue_explore" value="1">
+  <button type="submit">Continue Exploring</button>
+</form>
 <a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
 {% endblock %}
 
