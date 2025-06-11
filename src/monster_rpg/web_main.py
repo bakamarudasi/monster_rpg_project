@@ -690,6 +690,8 @@ def battle(user_id):
         player.last_battle_log = msgs
         del active_battles[user_id]
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+        if request.form.get("continue_explore"):
+            return redirect(url_for("explore", user_id=user_id))
         if request.method == 'POST':
             html = render_template('battle.html', messages=msgs, user_id=user_id)
             hp_vals = {
