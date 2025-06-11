@@ -2,17 +2,7 @@ import json
 import os
 from typing import Dict, Tuple
 
-from .monster_class import (
-    Monster,
-    GROWTH_TYPE_AVERAGE,
-    GROWTH_TYPE_EARLY,
-    GROWTH_TYPE_LATE,
-    RANK_S,
-    RANK_A,
-    RANK_B,
-    RANK_C,
-    RANK_D,
-)
+from .monster_class import Monster, GROWTH_TYPE_AVERAGE, RANK_D
 from ..skills.skills import ALL_SKILLS
 from ..items.item_data import ALL_ITEMS
 from ..items.equipment import ALL_EQUIPMENT
