@@ -43,6 +43,8 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
 - `monsters/monster_data.py` &mdash; contains predefined monster instances and the dictionary `ALL_MONSTERS` used by the game.
 - `monsters/__init__.py` &mdash; exposes the monster classes and data for easier imports.
 
+Use `monster_loader.load_monsters()` to read monster definitions from `monsters/monsters.json`. A `ValueError` is raised if the file is missing or contains invalid JSON.
+
 ### Skills
 - `skills/skills.py` &mdash; defines the `Skill` class and several example skills. The dictionary `ALL_SKILLS` stores all available skills.
 - `skills/__init__.py` &mdash; an empty module used to mark the directory as a package.
