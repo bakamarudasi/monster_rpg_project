@@ -11,6 +11,8 @@
               "level": m.level,
               "hp": m.hp,
               "max_hp": m.max_hp,
+              "exp": m.exp,
+              "exp_to_next": m.calculate_exp_to_next_level(),
               "image": url_for("static", filename="images/" + m.image_filename) if m.image_filename else "",
               "stats": {"attack": m.attack, "defense": m.defense, "speed": m.speed},
               "skills": m.get_skill_details(),
@@ -340,6 +342,8 @@
         skillsHtml = '<p>覚えているスキルはない。</p>';
       }
 
+      const expNeeded = data.exp_to_next - data.exp;
+
       modalCardBody.innerHTML = `
         <div class="card-image-area">
           <img src="${data.image}" alt="${data.name}" class="card-monster-img">
@@ -348,7 +352,7 @@
         <div class="card-header">
             <h2 class="card-monster-name">${data.name}</h2>
             <div class="card-monster-lvhp">
-                <span>Lv. ${data.level}</span> | <span>HP: ${data.hp} / ${data.max_hp}</span>
+                <span>Lv. ${data.level}</span> | <span>HP: ${data.hp} / ${data.max_hp}</span> | <span>EXP: ${data.exp} / ${data.exp_to_next} (残り ${expNeeded})</span>
             </div>
         </div>
         
