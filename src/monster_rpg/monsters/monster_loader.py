@@ -14,9 +14,16 @@ def load_monsters(filepath: str | None = None) -> Tuple[Dict[str, Monster], Dict
     if filepath is None:
         filepath = os.path.join(os.path.dirname(__file__), "monsters.json")
 
-    with open(filepath, encoding="utf-8") as f:
-        text = f.read().replace("\u00a0", " ")
+    try:
+        with open(filepath, encoding="utf-8") as f:
+            text = f.read().replace("\u00a0", " ")
+    except FileNotFoundError as e:
+        raise ValueError(f"Monster data file not found: {filepath}") from e
+
+    try:
         data = json.loads(text)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid monster data JSON in {filepath}") from e
 
     monsters: Dict[str, Monster] = {}
     book_entries: Dict[str, MonsterBookEntry] = {}

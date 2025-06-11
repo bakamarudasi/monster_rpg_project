@@ -41,7 +41,7 @@ Pythonで作られた小さなテキストベースRPGのプロトタイプで�
 - `monsters/monster_data.py` — あらかじめ定義されたモンスターインスタンスと、ゲームで使用する辞書 `ALL_MONSTERS` を含みます。
 - `monsters/__init__.py` — モンスターのクラスやデータを簡単にインポートできるよう公開しています。
 
-`monsters/monsters.json` は JSON 形式のモンスター定義例です。`monster_loader.load_monsters()` を使うことで、ファイルからモンスターを一括読み込みできます。
+`monsters/monsters.json` は JSON 形式のモンスター定義例です。`monster_loader.load_monsters()` を使うことで、ファイルからモンスターを一括読み込みできます。ファイルが存在しない、または JSON が不正な場合は `ValueError` が送出されます。
 
 ### スキル
 - `skills/skills.py` — `Skill` クラスと複数の例示的なスキルを定義します。辞書 `ALL_SKILLS` に利用可能なスキルを格納しています。
