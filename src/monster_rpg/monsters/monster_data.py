@@ -19,6 +19,7 @@ RANK_A = "A"
 RANK_B = "B"
 RANK_C = "C"
 RANK_D = "D"
+RANK_E = "E"
 
 @dataclass
 class MonsterBookEntry:
@@ -61,6 +62,24 @@ GOBLIN = Monster(
         (ALL_ITEMS["magic_stone"], 0.1),
         (ALL_EQUIPMENT["bronze_sword"], 0.2),
     ]
+)
+
+
+BAT = Monster(
+    name="オオコウモリ", hp=18, attack=6, defense=4, level=1, element="風",speed=8,
+    ai_role="attacker",
+    skills=[],
+    growth_type=GROWTH_TYPE_AVERAGE,
+    monster_id="bat",
+    rank=RANK_E,
+    drop_items=[],
+    image_filename="bat.png",
+)
+MONSTER_BOOK_DATA["bat"] = MonsterBookEntry(
+    monster_id="bat",
+    description="素早い動きで相手を翻弄する。雷系の攻撃に非常に弱いという弱点を持つ。",
+    location_hint="洞窟や夜の森など、暗い場所を好む。昼間は寝ていることが多い。",
+    synthesis_hint="素早さの高い種族と配合すると、先制攻撃に特化したモンスターが生まれやすい。",
 )
 
 
@@ -828,6 +847,7 @@ MONSTER_BOOK_DATA["electro_mantis"] = MonsterBookEntry(
 ALL_MONSTERS = {
     "slime": SLIME,
     "goblin": GOBLIN,
+    "bat": BAT,
     "wolf": WOLF,
     "slime_goblin_hybrid": SLIME_GOBLIN_HYBRID,
     "dragon_pup": DRAGON_PUP,
