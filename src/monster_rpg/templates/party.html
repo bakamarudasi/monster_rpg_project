@@ -16,7 +16,9 @@
               "image": url_for("static", filename="images/" + m.image_filename) if m.image_filename else "",
               "stats": {"attack": m.attack, "defense": m.defense, "speed": m.speed},
               "skills": m.get_skill_details(),
-              "description": monster_book.get(m.monster_id).description if monster_book.get(m.monster_id) else "このモンスターに関する詳しい説明はまだ見つかっていない。"
+              "description": monster_book.get(m.monster_id).description if monster_book.get(m.monster_id) else "このモンスターに関する詳しい説明はまだ見つかっていない。",
+              "index": loop.index0,
+              "equipment": {slot: eq.name for slot, eq in m.equipment.items()}
             } | tojson | forceescape }}'>
           {% if m.image_filename %}
             <img class="monster-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
@@ -323,10 +325,14 @@
     const modal = document.getElementById('monster-detail-modal');
     const modalCardBody = document.getElementById('modal-card-body');
     const partyMembers = document.querySelectorAll('.party-member');
+    const equipmentList = {{ equipment_list|tojson|safe }};
+    const equipUrl = "{{ url_for('equip', user_id=user_id) }}";
+    let currentData = null;
 
     partyMembers.forEach(member => {
       member.addEventListener('click', () => {
         const monsterData = JSON.parse(member.dataset.details);
+        currentData = monsterData;
         displayMonsterDetails(monsterData);
       });
 
@@ -343,6 +349,19 @@
       }
 
       const expNeeded = data.exp_to_next - data.exp;
+      let equippedHtml = '';
+      const eqEntries = Object.entries(data.equipment || {});
+      if (eqEntries.length > 0) {
+        equippedHtml = '<ul>' + eqEntries.map(([s,n]) => `<li>${s}: ${n}</li>`).join('') + '</ul>';
+      } else {
+        equippedHtml = '<p>何も装備していない。</p>';
+      }
+      let equipListHtml = '';
+      if (equipmentList.length > 0) {
+        equipListHtml = '<ul>' + equipmentList.map(eq => `<li>${eq.name} <button class="equip-btn" data-equip-id="${eq.id}" data-idx="${data.index}">装備</button></li>`).join('') + '</ul>';
+      } else {
+        equipListHtml = '<p>装備を持っていない。</p>';
+      }
 
       modalCardBody.innerHTML = `
         <div class="card-image-area">
@@ -372,9 +391,35 @@
                 <h3>説明</h3>
                 <p>${data.description}</p>
             </div>
+            <div class="card-section card-equipment-list" style="margin-top: 16px;">
+                <h3>装備中</h3>
+                ${equippedHtml}
+                <h3>装備する</h3>
+                ${equipListHtml}
+            </div>
         </div>
       `;
       modal.classList.add('show');
+      modalCardBody.querySelectorAll('.equip-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const equipId = btn.dataset.equipId;
+          const idx = btn.dataset.idx;
+          fetch(equipUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ equip_id: equipId, monster_idx: idx })
+          })
+          .then(res => res.json())
+          .then(resp => {
+            if (resp.success) {
+              equipmentList.length = 0;
+              resp.equipment_inventory.forEach(e => equipmentList.push(e));
+              data.equipment = resp.monster_equipment;
+              displayMonsterDetails(data);
+            }
+          });
+        });
+      });
     }
 
     function closeModal() {
