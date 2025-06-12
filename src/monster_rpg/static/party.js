@@ -3,8 +3,20 @@
     const modal = document.getElementById('monster-detail-modal');
     const modalCardBody = document.getElementById('modal-card-body');
     const partyMembers = document.querySelectorAll('.party-member');
-    const equipmentList = {{ equipment_list|tojson|safe }};
-    const equipUrl = "{{ url_for('equip', user_id=user_id) }}";
+
+    let equipmentList = [];
+    let equipUrl = '';
+    const dataElem = document.getElementById('party-data');
+    if (dataElem) {
+      try {
+        const parsed = JSON.parse(dataElem.textContent);
+        equipmentList = parsed.equipment_list || [];
+        equipUrl = parsed.equip_url || '';
+      } catch (e) {
+        console.error('Failed to parse party-data', e);
+      }
+    }
+
     let currentData = null;
 
     partyMembers.forEach(member => {

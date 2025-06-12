@@ -42,5 +42,11 @@
 {% endblock %}
 
 {% block scripts %}
+  <script id="party-data" type="application/json">
+    {{ {
+        'equipment_list': equipment_list,
+        'equip_url': url_for('equip', user_id=user_id)
+    } | tojson | safe }}
+  </script>
   <script src="{{ url_for('static', filename='party.js') }}"></script>
 {% endblock %}
