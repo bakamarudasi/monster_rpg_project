@@ -737,6 +737,8 @@ def battle(user_id):
 
     if not battle_obj:
         if request.method == 'POST':
+            if request.form.get("continue_explore"):
+                return redirect(url_for('explore', user_id=user_id), code=307)
             return redirect(url_for('battle', user_id=user_id))
         loc = LOCATIONS.get(player.current_location_id)
         if not loc:
