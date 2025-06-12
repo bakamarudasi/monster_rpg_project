@@ -60,7 +60,7 @@
         </div>
 
         <div class="card-header">
-            <h2 class="card-monster-name">${data.name}</h2>
+            <h2 id="modal-title" class="card-monster-name">${data.name}</h2>
             <div class="card-monster-lvhp">
                 <span>Lv. ${data.level}</span> | <span>HP: ${data.hp} / ${data.max_hp}</span> | <span>EXP: ${data.exp} / ${data.exp_to_next} (残り ${expNeeded})</span>
             </div>
@@ -140,6 +140,11 @@
     modal.querySelector('.modal-close-btn').addEventListener('click', closeModal);
     modal.addEventListener('click', (event) => {
       if (event.target === modal) {
+        closeModal();
+      }
+    });
+    modal.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
         closeModal();
       }
     });

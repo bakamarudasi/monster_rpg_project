@@ -30,14 +30,12 @@
   </div>
 </div>
 
-<div id="monster-detail-modal" class="modal-backdrop">
-  <div class="modal-card">
-    <button class="modal-close-btn">&times;</button>
-    <div id="modal-card-body">
-      <!-- モンスターの詳細はここにJavaScriptで挿入されます -->
+  <div id="monster-detail-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <button class="modal-close-btn" aria-label="閉じる">&times;</button>
+      <div id="modal-card-body"></div>
     </div>
-</div>
-</div>
+  </div>
 
 {% endblock %}
 
