@@ -70,5 +70,20 @@ class SaveLoadTests(unittest.TestCase):
         self.assertEqual(len(loaded.equipment_inventory), 1)
         self.assertEqual(loaded.equipment_inventory[0].equip_id, 'bronze_sword')
 
+    def test_hp_mp_persist(self):
+        player = Player('HPTester', user_id=self.user1)
+        player.add_monster_to_party('slime')
+        m = player.party_monsters[0]
+        m.hp -= 2
+        m.mp -= 1
+        player.save_game(self.db_path)
+
+        loaded = Player.load_game(self.db_path, user_id=self.user1)
+        lm = loaded.party_monsters[0]
+        self.assertEqual(lm.hp, m.hp)
+        self.assertEqual(lm.max_hp, m.max_hp)
+        self.assertEqual(lm.mp, m.mp)
+        self.assertEqual(lm.max_mp, m.max_mp)
+
 if __name__ == '__main__':
     unittest.main()

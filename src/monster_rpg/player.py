@@ -88,16 +88,34 @@ class Player:
         cursor.execute("DELETE FROM party_monsters WHERE player_id=?", (self.db_id,))
         for monster in self.party_monsters:
             cursor.execute(
-                "INSERT INTO party_monsters (player_id, monster_id, level, exp) VALUES (?, ?, ?, ?)",
-                (self.db_id, monster.monster_id, monster.level, monster.exp),
+                "INSERT INTO party_monsters (player_id, monster_id, level, exp, hp, max_hp, mp, max_mp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    self.db_id,
+                    monster.monster_id,
+                    monster.level,
+                    monster.exp,
+                    monster.hp,
+                    monster.max_hp,
+                    monster.mp,
+                    monster.max_mp,
+                ),
             )
 
         # 控えモンスターを保存
         cursor.execute("DELETE FROM storage_monsters WHERE player_id=?", (self.db_id,))
         for monster in self.reserve_monsters:
             cursor.execute(
-                "INSERT INTO storage_monsters (player_id, monster_id, level, exp) VALUES (?, ?, ?, ?)",
-                (self.db_id, monster.monster_id, monster.level, monster.exp),
+                "INSERT INTO storage_monsters (player_id, monster_id, level, exp, hp, max_hp, mp, max_mp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    self.db_id,
+                    monster.monster_id,
+                    monster.level,
+                    monster.exp,
+                    monster.hp,
+                    monster.max_hp,
+                    monster.mp,
+                    monster.max_mp,
+                ),
             )
 
         # 所持アイテムを保存
@@ -555,28 +573,44 @@ class Player:
 
             # パーティモンスターを読み込む
             cursor.execute(
-                "SELECT monster_id, level, exp FROM party_monsters WHERE player_id=?",
+                "SELECT monster_id, level, exp, hp, max_hp, mp, max_mp FROM party_monsters WHERE player_id=?",
                 (db_id,),
             )
-            for monster_id, m_level, m_exp in cursor.fetchall():
+            for monster_id, m_level, m_exp, hp, max_hp, mp, max_mp in cursor.fetchall():
                 if monster_id in ALL_MONSTERS:
                     monster = ALL_MONSTERS[monster_id].copy()
                     while monster.level < m_level:
                         monster.gain_exp(monster.calculate_exp_to_next_level())
                     monster.exp = m_exp
+                    if max_hp is not None:
+                        monster.max_hp = max_hp
+                    if hp is not None:
+                        monster.hp = hp
+                    if max_mp is not None:
+                        monster.max_mp = max_mp
+                    if mp is not None:
+                        monster.mp = mp
                     loaded_player.party_monsters.append(monster)
 
             # 控えモンスターを読み込む
             cursor.execute(
-                "SELECT monster_id, level, exp FROM storage_monsters WHERE player_id=?",
+                "SELECT monster_id, level, exp, hp, max_hp, mp, max_mp FROM storage_monsters WHERE player_id=?",
                 (db_id,),
             )
-            for monster_id, m_level, m_exp in cursor.fetchall():
+            for monster_id, m_level, m_exp, hp, max_hp, mp, max_mp in cursor.fetchall():
                 if monster_id in ALL_MONSTERS:
                     monster = ALL_MONSTERS[monster_id].copy()
                     while monster.level < m_level:
                         monster.gain_exp(monster.calculate_exp_to_next_level())
                     monster.exp = m_exp
+                    if max_hp is not None:
+                        monster.max_hp = max_hp
+                    if hp is not None:
+                        monster.hp = hp
+                    if max_mp is not None:
+                        monster.max_mp = max_mp
+                    if mp is not None:
+                        monster.mp = mp
                     loaded_player.reserve_monsters.append(monster)
 
             # 所持アイテムを読み込む
