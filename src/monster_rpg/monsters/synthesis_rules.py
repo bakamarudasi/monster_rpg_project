@@ -30,3 +30,12 @@ MONSTER_ITEM_RECIPES = {
     ("slime", "dragon_scale"): "dragon_pup",  # スライム + ドラゴンスケイル
     ("wolf", "frost_crystal"): "water_wolf",  # ウルフ + フロストクリスタル
 }
+
+# アイテム同士の合成レシピ
+# キーは (アイテム1ID, アイテム2ID) のタプル。アルファベット順に並べる
+# 値は生成されるアイテムIDまたは装備ID
+ITEM_ITEM_RECIPES = {
+    ("dragon_scale", "magic_stone"): "bronze_sword",
+    ("small_potion", "small_potion"): "medium_potion",
+}
+

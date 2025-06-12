@@ -15,12 +15,30 @@
 
     <div id="synth-modal" class="modal">
         <div class="modal-content">
-            <label for="base-select">ベース</label>
-            <select id="base-select">
-                {% for m in player.party_monsters %}
-                <option value="{{ loop.index0 }}">{{ m.name }} Lv.{{ m.level }}</option>
-                {% endfor %}
+            <label for="base-type">ベースタイプ</label>
+            <select id="base-type">
+                <option value="monster">モンスター</option>
+                <option value="item">アイテム</option>
             </select>
+            <div id="base-monster">
+                <label for="base-select">モンスター</label>
+                <select id="base-select">
+                    {% for m in player.party_monsters %}
+                    <option value="{{ loop.index0 }}">{{ m.name }} Lv.{{ m.level }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div id="base-item" style="display:none;">
+                <label for="base-item-select">アイテム</label>
+                <select id="base-item-select">
+                    {% for it in player.items %}
+                    <option value="{{ it.item_id }}">{{ it.name }}</option>
+                    {% endfor %}
+                    {% for eq in player.equipment_inventory %}
+                    <option value="{{ eq.base_item.equip_id if hasattr(eq,'base_item') else eq.equip_id }}">{{ eq.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
             <br>
             <label for="mat-type">素材タイプ</label>
             <select id="mat-type">
@@ -41,6 +59,9 @@
                     {% for it in player.items %}
                     <option value="{{ it.item_id }}">{{ it.name }}</option>
                     {% endfor %}
+                    {% for eq in player.equipment_inventory %}
+                    <option value="{{ eq.base_item.equip_id if hasattr(eq,'base_item') else eq.equip_id }}">{{ eq.name }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <button id="do-synth">合成</button>
@@ -59,17 +80,25 @@ const closeBtn = document.getElementById('close-modal');
 const matTypeSel = document.getElementById('mat-type');
 const matMonster = document.getElementById('mat-monster');
 const matItem = document.getElementById('mat-item');
+const baseTypeSel = document.getElementById('base-type');
+const baseMonster = document.getElementById('base-monster');
+const baseItem = document.getElementById('base-item');
 openBtn.addEventListener('click', () => { modal.style.display = 'block'; });
 closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
 matTypeSel.addEventListener('change', () => {
     if (matTypeSel.value === 'item') { matItem.style.display = 'block'; matMonster.style.display = 'none'; }
     else { matItem.style.display = 'none'; matMonster.style.display = 'block'; }
 });
+baseTypeSel.addEventListener('change', () => {
+    if (baseTypeSel.value === 'item') { baseItem.style.display = 'block'; baseMonster.style.display = 'none'; }
+    else { baseItem.style.display = 'none'; baseMonster.style.display = 'block'; }
+});
 const doBtn = document.getElementById('do-synth');
 const resultMsg = document.getElementById('result-msg');
 doBtn.addEventListener('click', () => {
     const payload = {
-        base_monster_index: parseInt(document.getElementById('base-select').value),
+        base_type: baseTypeSel.value,
+        base_id: baseTypeSel.value === 'item' ? document.getElementById('base-item-select').value : parseInt(document.getElementById('base-select').value),
         material_type: matTypeSel.value,
         material_id: matTypeSel.value === 'item' ? document.getElementById('item-select').value : parseInt(document.getElementById('monster-select').value)
     };
@@ -79,7 +108,8 @@ doBtn.addEventListener('click', () => {
         body: JSON.stringify(payload)
     }).then(r=>r.json()).then(data=>{
         if(data.success){
-            resultMsg.textContent = data.new_monster_name + ' が誕生した！';
+            const msg = data.result_type === 'monster' ? data.name + ' が誕生した！' : data.name + ' を入手した！';
+            resultMsg.textContent = msg;
             setTimeout(()=>{ window.location.reload(); }, 1000);
         } else {
             resultMsg.textContent = data.error || '失敗';

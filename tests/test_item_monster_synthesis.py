@@ -21,6 +21,17 @@ class ItemMonsterSynthesisTests(unittest.TestCase):
         self.assertEqual(len(player.items), 0)
         self.assertEqual(player.party_monsters[0].monster_id, 'dragon_pup')
 
+    def test_item_item_fusion(self):
+        player = Player('Tester')
+        player.items.append(ALL_ITEMS['magic_stone'])
+        player.items.append(ALL_ITEMS['dragon_scale'])
+        success, msg, result = player.synthesize_items('magic_stone', 'dragon_scale')
+        self.assertTrue(success)
+        from monster_rpg.items.equipment import EquipmentInstance
+        self.assertIsInstance(result, EquipmentInstance)
+        self.assertEqual(len(player.items), 0)
+        self.assertEqual(len(player.equipment_inventory), 1)
+
 
 class ItemMonsterSynthesisRouteTests(unittest.TestCase):
     def setUp(self):
@@ -34,6 +45,7 @@ class ItemMonsterSynthesisRouteTests(unittest.TestCase):
         player = Player('Tester', user_id=self.user_id)
         player.add_monster_to_party('slime')
         player.items.append(ALL_ITEMS['dragon_scale'])
+        player.items.append(ALL_ITEMS['magic_stone'])
         player.save_game(self.db_path, user_id=self.user_id)
 
     def tearDown(self):
@@ -44,7 +56,8 @@ class ItemMonsterSynthesisRouteTests(unittest.TestCase):
         resp = self.client.post(
             f'/synthesize_action/{self.user_id}',
             json={
-                'base_monster_index': 0,
+                'base_type': 'monster',
+                'base_id': 0,
                 'material_type': 'item',
                 'material_id': 'dragon_scale',
             },
@@ -52,10 +65,26 @@ class ItemMonsterSynthesisRouteTests(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
         self.assertTrue(data['success'])
-        self.assertEqual(data['new_monster_name'], ALL_MONSTERS['dragon_pup'].name)
+        self.assertEqual(data['name'], ALL_MONSTERS['dragon_pup'].name)
+
+    def test_item_item_endpoint(self):
+        resp = self.client.post(
+            f'/synthesize_action/{self.user_id}',
+            json={
+                'base_type': 'item',
+                'base_id': 'magic_stone',
+                'material_type': 'item',
+                'material_id': 'dragon_scale',
+            },
+        )
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertTrue(data['success'])
+        from monster_rpg.items.equipment import ALL_EQUIPMENT
+        self.assertTrue(data['name'].endswith(ALL_EQUIPMENT['bronze_sword'].name))
 
         loaded = Player.load_game(self.db_path, user_id=self.user_id)
-        self.assertIn('dragon_pup', loaded.monster_book.captured)
+        self.assertEqual(len(loaded.equipment_inventory), 1)
 
 if __name__ == '__main__':
     unittest.main()
