@@ -117,8 +117,9 @@ class Monster:
         self.drop_items = drop_items if drop_items else []
         self.scout_rate = scout_rate  # スカウト成功率(0.0-1.0)
         self.ai_role = ai_role
-        # 装備品スロット (weapon, armor など)
+        # 装備品スロット (weapon, armor など)。UI 表示のためスロットの一覧も保持
         self.equipment = {}
+        self.equipment_slots = ["weapon", "armor", "accessory"]
         self.learnset = learnset if learnset else {}
 
     def show_status(self):
