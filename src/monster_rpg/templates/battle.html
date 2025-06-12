@@ -1,15 +1,301 @@
 {% extends "layout.html" %}
-{% block content %}
-<h2>戦闘結果</h2>
-<ul>
-{% for m in messages %}
-  <li class="log-message-{{ m.type }}">{{ m.message }}</li>
-{% endfor %}
-</ul>
-<form action="{{ url_for('battle', user_id=user_id) }}" method="post">
-  <input type="hidden" name="continue_explore" value="1">
-  <button type="submit">Continue Exploring</button>
-</form>
-<a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+
+{% block head_extra %}
+{{ super() }}
+<style>
+  /* * スタイル定義
+   * このセクションで見た目を設定しています。
+   * 色やフォントなど、自由に変更してください。
+   */
+  .battle-result-container {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 24px;
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    position: relative; /* アニメーションの基準点にする */
+    overflow: hidden; /* はみ出した要素を隠す */
+  }
+
+  .battle-result-container h2 {
+    color: #333;
+    margin-bottom: 24px;
+    font-size: 2em;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 16px;
+  }
+
+  .battle-log {
+    list-style-type: none;
+    padding: 0;
+    margin: 0 0 32px 0;
+    text-align: left;
+    max-height: 300px; /* ログが長くなった場合にスクロールさせる */
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+  }
+
+  .battle-log li {
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .battle-log li:last-child {
+    border-bottom: none;
+  }
+
+  /* メッセージの種類に応じたスタイル */
+  .log-message-damage { color: #c0392b; font-weight: bold; }
+  .log-message-heal { color: #27ae60; }
+  .log-message-info { color: #555; }
+  .log-message-critical { color: #8e44ad; font-weight: bold; background-color: #f4ecf7; }
+  .log-message-item_drop { color: #e67e22; font-weight: bold; }
+
+
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .btn {
+    display: inline-block;
+    text-decoration: none;
+    font-size: 1em;
+    font-weight: bold;
+    color: #fff;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    width: 100%;
+    max-width: 280px; /* ボタンの最大幅 */
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  .btn-primary { background-color: #3498db; }
+  .btn-primary:hover { background-color: #2980b9; }
+
+  .btn-secondary { background-color: #7f8c8d; color: #fff; }
+  .btn-secondary:hover { background-color: #6c7a7b; }
+
+  /* --- ここから宝箱アニメーション用のスタイル --- */
+  
+  .treasure-animation-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s, visibility 0.5s;
+  }
+
+  .treasure-animation-container.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .treasure-chest {
+    --chest-color: #8B4513; /* 茶色 */
+    --metal-color: #FFD700; /* 金色 */
+    width: 100px;
+    height: 70px;
+    position: relative;
+    transform: scale(0); /* 最初は見えない */
+  }
+
+  /* アニメーション起動用のクラス */
+  .treasure-chest.animate-appear {
+    animation: chest-appear 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) 0.5s forwards;
+  }
+
+  .chest-lid {
+    width: 100%;
+    height: 30%;
+    background: var(--chest-color);
+    border: 3px solid var(--metal-color);
+    border-radius: 10px 10px 0 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: bottom center;
+  }
+
+  .chest-lid.animate-open {
+    animation: lid-open 0.7s ease-in-out 1.2s forwards;
+  }
+
+  .chest-base {
+    width: 100%;
+    height: 70%;
+    background: var(--chest-color);
+    border: 3px solid var(--metal-color);
+    border-radius: 0 0 10px 10px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+
+  #item-reveal {
+    margin-top: 20px;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #2c3e50;
+    background: linear-gradient(45deg, #f1c40f, #f39c12);
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  #item-reveal.animate-show {
+    animation: item-show 1s ease-out 1.9s forwards;
+  }
+  
+  /* キーフレームアニメーション */
+  @keyframes chest-appear {
+    from { transform: scale(0); }
+    to { transform: scale(1.5); }
+  }
+
+  @keyframes lid-open {
+    from { transform: rotateX(0deg); }
+    to { transform: rotateX(-120deg); }
+  }
+
+  @keyframes item-show {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+</style>
 {% endblock %}
 
+
+{% block content %}
+<div class="battle-result-container">
+  
+  <!-- ▼▼▼ アイテムドロップ時のアニメーション用コンテナ ▼▼▼ -->
+  <div id="treasure-animation-container" class="treasure-animation-container">
+    <div class="treasure-chest">
+      <div class="chest-lid"></div>
+      <div class="chest-base"></div>
+    </div>
+    <div id="item-reveal"></div>
+  </div>
+  <!-- ▲▲▲ アニメーション用コンテナここまで ▲▲▲ -->
+
+  <h2>戦闘結果</h2>
+
+  <ul class="battle-log">
+    {% for m in messages %}
+      {# m.typeに応じてクラスを動的に設定 #}
+      {# item_dropの場合は、アニメーションのトリガーとなるdata属性を追加 #}
+      {% if m.type == 'item_drop' and m.item_name %}
+      <li class="log-message-{{ m.type }}" 
+          data-type="item_drop" 
+          data-item-name="{{ m.item_name }}">
+        {{ m.message }}
+      </li>
+      {% else %}
+      <li class="log-message-{{ m.type | default('info') }}">{{ m.message }}</li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+
+  <div class="actions">
+    <form action="{{ url_for('battle', user_id=user_id) }}" method="post" style="width: 100%; display: flex; justify-content: center;">
+      <input type="hidden" name="continue_explore" value="1">
+      <button type="submit" class="btn btn-primary">探索を続ける</button>
+    </form>
+  
+    <a href="{{ url_for('play', user_id=user_id) }}" class="btn btn-secondary">戻る</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // ページが読み込まれたら実行
+  document.addEventListener('DOMContentLoaded', () => {
+    // --- ▼▼▼ ここからが修正箇所 ▼▼▼ ---
+
+    // アイテムドロップのメッセージ要素をすべて探す
+    const itemDropMessages = document.querySelectorAll('[data-type="item_drop"]');
+
+    // 要素が見つかった場合のみアニメーションを実行
+    if (itemDropMessages.length > 0) {
+      
+      const animationContainer = document.getElementById('treasure-animation-container');
+      const itemRevealEl = document.getElementById('item-reveal');
+      const chestEl = document.querySelector('.treasure-chest');
+      const lidEl = document.querySelector('.chest-lid');
+
+      // 順番にアニメーションを実行する関数
+      const playAnimationSequentially = (index) => {
+        // 全てのアイテムのアニメーションが終わったら終了
+        if (index >= itemDropMessages.length) {
+          return;
+        }
+
+        const currentItem = itemDropMessages[index];
+        const itemName = currentItem.dataset.itemName;
+        
+        // 毎回アニメーションクラスをリセット
+        chestEl.classList.remove('animate-appear');
+        lidEl.classList.remove('animate-open');
+        itemRevealEl.classList.remove('animate-show');
+
+        // 1. アイテム名をセット
+        itemRevealEl.textContent = `✨ ${itemName} を手に入れた！ ✨`;
+        
+        // 2. アニメーションコンテナを表示
+        animationContainer.classList.add('visible');
+
+        // 3. アニメーションを順番に開始（requestAnimationFrameで再描画を待つ）
+        requestAnimationFrame(() => {
+          chestEl.classList.add('animate-appear');
+          lidEl.classList.add('animate-open');
+          itemRevealEl.classList.add('animate-show');
+        });
+
+        // アニメーションが終わるのを待って（約4秒）、次のアニメーションを再生
+        setTimeout(() => {
+          // コンテナを一旦隠す
+          animationContainer.classList.remove('visible');
+          // 少し間を置いてから次のアイテムへ
+          setTimeout(() => {
+            playAnimationSequentially(index + 1);
+          }, 500); // 0.5秒待つ
+        }, 4000); // 4秒待つ
+      };
+
+      // 最初のアニメーションを開始
+      playAnimationSequentially(0);
+    }
+    // --- ▲▲▲ 修正箇所ここまで ▲▲▲ ---
+  });
+</script>
+{% endblock %}
