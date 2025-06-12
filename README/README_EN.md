@@ -71,8 +71,10 @@ Other notable modules include `player.py` (player data and save/load logic), `ba
 - Some monsters now evolve once they reach certain levels.
 - Monsters can also be fused with special items to create entirely new creatures.
 - A unified `/synthesize_action/<user_id>` API now handles monster–monster,
-  monster–item, and item–item fusion. The synthesis web page uses a modal dialog
-  to choose the base and material.
+  monster–item, and item–item fusion. The synthesis page located at
+  `/synthesize/<user_id>` uses a modal dialog that posts to this endpoint.
+  Both routes accept the same JSON payload so manual requests can target either
+  path.
 - The web interface provides a battle log page showing the results of your last fight.
 - A dedicated login form lets you authenticate with your username and password.
 - Monster HP and MP are now stored when you save so battles can resume exactly

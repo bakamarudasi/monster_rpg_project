@@ -37,6 +37,42 @@ load_locations()
 active_battles: dict[int, "Battle"] = {}
 
 
+def _process_synthesis_payload(player: Player, data: dict):
+    """Common logic for synthesis routes using the unified JSON format."""
+    base_type = data.get('base_type')
+    base_id = data.get('base_id')
+    material_type = data.get('material_type')
+    material_id = data.get('material_id')
+
+    if base_type == 'monster':
+        try:
+            base_idx = int(base_id)
+        except (TypeError, ValueError):
+            return False, 'invalid base index', None
+    else:
+        if not isinstance(base_id, str):
+            return False, 'invalid base id', None
+
+    if material_type == 'monster':
+        try:
+            mat_idx = int(material_id)
+        except (TypeError, ValueError):
+            return False, 'invalid material index', None
+    else:
+        if not isinstance(material_id, str):
+            return False, 'invalid material id', None
+
+    if base_type == 'monster' and material_type == 'monster':
+        return player.synthesize_monster(base_idx, mat_idx)
+    if base_type == 'monster' and material_type == 'item':
+        return player.synthesize_monster_with_item(base_idx, material_id)
+    if base_type == 'item' and material_type == 'monster':
+        return player.synthesize_monster_with_item(mat_idx, base_id)
+    if base_type == 'item' and material_type == 'item':
+        return player.synthesize_items(base_id, material_id)
+    return False, 'invalid types', None
+
+
 class Battle:
     """Stateful battle that processes actions sequentially."""
 
@@ -488,38 +524,41 @@ def items(user_id):
 
 @app.route('/synthesize/<int:user_id>', methods=['GET', 'POST'])
 def synthesize(user_id):
-    """Combine two monsters from the player's party."""
+    """Display the synthesis page and handle legacy POST requests."""
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('index'))
+
     message = None
     if request.method == 'POST':
-        idx1 = idx2 = -1
         if request.is_json:
             data = request.get_json(silent=True) or {}
-            try:
-                idx1 = int(data.get('mon1', -1))
-                idx2 = int(data.get('mon2', -1))
-            except (TypeError, ValueError):
-                idx1 = idx2 = -1
-        else:
-            try:
-                idx1 = int(request.form.get('mon1', -1))
-                idx2 = int(request.form.get('mon2', -1))
-            except (TypeError, ValueError):
-                idx1 = idx2 = -1
-        success, msg, new_mon = player.synthesize_monster(idx1, idx2)
+            success, msg, result = _process_synthesis_payload(player, data)
+            if success:
+                player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+            resp = {'success': success}
+            if success:
+                if isinstance(result, (Equipment, EquipmentInstance)):
+                    resp.update({'result_type': 'equipment', 'name': result.name})
+                elif isinstance(result, Monster):
+                    resp.update({'result_type': 'monster', 'name': result.name})
+                else:
+                    resp.update({'result_type': 'item', 'name': getattr(result, 'name', '')})
+            else:
+                resp['error'] = msg
+            return jsonify(resp)
+
+        # Fallback for form-based monster-monster synthesis
+        try:
+            idx1 = int(request.form.get('mon1', -1))
+            idx2 = int(request.form.get('mon2', -1))
+        except (TypeError, ValueError):
+            idx1 = idx2 = -1
+
+        success, msg, _ = player.synthesize_monster(idx1, idx2)
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
-        if request.is_json:
-            new_mon_dict = None
-            if new_mon:
-                new_mon_dict = {
-                    'name': new_mon.name,
-                    'monster_id': getattr(new_mon, 'monster_id', None),
-                    'level': new_mon.level,
-                }
-            return jsonify({'success': success, 'message': msg, 'new_monster': new_mon_dict})
         message = msg
+
     return render_template('synthesize.html', player=player, user_id=user_id, message=message)
 
 
@@ -534,39 +573,9 @@ def synthesize_action(user_id):
         return jsonify({'success': False, 'error': 'json required'}), 400
 
     data = request.get_json(silent=True) or {}
-    base_type = data.get('base_type')
-    base_id = data.get('base_id')
-    material_type = data.get('material_type')
-    material_id = data.get('material_id')
-
-    if base_type == 'monster':
-        try:
-            base_idx = int(base_id)
-        except (TypeError, ValueError):
-            return jsonify({'success': False, 'error': 'invalid base index'}), 400
-    else:
-        if not isinstance(base_id, str):
-            return jsonify({'success': False, 'error': 'invalid base id'}), 400
-
-    if material_type == 'monster':
-        try:
-            mat_idx = int(material_id)
-        except (TypeError, ValueError):
-            return jsonify({'success': False, 'error': 'invalid material index'}), 400
-    else:
-        if not isinstance(material_id, str):
-            return jsonify({'success': False, 'error': 'invalid material id'}), 400
-
-    if base_type == 'monster' and material_type == 'monster':
-        success, msg, result = player.synthesize_monster(base_idx, mat_idx)
-    elif base_type == 'monster' and material_type == 'item':
-        success, msg, result = player.synthesize_monster_with_item(base_idx, material_id)
-    elif base_type == 'item' and material_type == 'monster':
-        success, msg, result = player.synthesize_monster_with_item(mat_idx, base_id)
-    elif base_type == 'item' and material_type == 'item':
-        success, msg, result = player.synthesize_items(base_id, material_id)
-    else:
-        return jsonify({'success': False, 'error': 'invalid types'}), 400
+    success, msg, result = _process_synthesis_payload(player, data)
+    if msg in {'invalid base index', 'invalid base id', 'invalid material index', 'invalid material id', 'invalid types'} and not success:
+        return jsonify({'success': False, 'error': msg}), 400
 
     if success:
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
