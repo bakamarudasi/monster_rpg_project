@@ -377,19 +377,21 @@ def equip(user_id):
         data = request.get_json(silent=True) or {}
         equip_id = data.get('equip_id')
         idx = data.get('monster_idx')
+        slot = data.get('slot')
     else:
         equip_id = request.form.get('equip_id')
         idx = request.form.get('monster_idx')
+        slot = request.form.get('slot')
 
     try:
         idx_int = int(idx)
     except (TypeError, ValueError):
         return jsonify({'success': False, 'error': 'invalid index'}), 400
 
-    if not equip_id:
+    if equip_id in [None, ''] and slot is None:
         return jsonify({'success': False, 'error': 'invalid equip_id'}), 400
 
-    success = player.equip_to_monster(idx_int, equip_id)
+    success = player.equip_to_monster(idx_int, equip_id if equip_id not in ['', None] else None, slot)
     if success:
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
 

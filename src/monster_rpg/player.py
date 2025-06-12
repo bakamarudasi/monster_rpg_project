@@ -345,10 +345,27 @@ class Player:
         print("装備の作成に失敗した。")
         return None
 
-    def equip_to_monster(self, party_idx, equip_id):
+    def equip_to_monster(self, party_idx, equip_id=None, slot=None):
+        """Equip or unequip an item for the given monster.
+
+        If ``equip_id`` is ``None``, the method will unequip the item in
+        ``slot`` and return it to the player's inventory.
+        """
         if not (0 <= party_idx < len(self.party_monsters)):
             print("無効なモンスター番号")
             return False
+
+        monster = self.party_monsters[party_idx]
+
+        if equip_id is None:
+            if slot is None or slot not in monster.equipment:
+                print("そのスロットには装備がない。")
+                return False
+            equip = monster.equipment.pop(slot)
+            self.equipment_inventory.append(equip)
+            print(f"{monster.name} の {slot} を外した。")
+            return True
+
         equip = None
         for e in self.equipment_inventory:
             if isinstance(e, EquipmentInstance):
@@ -362,7 +379,7 @@ class Player:
         if not equip:
             print("その装備を所持していない。")
             return False
-        monster = self.party_monsters[party_idx]
+
         monster.equip(equip)
         self.equipment_inventory.remove(equip)
         print(f"{monster.name} に {equip.name} を装備した。")

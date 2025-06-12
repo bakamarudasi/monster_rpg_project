@@ -18,7 +18,8 @@
               "skills": m.get_skill_details(),
               "description": monster_book.get(m.monster_id).description if monster_book.get(m.monster_id) else "このモンスターに関する詳しい説明はまだ見つかっていない。",
               "index": loop.index0,
-              "equipment": {slot: eq.name for slot, eq in m.equipment.items()}
+              "equipment": {slot: eq.name for slot, eq in m.equipment.items()},
+              "equipment_slots": m.equipment_slots
             } | tojson | forceescape }}'>
           {% if m.image_filename %}
             <img class="monster-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
@@ -349,13 +350,14 @@
       }
 
       const expNeeded = data.exp_to_next - data.exp;
-      let equippedHtml = '';
-      const eqEntries = Object.entries(data.equipment || {});
-      if (eqEntries.length > 0) {
-        equippedHtml = '<ul>' + eqEntries.map(([s,n]) => `<li>${s}: ${n}</li>`).join('') + '</ul>';
-      } else {
-        equippedHtml = '<p>何も装備していない。</p>';
-      }
+      let equippedHtml = '<ul>';
+      (data.equipment_slots || []).forEach(slot => {
+        const name = data.equipment && data.equipment[slot] ? data.equipment[slot] : '空き';
+        const btn = data.equipment && data.equipment[slot] ? ` <button class="unequip-btn" data-slot="${slot}" data-idx="${data.index}">外す</button>` : '';
+        equippedHtml += `<li>${slot}: ${name}${btn}</li>`;
+      });
+      equippedHtml += '</ul>';
+
       let equipListHtml = '';
       if (equipmentList.length > 0) {
         equipListHtml = '<ul>' + equipmentList.map(eq => `<li>${eq.name} <button class="equip-btn" data-equip-id="${eq.id}" data-idx="${data.index}">装備</button></li>`).join('') + '</ul>';
@@ -408,6 +410,26 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ equip_id: equipId, monster_idx: idx })
+          })
+          .then(res => res.json())
+          .then(resp => {
+            if (resp.success) {
+              equipmentList.length = 0;
+              resp.equipment_inventory.forEach(e => equipmentList.push(e));
+              data.equipment = resp.monster_equipment;
+              displayMonsterDetails(data);
+            }
+          });
+        });
+      });
+      modalCardBody.querySelectorAll('.unequip-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = btn.dataset.idx;
+          const slot = btn.dataset.slot;
+          fetch(equipUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ equip_id: null, monster_idx: idx, slot: slot })
           })
           .then(res => res.json())
           .then(resp => {
