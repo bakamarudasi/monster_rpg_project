@@ -188,7 +188,7 @@ button:hover { background: #004cd1; }
             {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}{% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
             
             <div class="battle-unit enemy{% if not e.is_alive %} down{% endif %}"
-                 data-down="{{ not e.is_alive }}"
+                 data-down="{{ not e.is_alive }}" data-unit-id="enemy-{{ loop.index0 }}"
                  data-name="{{ e.name }}" data-level="{{ e.level }}" data-hp="{{ e.hp }}"
                  data-max-hp="{{ e.max_hp }}" data-mp="{{ e.mp }}" data-max-mp="{{ e.max_mp }}"
                  data-attack="{{ e.attack }}" data-defense="{{ e.defense }}" data-speed="{{ e.speed }}">
@@ -214,8 +214,8 @@ button:hover { background: #004cd1; }
                 {% set hp_cls = 'hp-fill' %}
                 {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}{% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
 
-                <div class="battle-unit ally{% if not m.is_alive %} down{% endif %}{% if current_actor and m.id == current_actor.id %} active-turn{% endif %}"
-                     data-down="{{ not m.is_alive }}">
+                <div class="battle-unit ally{% if not m.is_alive %} down{% endif %}{% if current_actor and m is current_actor %} active-turn{% endif %}"
+                     data-down="{{ not m.is_alive }}" data-unit-id="ally-{{ loop.index0 }}">
                     
                     {% if m.image_filename %}
                         <img class="unit-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
@@ -374,6 +374,8 @@ function setupBattleUI() {
             evt.preventDefault();
             const formData = new FormData(form);
             const postUrl = "{{ url_for('battle', user_id=user_id) }}";
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.disabled = true;
             fetch(postUrl, { method: 'POST', body: formData })
                 .then(resp => resp.json())
                 .then(data => {
@@ -384,12 +386,21 @@ function setupBattleUI() {
                         return;
                     }
                     applyBattleData(data);
+                })
+                .catch(err => {
+                    console.error('Fetch error', err);
+                    alert('通信エラーが発生しました');
+                })
+                .finally(() => {
+                    if (submitBtn) submitBtn.disabled = false;
                 });
         });
     }
 }
 
 function applyBattleData(data) {
+    const detailPanel = document.getElementById('enemy-detail');
+    if (detailPanel) detailPanel.classList.remove('open');
     const allyUnits = document.querySelectorAll('.ally-party-display .battle-unit');
     allyUnits.forEach(el => el.classList.remove('active-turn'));
     data.hp_values.player.forEach((info, idx) => {
@@ -484,10 +495,7 @@ function applyBattleData(data) {
             updateTargets();
         }
 
-        const activeUnit = Array.from(allyUnits).find(u => {
-            const nameEl = u.querySelector('.member-name');
-            return nameEl && nameEl.textContent.trim() === data.current_actor.name;
-        });
+        const activeUnit = Array.from(allyUnits).find(u => u.dataset.unitId === data.current_actor.unit_id);
         if (activeUnit) activeUnit.classList.add('active-turn');
     }
 }
