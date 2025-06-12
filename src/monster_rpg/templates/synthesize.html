@@ -1,126 +1,287 @@
 {% extends "layout.html" %}
 
 {% block head_extra %}
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
-.modal { display: none; position: fixed; top: 0; left: 0; right:0; bottom:0; background: rgba(0,0,0,0.6); }
-.modal-content { background:#001a33; margin:10% auto; padding:1rem; width:300px; color:#fff; }
+  /* Applying the custom font and a new antique theme */
+  body {
+    font-family: 'Noto Serif JP', serif;
+    /* A warm, parchment-like background */
+    background-color: #fdf6e3;
+  }
+
+  /* Custom styles for select dropdown arrows to match the theme */
+  select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2344403c' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  /* Style for monster list options with images */
+  select#base-select option,
+  select#monster-select option {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+  }
+
+  select#base-select option img,
+  select#monster-select option img {
+    width: 24px; /* Adjust size as needed */
+    height: 24px;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="synthesis-container">
-    <h2>モンスター合成</h2>
-    <p id="result-msg">{% if message %}{{ message }}{% else %}合成するモンスターを選択してください{% endif %}</p>
-    <button id="open-modal">合成を開始</button>
+<div class="synthesis-container min-h-screen bg-[#6b4f4b] text-stone-800 flex flex-col items-center justify-center p-4" style="background-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png');">
 
-    <div id="synth-modal" class="modal">
-        <div class="modal-content">
-            <label for="base-type">ベースタイプ</label>
-            <select id="base-type">
-                <option value="monster">モンスター</option>
-                <option value="item">アイテム</option>
-            </select>
-            <div id="base-monster">
-                <label for="base-select">モンスター</label>
-                <select id="base-select">
-                    {% for m in player.party_monsters %}
-                    <option value="{{ loop.index0 }}">{{ m.name }} Lv.{{ m.level }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div id="base-item" style="display:none;">
-                <label for="base-item-select">アイテム</label>
-                <select id="base-item-select">
-                    {% for it in player.items %}
-                    <option value="{{ it.item_id }}">{{ it.name }}</option>
-                    {% endfor %}
-                    {% for eq in player.equipment_inventory %}
-                    <option value="{{ eq.base_item.equip_id if hasattr(eq,'base_item') else eq.equip_id }}">{{ eq.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <br>
-            <label for="mat-type">素材タイプ</label>
-            <select id="mat-type">
-                <option value="monster">モンスター</option>
-                <option value="item">アイテム</option>
-            </select>
-            <div id="mat-monster">
-                <label for="monster-select">モンスター</label>
-                <select id="monster-select">
-                    {% for m in player.party_monsters %}
-                    <option value="{{ loop.index0 }}">{{ m.name }} Lv.{{ m.level }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div id="mat-item" style="display:none;">
-                <label for="item-select">アイテム</label>
-                <select id="item-select">
-                    {% for it in player.items %}
-                    <option value="{{ it.item_id }}">{{ it.name }}</option>
-                    {% endfor %}
-                    {% for eq in player.equipment_inventory %}
-                    <option value="{{ eq.base_item.equip_id if hasattr(eq,'base_item') else eq.equip_id }}">{{ eq.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <button id="do-synth">合成</button>
-            <button id="close-modal">閉じる</button>
-        </div>
+  <div class="w-full max-w-2xl mx-auto bg-amber-50/90 backdrop-blur-sm rounded-lg shadow-2xl shadow-black/30 border-2 border-amber-900/50">
+    <div class="p-8 md:p-12 border-b-2 border-amber-900/50">
+      <h2 class="text-3xl md:text-4xl font-bold text-center mb-2 text-stone-900">モンスター合成</h2>
+      <p class="text-center text-stone-600 mb-8">古の術法を用い、新たな生命を創造せよ</p>
+
+      <div id="result-msg" class="min-h-[4rem] flex items-center justify-center text-center p-4 mb-8 bg-amber-100/70 rounded-md border border-amber-800/30 transition-all duration-300">
+        {% if message %}{{ message }}{% else %}合成の素材を選択してください…{% endif %}
+      </div>
+
+      <div class="text-center">
+        <button id="open-modal" class="w-full md:w-auto bg-amber-800 hover:bg-amber-900 text-amber-50 font-bold py-3 px-8 rounded-md transition-all duration-300 transform hover:scale-105 shadow-lg shadow-black/20 border-b-4 border-amber-950">
+          合成を開始する
+        </button>
+      </div>
     </div>
-    <a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+    <div class="px-8 py-4 text-center">
+      <a href="{{ url_for('play', user_id=user_id) }}" class="text-sm text-stone-700 hover:text-stone-900 transition-colors">遊戯に戻る</a>
+    </div>
+  </div>
+
+  <div id="synth-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 transition-opacity duration-300">
+    <div id="modal-content" class="bg-amber-50 border-2 border-amber-900 rounded-lg shadow-2xl shadow-black/40 w-full max-w-lg mx-auto transform transition-all duration-300 scale-95 opacity-0">
+      <div class="p-8 space-y-6">
+        <h3 class="text-2xl font-bold text-stone-900">合成の儀</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-amber-100/70 border border-amber-800/30 rounded-md">
+          <div class="space-y-2">
+            <label for="base-type" class="text-sm font-medium text-stone-700">素体（ベース）</label>
+            <select id="base-type" class="w-full p-3 bg-white text-stone-800 border border-stone-400 rounded-md focus:ring-2 focus:ring-amber-800 focus:border-amber-800 transition">
+              <option value="monster">モンスター</option>
+              <option value="item">アイテム</option>
+            </select>
+          </div>
+          <div class="space-y-2">
+            <div id="base-monster">
+              <label for="base-select" class="text-sm font-medium text-stone-700">素体モンスター選択</label>
+              <select id="base-select" class="w-full bg-white text-stone-800 border border-stone-400 rounded-md focus:ring-2 focus:ring-amber-800 focus:border-amber-800 transition">
+                {% for m in player.party_monsters %}
+                <option value="{{ loop.index0 }}">
+                  <img src="https://via.placeholder.com/24/808080/FFFFFF?Text=M" alt="{{ m.name }}"/>
+                  {{ m.name }} Lv.{{ m.level }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div id="base-item" class="hidden">
+              <label for="base-item-select" class="text-sm font-medium text-stone-700">素体アイテム選択</label>
+              <select id="base-item-select" class="w-full p-3 bg-white text-stone-800 border border-stone-400 rounded-md focus:ring-2 focus:ring-amber-800 focus:border-amber-800 transition">
+                {% for it in player.items %}
+                <option value="{{ it.item_id }}">{{ it.name }}</option>
+                {% endfor %}
+                {% for eq in player.equipment_inventory %}
+                <option value="{{ eq.base_item.equip_id if hasattr(eq,'base_item') else eq.equip_id }}">{{ eq.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-amber-100/70 border border-amber-800/30 rounded-md">
+          <div class="space-y-2">
+            <label for="mat-type" class="text-sm font-medium text-stone-700">触媒（マテリアル）</label>
+            <select id="mat-type" class="w-full p-3 bg-white text-stone-800 border border-stone-400 rounded-md focus:ring-2 focus:ring-amber-800 focus:border-amber-800 transition">
+              <option value="monster">モンスター</option>
+              <option value="item">アイテム</option>
+            </select>
+          </div>
+          <div class="space-y-2">
+            <div id="mat-monster">
+              <label for="monster-select" class="text-sm font-medium text-stone-700">触媒モンスター選択</label>
+              <select id="monster-select" class="w-full bg-white text-stone-800 border border-stone-400 rounded-md focus:ring-2 focus:ring-amber-800 focus:border-amber-800 transition">
+                {% for m in player.party_monsters %}
+                <option value="{{ loop.index0 }}">
+                  <img src="https://via.placeholder.com/24/808080/FFFFFF?Text=M" alt="{{ m.name }}"/>
+                  {{ m.name }} Lv.{{ m.level }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div id="mat-item" class="hidden">
+              <label for="item-select" class="text-sm font-medium text-stone-700">触媒アイテム選択</label>
+              <select id="item-select" class="w-full p-3 bg-white text-stone-800 border border-stone-400 rounded-md focus:ring-2 focus:ring-amber-800 focus:border-amber-800 transition">
+                {% for it in player.items %}
+                <option value="{{ it.item_id }}">{{ it.name }}</option>
+                {% endfor %}
+                {% for eq in player.equipment_inventory %}
+                <option value="{{ eq.base_item.equip_id if hasattr(eq,'base_item') else eq.equip_id }}">{{ eq.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-amber-100/70 p-4 flex justify-end space-x-4 rounded-b-lg">
+        <button id="close-modal" class="bg-stone-500 hover:bg-stone-600 text-white font-bold py-2 px-6 rounded-md transition-colors">中止</button>
+        <button id="do-synth" class="bg-amber-800 hover:bg-amber-900 text-white font-bold py-2 px-6 rounded-md transition-colors border-b-2 border-amber-950">実行</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-const modal = document.getElementById('synth-modal');
-const openBtn = document.getElementById('open-modal');
-const closeBtn = document.getElementById('close-modal');
-const matTypeSel = document.getElementById('mat-type');
-const matMonster = document.getElementById('mat-monster');
-const matItem = document.getElementById('mat-item');
-const baseTypeSel = document.getElementById('base-type');
-const baseMonster = document.getElementById('base-monster');
-const baseItem = document.getElementById('base-item');
-openBtn.addEventListener('click', () => { modal.style.display = 'block'; });
-closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        modal.style.display = 'none';
+  // --- DOM Element Selection ---
+  const modal = document.getElementById('synth-modal');
+  const modalContent = document.getElementById('modal-content');
+  const openBtn = document.getElementById('open-modal');
+  const closeBtn = document.getElementById('close-modal');
+  const doBtn = document.getElementById('do-synth');
+  const resultMsg = document.getElementById('result-msg');
+
+  // Base material selectors
+  const baseTypeSel = document.getElementById('base-type');
+  const baseMonsterDiv = document.getElementById('base-monster');
+  const baseItemDiv = document.getElementById('base-item');
+
+  // Catalyst material selectors
+  const matTypeSel = document.getElementById('mat-type');
+  const matMonsterDiv = document.getElementById('mat-monster');
+  const matItemDiv = document.getElementById('mat-item');
+
+  // --- Modal Logic ---
+  const openModal = () => {
+    modal.classList.remove('hidden');
+    // Animate the modal entrance
+    setTimeout(() => {
+      modal.classList.add('opacity-100');
+      modalContent.classList.remove('scale-95', 'opacity-0');
+      modalContent.classList.add('scale-100', 'opacity-100');
+    }, 10); // A short delay to allow CSS transitions to trigger
+  };
+
+  const closeModal = () => {
+    // Animate the modal exit
+    modalContent.classList.remove('scale-100', 'opacity-100');
+    modalContent.classList.add('scale-95', 'opacity-0');
+    modal.classList.remove('opacity-100');
+    setTimeout(() => {
+      modal.classList.add('hidden');
+    }, 300); // Match this with the transition duration
+  };
+
+  // --- Event Listeners ---
+  openBtn.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+
+  // Close modal with Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+      closeModal();
     }
-});
-matTypeSel.addEventListener('change', () => {
-    if (matTypeSel.value === 'item') { matItem.style.display = 'block'; matMonster.style.display = 'none'; }
-    else { matItem.style.display = 'none'; matMonster.style.display = 'block'; }
-});
-baseTypeSel.addEventListener('change', () => {
-    if (baseTypeSel.value === 'item') { baseItem.style.display = 'block'; baseMonster.style.display = 'none'; }
-    else { baseItem.style.display = 'none'; baseMonster.style.display = 'block'; }
-});
-const doBtn = document.getElementById('do-synth');
-const resultMsg = document.getElementById('result-msg');
-doBtn.addEventListener('click', () => {
+  });
+
+  // Close modal if clicking on the background overlay
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+
+  // Toggle between monster/item selection UI
+  const handleSelectChange = (typeSelect, monsterDiv, itemDiv) => {
+    if (typeSelect.value === 'item') {
+      itemDiv.classList.remove('hidden');
+      monsterDiv.classList.add('hidden');
+    } else {
+      itemDiv.classList.add('hidden');
+      monsterDiv.classList.remove('hidden');
+    }
+  };
+
+  baseTypeSel.addEventListener('change', () => handleSelectChange(baseTypeSel, baseMonsterDiv, baseItemDiv));
+  matTypeSel.addEventListener('change', () => handleSelectChange(matTypeSel, matMonsterDiv, matItemDiv));
+
+  // --- Synthesis Action ---
+  doBtn.addEventListener('click', () => {
+    // Get the values from the form
+    const baseType = baseTypeSel.value;
+    const baseSelect = baseType === 'item' ? document.getElementById('base-item-select') : document.getElementById('base-select');
+
+    const materialType = matTypeSel.value;
+    const materialSelect = materialType === 'item' ? document.getElementById('item-select') : document.getElementById('monster-select');
+
+    // Clear previous color classes
+    resultMsg.classList.remove('text-red-600', 'text-green-600');
+
+    // Prevent synthesizing a monster with itself
+    if (baseType === 'monster' && materialType === 'monster' && baseSelect.value === materialSelect.value) {
+      resultMsg.textContent = '同じモンスター同士を合成することはできません。';
+      resultMsg.classList.add('text-red-600');
+      closeModal();
+      return;
+    }
+
+    // Prepare data payload for the server
     const payload = {
-        base_type: baseTypeSel.value,
-        base_id: baseTypeSel.value === 'item' ? document.getElementById('base-item-select').value : parseInt(document.getElementById('base-select').value),
-        material_type: matTypeSel.value,
-        material_id: matTypeSel.value === 'item' ? document.getElementById('item-select').value : parseInt(document.getElementById('monster-select').value)
+      base_type: baseType,
+      base_id: baseType === 'monster' ? parseInt(baseSelect.value) : baseSelect.value,
+      material_type: materialType,
+      material_id: materialType === 'monster' ? parseInt(materialSelect.value) : materialSelect.value
     };
+
+    // Show a processing message
+    resultMsg.textContent = '合成中…';
+    closeModal();
+
+    // Send the request to the server
     fetch("{{ url_for('synthesize_action', user_id=user_id) }}", {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    }).then(r=>r.json()).then(data=>{
-        if(data.success){
-            const msg = data.result_type === 'monster' ? data.name + ' が誕生した！' : data.name + ' を入手した！';
-            resultMsg.textContent = msg;
-            setTimeout(()=>{ window.location.reload(); }, 1000);
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const msg = data.result_type === 'monster'
+            ? `合成成功！ ${data.name} が誕生しました！`
+            : `合成成功！ ${data.name} を入手しました！`;
+          resultMsg.textContent = msg;
+          resultMsg.classList.add('text-green-600');
+          // Reload the page after a delay to show the new monster/item
+          setTimeout(() => { window.location.reload(); }, 2000);
         } else {
-            resultMsg.textContent = data.error || '失敗';
+          resultMsg.textContent = `合成失敗： ${data.error || '原因不明のエラー'}`;
+          resultMsg.classList.add('text-red-600');
         }
-    }).catch(()=>{ resultMsg.textContent = '通信エラー';});
-    modal.style.display='none';
-});
+      })
+      .catch(error => {
+        console.error('Fetch Error:', error);
+        resultMsg.textContent = '通信エラーが発生しました。';
+        resultMsg.classList.add('text-red-600');
+      });
+  });
+
 </script>
 {% endblock %}
