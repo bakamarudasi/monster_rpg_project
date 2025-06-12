@@ -93,6 +93,7 @@
       modal.classList.add('show');
       modalCardBody.querySelectorAll('.equip-btn').forEach(btn => {
         btn.addEventListener('click', () => {
+          btn.disabled = true;
           const equipId = btn.dataset.equipId;
           const idx = btn.dataset.idx;
           fetch(equipUrl, {
@@ -108,11 +109,16 @@
               data.equipment = resp.monster_equipment;
               displayMonsterDetails(data);
             }
+          })
+          .catch(() => alert('装備の更新に失敗しました'))
+          .finally(() => {
+            btn.disabled = false;
           });
         });
       });
       modalCardBody.querySelectorAll('.unequip-btn').forEach(btn => {
         btn.addEventListener('click', () => {
+          btn.disabled = true;
           const idx = btn.dataset.idx;
           const slot = btn.dataset.slot;
           fetch(equipUrl, {
@@ -128,6 +134,10 @@
               data.equipment = resp.monster_equipment;
               displayMonsterDetails(data);
             }
+          })
+          .catch(() => alert('装備の更新に失敗しました'))
+          .finally(() => {
+            btn.disabled = false;
           });
         });
       });
