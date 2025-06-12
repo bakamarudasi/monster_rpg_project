@@ -214,7 +214,7 @@ button:hover { background: #004cd1; }
                 {% set hp_cls = 'hp-fill' %}
                 {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}{% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
 
-                <div class="battle-unit ally{% if not m.is_alive %} down{% endif %}{% if current_actor and m is current_actor %} active-turn{% endif %}"
+                <div class="battle-unit ally{% if not m.is_alive %} down{% endif %}{% if current_actor and m is sameas current_actor %} active-turn{% endif %}"
                      data-down="{{ not m.is_alive }}" data-unit-id="ally-{{ loop.index0 }}">
                     
                     {% if m.image_filename %}
