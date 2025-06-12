@@ -353,7 +353,56 @@ def party(user_id):
         player=player,
         user_id=user_id,
         monster_book=MONSTER_BOOK_DATA,
+        equipment_list=[
+            {
+                'id': (e.instance_id if isinstance(e, EquipmentInstance) else getattr(e, 'equip_id', str(e))),
+                'name': getattr(e, 'name', ''),
+                'slot': getattr(e, 'slot', ''),
+                'attack': getattr(e, 'total_attack', getattr(e, 'attack', 0)),
+                'defense': getattr(e, 'total_defense', getattr(e, 'defense', 0)),
+            }
+            for e in player.equipment_inventory
+        ],
     )
+
+
+@app.route('/equip/<int:user_id>', methods=['POST'])
+def equip(user_id):
+    """Equip an item from inventory to a monster."""
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    if not player:
+        return jsonify({'success': False, 'error': 'player not found'}), 404
+
+    if request.is_json:
+        data = request.get_json(silent=True) or {}
+        equip_id = data.get('equip_id')
+        idx = data.get('monster_idx')
+    else:
+        equip_id = request.form.get('equip_id')
+        idx = request.form.get('monster_idx')
+
+    try:
+        idx_int = int(idx)
+    except (TypeError, ValueError):
+        return jsonify({'success': False, 'error': 'invalid index'}), 400
+
+    if not equip_id:
+        return jsonify({'success': False, 'error': 'invalid equip_id'}), 400
+
+    success = player.equip_to_monster(idx_int, equip_id)
+    if success:
+        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+
+    monster = player.party_monsters[idx_int]
+    equipment_inventory = [
+        {
+            'id': (e.instance_id if isinstance(e, EquipmentInstance) else getattr(e, 'equip_id', str(e))),
+            'name': getattr(e, 'name', '')
+        }
+        for e in player.equipment_inventory
+    ]
+    monster_equipment = {slot: eq.name for slot, eq in monster.equipment.items()}
+    return jsonify({'success': success, 'equipment_inventory': equipment_inventory, 'monster_equipment': monster_equipment})
 
 
 @app.route('/monster_book/<int:user_id>')
