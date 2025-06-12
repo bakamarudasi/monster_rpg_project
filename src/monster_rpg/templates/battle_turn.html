@@ -374,6 +374,7 @@ function setupBattleUI() {
 
 function applyBattleData(data) {
     const allyUnits = document.querySelectorAll('.ally-party-display .battle-unit');
+    allyUnits.forEach(el => el.classList.remove('active-turn'));
     data.hp_values.player.forEach((info, idx) => {
         const unit = allyUnits[idx];
         if (!unit) return;
@@ -465,6 +466,12 @@ function applyBattleData(data) {
 
             updateTargets();
         }
+
+        const activeUnit = Array.from(allyUnits).find(u => {
+            const nameEl = u.querySelector('.member-name');
+            return nameEl && nameEl.textContent.trim() === data.current_actor.name;
+        });
+        if (activeUnit) activeUnit.classList.add('active-turn');
     }
 }
 
