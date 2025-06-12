@@ -380,7 +380,15 @@ function applyBattleData(data) {
         if (!info.alive) unit.classList.add('down');
         const fill = unit.querySelector('.hp-fill');
         const pct = Math.round(info.hp / info.max_hp * 100);
-        if (fill) fill.style.width = pct + '%';
+        if (fill) {
+            fill.classList.remove('low', 'critical');
+            if (pct <= 25) {
+                fill.classList.add('critical');
+            } else if (pct <= 50) {
+                fill.classList.add('low');
+            }
+            fill.style.width = pct + '%';
+        }
         const text = unit.querySelector('.hp-text');
         if (text) text.textContent = info.hp + '/' + info.max_hp;
     });
@@ -392,7 +400,15 @@ function applyBattleData(data) {
         if (!info.alive) unit.classList.add('down');
         const fill = unit.querySelector('.hp-fill');
         const pct = Math.round(info.hp / info.max_hp * 100);
-        if (fill) fill.style.width = pct + '%';
+        if (fill) {
+            fill.classList.remove('low', 'critical');
+            if (pct <= 25) {
+                fill.classList.add('critical');
+            } else if (pct <= 50) {
+                fill.classList.add('low');
+            }
+            fill.style.width = pct + '%';
+        }
         const text = unit.querySelector('.hp-text');
         if (text) text.textContent = info.hp + '/' + info.max_hp;
     });
