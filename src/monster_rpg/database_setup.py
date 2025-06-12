@@ -24,6 +24,13 @@ def initialize_database():
     conn = sqlite3.connect(DATABASE_NAME)
     cursor = conn.cursor()
 
+    def _add_column_if_missing(table: str, column: str, col_type: str) -> None:
+        """Add a column to a table if it does not already exist."""
+        cursor.execute(f"PRAGMA table_info({table})")
+        cols = [row[1] for row in cursor.fetchall()]
+        if column not in cols:
+            cursor.execute(f"ALTER TABLE {table} ADD COLUMN {column} {col_type}")
+
     # users テーブルの作成
     cursor.execute(
         """
@@ -59,7 +66,11 @@ def initialize_database():
         player_id INTEGER,
         monster_id TEXT,
         level INTEGER,
-        exp INTEGER
+        exp INTEGER,
+        hp INTEGER,
+        max_hp INTEGER,
+        mp INTEGER,
+        max_mp INTEGER
     )
     """)
 
@@ -69,7 +80,11 @@ def initialize_database():
         player_id INTEGER,
         monster_id TEXT,
         level INTEGER,
-        exp INTEGER
+        exp INTEGER,
+        hp INTEGER,
+        max_hp INTEGER,
+        mp INTEGER,
+        max_mp INTEGER
     )
     """)
 
@@ -89,6 +104,13 @@ def initialize_database():
         instance_id TEXT
     )
     """)
+
+    # Migrate existing databases to include HP/MP columns
+    for table in ("party_monsters", "storage_monsters"):
+        _add_column_if_missing(table, "hp", "INTEGER")
+        _add_column_if_missing(table, "max_hp", "INTEGER")
+        _add_column_if_missing(table, "mp", "INTEGER")
+        _add_column_if_missing(table, "max_mp", "INTEGER")
 
     # exploration_progress テーブルの作成
     cursor.execute(
