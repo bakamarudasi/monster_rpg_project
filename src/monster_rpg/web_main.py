@@ -522,6 +522,45 @@ def synthesize(user_id):
     return render_template('synthesize.html', player=player, user_id=user_id, message=message)
 
 
+@app.route('/synthesize_action/<int:user_id>', methods=['POST'])
+def synthesize_action(user_id):
+    """Handle monster synthesis via JSON payload."""
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    if not player:
+        return jsonify({'success': False, 'error': 'player not found'}), 404
+
+    if not request.is_json:
+        return jsonify({'success': False, 'error': 'json required'}), 400
+
+    data = request.get_json(silent=True) or {}
+    base_idx = data.get('base_monster_index')
+    material_type = data.get('material_type')
+    material_id = data.get('material_id')
+
+    try:
+        base_idx = int(base_idx)
+    except (TypeError, ValueError):
+        return jsonify({'success': False, 'error': 'invalid base index'}), 400
+
+    if material_type == 'monster':
+        try:
+            other_idx = int(material_id)
+        except (TypeError, ValueError):
+            return jsonify({'success': False, 'error': 'invalid material index'}), 400
+        success, msg, new_mon = player.synthesize_monster(base_idx, other_idx)
+    elif material_type == 'item':
+        if not isinstance(material_id, str):
+            return jsonify({'success': False, 'error': 'invalid item id'}), 400
+        success, msg, new_mon = player.synthesize_monster_with_item(base_idx, material_id)
+    else:
+        return jsonify({'success': False, 'error': 'invalid material type'}), 400
+
+    if success:
+        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+        return jsonify({'success': True, 'new_monster_name': new_mon.name})
+    return jsonify({'success': False, 'error': msg})
+
+
 @app.route('/shop/<int:user_id>', methods=['GET', 'POST'])
 def shop(user_id):
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
