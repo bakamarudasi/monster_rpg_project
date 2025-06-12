@@ -761,8 +761,10 @@ def battle(user_id):
         actor = battle_obj.current_actor()
         actor_data = None
         if actor and actor in battle_obj.player_party:
+            idx = battle_obj.player_party.index(actor)
             actor_data = {
                 'name': actor.name,
+                'unit_id': f'ally-{idx}',
                 'skills': [
                     {
                         'name': sk.name,
