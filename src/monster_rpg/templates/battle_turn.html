@@ -159,6 +159,23 @@ button:hover { background: #004cd1; }
 .enemy-detail-panel { position: fixed; top: 0; right: 0; width: 260px; height: 100%; background: rgba(0, 0, 0, 0.85); color: #fff; padding: 1rem; box-shadow: -2px 0 5px rgba(0,0,0,0.5); transform: translateX(100%); transition: transform 0.3s ease; overflow-y: auto; z-index: 100; }
 .enemy-detail-panel.open { transform: translateX(0); }
 .enemy-detail-panel .close-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+
+/* === ダメージポップアップ === */
+.damage-indicator {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    color: #ff3c3c;
+    font-weight: bold;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(0);
+    transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+}
+.damage-indicator.visible {
+    transform: translateY(-40px);
+    opacity: 1;
+}
 </style>
 {% endblock %}
 
@@ -473,6 +490,21 @@ function applyBattleData(data) {
         });
         if (activeUnit) activeUnit.classList.add('active-turn');
     }
+}
+
+function showDamageIndicator(container, text) {
+    const popup = document.createElement('div');
+    popup.className = 'damage-indicator';
+    popup.textContent = text;
+    container.appendChild(popup);
+
+    requestAnimationFrame(() => {
+        const w = popup.offsetWidth;
+        popup.style.marginLeft = -(w / 2) + 'px';
+        popup.classList.add('visible');
+    });
+
+    setTimeout(() => popup.remove(), 800);
 }
 
 document.addEventListener('DOMContentLoaded', setupBattleUI);
