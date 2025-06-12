@@ -21,6 +21,7 @@ import sqlite3
 from . import database_setup
 from .player import Player
 from .items.equipment import Equipment, EquipmentInstance
+from .monsters.monster_class import Monster
 from .monsters.monster_data import ALL_MONSTERS, MONSTER_BOOK_DATA
 from .items.item_data import ALL_ITEMS
 from .map_data import LOCATIONS, get_map_overview, get_map_grid, load_locations
@@ -533,31 +534,50 @@ def synthesize_action(user_id):
         return jsonify({'success': False, 'error': 'json required'}), 400
 
     data = request.get_json(silent=True) or {}
-    base_idx = data.get('base_monster_index')
+    base_type = data.get('base_type')
+    base_id = data.get('base_id')
     material_type = data.get('material_type')
     material_id = data.get('material_id')
 
-    try:
-        base_idx = int(base_idx)
-    except (TypeError, ValueError):
-        return jsonify({'success': False, 'error': 'invalid base index'}), 400
+    if base_type == 'monster':
+        try:
+            base_idx = int(base_id)
+        except (TypeError, ValueError):
+            return jsonify({'success': False, 'error': 'invalid base index'}), 400
+    else:
+        if not isinstance(base_id, str):
+            return jsonify({'success': False, 'error': 'invalid base id'}), 400
 
     if material_type == 'monster':
         try:
-            other_idx = int(material_id)
+            mat_idx = int(material_id)
         except (TypeError, ValueError):
             return jsonify({'success': False, 'error': 'invalid material index'}), 400
-        success, msg, new_mon = player.synthesize_monster(base_idx, other_idx)
-    elif material_type == 'item':
-        if not isinstance(material_id, str):
-            return jsonify({'success': False, 'error': 'invalid item id'}), 400
-        success, msg, new_mon = player.synthesize_monster_with_item(base_idx, material_id)
     else:
-        return jsonify({'success': False, 'error': 'invalid material type'}), 400
+        if not isinstance(material_id, str):
+            return jsonify({'success': False, 'error': 'invalid material id'}), 400
+
+    if base_type == 'monster' and material_type == 'monster':
+        success, msg, result = player.synthesize_monster(base_idx, mat_idx)
+    elif base_type == 'monster' and material_type == 'item':
+        success, msg, result = player.synthesize_monster_with_item(base_idx, material_id)
+    elif base_type == 'item' and material_type == 'monster':
+        success, msg, result = player.synthesize_monster_with_item(mat_idx, base_id)
+    elif base_type == 'item' and material_type == 'item':
+        success, msg, result = player.synthesize_items(base_id, material_id)
+    else:
+        return jsonify({'success': False, 'error': 'invalid types'}), 400
 
     if success:
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
-        return jsonify({'success': True, 'new_monster_name': new_mon.name})
+        resp = {'success': True}
+        if isinstance(result, (Equipment, EquipmentInstance)):
+            resp.update({'result_type': 'equipment', 'name': result.name})
+        elif isinstance(result, Monster):
+            resp.update({'result_type': 'monster', 'name': result.name})
+        else:
+            resp.update({'result_type': 'item', 'name': getattr(result, 'name', '')})
+        return jsonify(resp)
     return jsonify({'success': False, 'error': msg})
 
 

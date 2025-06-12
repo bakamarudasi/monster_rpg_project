@@ -53,7 +53,8 @@ class SynthesisRouteTests(unittest.TestCase):
         resp = self.client.post(
             f'/synthesize_action/{self.user_id}',
             json={
-                'base_monster_index': 0,
+                'base_type': 'monster',
+                'base_id': 0,
                 'material_type': 'monster',
                 'material_id': 1,
             },
@@ -61,7 +62,7 @@ class SynthesisRouteTests(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
         self.assertTrue(data['success'])
-        self.assertEqual(data['new_monster_name'], ALL_MONSTERS['water_wolf'].name)
+        self.assertEqual(data['name'], ALL_MONSTERS['water_wolf'].name)
         loaded = Player.load_game(self.db_path, user_id=self.user_id)
         self.assertIn('water_wolf', loaded.monster_book.captured)
 

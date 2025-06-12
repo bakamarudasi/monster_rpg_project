@@ -13,6 +13,7 @@ from .items.equipment import (
     CRAFTING_RECIPES,
     create_titled_equipment,
     EquipmentInstance,
+    Equipment,
     ALL_EQUIPMENT,
 )
 from .items.titles import ALL_TITLES
@@ -575,6 +576,52 @@ class Player:
 
         item_name = ALL_ITEMS[item_id].name if item_id in ALL_ITEMS else item_id
         return True, f"{removed_name} と {item_name} を合成して {new_mon.name} が誕生した！", new_mon
+
+
+    def synthesize_items(self, item1_id: str, item2_id: str):
+        """Combine two items/equipment and produce a new item or equipment."""
+        from .monsters.synthesis_rules import ITEM_ITEM_RECIPES
+
+        key = tuple(sorted([item1_id, item2_id]))
+        if key not in ITEM_ITEM_RECIPES:
+            return False, "その組み合わせでは何も起こらなかった...", None
+
+        def remove_material(iid):
+            for idx, it in enumerate(self.items):
+                if getattr(it, "item_id", None) == iid:
+                    return self.items.pop(idx)
+            for idx, eq in enumerate(self.equipment_inventory):
+                if isinstance(eq, EquipmentInstance):
+                    if eq.base_item.equip_id == iid:
+                        return self.equipment_inventory.pop(idx)
+                elif getattr(eq, "equip_id", None) == iid:
+                    return self.equipment_inventory.pop(idx)
+            return None
+
+        mat1 = remove_material(item1_id)
+        if not mat1:
+            return False, "素材が足りない。", None
+        mat2 = remove_material(item2_id)
+        if not mat2:
+            # put mat1 back
+            if isinstance(mat1, (Equipment, EquipmentInstance)):
+                self.equipment_inventory.append(mat1)
+            else:
+                self.items.append(mat1)
+            return False, "素材が足りない。", None
+
+        result_id = ITEM_ITEM_RECIPES[key]
+        if result_id in ALL_ITEMS:
+            new_obj = ALL_ITEMS[result_id]
+            self.items.append(new_obj)
+        elif result_id in ALL_EQUIPMENT:
+            new_obj = create_titled_equipment(result_id)
+            if new_obj:
+                self.equipment_inventory.append(new_obj)
+        else:
+            return False, "レシピ結果が不明です。", None
+
+        return True, f"{getattr(new_obj, 'name', '')} を手に入れた！", new_obj
 
 
     @staticmethod
