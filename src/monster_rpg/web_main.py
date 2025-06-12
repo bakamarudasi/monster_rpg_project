@@ -385,21 +385,41 @@ def party(user_id):
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('index'))
+    party_info = []
+    for idx, m in enumerate(player.party_monsters):
+        party_info.append({
+            'monster': m,
+            'detail': {
+                'name': m.name,
+                'level': m.level,
+                'hp': m.hp,
+                'max_hp': m.max_hp,
+                'exp': m.exp,
+                'exp_to_next': m.calculate_exp_to_next_level(),
+                'image': url_for('static', filename='images/' + m.image_filename) if m.image_filename else '',
+                'stats': {'attack': m.attack, 'defense': m.defense, 'speed': m.speed},
+                'skills': m.get_skill_details(),
+                'description': MONSTER_BOOK_DATA.get(m.monster_id).description if MONSTER_BOOK_DATA.get(m.monster_id) else 'このモンスターに関する詳しい説明はまだ見つかっていない。',
+                'index': idx,
+                'equipment': {slot: eq.name for slot, eq in m.equipment.items()},
+                'equipment_slots': m.equipment_slots,
+            },
+        })
+    equipment_list = [
+        {
+            'id': (e.instance_id if isinstance(e, EquipmentInstance) else getattr(e, 'equip_id', str(e))),
+            'name': getattr(e, 'name', ''),
+            'slot': getattr(e, 'slot', ''),
+            'attack': getattr(e, 'total_attack', getattr(e, 'attack', 0)),
+            'defense': getattr(e, 'total_defense', getattr(e, 'defense', 0)),
+        }
+        for e in player.equipment_inventory
+    ]
     return render_template(
         "party.html",
-        player=player,
+        party_info=party_info,
         user_id=user_id,
-        monster_book=MONSTER_BOOK_DATA,
-        equipment_list=[
-            {
-                'id': (e.instance_id if isinstance(e, EquipmentInstance) else getattr(e, 'equip_id', str(e))),
-                'name': getattr(e, 'name', ''),
-                'slot': getattr(e, 'slot', ''),
-                'attack': getattr(e, 'total_attack', getattr(e, 'attack', 0)),
-                'defense': getattr(e, 'total_defense', getattr(e, 'defense', 0)),
-            }
-            for e in player.equipment_inventory
-        ],
+        equipment_list=equipment_list,
     )
 
 
