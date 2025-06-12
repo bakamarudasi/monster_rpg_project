@@ -85,6 +85,11 @@ const baseMonster = document.getElementById('base-monster');
 const baseItem = document.getElementById('base-item');
 openBtn.addEventListener('click', () => { modal.style.display = 'block'; });
 closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        modal.style.display = 'none';
+    }
+});
 matTypeSel.addEventListener('change', () => {
     if (matTypeSel.value === 'item') { matItem.style.display = 'block'; matMonster.style.display = 'none'; }
     else { matItem.style.display = 'none'; matMonster.style.display = 'block'; }
