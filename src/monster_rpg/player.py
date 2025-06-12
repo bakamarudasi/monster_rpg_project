@@ -153,6 +153,23 @@ class Player:
                 (self.db_id, loc_id, prog),
             )
 
+        cursor.execute(
+            "DELETE FROM monster_book_status WHERE player_id=?",
+            (self.db_id,),
+        )
+        all_ids = self.monster_book.seen.union(self.monster_book.captured)
+        for mid in all_ids:
+            cursor.execute(
+                "INSERT INTO monster_book_status (player_id, monster_id, seen, captured)"
+                " VALUES (?, ?, ?, ?)",
+                (
+                    self.db_id,
+                    mid,
+                    int(mid in self.monster_book.seen),
+                    int(mid in self.monster_book.captured),
+                ),
+            )
+
         conn.commit()
         conn.close()
         print(f"{self.name} のデータがセーブされました。")
@@ -501,6 +518,9 @@ class Player:
                     removed_monster_names.append(self.party_monsters.pop(idx).name)
 
                 self.party_monsters.append(new_monster)
+                # Record the synthesis result in the monster book so that it
+                # counts as captured.
+                self.monster_book.record_captured(new_monster.monster_id)
 
                 return (
                     True,
@@ -549,6 +569,9 @@ class Player:
         new_mon.hp = new_mon.max_hp
         new_mon.is_alive = True
         self.party_monsters.append(new_mon)
+        # Newly synthesized monsters should count as captured in the Monster
+        # Book just like those recruited in battle.
+        self.monster_book.record_captured(new_mon.monster_id)
 
         item_name = ALL_ITEMS[item_id].name if item_id in ALL_ITEMS else item_id
         return True, f"{removed_name} と {item_name} を合成して {new_mon.name} が誕生した！", new_mon
@@ -643,6 +666,16 @@ class Player:
             )
             for loc_id, prog in cursor.fetchall():
                 loaded_player.exploration_progress[loc_id] = prog
+
+            cursor.execute(
+                "SELECT monster_id, seen, captured FROM monster_book_status WHERE player_id=?",
+                (db_id,),
+            )
+            for mid, seen, captured in cursor.fetchall():
+                if seen:
+                    loaded_player.monster_book.seen.add(mid)
+                if captured:
+                    loaded_player.monster_book.captured.add(mid)
 
             conn.close()
             print(f"{name} のデータがロードされました。")

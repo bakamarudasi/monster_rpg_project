@@ -70,6 +70,9 @@ Other notable modules include `player.py` (player data and save/load logic), `ba
 - Basic equipment crafting has been added. Use collected items to craft simple weapons and armor.
 - Some monsters now evolve once they reach certain levels.
 - Monsters can also be fused with special items to create entirely new creatures.
+- A unified `/synthesize_action/<user_id>` API now handles both monster fusion
+  and item fusion. The synthesis web page uses a modal dialog to choose the
+  base monster and material.
 - The web interface provides a battle log page showing the results of your last fight.
 - A dedicated login form lets you authenticate with your username and password.
 - Monster HP and MP are now stored when you save so battles can resume exactly

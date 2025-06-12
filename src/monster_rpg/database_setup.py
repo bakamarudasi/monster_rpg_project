@@ -105,6 +105,18 @@ def initialize_database():
     )
     """)
 
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS monster_book_status (
+            player_id INTEGER,
+            monster_id TEXT,
+            seen INTEGER,
+            captured INTEGER,
+            PRIMARY KEY(player_id, monster_id)
+        )
+        """
+    )
+
     # Migrate existing databases to include HP/MP columns
     for table in ("party_monsters", "storage_monsters"):
         _add_column_if_missing(table, "hp", "INTEGER")
