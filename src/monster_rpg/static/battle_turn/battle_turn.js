@@ -117,6 +117,9 @@ function setupBattleUI() {
                 });
         });
     }
+
+    const cmdWindow = document.querySelector('.command-window');
+    if (cmdWindow) cmdWindow.scrollIntoView({behavior: 'smooth'});
 }
 
 function updateUnitList(units, infoList) {
@@ -221,6 +224,9 @@ function applyBattleData(data) {
         const activeUnit = Array.from(allyUnits).find(u => u.dataset.unitId === data.current_actor.unit_id);
         if (activeUnit) activeUnit.classList.add('active-turn');
     }
+
+    const cmdWindow = document.querySelector('.command-window');
+    if (cmdWindow) cmdWindow.scrollIntoView({behavior: 'smooth'});
 }
 
 function showDamageIndicator(container, text) {
