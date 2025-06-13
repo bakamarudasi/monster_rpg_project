@@ -49,12 +49,17 @@ function setupBattleUI() {
     }
     window.updateTargets = updateTargets;
 
-    /* 現在のHPをdata属性に保存 */
+    /* 現在のHP/MPをdata属性に保存 */
     document.querySelectorAll('.battle-unit').forEach(unit => {
         const hpText = unit.querySelector('.hp-text');
         if (hpText) {
             const hp = parseInt(hpText.textContent.split('/')[0]);
             if (!isNaN(hp)) unit.dataset.hp = hp;
+        }
+        const mpText = unit.querySelector('.mp-text');
+        if (mpText) {
+            const mp = parseInt(mpText.textContent.split('/')[0]);
+            if (!isNaN(mp)) unit.dataset.mp = mp;
         }
     });
 
@@ -120,6 +125,7 @@ function updateUnitList(units, infoList) {
         if (!unit) return;
         const prevHp = parseInt(unit.dataset.hp || '0');
         unit.dataset.hp = info.hp;
+        unit.dataset.mp = info.mp;
         if (!info.alive) unit.classList.add('down');
         const fill = unit.querySelector('.hp-fill');
         const pct = Math.round(info.hp / info.max_hp * 100);
@@ -134,6 +140,14 @@ function updateUnitList(units, infoList) {
         }
         const text = unit.querySelector('.hp-text');
         if (text) text.textContent = info.hp + '/' + info.max_hp;
+
+        const mpFill = unit.querySelector('.mp-fill');
+        const mpPct = Math.round(info.mp / info.max_mp * 100);
+        if (mpFill) {
+            mpFill.style.width = mpPct + '%';
+        }
+        const mpText = unit.querySelector('.mp-text');
+        if (mpText) mpText.textContent = info.mp + '/' + info.max_mp;
 
         if (!isNaN(prevHp) && info.hp < prevHp) {
             showDamageIndicator(unit, '-' + (prevHp - info.hp));
