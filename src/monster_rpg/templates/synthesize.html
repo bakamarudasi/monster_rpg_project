@@ -224,9 +224,10 @@
     .monster-card {
         padding: 0.5rem;
     }
-    .monster-card .monster-svg {
+    .monster-card .monster-img {
         width: 5rem;
         height: 5rem;
+        object-fit: contain;
         pointer-events: none;
     }
     .monster-card .card-name {
@@ -254,9 +255,10 @@
         border: 2px solid var(--color-border);
     }
     
-    .drop-zone .placed-svg {
+    .drop-zone .placed-img {
         width: 6rem;
         height: 6rem;
+        object-fit: contain;
     }
     .drop-zone .placed-name {
         position: absolute;
@@ -317,7 +319,11 @@
                 <div id="panel-monsters" class="panel">
                     {% for m in player.party_monsters %}
                     <div class="monster-card draggable-item" draggable="true" data-id="{{ loop.index0 }}" data-type="monster" data-name="{{ m.name }} Lv.{{ m.level }}">
-                        <svg class="monster-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.5 9.5a1 1 0 11-2 0 1 1 0 012 0zm-5 0a1 1 0 11-2 0 1 1 0 012 0zM21 12a9 9 0 11-18 0 9 9 0 0118 0zM6.622 15.394a.75.75 0 001.059.014 5.46 5.46 0 018.638 0 .75.75 0 101.073-1.044 6.96 6.96 0 00-10.77 0 .75.75 0 00.014 1.059z" fill="#443831"/></svg>
+                        {% if m.image_filename %}
+                        <img class="monster-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
+                        {% else %}
+                        <svg class="monster-img" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.5 9.5a1 1 0 11-2 0 1 1 0 012 0zm-5 0a1 1 0 11-2 0 1 1 0 012 0zM21 12a9 9 0 11-18 0 9 9 0 0118 0zM6.622 15.394a.75.75 0 001.059.014 5.46 5.46 0 018.638 0 .75.75 0 101.073-1.044 6.96 6.96 0 00-10.77 0 .75.75 0 00.014 1.059z" fill="#443831"/></svg>
+                        {% endif %}
                         <span class="card-name">{{ m.name }} Lv.{{ m.level }}</span>
                     </div>
                     {% endfor %}
@@ -406,12 +412,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 zone.innerHTML = ''; // Clear placeholder text
                 
                 if (draggedElement.dataset.type === 'monster') {
-                    const svg = draggedElement.querySelector('svg').cloneNode(true);
-                    svg.classList.add('placed-svg');
+                    const img = draggedElement.querySelector('.monster-img').cloneNode(true);
+                    img.classList.add('placed-img');
                     const nameSpan = document.createElement('span');
                     nameSpan.className = 'placed-name';
                     nameSpan.textContent = draggedElement.dataset.name;
-                    zone.appendChild(svg);
+                    zone.appendChild(img);
                     zone.appendChild(nameSpan);
                 } else {
                     const nameSpan = document.createElement('span');
