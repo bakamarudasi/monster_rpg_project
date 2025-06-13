@@ -37,6 +37,7 @@ body {
 .ally-area {
     padding: 1rem;
     background: rgba(0, 0, 0, 0.2);
+    padding-bottom: 5rem; /* space for sticky command window */
 }
 .ally-party-display {
     padding: 1rem;
@@ -148,8 +149,17 @@ body {
     50% { top: -20px; }
 }
 
-/* === コマンド入力フォーム (変更なし) === */
-.command-window { margin-top: 1.5rem; padding: 1rem; border: 2px solid #666; border-radius: 6px; background: #112a44; }
+/* === コマンド入力フォーム === */
+.command-window {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border: 2px solid #666;
+    border-radius: 6px;
+    background: #112a44;
+    position: sticky;  /* new */
+    bottom: 0;         /* new */
+    z-index: 10;       /* new to keep above log */
+}
 .turn-banner { font-size: 1.5rem; font-weight: bold; text-align: center; margin-bottom: 1rem; color: #ffdd00; text-shadow: 1px 1px 2px #000; }
 .action-row { display: grid; grid-template-columns: 100px 1fr 1fr; gap: .75rem; align-items: center; margin-bottom: .75rem; }
 .action-row label { font-weight: bold; color: #fff; }
