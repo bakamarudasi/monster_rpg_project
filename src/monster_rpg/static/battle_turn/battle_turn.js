@@ -145,7 +145,7 @@ function updateUnitList(units, infoList) {
         if (text) text.textContent = info.hp + '/' + info.max_hp;
 
         const mpFill = unit.querySelector('.mp-fill');
-        const mpPct = Math.round(info.mp / info.max_mp * 100);
+        const mpPct = info.max_mp > 0 ? Math.round(info.mp / info.max_mp * 100) : 0;
         if (mpFill) {
             mpFill.style.width = mpPct + '%';
         }
