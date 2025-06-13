@@ -9,6 +9,16 @@ function setupBattleUI() {
         });
     });
 
+    /* MPバーのアニメーション */
+    document.querySelectorAll('.mp-fill').forEach(fill => {
+        const finalWidth = fill.style.width;
+        fill.style.width = '0%';
+        requestAnimationFrame(() => {
+            fill.style.transition = 'width 1s cubic-bezier(0.25, 1, 0.5, 1)';
+            fill.style.width = finalWidth;
+        });
+    });
+
     /* HP低下時の点滅 */
     document.querySelectorAll('.hp-fill.critical').forEach(el => el.classList.add('blink'));
 
@@ -120,6 +130,7 @@ function updateUnitList(units, infoList) {
         if (!unit) return;
         const prevHp = parseInt(unit.dataset.hp || '0');
         unit.dataset.hp = info.hp;
+        unit.dataset.mp = info.mp;
         if (!info.alive) unit.classList.add('down');
         const fill = unit.querySelector('.hp-fill');
         const pct = Math.round(info.hp / info.max_hp * 100);
@@ -134,6 +145,14 @@ function updateUnitList(units, infoList) {
         }
         const text = unit.querySelector('.hp-text');
         if (text) text.textContent = info.hp + '/' + info.max_hp;
+
+        const mpFill = unit.querySelector('.mp-fill');
+        const mpPct = Math.round(info.mp / info.max_mp * 100);
+        if (mpFill) {
+            mpFill.style.width = mpPct + '%';
+        }
+        const mpText = unit.querySelector('.mp-text');
+        if (mpText) mpText.textContent = info.mp + '/' + info.max_mp;
 
         if (!isNaN(prevHp) && info.hp < prevHp) {
             showDamageIndicator(unit, '-' + (prevHp - info.hp));
@@ -183,7 +202,9 @@ function applyBattleData(data) {
                 opt.value = 'skill' + idx;
                 opt.dataset.target = sk.target;
                 opt.dataset.scope = sk.scope;
-                opt.textContent = sk.name;
+                opt.dataset.cost = sk.cost;
+                opt.textContent = sk.name + (sk.cost ? ` (MP${sk.cost})` : '');
+                if (sk.cost > data.current_actor.mp) opt.disabled = true;
                 actionSel.appendChild(opt);
             });
 

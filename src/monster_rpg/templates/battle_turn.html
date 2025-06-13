@@ -4,7 +4,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='battle_turn.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='battle_turn/battle_turn.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -27,8 +27,11 @@
                 <div class="member-info">
                     <div class="member-name">{{ e.name }}</div>
                     <div class="hp-bar"><div class="{{ hp_cls }}" style="width:{{ hp_pct }}%"></div></div>
+                    {% set mp_pct = (e.mp / e.max_mp * 100)|round(0) %}
+                    <div class="mp-bar"><div class="mp-fill" style="width:{{ mp_pct }}%"></div></div>
                 </div>
                 <div class="hp-text">{{ e.hp }}/{{ e.max_hp }}</div>
+                <div class="mp-text">{{ e.mp }}/{{ e.max_mp }}</div>
             </div>
         {% endfor %}
     </div>
@@ -43,7 +46,8 @@
                 {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}{% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
 
                 <div class="battle-unit ally{% if not m.is_alive %} down{% endif %}{% if current_actor and m is sameas current_actor %} active-turn{% endif %}"
-                     data-down="{{ not m.is_alive }}" data-unit-id="ally-{{ loop.index0 }}">
+                     data-down="{{ not m.is_alive }}" data-unit-id="ally-{{ loop.index0 }}"
+                     data-mp="{{ m.mp }}" data-max-mp="{{ m.max_mp }}">
                     
                     {% if m.image_filename %}
                         <img class="unit-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
@@ -51,8 +55,11 @@
                     <div class="member-info">
                         <div class="member-name">{{ m.name }}</div>
                         <div class="hp-bar"><div class="{{ hp_cls }}" style="width:{{ hp_pct }}%"></div></div>
+                        {% set mp_pct = (m.mp / m.max_mp * 100)|round(0) %}
+                        <div class="mp-bar"><div class="mp-fill" style="width:{{ mp_pct }}%"></div></div>
                     </div>
                     <div class="hp-text">{{ m.hp }}/{{ m.max_hp }}</div>
+                    <div class="mp-text">{{ m.mp }}/{{ m.max_mp }}</div>
                 </div>
             {% endfor %}
         </div>
@@ -118,5 +125,5 @@
 
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='battle_turn.js') }}"></script>
+<script src="{{ url_for('static', filename='battle_turn/battle_turn.js') }}"></script>
 {% endblock %}
