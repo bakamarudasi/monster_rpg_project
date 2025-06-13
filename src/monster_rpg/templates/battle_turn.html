@@ -398,49 +398,36 @@ function setupBattleUI() {
     }
 }
 
+function updateUnitList(units, infoList) {
+    infoList.forEach((info, idx) => {
+        const unit = units[idx];
+        if (!unit) return;
+        if (!info.alive) unit.classList.add('down');
+        const fill = unit.querySelector('.hp-fill');
+        const pct = Math.round(info.hp / info.max_hp * 100);
+        if (fill) {
+            fill.classList.remove('low', 'critical');
+            if (pct <= 25) {
+                fill.classList.add('critical');
+            } else if (pct <= 50) {
+                fill.classList.add('low');
+            }
+            fill.style.width = pct + '%';
+        }
+        const text = unit.querySelector('.hp-text');
+        if (text) text.textContent = info.hp + '/' + info.max_hp;
+    });
+}
+
 function applyBattleData(data) {
     const detailPanel = document.getElementById('enemy-detail');
     if (detailPanel) detailPanel.classList.remove('open');
     const allyUnits = document.querySelectorAll('.ally-party-display .battle-unit');
     allyUnits.forEach(el => el.classList.remove('active-turn'));
-    data.hp_values.player.forEach((info, idx) => {
-        const unit = allyUnits[idx];
-        if (!unit) return;
-        if (!info.alive) unit.classList.add('down');
-        const fill = unit.querySelector('.hp-fill');
-        const pct = Math.round(info.hp / info.max_hp * 100);
-        if (fill) {
-            fill.classList.remove('low', 'critical');
-            if (pct <= 25) {
-                fill.classList.add('critical');
-            } else if (pct <= 50) {
-                fill.classList.add('low');
-            }
-            fill.style.width = pct + '%';
-        }
-        const text = unit.querySelector('.hp-text');
-        if (text) text.textContent = info.hp + '/' + info.max_hp;
-    });
+    updateUnitList(allyUnits, data.hp_values.player);
 
     const enemyUnits = document.querySelectorAll('.enemy-area .battle-unit');
-    data.hp_values.enemy.forEach((info, idx) => {
-        const unit = enemyUnits[idx];
-        if (!unit) return;
-        if (!info.alive) unit.classList.add('down');
-        const fill = unit.querySelector('.hp-fill');
-        const pct = Math.round(info.hp / info.max_hp * 100);
-        if (fill) {
-            fill.classList.remove('low', 'critical');
-            if (pct <= 25) {
-                fill.classList.add('critical');
-            } else if (pct <= 50) {
-                fill.classList.add('low');
-            }
-            fill.style.width = pct + '%';
-        }
-        const text = unit.querySelector('.hp-text');
-        if (text) text.textContent = info.hp + '/' + info.max_hp;
-    });
+    updateUnitList(enemyUnits, data.hp_values.enemy);
 
     const logEl = document.querySelector('.log');
     if (logEl) {
