@@ -1,9 +1,7 @@
 {% extends "layout.html" %}
 
 {% block head_extra %}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='fonts.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -62,7 +60,7 @@
     body {
         background: #1a1a1a; /* 暗い背景 */
         color: #f0f0f0;
-        font-family: 'DotGothic16', "Segoe UI", Tahoma, Verdana, sans-serif; /* ドットフォント */
+        font-family: 'Noto Serif JP', serif;
         font-size: 18px;
         line-height: 1.6;
     }
