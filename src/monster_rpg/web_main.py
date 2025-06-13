@@ -836,8 +836,8 @@ def battle(user_id):
         if request.method == 'POST':
             html = render_template('battle.html', messages=msgs, user_id=user_id)
             hp_vals = {
-                'player': [{'hp': m.hp, 'max_hp': m.max_hp, 'alive': m.is_alive} for m in battle_obj.player_party],
-                'enemy': [{'hp': m.hp, 'max_hp': m.max_hp, 'alive': m.is_alive} for m in battle_obj.enemy_party],
+                'player': [{'hp': m.hp, 'max_hp': m.max_hp, 'mp': m.mp, 'max_mp': m.max_mp, 'alive': m.is_alive} for m in battle_obj.player_party],
+                'enemy': [{'hp': m.hp, 'max_hp': m.max_hp, 'mp': m.mp, 'max_mp': m.max_mp, 'alive': m.is_alive} for m in battle_obj.enemy_party],
             }
             return jsonify({'hp_values': hp_vals, 'log': battle_obj.log, 'finished': True, 'turn': battle_obj.turn, 'html': html})
         return render_template('battle.html', messages=msgs, user_id=user_id)
@@ -845,8 +845,8 @@ def battle(user_id):
     current_actor = battle_obj.current_actor()
     if request.method == 'POST':
         hp_vals = {
-            'player': [{'hp': m.hp, 'max_hp': m.max_hp, 'alive': m.is_alive} for m in battle_obj.player_party],
-            'enemy': [{'hp': m.hp, 'max_hp': m.max_hp, 'alive': m.is_alive} for m in battle_obj.enemy_party],
+            'player': [{'hp': m.hp, 'max_hp': m.max_hp, 'mp': m.mp, 'max_mp': m.max_mp, 'alive': m.is_alive} for m in battle_obj.player_party],
+            'enemy': [{'hp': m.hp, 'max_hp': m.max_hp, 'mp': m.mp, 'max_mp': m.max_mp, 'alive': m.is_alive} for m in battle_obj.enemy_party],
         }
         actor = battle_obj.current_actor()
         actor_data = None
@@ -855,11 +855,13 @@ def battle(user_id):
             actor_data = {
                 'name': actor.name,
                 'unit_id': f'ally-{idx}',
+                'mp': actor.mp,
                 'skills': [
                     {
                         'name': sk.name,
                         'target': getattr(sk, 'target', 'enemy'),
                         'scope': getattr(sk, 'scope', 'single'),
+                        'cost': getattr(sk, 'cost', 0),
                     }
                     for sk in actor.skills
                 ],
