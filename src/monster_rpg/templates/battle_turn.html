@@ -342,6 +342,15 @@ function setupBattleUI() {
     }
     window.updateTargets = updateTargets;
 
+    /* 現在のHPをdata属性に保存 */
+    document.querySelectorAll('.battle-unit').forEach(unit => {
+        const hpText = unit.querySelector('.hp-text');
+        if (hpText) {
+            const hp = parseInt(hpText.textContent.split('/')[0]);
+            if (!isNaN(hp)) unit.dataset.hp = hp;
+        }
+    });
+
     /* 敵詳細パネルの表示 */
     const detailPanel = document.getElementById('enemy-detail');
     const closeBtn = detailPanel.querySelector('.close-btn');
@@ -402,6 +411,8 @@ function updateUnitList(units, infoList) {
     infoList.forEach((info, idx) => {
         const unit = units[idx];
         if (!unit) return;
+        const prevHp = parseInt(unit.dataset.hp || '0');
+        unit.dataset.hp = info.hp;
         if (!info.alive) unit.classList.add('down');
         const fill = unit.querySelector('.hp-fill');
         const pct = Math.round(info.hp / info.max_hp * 100);
@@ -416,6 +427,10 @@ function updateUnitList(units, infoList) {
         }
         const text = unit.querySelector('.hp-text');
         if (text) text.textContent = info.hp + '/' + info.max_hp;
+
+        if (!isNaN(prevHp) && info.hp < prevHp) {
+            showDamageIndicator(unit, '-' + (prevHp - info.hp));
+        }
     });
 }
 
