@@ -260,6 +260,7 @@
   "sky_isle_inner_sanctum": {
     "name": "浮遊島・内なる聖域",
     "description": "静謐な光が満ちる最奥部。翼を持つ守護者が待ち構えている。",
+      "required_item": "celestial_feather",
     "connections": { "外縁へ戻る": "sky_isle" },
     "encounter_rate": 1.0,
     "enemy_pool": { "sky_seraph": 100 },
