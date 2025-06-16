@@ -16,19 +16,14 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
    ```
    This creates `monster_rpg_save.db` if it does not already exist.
    A default user `player1` will be created automatically. Use `database_setup.create_user()` to add more users.
-3. (Optional) Run the classic CLI version:
-   ```bash
-   python -m monster_rpg.old_cli.main
-   ```
-   This older interface will ask whether to load a save file or start a new game.
-4. To run the simple web server instead:
+3. To run the simple web server instead:
    ```bash
    pip install -r requirements.txt
    python -m monster_rpg.webapp
    ```
    `webapp.py` exposes only a couple JSON endpoints (like `/new_game` and
    `/load_game`) and does not include the battle system.
-5. Another web interface exists. Use the provided launcher script:
+4. Another web interface exists. Use the provided launcher script:
    ```bash
    pip install -r requirements.txt
    python -m monster_rpg.start_rpg

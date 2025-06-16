@@ -16,18 +16,13 @@ Pythonで作られた小さなテキストベースRPGのプロトタイプで�
    ```
    既に存在しない場合 `monster_rpg_save.db` が作成されます。
    デフォルトユーザー `player1` が自動で作成されます。追加ユーザーを作る場合は `database_setup.create_user()` を利用してください。
-3. (任意) 旧版のCLIを実行する場合:
-   ```bash
-   python -m monster_rpg.old_cli.main
-   ```
-   セーブをロードするか新しく始めるか尋ねられます。
-4. 代わりに簡易ウェブサーバーを起動するには:
+3. 代わりに簡易ウェブサーバーを起動するには:
    ```bash
    pip install -r requirements.txt
    python -m monster_rpg.webapp
    ```
    `webapp.py` は `/new_game` や `/load_game` といった最低限のJSON APIのみを提供し、戦闘機能は含まれていません。
-5. `start_rpg.py` を使うと、完全なウェブ版を起動できます:
+4. `start_rpg.py` を使うと、完全なウェブ版を起動できます:
    ```bash
    pip install -r requirements.txt
    python -m monster_rpg.start_rpg
