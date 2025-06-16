@@ -4,20 +4,24 @@
   <h2>ワールドマップ</h2>
   <div class="map-grid" data-cols="{{ map_grid[0]|length }}">
     {% for row in map_grid %}
-      {% for cell in row %}
-        {% if cell %}
-          <div
-            class="map-cell"
-            data-loc="{{ cell.location_id }}"
-            {% if current_loc_id == cell.location_id %}class="map-cell current"{% endif %}
-          >
-            {{ cell.name }}
-          </div>
-        {% else %}
-          <div class="map-cell empty"></div>
-        {% endif %}
-      {% endfor %}
+        {% for cell in row %}
+          {% if cell %}
+            <div
+              class="map-cell{% if progress.get(cell.location_id, 0) > 0 %} visited{% endif %}{% if current_loc_id == cell.location_id %} current{% endif %}"
+              data-loc="{{ cell.location_id }}"
+            >
+              {{ cell.name }}
+            </div>
+          {% else %}
+            <div class="map-cell empty"></div>
+          {% endif %}
+        {% endfor %}
     {% endfor %}
+  </div>
+
+  <div class="legend">
+    <span class="box visited"></span> 訪問済
+    <span class="box current"></span> 現在地
   </div>
 
   <h3>探索度</h3>
@@ -86,9 +90,37 @@
     font-weight: bold;
     border-color: #f4c242;
   }
+  .map-cell.visited {
+    background: #d7ffd9;
+    border-color: #9be29c;
+  }
   .map-cell:hover:not(.empty) {
     background: #cce4f6;
     transform: scale(1.05);
+  }
+
+  .legend {
+    margin-bottom: 12px;
+    font-size: 0.85rem;
+    color: #2d355e;
+    text-align: left;
+  }
+  .legend .box {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 4px;
+    border-radius: 3px;
+    border: 1px solid #cbd2ff;
+    vertical-align: middle;
+  }
+  .legend .box.visited {
+    background: #d7ffd9;
+    border-color: #9be29c;
+  }
+  .legend .box.current {
+    background: #ffe8b6;
+    border-color: #f4c242;
   }
 
   /* Tooltip */
