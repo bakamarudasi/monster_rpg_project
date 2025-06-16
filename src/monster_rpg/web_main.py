@@ -11,7 +11,7 @@ try:
         session,
     )
 except ImportError as e:  # pragma: no cover - dependency check
-    raise SystemExit(
+    raise ImportError(
         "Flask is required to run this web interface. "
         "Install dependencies with 'pip install -r requirements.txt'."
     ) from e
