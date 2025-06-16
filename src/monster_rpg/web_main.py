@@ -39,44 +39,46 @@ active_battles: dict[int, "Battle"] = {}
 
 def _process_synthesis_payload(player: Player, data: dict):
     """Common logic for synthesis routes using the unified JSON format."""
-    base_type = data.get('base_type')
-    base_id = data.get('base_id')
-    material_type = data.get('material_type')
-    material_id = data.get('material_id')
+    base_type = data.get("base_type")
+    base_id = data.get("base_id")
+    material_type = data.get("material_type")
+    material_id = data.get("material_id")
 
-    if base_type == 'monster':
+    if base_type == "monster":
         try:
             base_idx = int(base_id)
         except (TypeError, ValueError):
-            return False, 'invalid base index', None
+            return False, "invalid base index", None
     else:
         if not isinstance(base_id, str):
-            return False, 'invalid base id', None
+            return False, "invalid base id", None
 
-    if material_type == 'monster':
+    if material_type == "monster":
         try:
             mat_idx = int(material_id)
         except (TypeError, ValueError):
-            return False, 'invalid material index', None
+            return False, "invalid material index", None
     else:
         if not isinstance(material_id, str):
-            return False, 'invalid material id', None
+            return False, "invalid material id", None
 
-    if base_type == 'monster' and material_type == 'monster':
+    if base_type == "monster" and material_type == "monster":
         return player.synthesize_monster(base_idx, mat_idx)
-    if base_type == 'monster' and material_type == 'item':
+    if base_type == "monster" and material_type == "item":
         return player.synthesize_monster_with_item(base_idx, material_id)
-    if base_type == 'item' and material_type == 'monster':
+    if base_type == "item" and material_type == "monster":
         return player.synthesize_monster_with_item(mat_idx, base_id)
-    if base_type == 'item' and material_type == 'item':
+    if base_type == "item" and material_type == "item":
         return player.synthesize_items(base_id, material_id)
-    return False, 'invalid types', None
+    return False, "invalid types", None
 
 
 class Battle:
     """Stateful battle that processes actions sequentially."""
 
-    def __init__(self, player_party: list, enemy_party: list, player: Player | None = None):
+    def __init__(
+        self, player_party: list, enemy_party: list, player: Player | None = None
+    ):
         self.player_party = player_party
         self.enemy_party = enemy_party
         self.player = player
@@ -121,10 +123,12 @@ class Battle:
             return
         dmg = max(1, actor.attack - target.defense)
         target.hp -= dmg
-        self.log.append({
-            "type": "player_damage",
-            "message": f"{actor.name}のこうげき！{target.name}は{dmg}のダメージを受けた！",
-        })
+        self.log.append(
+            {
+                "type": "player_damage",
+                "message": f"{actor.name}のこうげき！{target.name}は{dmg}のダメージを受けた！",
+            }
+        )
         if target.hp <= 0:
             target.is_alive = False
             self.log.append({"type": "info", "message": f"{target.name}はたおれてしまった…"})
@@ -143,16 +147,26 @@ class Battle:
         if act.get("type") == "skill":
             s_idx = act.get("skill")
             if s_idx is None or s_idx >= len(actor.skills):
-                self.log.append({"type": "info", "message": f"{actor.name} はスキルを使えなかった"})
+                self.log.append(
+                    {"type": "info", "message": f"{actor.name} はスキルを使えなかった"}
+                )
                 return
             skill = actor.skills[s_idx]
             if actor.mp < skill.cost:
-                self.log.append({"type": "info", "message": f"{actor.name} は {skill.name} を使うMPが足りない"})
+                self.log.append(
+                    {
+                        "type": "info",
+                        "message": f"{actor.name} は {skill.name} を使うMPが足りない",
+                    }
+                )
                 return
             actor.mp -= skill.cost
             if skill.target == "ally":
                 t_idx = act.get("target_ally", 0)
-                if 0 <= t_idx < len(self.player_party) and self.player_party[t_idx].is_alive:
+                if (
+                    0 <= t_idx < len(self.player_party)
+                    and self.player_party[t_idx].is_alive
+                ):
                     target = self.player_party[t_idx]
                 else:
                     target = actor
@@ -160,12 +174,22 @@ class Battle:
                     before = target.hp
                     target.hp = min(target.max_hp, target.hp + skill.power)
                     healed = target.hp - before
-                    self.log.append({"type": "info", "message": f"{actor.name} は {target.name} を {skill.name} で {healed} 回復した"})
+                    self.log.append(
+                        {
+                            "type": "info",
+                            "message": f"{actor.name} は {target.name} を {skill.name} で {healed} 回復した",
+                        }
+                    )
                 else:
-                    self.log.append({"type": "info", "message": f"{skill.name} の効果はまだ実装されていない"})
+                    self.log.append(
+                        {"type": "info", "message": f"{skill.name} の効果はまだ実装されていない"}
+                    )
             else:
                 t_idx = act.get("target_enemy", -1)
-                if 0 <= t_idx < len(self.enemy_party) and self.enemy_party[t_idx].is_alive:
+                if (
+                    0 <= t_idx < len(self.enemy_party)
+                    and self.enemy_party[t_idx].is_alive
+                ):
                     target = self.enemy_party[t_idx]
                 else:
                     target = next((e for e in self.enemy_party if e.is_alive), None)
@@ -173,10 +197,12 @@ class Battle:
                     return
                 dmg = max(1, skill.power - target.defense)
                 target.hp -= dmg
-                self.log.append({
-                    "type": "player_attack",
-                    "message": f"{actor.name} の\u300c{skill.name}\u300d！{target.name}に{dmg}のダメージ！",
-                })
+                self.log.append(
+                    {
+                        "type": "player_attack",
+                        "message": f"{actor.name} の\u300c{skill.name}\u300d！{target.name}に{dmg}のダメージ！",
+                    }
+                )
                 if target.hp <= 0:
                     target.is_alive = False
                     self.log.append({"type": "info", "message": f"{target.name}をたおした！"})
@@ -190,15 +216,24 @@ class Battle:
                 target = next((e for e in self.enemy_party if e.is_alive), None)
             if not target:
                 return
-            self.log.append({"type": "info", "message": f"{actor.name} は {target.name} をスカウトしている..."})
+            self.log.append(
+                {
+                    "type": "info",
+                    "message": f"{actor.name} は {target.name} をスカウトしている...",
+                }
+            )
             rate = getattr(target, "scout_rate", 0.25)
             if random.random() < rate:
-                self.log.append({"type": "info", "message": f"{target.name} は仲間になりたそうにこちらを見ている！"})
+                self.log.append(
+                    {"type": "info", "message": f"{target.name} は仲間になりたそうにこちらを見ている！"}
+                )
                 if self.player:
                     self.player.add_monster_to_party(target)
                 target.is_alive = False
             else:
-                self.log.append({"type": "info", "message": f"{target.name} は警戒している。仲間にならなかった。"})
+                self.log.append(
+                    {"type": "info", "message": f"{target.name} は警戒している。仲間にならなかった。"}
+                )
             return
 
         # default attack
@@ -211,7 +246,12 @@ class Battle:
             return
         dmg = max(1, actor.attack - target.defense)
         target.hp -= dmg
-        self.log.append({"type": "player_attack", "message": f"{actor.name}のこうげき！{target.name}に{dmg}のダメージ！"})
+        self.log.append(
+            {
+                "type": "player_attack",
+                "message": f"{actor.name}のこうげき！{target.name}に{dmg}のダメージ！",
+            }
+        )
         if target.hp <= 0:
             target.is_alive = False
             self.log.append({"type": "info", "message": f"{target.name}をたおした！"})
@@ -241,7 +281,6 @@ class Battle:
             self.turn += 1
             if not self._check_end():
                 self._prepare_turn()
-
 
 
 def run_simple_battle(player_party: list, enemy_party: list):
@@ -284,48 +323,51 @@ def handle_battle(player: Player, location) -> list[str]:
     player.last_battle_log = msgs
     return msgs
 
-@app.route('/')
+
+@app.route("/")
 def index():
     """Show the landing page for starting or loading a game."""
     return render_template("index.html")
 
-@app.route('/start', methods=['POST'])
+
+@app.route("/start", methods=["POST"])
 def start_game():
     """Create a new player and start the game."""
-    name = request.form.get('username', 'Hero')
+    name = request.form.get("username", "Hero")
     try:
-        user_id = database_setup.create_user(name, 'pw')
+        user_id = database_setup.create_user(name, "pw")
     except sqlite3.IntegrityError:
         msg = "既に同じ名前の人が存在しています"
-        return render_template('result.html', message=msg, user_id=None)
+        return render_template("result.html", message=msg, user_id=None)
     player = Player(name=name, user_id=user_id, gold=100)
     for mid in ("slime", "goblin", "wolf"):
         if mid in ALL_MONSTERS:
             player.add_monster_to_party(mid)
     player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
-    session['user_id'] = user_id
-    return redirect(url_for('play', user_id=user_id))
+    session["user_id"] = user_id
+    return redirect(url_for("play", user_id=user_id))
 
-@app.route('/load', methods=['POST'])
+
+@app.route("/load", methods=["POST"])
 def load_existing():
     """Load an existing player by user id."""
-    user_id = request.form.get('user_id')
+    user_id = request.form.get("user_id")
     try:
         u_id = int(user_id)
     except (ValueError, TypeError):
-        return 'invalid user id', 400
+        return "invalid user id", 400
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=u_id)
     if not player:
-        return 'save not found', 404
-    session['user_id'] = u_id
-    return redirect(url_for('play', user_id=u_id))
+        return "save not found", 404
+    session["user_id"] = u_id
+    return redirect(url_for("play", user_id=u_id))
 
 
-@app.route('/login', methods=['POST'])
+@app.route("/login", methods=["POST"])
 def login():
     """Authenticate an existing user by username/password."""
-    username = request.form.get('username')
-    password = request.form.get('password')
+    username = request.form.get("username")
+    password = request.form.get("password")
     if not username or not password:
         return render_template(
             "result.html",
@@ -349,14 +391,15 @@ def login():
             user_id=None,
         )
 
-    session['user_id'] = user_id
-    return redirect(url_for('play', user_id=user_id))
+    session["user_id"] = user_id
+    return redirect(url_for("play", user_id=user_id))
 
-@app.route('/play/<int:user_id>')
+
+@app.route("/play/<int:user_id>")
 def play(user_id):
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
     loc = LOCATIONS.get(player.current_location_id)
     connections = []
     if loc:
@@ -371,47 +414,63 @@ def play(user_id):
         user_id=user_id,
     )
 
-@app.route('/status/<int:user_id>')
+
+@app.route("/status/<int:user_id>")
 def status(user_id):
     """Display player status."""
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
     return render_template("status.html", player=player, user_id=user_id)
 
-@app.route('/party/<int:user_id>')
+
+@app.route("/party/<int:user_id>")
 def party(user_id):
     """Show the player's party."""
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
     party_info = []
     for idx, m in enumerate(player.party_monsters):
-        party_info.append({
-            'monster': m,
-            'detail': {
-                'name': m.name,
-                'level': m.level,
-                'hp': m.hp,
-                'max_hp': m.max_hp,
-                'exp': m.exp,
-                'exp_to_next': m.calculate_exp_to_next_level(),
-                'image': url_for('static', filename='images/' + m.image_filename) if m.image_filename else '',
-                'stats': {'attack': m.attack, 'defense': m.defense, 'speed': m.speed},
-                'skills': m.get_skill_details(),
-                'description': MONSTER_BOOK_DATA.get(m.monster_id).description if MONSTER_BOOK_DATA.get(m.monster_id) else 'このモンスターに関する詳しい説明はまだ見つかっていない。',
-                'index': idx,
-                'equipment': {slot: eq.name for slot, eq in m.equipment.items()},
-                'equipment_slots': m.equipment_slots,
-            },
-        })
+        party_info.append(
+            {
+                "monster": m,
+                "detail": {
+                    "name": m.name,
+                    "level": m.level,
+                    "hp": m.hp,
+                    "max_hp": m.max_hp,
+                    "exp": m.exp,
+                    "exp_to_next": m.calculate_exp_to_next_level(),
+                    "image": url_for("static", filename="images/" + m.image_filename)
+                    if m.image_filename
+                    else "",
+                    "stats": {
+                        "attack": m.attack,
+                        "defense": m.defense,
+                        "speed": m.speed,
+                    },
+                    "skills": m.get_skill_details(),
+                    "description": MONSTER_BOOK_DATA.get(m.monster_id).description
+                    if MONSTER_BOOK_DATA.get(m.monster_id)
+                    else "このモンスターに関する詳しい説明はまだ見つかっていない。",
+                    "index": idx,
+                    "equipment": {slot: eq.name for slot, eq in m.equipment.items()},
+                    "equipment_slots": m.equipment_slots,
+                },
+            }
+        )
     equipment_list = [
         {
-            'id': (e.instance_id if isinstance(e, EquipmentInstance) else getattr(e, 'equip_id', str(e))),
-            'name': getattr(e, 'name', ''),
-            'slot': getattr(e, 'slot', ''),
-            'attack': getattr(e, 'total_attack', getattr(e, 'attack', 0)),
-            'defense': getattr(e, 'total_defense', getattr(e, 'defense', 0)),
+            "id": (
+                e.instance_id
+                if isinstance(e, EquipmentInstance)
+                else getattr(e, "equip_id", str(e))
+            ),
+            "name": getattr(e, "name", ""),
+            "slot": getattr(e, "slot", ""),
+            "attack": getattr(e, "total_attack", getattr(e, "attack", 0)),
+            "defense": getattr(e, "total_defense", getattr(e, "defense", 0)),
         }
         for e in player.equipment_inventory
     ]
@@ -423,155 +482,176 @@ def party(user_id):
     )
 
 
-@app.route('/equip/<int:user_id>', methods=['POST'])
+@app.route("/equip/<int:user_id>", methods=["POST"])
 def equip(user_id):
     """Equip an item from inventory to a monster."""
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
-        return jsonify({'success': False, 'error': 'player not found'}), 404
+        return jsonify({"success": False, "error": "player not found"}), 404
 
     if request.is_json:
         data = request.get_json(silent=True) or {}
-        equip_id = data.get('equip_id')
-        idx = data.get('monster_idx')
-        slot = data.get('slot')
+        equip_id = data.get("equip_id")
+        idx = data.get("monster_idx")
+        slot = data.get("slot")
     else:
-        equip_id = request.form.get('equip_id')
-        idx = request.form.get('monster_idx')
-        slot = request.form.get('slot')
+        equip_id = request.form.get("equip_id")
+        idx = request.form.get("monster_idx")
+        slot = request.form.get("slot")
 
     try:
         idx_int = int(idx)
     except (TypeError, ValueError):
-        return jsonify({'success': False, 'error': 'invalid index'}), 400
+        return jsonify({"success": False, "error": "invalid index"}), 400
 
-    if equip_id in [None, ''] and slot is None:
-        return jsonify({'success': False, 'error': 'invalid equip_id'}), 400
+    if equip_id in [None, ""] and slot is None:
+        return jsonify({"success": False, "error": "invalid equip_id"}), 400
 
-    success = player.equip_to_monster(idx_int, equip_id if equip_id not in ['', None] else None, slot)
+    success = player.equip_to_monster(
+        idx_int, equip_id if equip_id not in ["", None] else None, slot
+    )
     if success:
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
 
     monster = player.party_monsters[idx_int]
     equipment_inventory = [
         {
-            'id': (e.instance_id if isinstance(e, EquipmentInstance) else getattr(e, 'equip_id', str(e))),
-            'name': getattr(e, 'name', '')
+            "id": (
+                e.instance_id
+                if isinstance(e, EquipmentInstance)
+                else getattr(e, "equip_id", str(e))
+            ),
+            "name": getattr(e, "name", ""),
         }
         for e in player.equipment_inventory
     ]
     monster_equipment = {slot: eq.name for slot, eq in monster.equipment.items()}
-    return jsonify({'success': success, 'equipment_inventory': equipment_inventory, 'monster_equipment': monster_equipment})
+    return jsonify(
+        {
+            "success": success,
+            "equipment_inventory": equipment_inventory,
+            "monster_equipment": monster_equipment,
+        }
+    )
 
 
-@app.route('/monster_book/<int:user_id>')
+@app.route("/monster_book/<int:user_id>")
 def monster_book(user_id):
     """Show the player's monster encyclopedia."""
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
     entries = []
     for mid, entry in MONSTER_BOOK_DATA.items():
-        status = 'unknown'
+        status = "unknown"
         if mid in player.monster_book.captured:
-            status = 'captured'
+            status = "captured"
         elif mid in player.monster_book.seen:
-            status = 'seen'
+            status = "seen"
 
         image_url = None
         monster_obj = ALL_MONSTERS.get(mid)
         if monster_obj and monster_obj.image_filename:
-            image_url = url_for('static', filename=f"images/{monster_obj.image_filename}")
+            image_url = url_for(
+                "static", filename=f"images/{monster_obj.image_filename}"
+            )
         entries.append((entry, status, image_url))
     completion = player.monster_book.completion_rate()
     return render_template(
-        'monster_book.html',
+        "monster_book.html",
         entries=entries,
         completion=completion,
         user_id=user_id,
     )
 
-@app.route('/formation/<int:user_id>', methods=['GET', 'POST'])
+
+@app.route("/formation/<int:user_id>", methods=["GET", "POST"])
 def formation(user_id):
     """Allow reordering of the player's party."""
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
-        return redirect(url_for('index'))
-    if request.method == 'POST':
+        return redirect(url_for("index"))
+    if request.method == "POST":
         try:
-            idx = int(request.form.get('index', -1))
+            idx = int(request.form.get("index", -1))
         except (TypeError, ValueError):
             idx = -1
-        move = request.form.get('move')
-        if move == 'up':
+        move = request.form.get("move")
+        if move == "up":
             player.move_monster(idx, idx - 1)
-        elif move == 'down':
+        elif move == "down":
             player.move_monster(idx, idx + 1)
 
-        if 'remove' in request.form:
+        if "remove" in request.form:
             player.move_to_reserve(idx)
-        if 'add_index' in request.form:
+        if "add_index" in request.form:
             try:
-                add_idx = int(request.form.get('add_index'))
+                add_idx = int(request.form.get("add_index"))
                 player.move_from_reserve(add_idx)
             except (TypeError, ValueError):
                 pass
-        if 'reset' in request.form:
+        if "reset" in request.form:
             player.reset_formation()
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
-    return render_template('formation.html', player=player, user_id=user_id)
+    return render_template("formation.html", player=player, user_id=user_id)
 
 
-@app.route('/items/<int:user_id>', methods=['GET', 'POST'])
+@app.route("/items/<int:user_id>", methods=["GET", "POST"])
 def items(user_id):
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
     message = None
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
-            idx = int(request.form.get('item_idx', -1))
-            target_idx = int(request.form.get('target_idx', -1))
+            idx = int(request.form.get("item_idx", -1))
+            target_idx = int(request.form.get("target_idx", -1))
         except (TypeError, ValueError):
             idx = target_idx = -1
-        if 0 <= idx < len(player.items) and 0 <= target_idx < len(player.party_monsters):
+        if 0 <= idx < len(player.items) and 0 <= target_idx < len(
+            player.party_monsters
+        ):
             item_name = player.items[idx].name
             success = player.use_item(idx, player.party_monsters[target_idx])
             message = f"{item_name} を使った。" if success else "アイテムを使えなかった。"
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
-    return render_template('items.html', player=player, user_id=user_id, message=message)
+    return render_template(
+        "items.html", player=player, user_id=user_id, message=message
+    )
 
 
-@app.route('/synthesize/<int:user_id>', methods=['GET', 'POST'])
+@app.route("/synthesize/<int:user_id>", methods=["GET", "POST"])
 def synthesize(user_id):
     """Display the synthesis page and handle legacy POST requests."""
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
 
     message = None
-    if request.method == 'POST':
+    if request.method == "POST":
         if request.is_json:
             data = request.get_json(silent=True) or {}
             success, msg, result = _process_synthesis_payload(player, data)
             if success:
                 player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
-            resp = {'success': success}
+            resp = {"success": success}
             if success:
                 if isinstance(result, (Equipment, EquipmentInstance)):
-                    resp.update({'result_type': 'equipment', 'name': result.name})
+                    resp.update({"result_type": "equipment", "name": result.name})
                 elif isinstance(result, Monster):
-                    resp.update({'result_type': 'monster', 'name': result.name})
+                    resp.update({"result_type": "monster", "name": result.name})
                 else:
-                    resp.update({'result_type': 'item', 'name': getattr(result, 'name', '')})
+                    resp.update(
+                        {"result_type": "item", "name": getattr(result, "name", "")}
+                    )
             else:
-                resp['error'] = msg
+                resp["error"] = msg
             return jsonify(resp)
 
         # Fallback for form-based monster-monster synthesis
         try:
-            idx1 = int(request.form.get('mon1', -1))
-            idx2 = int(request.form.get('mon2', -1))
+            idx1 = int(request.form.get("mon1", -1))
+            idx2 = int(request.form.get("mon2", -1))
         except (TypeError, ValueError):
             idx1 = idx2 = -1
 
@@ -579,61 +659,77 @@ def synthesize(user_id):
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
         message = msg
 
-    return render_template('synthesize.html', player=player, user_id=user_id, message=message)
+    return render_template(
+        "synthesize.html", player=player, user_id=user_id, message=message
+    )
 
 
-@app.route('/synthesize_action/<int:user_id>', methods=['POST'])
+@app.route("/synthesize_action/<int:user_id>", methods=["POST"])
 def synthesize_action(user_id):
     """Handle monster synthesis via JSON payload."""
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
-        return jsonify({'success': False, 'error': 'player not found'}), 404
+        return jsonify({"success": False, "error": "player not found"}), 404
 
     if not request.is_json:
-        return jsonify({'success': False, 'error': 'json required'}), 400
+        return jsonify({"success": False, "error": "json required"}), 400
 
     data = request.get_json(silent=True) or {}
     success, msg, result = _process_synthesis_payload(player, data)
-    if msg in {'invalid base index', 'invalid base id', 'invalid material index', 'invalid material id', 'invalid types'} and not success:
-        return jsonify({'success': False, 'error': msg}), 400
+    if (
+        msg
+        in {
+            "invalid base index",
+            "invalid base id",
+            "invalid material index",
+            "invalid material id",
+            "invalid types",
+        }
+        and not success
+    ):
+        return jsonify({"success": False, "error": msg}), 400
 
     if success:
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
-        resp = {'success': True}
+        resp = {"success": True}
         if isinstance(result, (Equipment, EquipmentInstance)):
-            resp.update({'result_type': 'equipment', 'name': result.name})
+            resp.update({"result_type": "equipment", "name": result.name})
         elif isinstance(result, Monster):
-            resp.update({'result_type': 'monster', 'name': result.name})
+            resp.update({"result_type": "monster", "name": result.name})
         else:
-            resp.update({'result_type': 'item', 'name': getattr(result, 'name', '')})
+            resp.update({"result_type": "item", "name": getattr(result, "name", "")})
         return jsonify(resp)
-    return jsonify({'success': False, 'error': msg})
+    return jsonify({"success": False, "error": msg})
 
 
-@app.route('/shop/<int:user_id>', methods=['GET', 'POST'])
+@app.route("/shop/<int:user_id>", methods=["GET", "POST"])
 def shop(user_id):
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
     loc = LOCATIONS.get(player.current_location_id)
-    if not loc or not getattr(loc, 'has_shop', False):
-        return redirect(url_for('play', user_id=user_id))
+    if not loc or not getattr(loc, "has_shop", False):
+        return redirect(url_for("play", user_id=user_id))
 
     message = None
-    if request.method == 'POST':
-        if 'buy_item' in request.form:
-            item_id = request.form['buy_item']
+    if request.method == "POST":
+        if "buy_item" in request.form:
+            item_id = request.form["buy_item"]
             price = loc.shop_items.get(item_id)
             if price is not None and player.buy_item(item_id, price):
                 name = ALL_ITEMS[item_id].name if item_id in ALL_ITEMS else item_id
                 message = f"{name} を購入した。"
             else:
                 message = "購入できなかった。"
-        elif 'buy_monster' in request.form:
-            monster_id = request.form['buy_monster']
+        elif "buy_monster" in request.form:
+            monster_id = request.form["buy_monster"]
             price = loc.shop_monsters.get(monster_id)
             if price is not None and player.buy_monster(monster_id, price):
-                mname = ALL_MONSTERS[monster_id].name if monster_id in ALL_MONSTERS else monster_id
+                mname = (
+                    ALL_MONSTERS[monster_id].name
+                    if monster_id in ALL_MONSTERS
+                    else monster_id
+                )
                 message = f"{mname} を仲間にした。"
             else:
                 message = "購入できなかった。"
@@ -642,36 +738,38 @@ def shop(user_id):
     entries = []
     for iid, pr in loc.shop_items.items():
         name = ALL_ITEMS[iid].name if iid in ALL_ITEMS else iid
-        entries.append(('item', iid, name, pr))
+        entries.append(("item", iid, name, pr))
     for mid, pr in loc.shop_monsters.items():
         mname = ALL_MONSTERS[mid].name if mid in ALL_MONSTERS else mid
-        entries.append(('monster', mid, mname, pr))
-    return render_template('shop.html', player=player, user_id=user_id, entries=entries, message=message)
+        entries.append(("monster", mid, mname, pr))
+    return render_template(
+        "shop.html", player=player, user_id=user_id, entries=entries, message=message
+    )
 
 
-@app.route('/inn/<int:user_id>', methods=['POST'])
+@app.route("/inn/<int:user_id>", methods=["POST"])
 def inn(user_id):
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
     loc = LOCATIONS.get(player.current_location_id)
-    if not loc or not getattr(loc, 'has_inn', False):
-        return redirect(url_for('play', user_id=user_id))
-    cost = getattr(loc, 'inn_cost', 10)
+    if not loc or not getattr(loc, "has_inn", False):
+        return redirect(url_for("play", user_id=user_id))
+    cost = getattr(loc, "inn_cost", 10)
     success = player.rest_at_inn(cost)
-    msg = '宿屋で休んだ。' if success else 'お金が足りない。'
+    msg = "宿屋で休んだ。" if success else "お金が足りない。"
     player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
-    return render_template('result.html', message=msg, user_id=user_id)
+    return render_template("result.html", message=msg, user_id=user_id)
 
 
-@app.route('/explore/<int:user_id>', methods=['POST'])
+@app.route("/explore/<int:user_id>", methods=["POST"])
 def explore(user_id):
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
     loc = LOCATIONS.get(player.current_location_id)
     if not loc:
-        return redirect(url_for('play', user_id=user_id))
+        return redirect(url_for("play", user_id=user_id))
 
     messages = []
     before = player.get_exploration(player.current_location_id)
@@ -686,6 +784,7 @@ def explore(user_id):
         if getattr(loc, "boss_enemy_id", None):
             boss_id = loc.boss_enemy_id
             from .exploration import get_monster_instance_copy
+
             boss_mon = get_monster_instance_copy(boss_id)
             boss = [boss_mon] if boss_mon else []
             if boss:
@@ -701,7 +800,7 @@ def explore(user_id):
 
                 player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
                 return render_template(
-                    'battle_turn.html',
+                    "battle_turn.html",
                     user_id=user_id,
                     battle=battle_obj,
                     player_party=battle_obj.player_party,
@@ -714,11 +813,15 @@ def explore(user_id):
     # `possible_enemies`. The previous condition only checked
     # `possible_enemies`, preventing battles from triggering when
     # `enemy_pool` was present but `possible_enemies` was empty.
-    if (loc.possible_enemies or getattr(loc, "enemy_pool", None)) and random.random() < loc.encounter_rate:
+    if (
+        loc.possible_enemies or getattr(loc, "enemy_pool", None)
+    ) and random.random() < loc.encounter_rate:
         enemies = generate_enemy_party(loc, player)
         if enemies:
             battle_obj = Battle(player.party_monsters, enemies, player)
-            battle_obj.log.append({"type": "info", "message": f"探索度 {before}% -> {after}%"})
+            battle_obj.log.append(
+                {"type": "info", "message": f"探索度 {before}% -> {after}%"}
+            )
             enemy_names = ", ".join(e.name for e in enemies)
             battle_obj.log.append({"type": "info", "message": f"{enemy_names} が現れた！"})
             active_battles[user_id] = battle_obj
@@ -732,7 +835,7 @@ def explore(user_id):
 
             player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
             return render_template(
-                'battle_turn.html',
+                "battle_turn.html",
                 user_id=user_id,
                 battle=battle_obj,
                 player_party=battle_obj.player_party,
@@ -741,13 +844,13 @@ def explore(user_id):
                 current_actor=battle_obj.current_actor(),
             )
         else:
-            messages.append('モンスターは現れなかった。')
+            messages.append("モンスターは現れなかった。")
     else:
-        messages.append('モンスターは現れなかった。')
+        messages.append("モンスターは現れなかった。")
 
     player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
     return render_template(
-        'explore.html',
+        "explore.html",
         messages=messages,
         user_id=user_id,
         progress=after,
@@ -755,7 +858,7 @@ def explore(user_id):
     )
 
 
-@app.route('/battle/<int:user_id>', methods=['GET', 'POST'])
+@app.route("/battle/<int:user_id>", methods=["GET", "POST"])
 def battle(user_id):
     """Interactive battle view. State is kept on the server."""
     battle_obj = active_battles.get(user_id)
@@ -764,40 +867,40 @@ def battle(user_id):
     else:
         player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
         if not player:
-            return redirect(url_for('index'))
+            return redirect(url_for("index"))
 
     if not battle_obj:
-        if request.method == 'POST':
+        if request.method == "POST":
             if request.form.get("continue_explore"):
-                return redirect(url_for('explore', user_id=user_id), code=307)
-            return redirect(url_for('battle', user_id=user_id))
+                return redirect(url_for("explore", user_id=user_id), code=307)
+            return redirect(url_for("battle", user_id=user_id))
         loc = LOCATIONS.get(player.current_location_id)
         if not loc:
-            return redirect(url_for('play', user_id=user_id))
+            return redirect(url_for("play", user_id=user_id))
         enemies = generate_enemy_party(loc, player)
         if not enemies:
-            msg = 'モンスターは現れなかった。'
-            return render_template('result.html', message=msg, user_id=user_id)
+            msg = "モンスターは現れなかった。"
+            return render_template("result.html", message=msg, user_id=user_id)
         battle_obj = Battle(player.party_monsters, enemies, player)
         enemy_names = ", ".join(e.name for e in enemies)
         battle_obj.log.append({"type": "info", "message": f"{enemy_names} が現れた！"})
         active_battles[user_id] = battle_obj
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
 
-    if request.method == 'POST':
+    if request.method == "POST":
         current_actor = battle_obj.current_actor()
         if current_actor in battle_obj.player_party:
-            act_val = request.form.get('action', 'attack')
+            act_val = request.form.get("action", "attack")
             action: dict
-            if act_val == 'run':
-                action = {'type': 'run'}
-            elif act_val.startswith('skill'):
+            if act_val == "run":
+                action = {"type": "run"}
+            elif act_val.startswith("skill"):
                 try:
                     s_idx = int(act_val[5:])
                 except ValueError:
                     s_idx = 0
-                tgt_e = request.form.get('target_enemy', '-1')
-                tgt_a = request.form.get('target_ally', '0')
+                tgt_e = request.form.get("target_enemy", "-1")
+                tgt_a = request.form.get("target_ally", "0")
                 try:
                     tgt_e = int(tgt_e)
                 except ValueError:
@@ -806,40 +909,51 @@ def battle(user_id):
                     tgt_a = int(tgt_a)
                 except ValueError:
                     tgt_a = 0
-                action = {'type': 'skill', 'skill': s_idx, 'target_enemy': tgt_e, 'target_ally': tgt_a}
-            elif act_val == 'scout':
-                tgt = request.form.get('target_enemy', '-1')
+                action = {
+                    "type": "skill",
+                    "skill": s_idx,
+                    "target_enemy": tgt_e,
+                    "target_ally": tgt_a,
+                }
+            elif act_val == "scout":
+                tgt = request.form.get("target_enemy", "-1")
                 try:
                     tgt = int(tgt)
                 except ValueError:
                     tgt = -1
-                action = {'type': 'scout', 'target_enemy': tgt}
+                action = {"type": "scout", "target_enemy": tgt}
             else:
-                tgt = request.form.get('target_enemy', '-1')
+                tgt = request.form.get("target_enemy", "-1")
                 try:
                     tgt = int(tgt)
                 except ValueError:
                     tgt = -1
-                action = {'type': 'attack', 'target_enemy': tgt}
+                action = {"type": "attack", "target_enemy": tgt}
             battle_obj.step(action)
             player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
         # ignore posts when it's not player's turn
 
         # After the player's action, process enemy turns automatically
-        while not battle_obj.finished and battle_obj.current_actor() not in battle_obj.player_party:
+        while (
+            not battle_obj.finished
+            and battle_obj.current_actor() not in battle_obj.player_party
+        ):
             battle_obj.step()
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
 
     else:
         # GET request - resolve enemy actions until a player turn
-        while not battle_obj.finished and battle_obj.current_actor() not in battle_obj.player_party:
+        while (
+            not battle_obj.finished
+            and battle_obj.current_actor() not in battle_obj.player_party
+        ):
             battle_obj.step()
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
 
     if battle_obj.finished:
         outcome = battle_obj.outcome
         msgs = battle_obj.log[:]
-        if outcome == 'win':
+        if outcome == "win":
             total_exp = sum(e.level * 10 for e in battle_obj.enemy_party)
             gold_gain = sum(e.level * 5 for e in battle_obj.enemy_party)
             alive_members = [m for m in player.party_monsters if m.is_alive]
@@ -855,7 +969,9 @@ def battle(user_id):
                             player.equipment_inventory.append(item_obj)
                         else:
                             player.items.append(item_obj)
-                        msgs.append({"type": "info", "message": f"{item_obj.name} を手に入れた！"})
+                        msgs.append(
+                            {"type": "info", "message": f"{item_obj.name} を手に入れた！"}
+                        )
             msgs.append({"type": "info", "message": f"勝利した！ {gold_gain}G を得た。"})
         else:
             msgs.append({"type": "info", "message": "敗北してしまった..."})
@@ -864,53 +980,61 @@ def battle(user_id):
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
         if request.form.get("continue_explore"):
             return redirect(url_for("explore", user_id=user_id))
-        if request.method == 'POST':
-            html = render_template('battle.html', messages=msgs, user_id=user_id)
+        if request.method == "POST":
+            html = render_template("battle.html", messages=msgs, user_id=user_id)
             hp_vals = {
-                'player': [
+                "player": [
                     {
-                        'hp': m.hp,
-                        'max_hp': m.max_hp,
-                        'mp': m.mp,
-                        'max_mp': m.max_mp,
-                        'alive': m.is_alive,
+                        "hp": m.hp,
+                        "max_hp": m.max_hp,
+                        "mp": m.mp,
+                        "max_mp": m.max_mp,
+                        "alive": m.is_alive,
                     }
                     for m in battle_obj.player_party
                 ],
-                'enemy': [
+                "enemy": [
                     {
-                        'hp': m.hp,
-                        'max_hp': m.max_hp,
-                        'mp': m.mp,
-                        'max_mp': m.max_mp,
-                        'alive': m.is_alive,
+                        "hp": m.hp,
+                        "max_hp": m.max_hp,
+                        "mp": m.mp,
+                        "max_mp": m.max_mp,
+                        "alive": m.is_alive,
                     }
                     for m in battle_obj.enemy_party
                 ],
             }
-            return jsonify({'hp_values': hp_vals, 'log': battle_obj.log, 'finished': True, 'turn': battle_obj.turn, 'html': html})
-        return render_template('battle.html', messages=msgs, user_id=user_id)
+            return jsonify(
+                {
+                    "hp_values": hp_vals,
+                    "log": battle_obj.log,
+                    "finished": True,
+                    "turn": battle_obj.turn,
+                    "html": html,
+                }
+            )
+        return render_template("battle.html", messages=msgs, user_id=user_id)
 
     current_actor = battle_obj.current_actor()
-    if request.method == 'POST':
+    if request.method == "POST":
         hp_vals = {
-            'player': [
+            "player": [
                 {
-                    'hp': m.hp,
-                    'max_hp': m.max_hp,
-                    'mp': m.mp,
-                    'max_mp': m.max_mp,
-                    'alive': m.is_alive,
+                    "hp": m.hp,
+                    "max_hp": m.max_hp,
+                    "mp": m.mp,
+                    "max_mp": m.max_mp,
+                    "alive": m.is_alive,
                 }
                 for m in battle_obj.player_party
             ],
-            'enemy': [
+            "enemy": [
                 {
-                    'hp': m.hp,
-                    'max_hp': m.max_hp,
-                    'mp': m.mp,
-                    'max_mp': m.max_mp,
-                    'alive': m.is_alive,
+                    "hp": m.hp,
+                    "max_hp": m.max_hp,
+                    "mp": m.mp,
+                    "max_mp": m.max_mp,
+                    "alive": m.is_alive,
                 }
                 for m in battle_obj.enemy_party
             ],
@@ -920,28 +1044,28 @@ def battle(user_id):
         if actor and actor in battle_obj.player_party:
             idx = battle_obj.player_party.index(actor)
             actor_data = {
-                'name': actor.name,
-                'unit_id': f'ally-{idx}',
-                'skills': [
+                "name": actor.name,
+                "unit_id": f"ally-{idx}",
+                "skills": [
                     {
-                        'name': sk.name,
-                        'target': getattr(sk, 'target', 'enemy'),
-                        'scope': getattr(sk, 'scope', 'single'),
+                        "name": sk.name,
+                        "target": getattr(sk, "target", "enemy"),
+                        "scope": getattr(sk, "scope", "single"),
                     }
                     for sk in actor.skills
                 ],
             }
         return jsonify(
             {
-                'hp_values': hp_vals,
-                'log': battle_obj.log,
-                'finished': False,
-                'turn': battle_obj.turn,
-                'current_actor': actor_data,
+                "hp_values": hp_vals,
+                "log": battle_obj.log,
+                "finished": False,
+                "turn": battle_obj.turn,
+                "current_actor": actor_data,
             }
         )
     return render_template(
-        'battle_turn.html',
+        "battle_turn.html",
         user_id=user_id,
         battle=battle_obj,
         player_party=battle_obj.player_party,
@@ -951,15 +1075,15 @@ def battle(user_id):
     )
 
 
-@app.route('/map/<int:user_id>')
+@app.route("/map/<int:user_id>")
 def world_map(user_id):
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
     overview = get_map_overview()
     map_grid = get_map_grid()
     return render_template(
-        'map.html',
+        "map.html",
         overview=overview,
         progress=player.exploration_progress,
         locations=LOCATIONS,
@@ -969,33 +1093,41 @@ def world_map(user_id):
     )
 
 
-@app.route('/battle_log/<int:user_id>')
+@app.route("/battle_log/<int:user_id>")
 def battle_log(user_id):
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
-        return redirect(url_for('index'))
-    log = getattr(player, 'last_battle_log', [])
-    return render_template('battle_log.html', log=log, user_id=user_id)
+        return redirect(url_for("index"))
+    log = getattr(player, "last_battle_log", [])
+    return render_template("battle_log.html", log=log, user_id=user_id)
 
-@app.route('/move/<int:user_id>', methods=['POST'])
+
+@app.route("/move/<int:user_id>", methods=["POST"])
 def move(user_id):
     """Move the player to another location."""
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
-        return redirect(url_for('index'))
-    dest = request.form.get('dest')
+        return redirect(url_for("index"))
+    dest = request.form.get("dest")
     if dest in LOCATIONS:
+        loc = LOCATIONS[dest]
+        req = getattr(loc, "required_item", None)
+        if req and not any(it.item_id == req for it in player.items):
+            msg = f"{loc.name} に入るには {req} が必要だ。"
+            return render_template("result.html", message=msg, user_id=user_id)
         player.current_location_id = dest
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
-    return redirect(url_for('play', user_id=user_id))
+    return redirect(url_for("play", user_id=user_id))
 
-@app.route('/save/<int:user_id>', methods=['POST'])
+
+@app.route("/save/<int:user_id>", methods=["POST"])
 def save(user_id):
     """Persist the current player state to the database."""
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if player:
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
-    return redirect(url_for('play', user_id=user_id))
+    return redirect(url_for("play", user_id=user_id))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run(debug=True)

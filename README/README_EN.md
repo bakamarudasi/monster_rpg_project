@@ -50,7 +50,7 @@ Use `monster_loader.load_monsters()` to read monster definitions from `monsters/
 - `skills/__init__.py` &mdash; an empty module used to mark the directory as a package.
 
 ### Maps
-- `map_data.py` &mdash; defines the `Location` class and the dictionary `LOCATIONS` which describes available areas and how they connect. `STARTING_LOCATION_ID` indicates where the player begins. Locations can include an `enemy_pool` dict for weighted encounters and a `party_size` range for the number of enemies.
+- `map_data.py` &mdash; defines the `Location` class and the dictionary `LOCATIONS` which describes available areas and how they connect. `STARTING_LOCATION_ID` indicates where the player begins. Locations can include an `enemy_pool` dict for weighted encounters, a `party_size` range for the number of enemies, and an optional `required_item` field to lock certain areas until the player has that item.
 
 Example weighted enemy pool:
 
@@ -58,6 +58,13 @@ Example weighted enemy pool:
 {
   "enemy_pool": { "slime": 70, "goblin": 30 },
   "party_size": [1, 2]
+}
+```
+Example location requiring an item:
+```json
+{
+  "required_item": "celestial_feather",
+  "connections": { "Outer": "sky_isle" }
 }
 ```
 
