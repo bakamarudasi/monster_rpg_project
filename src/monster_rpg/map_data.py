@@ -5,6 +5,7 @@ import random  # エンカウント判定で使います
 import copy
 from .monsters import Monster, ALL_MONSTERS
 
+
 class Location:
     def __init__(
         self,
@@ -25,6 +26,7 @@ class Location:
         boss_enemy_id=None,
         rare_enemies=None,
         treasure_items=None,
+        required_item=None,
         event_chance=0.0,
         avg_enemy_level=1,
         enemy_weights: dict[str, float] | None = None,
@@ -43,6 +45,7 @@ class Location:
         enemy_pool (dict): モンスターIDをキーとした出現率(重み)の辞書。
         party_size (list|tuple): 出現する敵パーティの数の最小・最大値。
         encounter_rate (float): その場所でのエンカウント率 (0.0 から 1.0)。0ならエンカウントしない。
+        required_item (str|None): 移動に必要なアイテムID。Noneなら制限なし。
         x, y (int): ワールドマップ上の座標。未指定なら 0,0。
         """
         self.location_id = location_id
@@ -62,6 +65,7 @@ class Location:
         self.boss_enemy_id = boss_enemy_id
         self.rare_enemies = rare_enemies if rare_enemies else []
         self.treasure_items = treasure_items if treasure_items else []
+        self.required_item = required_item
         self.event_chance = event_chance
         self.avg_enemy_level = avg_enemy_level
         self.x = x
@@ -114,6 +118,7 @@ class Location:
 
         return party if party else None
 
+
 # --- 場所の定義 ---
 # LOCATIONS は JSON ファイルからロードして初期化される
 LOCATIONS: dict[str, Location] = {}
@@ -150,6 +155,7 @@ def load_locations(filepath: str | None = None) -> None:
             boss_enemy_id=attrs.get("boss_enemy_id"),
             rare_enemies=attrs.get("rare_enemies"),
             treasure_items=attrs.get("treasure_items"),
+            required_item=attrs.get("required_item"),
             event_chance=attrs.get("event_chance", 0.0),
             avg_enemy_level=attrs.get("avg_enemy_level", 1),
             enemy_weights=attrs.get("enemy_weights"),
@@ -160,6 +166,7 @@ def load_locations(filepath: str | None = None) -> None:
 
     LOCATIONS.clear()
     LOCATIONS.update(loaded)
+
 
 STARTING_LOCATION_ID = "village_square"  # ゲーム開始時の場所ID
 
