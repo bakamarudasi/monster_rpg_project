@@ -3,6 +3,9 @@ import json
 import os
 import random  # エンカウント判定で使います
 import copy
+from typing import Optional
+import networkx as nx
+import matplotlib.pyplot as plt
 from .monsters import Monster, ALL_MONSTERS
 
 
@@ -212,3 +215,36 @@ def display_map() -> None:
     print("===== ワールドマップ =====")
     print(get_map_overview())
     print("========================")
+
+
+def display_map_graph(save_path: Optional[str] = None) -> None:
+    """ネットワーク図としてマップを描画する
+
+    Parameters
+    ----------
+    save_path: Optional[str]
+        画像を保存するファイルパス。指定しない場合は画面に表示する。
+    """
+    if not LOCATIONS:
+        return
+
+    graph = nx.DiGraph()
+    labels = {}
+    for loc_id, loc in LOCATIONS.items():
+        graph.add_node(loc_id)
+        labels[loc_id] = loc.name
+        for dest_id in loc.connections.values():
+            graph.add_edge(loc_id, dest_id)
+
+    pos = nx.spring_layout(graph, seed=42)
+    plt.figure(figsize=(8, 6))
+    nx.draw_networkx_nodes(graph, pos, node_color="#A0CBE2")
+    nx.draw_networkx_labels(graph, pos, labels, font_size=8)
+    nx.draw_networkx_edges(graph, pos, arrows=True, arrowstyle="->")
+    plt.axis("off")
+
+    if save_path:
+        plt.savefig(save_path, bbox_inches="tight")
+        plt.close()
+    else:
+        plt.show()
