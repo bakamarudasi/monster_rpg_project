@@ -94,7 +94,7 @@ function setupBattleUI() {
         form.addEventListener('submit', evt => {
             evt.preventDefault();
             const formData = new FormData(form);
-            const postUrl = "{{ url_for('battle', user_id=user_id) }}";
+            const postUrl = form.action;  // use the form's action URL
             const submitBtn = form.querySelector('button[type="submit"]');
             if (submitBtn) submitBtn.disabled = true;
             fetch(postUrl, { method: 'POST', body: formData })
