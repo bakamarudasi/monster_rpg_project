@@ -127,8 +127,8 @@ def apply_status(target: Monster, status_name: str, duration: int | None = None)
             remove_func = on_apply(target)
             if remove_func:
                 entry["remove_func"] = remove_func
-        except Exception:
-            pass
+        except Exception as e:  # noqa: BLE001
+            print(f"Error applying status effect {status_name}: {e}")
     target.status_effects.append(entry)
     print(f"{target.name} は{data['message']}状態になった！")
 
@@ -249,8 +249,8 @@ def process_status_effects(monster: Monster) -> bool:
             if callable(remove_cb):
                 try:
                     remove_cb()
-                except Exception:
-                    pass
+                except Exception as e:  # noqa: BLE001
+                    print(f"Error removing effect {e} from {monster.name}")
             expired.append(effect)
     for e in expired:
         monster.status_effects.remove(e)
