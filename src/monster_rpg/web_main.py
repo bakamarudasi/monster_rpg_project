@@ -679,6 +679,37 @@ def explore(user_id):
     after = player.increase_exploration(player.current_location_id, gained)
     messages.append(f"探索度 {before}% -> {after}%")
 
+    if before < 100 <= after:
+        if getattr(loc, "hidden_connections", {}):
+            loc.connections.update(loc.hidden_connections)
+            messages.append("新たな道が開けた！")
+        if getattr(loc, "boss_enemy_id", None):
+            boss_id = loc.boss_enemy_id
+            from .exploration import get_monster_instance_copy
+            boss_mon = get_monster_instance_copy(boss_id)
+            boss = [boss_mon] if boss_mon else []
+            if boss:
+                battle_obj = Battle(player.party_monsters, boss, player)
+                battle_obj.log.append({"type": "info", "message": "ボスが姿を現した！"})
+                active_battles[user_id] = battle_obj
+
+                while (
+                    not battle_obj.finished
+                    and battle_obj.current_actor() not in battle_obj.player_party
+                ):
+                    battle_obj.step()
+
+                player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+                return render_template(
+                    'battle_turn.html',
+                    user_id=user_id,
+                    battle=battle_obj,
+                    player_party=battle_obj.player_party,
+                    enemy_party=battle_obj.enemy_party,
+                    log=battle_obj.log,
+                    current_actor=battle_obj.current_actor(),
+                )
+
     # Locations often define enemies via `enemy_pool` instead of
     # `possible_enemies`. The previous condition only checked
     # `possible_enemies`, preventing battles from triggering when
