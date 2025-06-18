@@ -32,6 +32,17 @@ Pythonで作られた小さなテキストベースRPGのプロトタイプで�
    ```
    これにより <http://localhost:5000/> でサーバーが起動し、Flaskテンプレートを使用した画面で戦闘を含む完全なゲームを楽しめます。
 
+## Dockerでの実行
+
+リポジトリにはサンプルのPostgreSQL+Flask環境を用意した `docker-compose.yml` が含まれています。以下のコマンドでイメージをビルドし、コンテナを起動します。
+
+```bash
+docker-compose build
+docker-compose up
+```
+
+バックエンドサービスは5000番ポートを公開します。`./backend/src` をコンテナ内 `/app` としてマウントし、データベースのデータは名前付きボリューム `postgres_data` に保存されます。`docker-compose.yml` 内の `DATABASE_URL` 変数はアプリの接続先を示します（Pythonコードでは現在使用されていません）。
+
 ## プロジェクト構成
 
 ### モンスター
