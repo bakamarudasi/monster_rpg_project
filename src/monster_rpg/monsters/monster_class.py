@@ -179,6 +179,54 @@ class Monster:
                 bonus += e.total_speed
         return self.speed + bonus
 
+    # ------------------------------------------------------------------
+    # Effect helper methods
+    # ------------------------------------------------------------------
+    def heal(self, stat: str, amount):
+        if stat == 'hp':
+            if amount == 'full':
+                self.hp = self.max_hp
+            else:
+                before = self.hp
+                self.hp = min(self.max_hp, self.hp + int(amount))
+                healed = self.hp - before
+                if healed:
+                    print(f"{self.name} のHPが {healed} 回復した！ (HP: {self.hp})")
+        elif stat == 'mp':
+            if amount == 'full':
+                self.mp = self.max_mp
+            else:
+                before = self.mp
+                self.mp = min(self.max_mp, self.mp + int(amount))
+                restored = self.mp - before
+                if restored:
+                    print(f"{self.name} のMPが {restored} 回復した！ (MP: {self.mp})")
+
+    def apply_buff(self, stat: str, amount: int, duration: int) -> None:
+        if not stat:
+            return
+        setattr(self, stat, getattr(self, stat) + amount)
+
+        def revert(m: "Monster" = self, s: str = stat, a: int = amount) -> None:
+            setattr(m, s, getattr(m, s) - a)
+
+        if duration > 0:
+            self.status_effects.append({
+                'name': f'buff_{stat}',
+                'remaining': duration,
+                'remove_func': revert,
+            })
+
+    def apply_status(self, name: str, duration: int | None = None) -> None:
+        from ..battle import apply_status
+        apply_status(self, name, duration)
+
+    def cure_status(self, name: str) -> None:
+        before = len(self.status_effects)
+        self.status_effects = [e for e in self.status_effects if e['name'] != name]
+        if len(self.status_effects) < before:
+            print(f"{self.name} の {name} が治った。")
+
     @property
     def total_skills(self):
         skills = self.skills[:]
