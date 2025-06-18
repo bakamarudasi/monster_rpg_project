@@ -16,4 +16,9 @@ setup(
             'skills/*.json',
         ]
     },
+    install_requires=[
+        'Flask',
+        'networkx',
+        'matplotlib'
+    ],
 )
