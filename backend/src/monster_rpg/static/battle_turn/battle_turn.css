@@ -1,0 +1,199 @@
+/* === 全体レイアウト & 基本スタイル === */
+body {
+    background: #111;
+    color: #f0f0f0;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    font-size: 18px;
+}
+.container-battle {
+    max-width: 960px; /* 横幅を少し広げる */
+    margin: 1rem auto;
+    border: 2px solid #888;
+    background: #001a33;
+    box-shadow: inset 0 0 0 3px #001a33, 0 0 15px rgba(0, 128, 255, 0.4);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+/* === 上部：敵エリア (横並びレイアウトに変更) === */
+.enemy-area {
+    padding: 1rem;
+    min-height: 220px;
+    display: flex; /* 横並びに変更 */
+    justify-content: center; /* 中央寄せ */
+    align-items: flex-end; /* 下揃え */
+    gap: 1.5rem; /* ユニット間の隙間 */
+}
+
+/* === 中央の区分け線 === */
+.divider {
+    border: 0;
+    height: 2px;
+    background-image: linear-gradient(to right, transparent, #888, transparent);
+    margin: 0.5rem 0;
+}
+
+/* === 下部：味方・コマンドエリア === */
+.ally-area {
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    padding-bottom: 5rem; /* space for sticky command window */
+}
+.ally-party-display {
+    padding: 1rem;
+    min-height: 220px;
+    display: flex; /* 横並びに変更 */
+    justify-content: center; /* 中央寄せ */
+    align-items: flex-end; /* 下揃え */
+    gap: 1.5rem; /* ユニット間の隙間 */
+    margin-bottom: 1.5rem;
+}
+
+/* === バトルユニット (敵・味方共通のカードスタイル) === */
+.battle-unit {
+    display: flex;
+    flex-direction: column; /* 画像と情報を縦に並べる */
+    align-items: center;
+    width: 140px; /* ユニットの幅を固定 */
+    text-align: center;
+    position: relative;
+    transition: transform 0.3s ease-out; /* アニメーション用 */
+}
+.battle-unit.down {
+    opacity: .4;
+    filter: grayscale(80%);
+}
+.unit-img {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    margin-bottom: 0.5rem;
+    filter: drop-shadow(2px 4px 6px #000); /* 画像に影をつける */
+}
+.battle-unit .member-info {
+    width: 100%;
+}
+.member-name {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    text-shadow: 1px 1px 3px #000;
+    white-space: nowrap; /* 名前が改行しないように */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.hp-bar {
+    width: 100%;
+    height: 10px;
+    background: #444;
+    border: 1px solid #222;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+.mp-bar {
+    width: 100%;
+    height: 10px;
+    background: #222b44;
+    border: 1px solid #111;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+.hp-fill {
+    height: 100%;
+    background: #00e075;
+    box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.4);
+}
+.hp-fill.low { background: #ffb100; }
+.hp-fill.critical { background: #ff3c3c; }
+.mp-fill {
+    height: 100%;
+    background: #0090ff;
+    box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.4);
+}
+.hp-text {
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+.mp-text {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #9cd3ff;
+}
+/* クリック可能な敵ユニットにカーソルを表示 */
+.enemy.battle-unit {
+    cursor: pointer;
+}
+
+
+/* === ★行動権を持つキャラのハイライト表示★ === */
+.battle-unit.active-turn {
+    transform: translateY(-15px); /* 少し上に移動 */
+    filter: drop-shadow(0 0 10px #ffdd00); /* 黄色い光で囲む */
+}
+/* 頭上の矢印 */
+.battle-unit.active-turn::before {
+    content: '▼';
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffdd00;
+    font-size: 1.5rem;
+    text-shadow: 0 0 5px #000;
+    animation: bounce-arrow 1s infinite;
+}
+@keyframes bounce-arrow {
+    0%, 100% { top: -25px; }
+    50% { top: -20px; }
+}
+
+/* === コマンド入力フォーム === */
+.command-window {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border: 2px solid #666;
+    border-radius: 6px;
+    background: #112a44;
+    position: sticky;  /* new */
+    bottom: 0;         /* new */
+    z-index: 10;       /* new to keep above log */
+}
+.turn-banner { font-size: 1.5rem; font-weight: bold; text-align: center; margin-bottom: 1rem; color: #ffdd00; text-shadow: 1px 1px 2px #000; }
+.action-row { display: grid; grid-template-columns: 100px 1fr 1fr; gap: .75rem; align-items: center; margin-bottom: .75rem; }
+.action-row label { font-weight: bold; color: #fff; }
+select, button { background: #2d2d2d; color: #e0e0e0; border: 1px solid #777; border-radius: 4px; padding: .4rem .6rem; font-family: inherit; font-size: 1rem; }
+button { cursor: pointer; display: block; margin: 1.5rem auto 0; background: #0055aa; border: 1px solid #0088ff; padding: .5rem 2rem; font-weight: bold; transition: background .2s; box-shadow: 0 0 8px rgba(0, 136, 255, 0.5); }
+button:hover { background: #004cd1; }
+
+/* === ログ & リンク (変更なし) === */
+.log { margin-top: 1.5rem; height: 180px; overflow-y: auto; background: rgba(0, 0, 0, 0.4); border: 1px solid #555; border-radius: 6px; padding: .75rem; list-style: none; padding-left: .75rem; }
+.log li { margin-bottom: .4rem; font-size: 1rem; line-height: 1.4; }
+.back-link { display: block; text-align: center; margin-top: 1rem; color: #00b3ff; }
+
+/* === アニメーション (変更なし) === */
+@keyframes blink-red { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.6); } }
+.hp-fill.critical.blink { animation: blink-red 1s infinite; }
+
+/* === 敵詳細パネル (変更なし) === */
+.enemy-detail-panel { position: fixed; top: 0; right: 0; width: 260px; height: 100%; background: rgba(0, 0, 0, 0.85); color: #fff; padding: 1rem; box-shadow: -2px 0 5px rgba(0,0,0,0.5); transform: translateX(100%); transition: transform 0.3s ease; overflow-y: auto; z-index: 100; }
+.enemy-detail-panel.open { transform: translateX(0); }
+.enemy-detail-panel .close-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+
+/* === ダメージポップアップ === */
+.damage-indicator {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    color: #ff3c3c;
+    font-weight: bold;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(0);
+    transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+}
+.damage-indicator.visible {
+    transform: translateY(-40px);
+    opacity: 1;
+}

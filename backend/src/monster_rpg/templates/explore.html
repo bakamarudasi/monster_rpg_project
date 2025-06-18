@@ -1,0 +1,267 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="book-bg">
+  <div class="book-page fade-in">
+    <h2 class="book-title">探索日誌</h2>
+
+    <!-- 探索結果のログ -->
+    <div class="log-box">
+      <h3>今回の出来事</h3>
+      <ul>
+        {% for m in messages %}
+          <li>{{ m }}</li>
+        {% else %}
+          <li>特に何も見つからなかった…</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- パーティ状況 -->
+    <div class="party-status-box">
+        <h3>現在のパーティ</h3>
+        <div class="party-preview">
+          {% for m in player.party_monsters %}
+            {% set hp_pct = (m.hp / m.max_hp * 100)|round(0) %}
+            {% set hp_cls = 'hp-fill' %}
+            {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}
+            {% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
+            <div class="monster-card">
+              {% if m.image_filename %}
+                <img class="monster-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
+              {% endif %}
+              <div class="monster-name">{{ m.name }}</div>
+              <div class="hp-container">
+                <div class="hp-bar"><div class="{{ hp_cls }}" style="width: {{ hp_pct }}%"></div></div>
+                <div class="hp-text">{{ m.hp }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+    </div>
+    
+    <!-- 探索進行度 -->
+    <div class="progress-section">
+      <h3>この地域の探索率</h3>
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: {{ progress }}%"></div>
+        </div>
+        <span class="progress-percent">{{ progress }}%</span>
+      </div>
+    </div>
+
+    <!-- 操作ボタン -->
+    <div class="action-buttons">
+        <form action="{{ url_for('explore', user_id=user_id) }}" method="post" style="margin: 0;">
+          <button class="book-btn" type="submit">さらに探索する</button>
+        </form>
+        <a class="book-link" href="{{ url_for('play', user_id=user_id) }}">探索をやめる</a>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  body {
+    background: #f9eee0;
+    min-height: 100vh;
+    font-family: 'Georgia', 'Times New Roman', serif;
+  }
+  .book-bg {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 48px 0;
+  }
+  .book-page {
+    background: #f7f2e6;
+    border: 4px solid #b68b4c;
+    border-radius: 18px;
+    max-width: 550px;
+    width: 98%;
+    box-shadow:
+      0 4px 32px #7b51120a,
+      0 0 0 10px #e6d3b6;
+    padding: 32px 28px 38px 28px;
+  }
+  .book-title {
+    text-align: center;
+    font-size: 2.1rem;
+    margin-bottom: 1.2em;
+    color: #895c1a;
+    letter-spacing: 2.5px;
+    text-shadow: 0 2px 1px #f4e3bd, 0 0 6px #f4e3bd99;
+    border-bottom: 2px solid #b68b4c55;
+    padding-bottom: .2em;
+  }
+
+  /* ログボックスのスタイル */
+  .log-box {
+    background: #ede6d8;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+    border: 1px solid #d1c6b2;
+  }
+  .log-box h3 {
+    margin: 0 0 12px 0;
+    color: #865e2a;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #c9b383;
+    padding-bottom: 8px;
+  }
+  .log-box ul {
+    list-style-type: '✧  ';
+    padding-left: 20px;
+    margin: 0;
+    color: #5d4b29;
+  }
+  .log-box li {
+      margin-bottom: 6px;
+  }
+
+  /* パーティ状況のスタイル */
+  .party-status-box h3 {
+    margin: 0 0 12px 0;
+    color: #865e2a;
+    font-size: 1.2rem;
+  }
+  .party-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 12px;
+    background: #ede6d8;
+    border-radius: 8px;
+    border: 1px solid #d1c6b2;
+  }
+  .monster-card {
+    background: #f6e9d1;
+    border-radius: 10px;
+    box-shadow: 0 1px 5px #b5b5b533;
+    padding: 10px;
+    text-align: center;
+    border: 2px solid #d1c6b2;
+  }
+  .monster-img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    margin-bottom: 6px;
+  }
+  .monster-name {
+    font-weight: bold;
+    margin-bottom: 6px;
+    color: #5d4b29;
+    font-size: 0.9rem;
+  }
+  .hp-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    color: #333;
+  }
+  .hp-bar {
+    flex: 1;
+    height: 10px;
+    background: #5d4b29;
+    border-radius: 5px;
+    border: 1px solid #c9b383;
+    overflow: hidden;
+  }
+  .hp-fill {
+    height: 100%;
+    background: #28a745;
+  }
+  .hp-fill.low { background: #ffc107; }
+  .hp-fill.critical { background: #dc3545; }
+  .hp-text { font-variant-numeric: tabular-nums; font-weight: bold; }
+
+  /* 探索率のスタイル */
+  .progress-section h3 {
+     margin: 0 0 12px 0;
+     color: #865e2a;
+     font-size: 1.2rem;
+  }
+  .progress-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    background: #ede6d8;
+    padding: 8px;
+    border-radius: 12px;
+    border: 1px solid #d1c6b2;
+  }
+  .progress-bar {
+    flex-grow: 1;
+    height: 20px;
+    background: #d1c6b2;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid #f7f2e6;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .progress-fill {
+    background: linear-gradient(90deg, #d3b173, #a17c4b);
+    height: 100%;
+    box-shadow: inset 0 -2px 4px rgba(255,255,255,0.3);
+  }
+  .progress-percent {
+    width: 50px;
+    text-align: right;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #865e2a;
+  }
+
+  /* ボタン・リンクのスタイル */
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    margin-top: 16px;
+    border-top: 2px solid #b68b4c55;
+    padding-top: 24px;
+  }
+  .book-btn {
+    padding: 11px 32px;
+    background: linear-gradient(90deg,#a17c4b 30%,#d3b173 100%);
+    color: #fffbe6;
+    border: none;
+    border-radius: 9px;
+    font-size: 1.12rem;
+    font-family: 'Georgia', serif;
+    letter-spacing: 1px;
+    font-weight: bold;
+    box-shadow: 0 2px 9px #8c6d3b33;
+    cursor: pointer;
+    transition: background .18s, box-shadow .17s;
+    border-bottom: 3px solid #c9b383;
+  }
+  .book-btn:hover {
+    background: linear-gradient(90deg,#d3b173 0%,#a17c4b 100%);
+    box-shadow: 0 4px 13px #a17c4b44;
+  }
+  .book-link {
+    color: #9c7228;
+    font-size: 1.05em;
+    text-decoration: underline wavy #b68b4c66;
+  }
+  .book-link:hover {
+    color: #ad8236;
+  }
+
+  .fade-in { opacity: 0; transform: translateY(32px) scale(.98); transition: .9s cubic-bezier(.19,1,.22,1); }
+  .fade-in.show { opacity: 1; transform: none; }
+</style>
+<script>
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('.fade-in').classList.add('show');
+  });
+</script>
+{% endblock %}

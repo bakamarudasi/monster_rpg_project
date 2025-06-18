@@ -1,0 +1,33 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # Python/Flaskアプリケーションのサービス
+  backend:
+    build: ./backend  # ./backend/Dockerfile を使ってビルド
+    ports:
+      - "5000:5000"  # PCの5000番ポートとコンテナの5000番ポートを繋ぐ
+    volumes:
+      - ./backend/src:/app  # PCのソースコードの変更をコンテナに即時反映させる
+    environment:
+      # DB接続情報を環境変数として定義
+      - DATABASE_URL=postgresql://user:password@db:5432/monster_rpg_db
+    depends_on:
+      - db  # dbサービスが起動してから、backendを起動する
+
+  # データベースのサービス
+  db:
+    image: postgres:13-alpine  # PostgreSQLの軽量イメージを使用
+    volumes:
+      # DBのデータをPC上に保存し、コンテナを消してもデータが消えないようにする
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=monster_rpg_db
+    ports:
+      - "5432:5432"
+
+# トップレベルで名前付きボリュームを定義
+volumes:
+  postgres_data

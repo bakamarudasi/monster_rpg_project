@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block head_extra %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='party/party.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="book-bg">
+  <div class="book-page fade-in">
+    <h2 class="book-title">パーティ</h2>
+    <ul class="party-list">
+      {% for entry in party_info %}
+        {% set m = entry.monster %}
+        <li class="party-member" data-details='{{ entry.detail | tojson | forceescape }}'>
+          {% if m.image_filename %}
+            <img class="monster-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
+          {% endif %}
+          <div class="member-info">
+            <span class="monster-name">{{ m.name }}</span>
+            <span class="monster-level">Lv.{{ m.level }}</span>
+            <span class="monster-hp">HP <b>{{ m.hp }}</b>/<span class="hp-max">{{ m.max_hp }}</span></span>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+    <form action="{{ url_for('formation', user_id=user_id) }}" method="get">
+      <button class="book-btn">編成</button>
+    </form>
+    <a class="book-link" href="{{ url_for('play', user_id=user_id) }}">← 戻る</a>
+  </div>
+</div>
+
+  <div id="monster-detail-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <button class="modal-close-btn" aria-label="閉じる">&times;</button>
+      <div id="modal-card-body"></div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block scripts %}
+  <script id="party-data" type="application/json">
+    {{ {
+        'equipment_list': equipment_list,
+        'equip_url': url_for('equip', user_id=user_id)
+    } | tojson | safe }}
+  </script>
+  <script src="{{ url_for('static', filename='party/party.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,185 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="book-wrapper">
+  <h2 class="book-title">◆ モンスター図鑑 ◆</h2>
+  <div class="book-meta">発見率 <span class="book-percent">{{ completion|round(1) }}%</span></div>
+  <ul class="book-list">
+    {% for entry, status, image_url in entries %}
+      <li class="book-entry status-{{ status }}">
+        {% if status == 'captured' %}
+          <div class="entry-head">
+            <span class="badge badge-captured">捕獲</span>
+            <span class="entry-id">{{ entry.monster_id }}</span>
+          </div>
+          {% if image_url %}
+            <div class="entry-img"><img src="{{ image_url }}" alt="{{ entry.monster_id }}"></div>
+          {% endif %}
+          <div class="entry-desc">{{ entry.description }}</div>
+          {% if entry.location_hint %}
+            <div class="entry-hint"><span class="hint-label">出現場所：</span>{{ entry.location_hint }}</div>
+          {% endif %}
+          {% if entry.synthesis_hint %}
+            <div class="entry-hint"><span class="hint-label">合成秘訣：</span>{{ entry.synthesis_hint }}</div>
+          {% endif %}
+        {% elif status == 'seen' %}
+          <div class="entry-head">
+            <span class="badge badge-seen">目撃</span>
+            <span class="entry-id">{{ entry.monster_id }}</span>
+          </div>
+          {% if image_url %}
+            <div class="entry-img"><img src="{{ image_url }}" alt="{{ entry.monster_id }}"></div>
+          {% endif %}
+          <div class="entry-desc">？？？ 詳細は不明</div>
+          {% if entry.location_hint %}
+            <div class="entry-hint"><span class="hint-label">手掛かり：</span>{{ entry.location_hint }}</div>
+          {% endif %}
+        {% else %}
+          <div class="entry-head">
+            <span class="badge badge-unknown">未発見</span>
+            <span class="entry-id">？？？</span>
+          </div>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+  <div class="book-back">
+    <a href="{{ url_for('play', user_id=user_id) }}" class="book-link">戻る</a>
+  </div>
+</div>
+
+<style>
+.book-wrapper {
+  background: #f8f4e6;
+  border: 5px double #b1976b;
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2.5rem 2rem 1rem 2rem;
+  box-shadow: 0 0 18px 5px #b3ad8a55, 0 0 0 10px #ede5ca;
+  border-radius: 18px;
+  font-family: "serif", "Yu Mincho", "Hiragino Mincho Pro", serif;
+  position: relative;
+}
+
+.book-title {
+  font-family: "Georgia", "serif";
+  font-size: 2rem;
+  text-align: center;
+  letter-spacing: 0.18em;
+  color: #786032;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 2px #ede5ca;
+  border-bottom: 2px solid #b1976b;
+  padding-bottom: 0.3em;
+}
+
+.book-meta {
+  text-align: right;
+  font-size: 1.1rem;
+  margin-bottom: 1.5em;
+  color: #8d7b54;
+}
+.book-percent {
+  font-weight: bold;
+  color: #b88e3a;
+  font-size: 1.25em;
+}
+
+.book-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.book-entry {
+  background: #fff9eb;
+  border: 1.5px solid #d4bb94;
+  border-radius: 1rem;
+  margin-bottom: 1.3em;
+  padding: 1.2em 1em 0.8em 1.4em;
+  box-shadow: 0 0 8px #e3dbb5 inset;
+  position: relative;
+  transition: box-shadow .2s;
+}
+
+.book-entry.status-captured { border-left: 6px solid #e9b331; }
+.book-entry.status-seen { border-left: 6px solid #b1b1b1; }
+.book-entry.status-unknown { border-left: 6px solid #dcdcdc; opacity: 0.75; }
+
+.book-entry:hover {
+  box-shadow: 0 0 16px #e6ddaf, 0 0 0 4px #dec68233;
+}
+
+.entry-head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.3em;
+  font-size: 1.1em;
+  gap: 0.7em;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.98em;
+  border-radius: 0.7em;
+  padding: 0.1em 0.8em 0.1em 0.7em;
+  font-family: "Georgia", "serif";
+  font-weight: bold;
+  margin-right: 0.3em;
+  box-shadow: 0 1px 0 #e2d6c2;
+}
+.badge-captured { background: #ffe185; color: #715400; border: 1px solid #e9b331; }
+.badge-seen { background: #e4e4e4; color: #565656; border: 1px solid #b1b1b1; }
+.badge-unknown { background: #e9e4d4; color: #adadad; border: 1px solid #d4bb94; }
+
+.entry-id {
+  font-family: "Menlo", "monospace";
+  font-size: 1.05em;
+  letter-spacing: 0.06em;
+}
+
+.entry-desc {
+  margin-bottom: 0.5em;
+  color: #5e4820;
+  font-size: 1.08em;
+  font-weight: 500;
+  line-height: 1.6;
+}
+.entry-img {
+  text-align: center;
+  margin-bottom: 0.5em;
+}
+.entry-img img {
+  max-width: 100px;
+  height: auto;
+}
+.entry-hint {
+  font-size: 0.99em;
+  color: #87744c;
+  margin-bottom: 0.17em;
+  margin-left: 1.2em;
+}
+.hint-label {
+  font-weight: bold;
+  color: #b88e3a;
+}
+
+.book-back {
+  margin-top: 2em;
+  text-align: center;
+}
+.book-link {
+  display: inline-block;
+  background: #b1976b;
+  color: #fff8e1;
+  padding: 0.6em 2.5em;
+  font-size: 1.07em;
+  border-radius: 2em;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  box-shadow: 0 2px 8px #b3ad8a55;
+  border: none;
+  transition: background .18s;
+}
+.book-link:hover { background: #e9b331; color: #715400; }
+</style>
+{% endblock %}

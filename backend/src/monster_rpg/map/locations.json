@@ -1,0 +1,273 @@
+{
+  "village_square": {
+    "name": "アリアルの村・広場",
+    "description": "あなたの冒険が始まる小さな村の広場。宿屋の看板が見える。",
+    "connections": { "北": "field_near_village" },
+    "encounter_rate": 0.0,
+    "enemy_pool": {},
+    "party_size": [0, 0],
+    "has_inn": true,
+    "inn_cost": 10,
+    "has_shop": true,
+    "shop_items": { "small_potion": 15 },
+    "shop_monsters": { "slime": 50 },
+    "avg_enemy_level": 1,
+    "x": 0, "y": 0
+  },
+  "field_near_village": {
+    "name": "村の近くの草原",
+    "description": "見渡す限りの草原が広がっている。時折、弱いモンスターの姿が見える。",
+    "connections": { "南": "village_square", "北東": "forest_entrance" },
+    "encounter_rate": 0.6,
+    "enemy_pool": { "slime": 60, "goblin": 40 },
+    "party_size": [1, 2],
+    "avg_enemy_level": 1,
+    "x": 1, "y": 0
+  },
+  "forest_entrance": {
+    "name": "妖精の森・入り口",
+    "description": "薄暗い森の入り口。奥からはかすかに獣の気配がする。",
+    "connections": { "南西": "field_near_village", "奥へ": "deep_forest", "東": "mystic_lake" },
+    "encounter_rate": 0.75,
+    "enemy_pool": { "goblin": 50, "wolf": 20, "slime": 30 },
+    "party_size": [1, 3],
+    "avg_enemy_level": 2,
+    "x": 2, "y": 0
+  },
+  "mystic_lake": {
+    "name": "神秘の湖",
+    "description": "森の奥にひっそりと佇む美しい湖。水面が青く光っている。",
+    "connections": { "西": "forest_entrance" },
+    "encounter_rate": 0.8,
+    "enemy_pool": { "water_wolf": 40, "mermaid_siren": 40, "mist_wraith": 20 },
+    "party_size": [1, 2],
+    "avg_enemy_level": 3,
+    "x": 3, "y": 0
+  },
+  "deep_forest": {
+    "name": "妖精の森・奥地",
+    "description": "木々が鬱蒼と茂り、昼なお暗い。強力なモンスターが生息しているようだ。",
+    "connections": { "入り口へ": "forest_entrance" },
+    "hidden_connections": { "さらに奥へ": "forest_boss_room" },
+    "encounter_rate": 0.9,
+    "enemy_pool": {
+      "wolf": 40,
+      "shadow_panther": 20,
+      "elf_mage": 30,
+      "moonlit_dryad": 10
+    },
+    "party_size": [1, 3],
+    "boss_enemy_id": "dragon_pup",
+    "rare_enemies": ["phoenix_chick"],
+    "treasure_items": ["small_potion"],
+    "event_chance": 0.3,
+    "avg_enemy_level": 4,
+    "x": 4, "y": 0
+  },
+  "forest_boss_room": {
+    "name": "森の守護者の間",
+    "description": "森の奥深くに佇む神秘的な祭壇。強大なモンスターの気配がする。",
+    "connections": { "奥地へ戻る": "deep_forest" },
+    "encounter_rate": 1.0,
+    "enemy_pool": { "dragon_pup": 100 },
+    "party_size": [1, 1],
+    "avg_enemy_level": 5,
+    "x": 0, "y": 1
+  },
+  "hill_road": {
+    "name": "丘陵街道",
+    "description": "ゆるやかな丘を抜ける古びた街道。行商人の姿もちらほら。",
+    "connections": { "南": "field_near_village", "北": "mountain_foothills" },
+    "encounter_rate": 0.55,
+    "enemy_pool": { "wolf": 40, "orc_warrior": 40, "goblin": 20 },
+    "party_size": [1, 3],
+    "avg_enemy_level": 3,
+    "x": 1, "y": 1
+  },
+  "mountain_foothills": {
+    "name": "山麓の荒野",
+    "description": "切り立った崖と転がる岩石。空気が薄くなり始めている。",
+    "connections": { "南": "hill_road", "北": "thunder_peak", "西": "ancient_ruins" },
+    "encounter_rate": 0.75,
+    "enemy_pool": { "orc_warrior": 40, "skeleton_archer": 30, "troll_brute": 20, "giant_golem": 10 },
+    "party_size": [2, 3],
+    "treasure_items": ["medium_potion"],
+    "avg_enemy_level": 4,
+    "x": 2, "y": 1
+  },
+  "thunder_peak": {
+    "name": "雷鳴峰",
+    "description": "雲間を貫く尖塔のような山頂。常に雷が轟く。",
+    "connections": { "南": "mountain_foothills" },
+    "encounter_rate": 0.85,
+    "enemy_pool": { "thunder_eagle": 40, "electro_mantis": 30, "spectral_raven": 20, "storm_golem": 10 },
+    "party_size": [1, 3],
+    "boss_enemy_id": "storm_golem",
+    "rare_enemies": ["nameless_kingling"],
+    "treasure_items": ["thunder_core"],
+    "avg_enemy_level": 6,
+    "x": 3, "y": 1
+  },
+  "ancient_ruins": {
+    "name": "古代遺跡",
+    "description": "苔むした石碑と崩れた柱が並ぶ、忘れられた文明の跡。",
+    "connections": { "東": "mountain_foothills", "地下へ": "catacombs_entrance" },
+    "encounter_rate": 0.7,
+    "enemy_pool": { "undead_warrior": 40, "skeleton_archer": 40, "pontiff_shade": 15, "mist_wraith": 5 },
+    "party_size": [2, 4],
+    "event_chance": 0.25,
+    "avg_enemy_level": 5,
+    "x": 4, "y": 1
+  },
+  "catacombs_entrance": {
+    "name": "地下墓地・入口",
+    "description": "石階段が闇へと続く。不気味な気配が漂う。",
+    "connections": { "上へ戻る": "ancient_ruins", "奥へ": "catacombs_deep" },
+    "encounter_rate": 0.8,
+    "enemy_pool": { "skeleton_archer": 40, "undead_warrior": 30, "gravetide_hollow": 20, "blood_fiend": 10 },
+    "party_size": [2, 3],
+    "treasure_items": ["frost_crystal"],
+    "avg_enemy_level": 6,
+    "x": 0, "y": 2
+  },
+  "catacombs_deep": {
+    "name": "地下墓地・深層",
+    "description": "蝋燭の火が揺れる石室。静寂を破る足音が反響する。",
+    "connections": { "入口へ戻る": "catacombs_entrance", "奈落へ": "abyssal_chasm" },
+    "encounter_rate": 0.9,
+    "enemy_pool": { "blighted_knight": 40, "vampire_lord": 30, "abyss_watcher": 20, "iron_juggernaut": 10 },
+    "party_size": [2, 4],
+    "boss_enemy_id": "abyss_watcher",
+    "rare_enemies": ["abyss_watcher"],
+    "treasure_items": ["abyss_shard"],
+    "avg_enemy_level": 8,
+    "x": 1, "y": 2
+  },
+  "abyssal_chasm": {
+    "name": "深淵の裂け目",
+    "description": "底知れぬ闇が広がる亀裂。闇の鼓動が聞こえる。",
+    "connections": { "地上へ": "catacombs_deep", "光の塔へ": "celestial_tower" },
+    "encounter_rate": 1.0,
+    "enemy_pool": { "shadow_panther": 30, "abyss_watcher": 30, "blighted_knight": 20, "blood_fiend": 20 },
+    "party_size": [3, 4],
+    "avg_enemy_level": 9,
+    "x": 2, "y": 2
+  },
+  "celestial_tower": {
+    "name": "天啓の塔",
+    "description": "蒼穹へと伸びる光輝の塔。最上階には試練が待つ。",
+    "connections": { "深淵へ戻る": "abyssal_chasm" },
+    "encounter_rate": 0.85,
+    "enemy_pool": { "celestial_panther": 35, "cinder_sentinel": 25, "sky_seraph": 25, "ashen_drake": 15 },
+    "party_size": [2, 3],
+    "has_inn": true, "inn_cost": 50,
+    "has_shop": true,
+    "shop_items": { "large_potion": 120, "elixir": 300, "celestial_feather": 500 },
+    "boss_enemy_id": "celestial_dragon",
+    "treasure_items": ["celestial_feather", "elixir"],
+    "avg_enemy_level": 10,
+    "x": 3, "y": 2
+  },
+  "desert_outskirts": {
+    "name": "砂漠の外れ",
+    "description": "熱風が吹きつけ、遠くに蜃気楼が揺れる。",
+    "connections": { "西": "field_near_village", "東": "desert_oasis" },
+    "encounter_rate": 0.65,
+    "enemy_pool": { "desert_scorpion": 50, "sand_wyrm": 30, "orc_warrior": 20 },
+    "party_size": [1, 3],
+    "avg_enemy_level": 4,
+    "x": 4, "y": 2
+  },
+  "desert_oasis": {
+    "name": "オアシスの集落",
+    "description": "椰子の木が茂る水辺。旅人の憩いの場だ。",
+    "connections": { "西": "desert_outskirts", "北": "sunken_temple" },
+    "encounter_rate": 0.3,
+    "enemy_pool": { "desert_scorpion": 100 },
+    "party_size": [1, 2],
+    "has_inn": true, "inn_cost": 20,
+    "has_shop": true,
+    "shop_items": { "medium_potion": 40, "antidote": 25 },
+    "avg_enemy_level": 3,
+    "x": 0, "y": 3
+  },
+  "sunken_temple": {
+    "name": "水没した神殿",
+    "description": "半ば湖に沈んだ古代神殿。水棲モンスターの巣窟。",
+    "connections": { "南": "desert_oasis", "深部へ": "abyssal_marsh" },
+    "encounter_rate": 0.85,
+    "enemy_pool": {
+      "kraken": 15,
+      "mermaid_siren": 30,
+      "water_wolf": 25,
+      "coral_hydra": 20,
+      "gravetide_hollow": 10
+    },
+    "party_size": [2, 4],
+    "treasure_items": ["frost_crystal"],
+    "avg_enemy_level": 7,
+    "x": 1, "y": 3
+  },
+  "abyssal_marsh": {
+    "name": "深淵の湿地",
+    "description": "黒い水面に泡が弾ける不気味な湿地帯。",
+    "connections": { "上へ": "sunken_temple", "東": "volcanic_ridge" },
+    "encounter_rate": 0.95,
+    "enemy_pool": { "kraken": 20, "blighted_knight": 20, "abyss_watcher": 20, "mist_wraith": 20, "gravetide_hollow": 20 },
+    "party_size": [3, 4],
+    "avg_enemy_level": 8,
+    "x": 2, "y": 3
+  },
+  "volcanic_ridge": {
+    "name": "熔岩稜線",
+    "description": "赤熱した溶岩が流れ、空気が揺らめく灼熱地帯。",
+    "connections": { "西": "abyssal_marsh", "北": "lava_core" },
+    "encounter_rate": 0.9,
+    "enemy_pool": {
+      "lava_elemental": 40,
+      "troll_brute": 20,
+      "cinder_sentinel": 25,
+      "ashen_drake": 15
+    },
+    "party_size": [2, 3],
+    "rare_enemies": ["cinder_sentinel"],
+    "treasure_items": ["dragon_scale"],
+    "avg_enemy_level": 9,
+    "x": 3, "y": 3
+  },
+  "lava_core": {
+    "name": "熔岩核",
+    "description": "流動するマグマの中央に浮かぶ岩盤。炎の脈動が響く。",
+    "connections": { "南": "volcanic_ridge", "上空へ": "sky_isle" },
+    "encounter_rate": 1.0,
+    "enemy_pool": { "lava_elemental": 70, "obsidian_titan": 30 },
+    "party_size": [1, 2],
+    "boss_enemy_id": "lava_elemental",
+    "avg_enemy_level": 10,
+    "x": 4, "y": 3
+  },
+  "sky_isle": {
+    "name": "浮遊島・聖域",
+    "description": "雲海を見下ろす浮島。澄んだ風の中で光が舞う。",
+    "connections": { "下へ": "lava_core", "北": "celestial_tower" },
+    "hidden_connections": { "更なる空の高みへ": "sky_isle_inner_sanctum" },
+    "encounter_rate": 0.8,
+    "enemy_pool": { "sky_seraph": 30, "thunder_eagle": 25, "celestial_panther": 25, "spectral_raven": 10, "crystal_drake": 10 },
+    "party_size": [2, 4],
+    "avg_enemy_level": 10,
+    "x": 0, "y": 4
+  },
+  "sky_isle_inner_sanctum": {
+    "name": "浮遊島・内なる聖域",
+    "description": "静謐な光が満ちる最奥部。翼を持つ守護者が待ち構えている。",
+      "required_item": "celestial_feather",
+    "connections": { "外縁へ戻る": "sky_isle" },
+    "encounter_rate": 1.0,
+    "enemy_pool": { "sky_seraph": 100 },
+    "party_size": [1, 1],
+    "boss_enemy_id": "sky_seraph",
+    "treasure_items": ["celestial_feather", "elixir"],
+    "avg_enemy_level": 12,
+    "x": 1, "y": 4
+  }
+}

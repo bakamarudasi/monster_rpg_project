@@ -1,0 +1,125 @@
+{% extends "layout.html" %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{{ url_for('static', filename='battle_turn/battle_turn.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-battle">
+    <div class="enemy-area">
+        {% for e in enemy_party %}
+            {% set hp_pct = (e.hp / e.max_hp * 100)|round(0) %}
+            {% set hp_cls = 'hp-fill' %}
+            {% set mp_pct = ((e.mp / e.max_mp * 100) if e.max_mp > 0 else 0)|round(0) %}
+            {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}{% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
+            
+            <div class="battle-unit enemy{% if not e.is_alive %} down{% endif %}"
+                 data-down="{{ not e.is_alive }}" data-unit-id="enemy-{{ loop.index0 }}"
+                 data-name="{{ e.name }}" data-level="{{ e.level }}" data-hp="{{ e.hp }}"
+                 data-max-hp="{{ e.max_hp }}" data-mp="{{ e.mp }}" data-max-mp="{{ e.max_mp }}"
+                 data-attack="{{ e.attack }}" data-defense="{{ e.defense }}" data-speed="{{ e.speed }}">
+                
+                {% if e.image_filename %}
+                    <img class="unit-img" src="{{ url_for('static', filename='images/' + e.image_filename) }}" alt="{{ e.name }}">
+                {% endif %}
+                <div class="member-info">
+                    <div class="member-name">{{ e.name }}</div>
+                    <div class="hp-bar"><div class="{{ hp_cls }}" style="width:{{ hp_pct }}%"></div></div>
+                    <div class="mp-bar"><div class="mp-fill" style="width:{{ mp_pct }}%"></div></div>
+                </div>
+                <div class="hp-text">{{ e.hp }}/{{ e.max_hp }}</div>
+                <div class="mp-text">{{ e.mp }}/{{ e.max_mp }}</div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <hr class="divider">
+
+    <div class="ally-area">
+        <div class="ally-party-display">
+            {% for m in player_party %}
+                {% set hp_pct = (m.hp / m.max_hp * 100)|round(0) %}
+            {% set hp_cls = 'hp-fill' %}
+            {% set mp_pct = ((m.mp / m.max_mp * 100) if m.max_mp > 0 else 0)|round(0) %}
+            {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}{% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
+
+                <div class="battle-unit ally{% if not m.is_alive %} down{% endif %}{% if current_actor and m is sameas current_actor %} active-turn{% endif %}"
+                     data-down="{{ not m.is_alive }}" data-unit-id="ally-{{ loop.index0 }}" data-mp="{{ m.mp }}" data-max-mp="{{ m.max_mp }}">
+                    
+                    {% if m.image_filename %}
+                        <img class="unit-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
+                    {% endif %}
+                    <div class="member-info">
+                        <div class="member-name">{{ m.name }}</div>
+                        <div class="hp-bar"><div class="{{ hp_cls }}" style="width:{{ hp_pct }}%"></div></div>
+                        <div class="mp-bar"><div class="mp-fill" style="width:{{ mp_pct }}%"></div></div>
+                    </div>
+                    <div class="hp-text">{{ m.hp }}/{{ m.max_hp }}</div>
+                    <div class="mp-text">{{ m.mp }}/{{ m.max_mp }}</div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="command-window">
+            <div class="turn-banner">Turn {{ battle.turn }}</div>
+            {% if current_actor and current_actor in player_party %}
+            <form action="{{ url_for('battle', user_id=user_id) }}" method="post">
+                <div class="action-row">
+                    <label for="action">{{ current_actor.name }}:</label>
+                    <select name="action" id="action">
+                        <option value="attack" data-target="enemy" data-scope="single">攻撃</option>
+                        {% for sk in current_actor.skills %}
+                        {% set s_idx = loop.index0 %}
+                        <option value="skill{{ s_idx }}" data-target="{{ sk.target }}" data-scope="{{ sk.scope }}">{{ sk.name }}</option>
+                        {% endfor %}
+                        <option value="scout" data-target="enemy" data-scope="single">スカウト</option>
+                        <option value="run" data-target="none" data-scope="none">逃げる</option>
+                    </select>
+                    <div>
+                        <select name="target_enemy">
+                            {% for e in enemy_party if e.is_alive %}
+                            <option value="{{ loop.index0 }}">{{ e.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="target_ally">
+                            {% for a in player_party if a.is_alive %}
+                            <option value="{{ loop.index0 }}">{{ a.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <button type="submit">行動決定</button>
+            </form>
+            {% else %}
+            <div class="turn-banner">敵の行動中...</div>
+            {% endif %}
+        </div>
+
+        <ul class="log">
+            {% for entry in log %}
+            <li class="log-message-{{ entry.type }}">{{ entry.message }}</li>
+            {% endfor %}
+        </ul>
+
+        <a href="{{ url_for('play', user_id=user_id) }}" class="back-link">戻る</a>
+    </div>
+
+    <div class="enemy-detail-panel" id="enemy-detail">
+        <button class="close-btn" type="button">&times;</button>
+        <h3 id="detail-name"></h3>
+        <ul>
+            <li>Lv <span id="detail-level"></span></li>
+            <li>HP <span id="detail-hp"></span>/<span id="detail-max-hp"></span></li>
+            <li>MP <span id="detail-mp"></span>/<span id="detail-max-mp"></span></li>
+            <li>攻撃 <span id="detail-attack"></span></li>
+            <li>防御 <span id="detail-defense"></span></li>
+            <li>素早さ <span id="detail-speed"></span></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='battle_turn/battle_turn.js') }}"></script>
+{% endblock %}
