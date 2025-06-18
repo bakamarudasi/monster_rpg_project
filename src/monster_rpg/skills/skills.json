@@ -1,0 +1,319 @@
+{
+  "fireball": {
+    "name": "ファイアボール",
+    "power": 30,
+    "cost": 5,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage", "amount": 30},
+      {"type": "status", "status": "burn"}
+    ],
+    "description": "火の玉で攻撃する",
+    "category": "魔法"
+  },
+  "heal": {
+    "name": "ヒール",
+    "power": 25,
+    "cost": 4,
+    "skill_type": "heal",
+    "target": "ally",
+    "effects": [{"type": "heal", "stat": "hp", "amount": 25}],
+    "description": "味方1体のHPを回復",
+    "category": "回復"
+  },
+  "mass_heal": {
+    "name": "ヒールオール",
+    "power": 15,
+    "cost": 8,
+    "skill_type": "heal",
+    "target": "ally",
+    "scope": "all",
+    "effects": [{"type": "heal", "stat": "hp", "amount": 15}],
+    "description": "味方全体を回復",
+    "category": "回復"
+  },
+  "guard_up": {
+    "name": "ガードアップ",
+    "power": 0,
+    "cost": 3,
+    "skill_type": "buff",
+    "target": "ally",
+    "duration": 3,
+    "effects": [{"type": "buff", "stat": "defense", "amount": 5, "duration": 3}],
+    "description": "数ターン防御力を上げる",
+    "category": "補助"
+  },
+  "thunder_bolt": {
+    "name": "サンダーボルト",
+    "power": 40,
+    "cost": 6,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage", "amount": 40},
+      {"type": "status", "status": "paralyze"}
+    ],
+    "description": "雷撃で攻撃し、稀に麻痺させる",
+    "category": "魔法"
+  },
+  "ice_spear": {
+    "name": "アイススピア",
+    "power": 35,
+    "cost": 6,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage", "amount": 35},
+      {"type": "status", "status": "freeze"}
+    ],
+    "description": "氷の槍で貫き、低確率で凍結させる",
+    "category": "魔法"
+  },
+  "wind_slash": {
+    "name": "ウィンドスラッシュ",
+    "power": 28,
+    "cost": 4,
+    "skill_type": "attack",
+    "effects": [{"type": "damage", "amount": 28}],
+    "description": "鋭い風で切り裂く",
+    "category": "物理"
+  },
+  "earth_quake": {
+    "name": "アースクエイク",
+    "power": 30,
+    "cost": 9,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [{"type": "damage", "amount": 30}],
+    "description": "大地を揺らし敵全体にダメージ",
+    "category": "魔法"
+  },
+  "dark_pulse": {
+    "name": "ダークパルス",
+    "power": 32,
+    "cost": 6,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage", "amount": 32},
+      {"type": "status", "status": "fear"}
+    ],
+    "description": "闇の衝撃波で恐怖を与える",
+    "category": "魔法"
+  },
+  "holy_light": {
+    "name": "ホーリーライト",
+    "power": 38,
+    "cost": 7,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage", "amount": 38},
+      {"type": "status", "status": "blind"}
+    ],
+    "description": "聖なる光でダメージ＆失明を狙う",
+    "category": "魔法"
+  },
+  "meteor_strike": {
+    "name": "メテオストライク",
+    "power": 50,
+    "cost": 12,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [{"type": "damage", "amount": 50}],
+    "description": "隕石を落とし敵全体に大ダメージ",
+    "category": "魔法"
+  },
+  "poison_dart": {
+    "name": "ポイズンダート",
+    "power": 18,
+    "cost": 2,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage", "amount": 18},
+      {"type": "status", "status": "poison"}
+    ],
+    "description": "毒針で攻撃し毒状態にする",
+    "category": "物理"
+  },
+  "blade_rush": {
+    "name": "ブレードラッシュ",
+    "power": 22,
+    "cost": 3,
+    "skill_type": "attack",
+    "effects": [{"type": "damage", "amount": 22}],
+    "description": "連続斬りでランダム敵を数回攻撃",
+    "category": "物理"
+  },
+  "dragon_breath": {
+    "name": "ドラゴンブレス",
+    "power": 45,
+    "cost": 10,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage", "amount": 45},
+      {"type": "status", "status": "burn"}
+    ],
+    "description": "灼熱のブレスで敵全体を焼き払う",
+    "category": "魔法"
+  },
+  "cure": {
+    "name": "キュア",
+    "power": 40,
+    "cost": 6,
+    "skill_type": "heal",
+    "target": "ally",
+    "effects": [{"type": "heal", "stat": "hp", "amount": 40}],
+    "description": "味方1体を大きく回復",
+    "category": "回復"
+  },
+  "regen": {
+    "name": "リジェネ",
+    "power": 10,
+    "cost": 5,
+    "skill_type": "buff",
+    "target": "ally",
+    "duration": 4,
+    "effects": [{"type": "status", "status": "regen", "duration": 4}],
+    "description": "数ターンかけて徐々に回復",
+    "category": "回復"
+  },
+  "revive": {
+    "name": "リバイブ",
+    "power": 999,
+    "cost": 15,
+    "skill_type": "status",
+    "target": "ally",
+    "effects": [{"type": "revive", "amount": "half"}],
+    "description": "戦闘不能の味方をHP半分で復活",
+    "category": "回復"
+  },
+  "power_up": {
+    "name": "パワーアップ",
+    "power": 0,
+    "cost": 4,
+    "skill_type": "buff",
+    "target": "ally",
+    "duration": 3,
+    "effects": [{"type": "buff", "stat": "attack", "amount": 5, "duration": 3}],
+    "description": "攻撃力を上げる",
+    "category": "補助"
+  },
+  "magic_boost": {
+    "name": "マジックブースト",
+    "power": 0,
+    "cost": 4,
+    "skill_type": "buff",
+    "target": "ally",
+    "duration": 3,
+    "effects": [{"type": "buff", "stat": "magic", "amount": 5, "duration": 3}],
+    "description": "魔力を上げる",
+    "category": "補助"
+  },
+  "speed_up": {
+    "name": "スピードアップ",
+    "power": 0,
+    "cost": 3,
+    "skill_type": "buff",
+    "target": "ally",
+    "duration": 3,
+    "effects": [{"type": "buff", "stat": "speed", "amount": 5, "duration": 3}],
+    "description": "素早さを上げる",
+    "category": "補助"
+  },
+  "brave_song": {
+    "name": "ブレイブソング",
+    "power": 0,
+    "cost": 7,
+    "skill_type": "buff",
+    "target": "ally",
+    "scope": "all",
+    "duration": 3,
+    "effects": [
+      {"type": "buff", "stat": "attack", "amount": 5, "duration": 3},
+      {"type": "buff", "stat": "defense", "amount": 5, "duration": 3}
+    ],
+    "description": "戦意を高め味方全体の攻防を強化",
+    "category": "補助"
+  },
+  "weaken_armor": {
+    "name": "ウィークンアーマー",
+    "power": 0,
+    "cost": 5,
+    "skill_type": "debuff",
+    "duration": 3,
+    "effects": [{"type": "buff", "stat": "defense", "amount": -5, "duration": 3}],
+    "description": "敵の防御力を下げる",
+    "category": "弱体"
+  },
+  "slow": {
+    "name": "スロウ",
+    "power": 0,
+    "cost": 4,
+    "skill_type": "debuff",
+    "effects": [{"type": "status", "status": "slow", "duration": 3}],
+    "duration": 3,
+    "description": "敵の素早さを下げる",
+    "category": "弱体"
+  },
+  "silence": {
+    "name": "サイレンス",
+    "power": 0,
+    "cost": 6,
+    "skill_type": "debuff",
+    "effects": [{"type": "status", "status": "silence", "duration": 3}],
+    "duration": 3,
+    "description": "魔法を封じる",
+    "category": "弱体"
+  },
+  "curse": {
+    "name": "カース",
+    "power": 0,
+    "cost": 8,
+    "skill_type": "debuff",
+    "effects": [{"type": "status", "status": "curse", "duration": 4}],
+    "duration": 4,
+    "description": "呪いを付与し各種能力を低下",
+    "category": "弱体"
+  },
+  "stun_blow": {
+    "name": "スタンブロウ",
+    "power": 20,
+    "cost": 4,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage", "amount": 20},
+      {"type": "status", "status": "stun"}
+    ],
+    "description": "殴打して気絶させる",
+    "category": "物理"
+  },
+  "sleep_spell": {
+    "name": "スリープ",
+    "power": 0,
+    "cost": 5,
+    "skill_type": "status",
+    "effects": [{"type": "status", "status": "sleep"}],
+    "description": "敵を眠らせる魔法",
+    "category": "魔法"
+  },
+  "paralysis_shock": {
+    "name": "パラライズショック",
+    "power": 25,
+    "cost": 5,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage", "amount": 25},
+      {"type": "status", "status": "paralyze"}
+    ],
+    "description": "痺れる衝撃で麻痺付与",
+    "category": "魔法"
+  },
+  "confusion_gas": {
+    "name": "コンフュージョンガス",
+    "power": 0,
+    "cost": 6,
+    "skill_type": "status",
+    "scope": "all",
+    "effects": [{"type": "status", "status": "confuse"}],
+    "description": "混乱ガスで敵全体を混乱させる",
+    "category": "魔法"
+  }
+}

@@ -40,8 +40,9 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
 
 Use `monster_loader.load_monsters()` to read monster definitions from `monsters/monsters.json`. A `ValueError` is raised if the file is missing or contains invalid JSON.
 
-### Skills
-- `skills/skills.py` &mdash; defines the `Skill` class and several example skills. The dictionary `ALL_SKILLS` stores all available skills.
+### Skills and Items
+- `skills/skills.py` &mdash; defines the `Skill` class and loads definitions from `skills/skills.json`. The dictionary `ALL_SKILLS` stores all available skills.
+- `items/item_data.py` &mdash; defines the `Item` class and loads data from `items/items.json` as `ALL_ITEMS`.
 - `skills/__init__.py` &mdash; an empty module used to mark the directory as a package.
 
 ### Maps
