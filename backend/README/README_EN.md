@@ -34,6 +34,17 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
    This starts the server at <http://localhost:5000/> using Flask templates
    and provides the full game including battles.
 
+## Running with Docker
+
+The repository includes a `docker-compose.yml` for a sample Postgres + Flask setup. Build the images then launch the containers:
+
+```bash
+docker-compose build
+docker-compose up
+```
+
+The backend service exposes port 5000. Source files under `./backend/src` are mounted into the container. Database data is stored in the named volume `postgres_data`. The `DATABASE_URL` variable in `docker-compose.yml` sets the connection string for the app (currently ignored by the Python code).
+
 ## Project Structure
 
 ### Monsters
