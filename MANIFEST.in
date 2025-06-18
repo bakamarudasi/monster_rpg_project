@@ -1,4 +1,0 @@
-recursive-include src/monster_rpg/templates *.html
-recursive-include src/monster_rpg/static *
-recursive-include src/monster_rpg/monsters *.json
-recursive-include src/monster_rpg/map *.json
