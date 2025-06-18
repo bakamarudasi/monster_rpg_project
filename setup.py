@@ -12,6 +12,8 @@ setup(
             'static/**/*',
             'monsters/*.json',
             'map/*.json',
+            'items/*.json',
+            'skills/*.json',
         ]
     },
 )
