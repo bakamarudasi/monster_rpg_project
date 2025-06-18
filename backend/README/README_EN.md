@@ -2,6 +2,9 @@
 
 This is a small text-based RPG prototype written in Python. It uses SQLite to store simple save data and now supports multiple user accounts. A minimal Flask web server is also included.
 
+> **Note**
+> The provided `docker-compose.yml` file defines a `DATABASE_URL` pointing to a PostgreSQL container. The Python application currently ignores this variable and always uses the local SQLite database `monster_rpg_save.db`.
+
 ## Requirements
 - Python 3 (tested with Python 3.11)
 - `Flask` is required to run the optional web server.
