@@ -9,8 +9,15 @@ class StatusEffectTests(unittest.TestCase):
     def test_poison_damage(self):
         target = Monster('Target', hp=20, attack=5, defense=2)
         attacker = Monster('Enemy', hp=20, attack=5, defense=2)
-        skill = Skill('TestPoison', power=0, cost=0, skill_type='status',
-                      effect='poison', target='enemy', duration=1)
+        skill = Skill(
+            'TestPoison',
+            power=0,
+            cost=0,
+            skill_type='status',
+            target='enemy',
+            duration=1,
+            effects=[{'type': 'status', 'status': 'poison', 'duration': 1}],
+        )
         apply_skill_effect(attacker, [target], skill)
         self.assertTrue(any(e['name'] == 'poison' for e in target.status_effects))
         process_status_effects(target)
@@ -31,7 +38,14 @@ class StatusEffectTests(unittest.TestCase):
             target = Monster("T", hp=20, attack=5, defense=2, speed=10)
             original_speed = target.speed
             attacker = Monster("E", hp=20, attack=5, defense=2)
-            skill = Skill("tmp", power=0, cost=0, skill_type="status", effect=status, target="enemy")
+            skill = Skill(
+                "tmp",
+                power=0,
+                cost=0,
+                skill_type="status",
+                target="enemy",
+                effects=[{'type': 'status', 'status': status}],
+            )
             apply_skill_effect(attacker, [target], skill)
             self.assertTrue(any(e["name"] == status for e in target.status_effects))
             duration = battle.STATUS_DEFINITIONS[status]["duration"]

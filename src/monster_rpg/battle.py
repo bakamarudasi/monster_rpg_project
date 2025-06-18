@@ -5,11 +5,7 @@ from .player import Player  # Playerクラスは直接使わないが、型ヒ�
 from .monsters import Monster  # Monsterクラスのみ参照
 from .items.equipment import Equipment, EquipmentInstance
 from .skills.skills import Skill  # Skillクラスを参照
-from .skills.skill_actions import (
-    SKILL_EFFECT_MAP,
-    simple_attack,
-    simple_heal,
-)
+from .skills.skill_actions import apply_effects
 # import traceback # デバッグ時に必要なら再度有効化
 
 # 属性相性倍率定義
@@ -182,41 +178,14 @@ def apply_skill_effect(
             targets_to_use = [m for m in all_enemies if m.is_alive]
 
     for target in targets_to_use:  # スキルは複数の対象に影響することがある
-        if not target.is_alive:  # 対象が既に倒れていたらスキップ
+        if not target.is_alive:
             print(f"{target.name} は既に倒れているため、{skill_obj.name} の効果を受けなかった。")
             continue
 
-        effect_func = None
-        if isinstance(skill_obj.effect, str):
-            effect_func = SKILL_EFFECT_MAP.get(skill_obj.effect)
-
-        if effect_func is not None:
-            effect_func(caster, target, skill_obj, all_allies=all_allies, all_enemies=all_enemies)
-            continue
-
-        if callable(skill_obj.effect) and skill_obj.skill_type == "buff" and skill_obj.target == "ally":
-            try:
-                remove_func = skill_obj.effect(target)
-                if skill_obj.duration > 0:
-                    target.status_effects.append({
-                        "name": skill_obj.name,
-                        "remaining": skill_obj.duration,
-                        "remove_func": remove_func,
-                    })
-                print(f"{target.name} の何かが強化された！")
-            except Exception as e:
-                print(f"スキル効果の適用中にエラー: {e}")
-            continue
-
-        # フォールバック処理
-        if skill_obj.skill_type == "attack":
-            simple_attack(caster, target, skill_obj)
-        elif skill_obj.skill_type == "heal" and skill_obj.target == "ally":
-            simple_heal(caster, target, skill_obj)
-        elif skill_obj.skill_type in ("debuff", "status") and isinstance(skill_obj.effect, str):
-            apply_status(target, skill_obj.effect, skill_obj.duration)
+        if skill_obj.effects:
+            apply_effects(caster, target, skill_obj.effects)
         else:
-            print(f"スキル「{skill_obj.name}」は効果がなかった...")  # 未対応のスキルタイプなど
+            print(f"スキル「{skill_obj.name}」は効果がなかった...")
 
 def display_party_status(party: list[Monster], party_name: str):
     """パーティのステータスを表示します。"""

@@ -1,11 +1,23 @@
 class Skill:
-    def __init__(self, name, power, cost=0, skill_type="attack", effect=None, target="enemy", scope="single", duration=0, description="", category=None):
+    def __init__(
+        self,
+        name,
+        power,
+        cost=0,
+        skill_type="attack",
+        effects=None,
+        target="enemy",
+        scope="single",
+        duration=0,
+        description="",
+        category=None,
+    ):
         """
         :param name: スキル名
         :param power: 威力（攻撃なら攻撃力に加算、回復なら回復量）
         :param cost: 消費MP
         :param skill_type: "attack", "heal", "buff", "debuff", "status"
-        :param effect: 特殊効果（関数や状態異常名など）
+        :param effects: 効果のリスト。各要素は{type: str, ...}形式の辞書
         :param target: "enemy" or "ally"（対象指定）
         :param scope: "single" or "all"（単体か全体か）
         :param duration: 効果持続ターン数（バフ等）
@@ -16,7 +28,7 @@ class Skill:
         self.power = power
         self.cost = cost
         self.skill_type = skill_type
-        self.effect = effect
+        self.effects = effects or []
         self.target = target
         self.scope = scope
         self.duration = duration
@@ -27,27 +39,9 @@ class Skill:
         scope_text = "全体" if self.scope == "all" else "単体"
         cost_text = f"MP:{self.cost}" if self.cost else ""
         return f"{self.name} ({self.skill_type}, Pow:{self.power}, {cost_text} {scope_text})"
-    # ------------------------------------------------------------
-# バフ／デバフ用 効果関数サンプル  （必要に応じて Monster クラス側で管理）
 # ------------------------------------------------------------
-def increase_attack(monster, amount=5):
-    monster.attack += amount
-    def revert():
-        monster.attack -= amount
-    return revert
-
-def increase_magic(monster, amount=5):
-    monster.magic += amount
-    def revert():
-        monster.magic -= amount
-    return revert
-
-def decrease_defense(monster, amount=5):
-    monster.defense -= amount
-    def revert():
-        monster.defense += amount
-    return revert
-
+# スキル定義
+# ------------------------------------------------------------
 
 # 攻撃スキル
 fireball = Skill(
@@ -55,7 +49,10 @@ fireball = Skill(
     power=30,
     cost=5,
     skill_type="attack",
-    effect="burn",
+    effects=[
+        {"type": "damage", "amount": 30},
+        {"type": "status", "status": "burn"},
+    ],
     description="火の玉で攻撃する",
     category="魔法",
 )
@@ -67,6 +64,7 @@ heal = Skill(
     cost=4,
     skill_type="heal",
     target="ally",
+    effects=[{"type": "heal", "stat": "hp", "amount": 25}],
     description="味方1体のHPを回復",
     category="回復",
 )
@@ -77,25 +75,20 @@ mass_heal = Skill(
     skill_type="heal",
     target="ally",
     scope="all",
+    effects=[{"type": "heal", "stat": "hp", "amount": 15}],
     description="味方全体を回復",
     category="回復",
 )
 
 # バフスキル
-def increase_defense(monster):
-    monster.defense += 5
-    def revert():
-        monster.defense -= 5
-    return revert
-
 guard_up = Skill(
     "ガードアップ",
     power=0,
     cost=3,
     skill_type="buff",
-    effect=increase_defense,
     target="ally",
     duration=3,
+    effects=[{"type": "buff", "stat": "defense", "amount": 5, "duration": 3}],
     description="数ターン防御力を上げる",
     category="補助",
 )
@@ -118,7 +111,10 @@ thunder_bolt = Skill(
     power=40,
     cost=6,
     skill_type="attack",
-    effect="paralyze",
+    effects=[
+        {"type": "damage", "amount": 40},
+        {"type": "status", "status": "paralyze"},
+    ],
     description="雷撃で攻撃し、稀に麻痺させる",
     category="魔法",
 )
@@ -128,7 +124,10 @@ ice_spear = Skill(
     power=35,
     cost=6,
     skill_type="attack",
-    effect="freeze",
+    effects=[
+        {"type": "damage", "amount": 35},
+        {"type": "status", "status": "freeze"},
+    ],
     description="氷の槍で貫き、低確率で凍結させる",
     category="魔法",
 )
@@ -138,6 +137,7 @@ wind_slash = Skill(
     power=28,
     cost=4,
     skill_type="attack",
+    effects=[{"type": "damage", "amount": 28}],
     description="鋭い風で切り裂く",
     category="物理",
 )
@@ -148,6 +148,7 @@ earth_quake = Skill(
     cost=9,
     skill_type="attack",
     scope="all",
+    effects=[{"type": "damage", "amount": 30}],
     description="大地を揺らし敵全体にダメージ",
     category="魔法",
 )
@@ -157,7 +158,10 @@ dark_pulse = Skill(
     power=32,
     cost=6,
     skill_type="attack",
-    effect="fear",
+    effects=[
+        {"type": "damage", "amount": 32},
+        {"type": "status", "status": "fear"},
+    ],
     description="闇の衝撃波で恐怖を与える",
     category="魔法",
 )
@@ -167,7 +171,10 @@ holy_light = Skill(
     power=38,
     cost=7,
     skill_type="attack",
-    effect="blind",
+    effects=[
+        {"type": "damage", "amount": 38},
+        {"type": "status", "status": "blind"},
+    ],
     description="聖なる光でダメージ＆失明を狙う",
     category="魔法",
 )
@@ -178,6 +185,7 @@ meteor_strike = Skill(
     cost=12,
     skill_type="attack",
     scope="all",
+    effects=[{"type": "damage", "amount": 50}],
     description="隕石を落とし敵全体に大ダメージ",
     category="魔法",
 )
@@ -187,7 +195,10 @@ poison_dart = Skill(
     power=18,
     cost=2,
     skill_type="attack",
-    effect="poison",
+    effects=[
+        {"type": "damage", "amount": 18},
+        {"type": "status", "status": "poison"},
+    ],
     description="毒針で攻撃し毒状態にする",
     category="物理",
 )
@@ -197,6 +208,7 @@ blade_rush = Skill(
     power=22,
     cost=3,
     skill_type="attack",
+    effects=[{"type": "damage", "amount": 22}],
     description="連続斬りでランダム敵を数回攻撃",
     category="物理",
 )
@@ -206,7 +218,10 @@ dragon_breath = Skill(
     power=45,
     cost=10,
     skill_type="attack",
-    effect="burn",
+    effects=[
+        {"type": "damage", "amount": 45},
+        {"type": "status", "status": "burn"},
+    ],
     scope="all",
     description="灼熱のブレスで敵全体を焼き払う",
     category="魔法",
@@ -219,6 +234,7 @@ cure = Skill(
     cost=6,
     skill_type="heal",
     target="ally",
+    effects=[{"type": "heal", "stat": "hp", "amount": 40}],
     description="味方1体を大きく回復",
     category="回復",
 )
@@ -230,7 +246,7 @@ regen = Skill(
     skill_type="buff",
     target="ally",
     duration=4,
-    effect="regen",          # 毎ターン回復フラグ等で管理
+    effects=[{"type": "status", "status": "regen", "duration": 4}],
     description="数ターンかけて徐々に回復",
     category="回復",
 )
@@ -241,7 +257,7 @@ revive = Skill(
     cost=15,
     skill_type="status",
     target="ally",
-    effect="revive",
+    effects=[{"type": "revive", "amount": "half"}],
     description="戦闘不能の味方をHP半分で復活",
     category="回復",
 )
@@ -254,7 +270,7 @@ power_up = Skill(
     skill_type="buff",
     target="ally",
     duration=3,
-    effect=increase_attack,
+    effects=[{"type": "buff", "stat": "attack", "amount": 5, "duration": 3}],
     description="攻撃力を上げる",
     category="補助",
 )
@@ -266,7 +282,7 @@ magic_boost = Skill(
     skill_type="buff",
     target="ally",
     duration=3,
-    effect=increase_magic,
+    effects=[{"type": "buff", "stat": "magic", "amount": 5, "duration": 3}],
     description="魔力を上げる",
     category="補助",
 )
@@ -278,7 +294,7 @@ speed_up = Skill(
     skill_type="buff",
     target="ally",
     duration=3,
-    effect="speed_up",
+    effects=[{"type": "buff", "stat": "speed", "amount": 5, "duration": 3}],
     description="素早さを上げる",
     category="補助",
 )
@@ -291,7 +307,10 @@ brave_song = Skill(
     target="ally",
     scope="all",
     duration=3,
-    effect="atk_def_up",
+    effects=[
+        {"type": "buff", "stat": "attack", "amount": 5, "duration": 3},
+        {"type": "buff", "stat": "defense", "amount": 5, "duration": 3},
+    ],
     description="戦意を高め味方全体の攻防を強化",
     category="補助",
 )
@@ -302,8 +321,8 @@ weaken_armor = Skill(
     power=0,
     cost=5,
     skill_type="debuff",
-    effect=decrease_defense,
     duration=3,
+    effects=[{"type": "buff", "stat": "defense", "amount": -5, "duration": 3}],
     description="敵の防御力を下げる",
     category="弱体",
 )
@@ -313,7 +332,7 @@ slow = Skill(
     power=0,
     cost=4,
     skill_type="debuff",
-    effect="slow",
+    effects=[{"type": "status", "status": "slow", "duration": 3}],
     duration=3,
     description="敵の素早さを下げる",
     category="弱体",
@@ -324,7 +343,7 @@ silence = Skill(
     power=0,
     cost=6,
     skill_type="debuff",
-    effect="silence",
+    effects=[{"type": "status", "status": "silence", "duration": 3}],
     duration=3,
     description="魔法を封じる",
     category="弱体",
@@ -335,7 +354,7 @@ curse = Skill(
     power=0,
     cost=8,
     skill_type="debuff",
-    effect="curse",
+    effects=[{"type": "status", "status": "curse", "duration": 4}],
     duration=4,
     description="呪いを付与し各種能力を低下",
     category="弱体",
@@ -347,7 +366,10 @@ stun_blow = Skill(
     power=20,
     cost=4,
     skill_type="attack",
-    effect="stun",
+    effects=[
+        {"type": "damage", "amount": 20},
+        {"type": "status", "status": "stun"},
+    ],
     description="殴打して気絶させる",
     category="物理",
 )
@@ -357,7 +379,7 @@ sleep_spell = Skill(
     power=0,
     cost=5,
     skill_type="status",
-    effect="sleep",
+    effects=[{"type": "status", "status": "sleep"}],
     description="敵を眠らせる魔法",
     category="魔法",
 )
@@ -367,7 +389,10 @@ paralysis_shock = Skill(
     power=25,
     cost=5,
     skill_type="attack",
-    effect="paralyze",
+    effects=[
+        {"type": "damage", "amount": 25},
+        {"type": "status", "status": "paralyze"},
+    ],
     description="痺れる衝撃で麻痺付与",
     category="魔法",
 )
@@ -378,7 +403,7 @@ confusion_gas = Skill(
     cost=6,
     skill_type="status",
     scope="all",
-    effect="confuse",
+    effects=[{"type": "status", "status": "confuse"}],
     description="混乱ガスで敵全体を混乱させる",
     category="魔法",
 )

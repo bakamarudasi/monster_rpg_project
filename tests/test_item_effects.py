@@ -13,6 +13,28 @@ class DummyMonster:
         self.status_effects = []
         self.is_alive = True
 
+    # minimal helpers for effect system
+    def heal(self, stat, amount):
+        if stat == 'hp':
+            if amount == 'full':
+                self.hp = self.max_hp
+            else:
+                self.hp = min(self.max_hp, self.hp + int(amount))
+        elif stat == 'mp':
+            if amount == 'full':
+                self.mp = self.max_mp
+            else:
+                self.mp = min(self.max_mp, self.mp + int(amount))
+
+    def apply_buff(self, stat, amount, duration):
+        setattr(self, stat, getattr(self, stat) + amount)
+
+    def apply_status(self, name, duration=None):
+        self.status_effects.append({'name': name, 'remaining': duration or 1})
+
+    def cure_status(self, name):
+        self.status_effects = [e for e in self.status_effects if e['name'] != name]
+
 
 class ItemEffectFunctionTests(unittest.TestCase):
     def test_heal_hp_effect(self):

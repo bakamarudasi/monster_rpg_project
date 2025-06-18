@@ -1,12 +1,12 @@
 # Item definitions
 
 class Item:
-    def __init__(self, item_id, name, description, usable=False, effect=None):
+    def __init__(self, item_id, name, description, usable=False, effects=None):
         self.item_id = item_id
         self.name = name
         self.description = description
         self.usable = usable
-        self.effect = effect or {}
+        self.effects = effects or []
 
     def __repr__(self):
         return f"Item({self.item_id})"
@@ -17,7 +17,7 @@ small_potion = Item(
     name="スモールポーション",
     description="HPを少し回復する小さなポーション。",
     usable=True,
-    effect={"type": "heal_hp", "amount": 30},
+    effects=[{"type": "heal", "stat": "hp", "amount": 30}],
 )
 
 medium_potion = Item(
@@ -25,7 +25,7 @@ medium_potion = Item(
     name="ミディアムポーション",
     description="HPを中程度回復するポーション。",
     usable=True,
-    effect={"type": "heal_hp", "amount": 60},
+    effects=[{"type": "heal", "stat": "hp", "amount": 60}],
 )
 
 large_potion = Item(
@@ -33,7 +33,7 @@ large_potion = Item(
     name="ラージポーション",
     description="HPを大きく回復する高級ポーション。",
     usable=True,
-    effect={"type": "heal_hp", "amount": 120},
+    effects=[{"type": "heal", "stat": "hp", "amount": 120}],
 )
 
 ether = Item(
@@ -41,7 +41,7 @@ ether = Item(
     name="エーテル",
     description="MPを中程度回復する神秘の液体。",
     usable=True,
-    effect={"type": "heal_mp", "amount": 30},
+    effects=[{"type": "heal", "stat": "mp", "amount": 30}],
 )
 
 antidote = Item(
@@ -49,7 +49,7 @@ antidote = Item(
     name="アンチドート",
     description="毒状態を治療する解毒薬。",
     usable=True,
-    effect={"type": "cure_status", "status": "poison"},
+    effects=[{"type": "cure_status", "status": "poison"}],
 )
 
 elixir = Item(
@@ -57,7 +57,10 @@ elixir = Item(
     name="エリクサー",
     description="HPとMPを完全に回復する万能薬。",
     usable=True,
-    effect={"type": "heal_full"},
+    effects=[
+        {"type": "heal", "stat": "hp", "amount": "full"},
+        {"type": "heal", "stat": "mp", "amount": "full"},
+    ],
 )
 
 revive_scroll = Item(
@@ -65,7 +68,7 @@ revive_scroll = Item(
     name="リバイブスクロール",
     description="戦闘不能の味方1体を復活させる古文書。",
     usable=True,
-    effect={"type": "revive", "amount": "half"},
+    effects=[{"type": "revive", "amount": "half"}],
 )
 
 # ── モンスター合成素材 ──────────────────────────────
