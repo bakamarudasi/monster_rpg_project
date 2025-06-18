@@ -1,128 +1,53 @@
-# Item definitions
+"""Item class and JSON loader."""
+
+from __future__ import annotations
+
+import json
+import os
+from typing import Dict, List, Any
+
 
 class Item:
-    def __init__(self, item_id, name, description, usable=False, effects=None):
+    """Simple item data container."""
+
+    def __init__(self, item_id: str, name: str, description: str, usable: bool = False, effects: List[dict] | None = None):
         self.item_id = item_id
         self.name = name
         self.description = description
         self.usable = usable
         self.effects = effects or []
 
-    def __repr__(self):
+    def __repr__(self) -> str:  # pragma: no cover - simple debug helper
         return f"Item({self.item_id})"
 
-# ── 回復系・サポート系 ───────────────────────────────
-small_potion = Item(
-    item_id="small_potion",
-    name="スモールポーション",
-    description="HPを少し回復する小さなポーション。",
-    usable=True,
-    effects=[{"type": "heal", "stat": "hp", "amount": 30}],
-)
 
-medium_potion = Item(
-    item_id="medium_potion",
-    name="ミディアムポーション",
-    description="HPを中程度回復するポーション。",
-    usable=True,
-    effects=[{"type": "heal", "stat": "hp", "amount": 60}],
-)
+def load_items(filepath: str | None = None) -> Dict[str, Item]:
+    """Load item definitions from a JSON file."""
+    if filepath is None:
+        filepath = os.path.join(os.path.dirname(__file__), "items.json")
 
-large_potion = Item(
-    item_id="large_potion",
-    name="ラージポーション",
-    description="HPを大きく回復する高級ポーション。",
-    usable=True,
-    effects=[{"type": "heal", "stat": "hp", "amount": 120}],
-)
+    try:
+        with open(filepath, encoding="utf-8") as f:
+            text = f.read().replace("\u00a0", " ")
+    except FileNotFoundError as e:
+        raise ValueError(f"Item data file not found: {filepath}") from e
 
-ether = Item(
-    item_id="ether",
-    name="エーテル",
-    description="MPを中程度回復する神秘の液体。",
-    usable=True,
-    effects=[{"type": "heal", "stat": "mp", "amount": 30}],
-)
+    try:
+        data: Dict[str, Any] = json.loads(text)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid item data JSON in {filepath}") from e
 
-antidote = Item(
-    item_id="antidote",
-    name="アンチドート",
-    description="毒状態を治療する解毒薬。",
-    usable=True,
-    effects=[{"type": "cure_status", "status": "poison"}],
-)
+    items: Dict[str, Item] = {}
+    for item_id, attrs in data.items():
+        items[item_id] = Item(
+            item_id=item_id,
+            name=attrs.get("name", item_id),
+            description=attrs.get("description", ""),
+            usable=attrs.get("usable", False),
+            effects=attrs.get("effects", []),
+        )
+    return items
 
-elixir = Item(
-    item_id="elixir",
-    name="エリクサー",
-    description="HPとMPを完全に回復する万能薬。",
-    usable=True,
-    effects=[
-        {"type": "heal", "stat": "hp", "amount": "full"},
-        {"type": "heal", "stat": "mp", "amount": "full"},
-    ],
-)
 
-revive_scroll = Item(
-    item_id="revive_scroll",
-    name="リバイブスクロール",
-    description="戦闘不能の味方1体を復活させる古文書。",
-    usable=True,
-    effects=[{"type": "revive", "amount": "half"}],
-)
-
-# ── モンスター合成素材 ──────────────────────────────
-magic_stone = Item(
-    item_id="magic_stone",
-    name="魔石",
-    description="モンスター合成に用いられる不思議な石。合成研究所で特定の組み合わせに必須。",
-)
-
-dragon_scale = Item(
-    item_id="dragon_scale",
-    name="ドラゴンスケイル",
-    description="若きドラゴンの鱗。強力な合成素材。",
-)
-
-abyss_shard = Item(
-    item_id="abyss_shard",
-    name="アビスシャード",
-    description="闇の深淵で取れる黒水晶。ダークソウル系モンスターの合成に使う。",
-)
-
-celestial_feather = Item(
-    item_id="celestial_feather",
-    name="セレスティアルフェザー",
-    description="光を宿す神鳥の羽根。高ランク合成素材。",
-)
-
-thunder_core = Item(
-    item_id="thunder_core",
-    name="サンダーコア",
-    description="強力な電気エネルギーを帯びた核。",
-)
-
-frost_crystal = Item(
-    item_id="frost_crystal",
-    name="フロストクリスタル",
-    description="極寒地で採れる冷気を封じ込めた氷晶。",
-)
-
-# ── 一括登録辞書 ─────────────────────────────────
-ALL_ITEMS = {
-    # 消耗品
-    "small_potion": small_potion,
-    "medium_potion": medium_potion,
-    "large_potion": large_potion,
-    "ether": ether,
-    "antidote": antidote,
-    "elixir": elixir,
-    "revive_scroll": revive_scroll,
-    # 合成素材
-    "magic_stone": magic_stone,
-    "dragon_scale": dragon_scale,
-    "abyss_shard": abyss_shard,
-    "celestial_feather": celestial_feather,
-    "thunder_core": thunder_core,
-    "frost_crystal": frost_crystal,
-}
+# Load default items on import
+ALL_ITEMS: Dict[str, Item] = load_items()

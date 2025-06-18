@@ -38,8 +38,9 @@ Pythonで作られた小さなテキストベースRPGのプロトタイプで�
 
 `monsters/monsters.json` は JSON 形式のモンスター定義例です。`monster_loader.load_monsters()` を使うことで、ファイルからモンスターを一括読み込みできます。ファイルが存在しない、または JSON が不正な場合は `ValueError` が送出されます。
 
-### スキル
-- `skills/skills.py` — `Skill` クラスと複数の例示的なスキルを定義します。辞書 `ALL_SKILLS` に利用可能なスキルを格納しています。
+### スキルとアイテム
+- `skills/skills.py` — `Skill` クラスを定義し、`skills/skills.json` からスキル情報を読み込みます。辞書 `ALL_SKILLS` に利用可能なスキルを格納します。
+- `items/item_data.py` — `Item` クラスを定義し、`items/items.json` を読み込んで `ALL_ITEMS` を生成します。
 - `skills/__init__.py` — ディレクトリをパッケージとして扱うための空モジュールです。
 
 ### マップ
