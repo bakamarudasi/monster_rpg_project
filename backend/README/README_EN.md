@@ -6,12 +6,12 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
 > The `docker-compose.yml` file simply launches the Flask backend and no longer includes a PostgreSQL service. The game continues to use the local SQLite database `monster_rpg_save.db`.
 
 ## Requirements
-- Python 3 (tested with Python 3.11)
+- Python 3.11
 - `Flask` is required to run the optional web server.
 - The standard library `sqlite3` module is used for save data.
 
 ## Setup and Running the Game
-1. (Optional) Create and activate a virtual environment for Python 3.
+1. (Optional) Create and activate a virtual environment for Python 3.11.
 2. Install the package in editable mode and initialize the SQLite database:
    ```bash
    pip install -e .
