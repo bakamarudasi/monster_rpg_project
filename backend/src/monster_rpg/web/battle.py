@@ -283,15 +283,15 @@ def battle(user_id):
                             new_equip = create_titled_equipment(item_obj.equip_id)
                             if new_equip:
                                 player.equipment_inventory.append(new_equip)
-                                msgs.append({'type': 'info', 'message': f'{new_equip.name} を手に入れた！'})
+                                msgs.append({'type': 'item_drop', 'message': f'{new_equip.name} を手に入れた！', 'item_name': new_equip.name})
                             else:
                                 msgs.append({'type': 'info', 'message': f'{item_obj.name} を手に入れ損ねた...'})
                         elif isinstance(item_obj, EquipmentInstance):
                             player.equipment_inventory.append(item_obj)
-                            msgs.append({'type': 'info', 'message': f'{item_obj.name} を手に入れた！'})
+                            msgs.append({'type': 'item_drop', 'message': f'{item_obj.name} を手に入れた！', 'item_name': item_obj.name})
                         else:
                             player.items.append(item_obj)
-                            msgs.append({'type': 'info', 'message': f'{item_obj.name} を手に入れた！'})
+                            msgs.append({'type': 'item_drop', 'message': f'{item_obj.name} を手に入れた！', 'item_name': item_obj.name})
             msgs.append({'type': 'info', 'message': f'勝利した！ {gold_gain}G を得た。'})
         else:
             msgs.append({'type': 'info', 'message': '敗北してしまった...'})
