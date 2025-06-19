@@ -176,6 +176,7 @@
       content.appendChild(equipSection);
       modalCardBody.appendChild(content);
       modal.classList.add('show');
+      modal.focus();
       modalCardBody.querySelectorAll('.equip-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           btn.disabled = true;

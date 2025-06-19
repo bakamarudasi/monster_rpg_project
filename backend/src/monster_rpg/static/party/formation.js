@@ -47,6 +47,7 @@ window.addEventListener('DOMContentLoaded', () => {
         content.appendChild(descSec);
         modalBody.appendChild(content);
         modal.classList.add('show');
+        modal.focus();
     }
 
     function closeModal() { modal.classList.remove('show'); }
