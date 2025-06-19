@@ -65,10 +65,11 @@
       </section>
     </main>
   </div>
-  <footer>
-    <p>© 2023 幻獣の魔導書. All rights reserved.</p>
-  </footer>
-</div>
+    <footer>
+      <p>© 2023 幻獣の魔導書. All rights reserved.</p>
+    </footer>
+    <a class="book-link" href="{{ url_for('party', user_id=user_id) }}">← 戻る</a>
+  </div>
 <div id="monster-detail-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
   <div class="modal-card">
     <button class="modal-close-btn" aria-label="閉じる">&times;</button>
