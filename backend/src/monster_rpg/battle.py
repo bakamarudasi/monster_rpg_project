@@ -3,7 +3,7 @@ import random
 from typing import cast
 from .player import Player  # Playerクラスは直接使わないが、型ヒントなどで参照される可能性を考慮
 from .monsters import Monster  # Monsterクラスのみ参照
-from .items.equipment import Equipment, EquipmentInstance
+from .items.equipment import Equipment, EquipmentInstance, create_titled_equipment
 from .skills.skills import Skill  # Skillクラスを参照
 from .skills.skill_actions import apply_effects
 # import traceback # デバッグ時に必要なら再度有効化
@@ -354,11 +354,19 @@ def award_experience(alive_party: list[Monster], defeated_enemies: list[Monster]
         if player is not None:
             for item_obj, rate in getattr(enemy, "drop_items", []):
                 if random.random() < rate:
-                    if isinstance(item_obj, (Equipment, EquipmentInstance)):
+                    if isinstance(item_obj, Equipment):
+                        new_equip = create_titled_equipment(item_obj.equip_id)
+                        if new_equip:
+                            player.equipment_inventory.append(new_equip)
+                            print(f"{new_equip.name} を手に入れた！")
+                        else:
+                            print(f"{item_obj.name} を手に入れ損ねた...")
+                    elif isinstance(item_obj, EquipmentInstance):
                         player.equipment_inventory.append(item_obj)
+                        print(f"{item_obj.name} を手に入れた！")
                     else:
                         player.items.append(item_obj)
-                    print(f"{item_obj.name} を手に入れた！")
+                        print(f"{item_obj.name} を手に入れた！")
 
     alive_monsters = [m for m in alive_party if m.is_alive]
     if alive_monsters and total_exp_reward > 0:
