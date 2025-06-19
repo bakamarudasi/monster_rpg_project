@@ -36,5 +36,17 @@ class BattleViewJsonTests(unittest.TestCase):
         self.assertIn('log', data)
         self.assertIn('finished', data)
 
+    def test_post_accepts_json_payload(self):
+        resp = self.client.post(
+            f'/battle/{self.user_id}',
+            json={'action': 'attack', 'target_enemy': 0}
+        )
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertIsInstance(data, dict)
+        self.assertIn('hp_values', data)
+        self.assertIn('log', data)
+        self.assertIn('finished', data)
+
 if __name__ == '__main__':
     unittest.main()
