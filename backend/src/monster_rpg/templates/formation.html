@@ -1,276 +1,81 @@
 {% extends "layout.html" %}
+{% block head_extra %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='party/formation.css') }}">
+{% endblock %}
 {% block content %}
-<div class="book-bg">
-  <div class="book-page fade-in">
-    <h2 class="book-title">編成</h2>
-
-    <h3 class="section-title">編集中</h3>
-    <ul class="member-list">
-      {% for m in player.party_monsters %}
-      <li class="member-item">
-        <div class="member-left">
-          <span class="member-index">{{ loop.index }}.</span>
-          {% if m.image_filename %}
-          <img
-            class="monster-img"
-            src="{{ url_for('static', filename='images/' + m.image_filename) }}"
-            alt="{{ m.name }}"
-          >
-          {% endif %}
-          <span class="member-name">{{ m.name }}</span>
-        </div>
-        <div class="member-actions">
-          <form action="{{ url_for('formation', user_id=user_id) }}" method="post" class="action-form">
-            <input type="hidden" name="index" value="{{ loop.index0 }}">
-            {% if not loop.first %}
-            <button type="submit" name="move" value="up" class="arrow-btn">↑</button>
-            {% endif %}
-            {% if not loop.last %}
-            <button type="submit" name="move" value="down" class="arrow-btn">↓</button>
-            {% endif %}
-            <button type="submit" name="remove" value="1" class="remove-btn">外す</button>
-          </form>
-        </div>
-      </li>
-      {% endfor %}
-    </ul>
-
-    <h3 class="section-title">未編成</h3>
-    <ul class="member-list">
-      {% for m in player.reserve_monsters %}
-      <li class="member-item">
-        <form action="{{ url_for('formation', user_id=user_id) }}" method="post" class="action-form">
-          <input type="hidden" name="add_index" value="{{ loop.index0 }}">
-          <button type="submit" class="reserve-btn">
-            {% if m.image_filename %}
-            <img
-              class="monster-img"
-              src="{{ url_for('static', filename='images/' + m.image_filename) }}"
-              alt="{{ m.name }}"
-            >
-            {% endif %}
-            <span class="member-name">{{ m.name }}</span>
-          </button>
+<div class="container">
+  <header>
+    <h1>幻獣の魔導書</h1>
+    <p>汝の最も恐るべき幻獣の部隊を編成せよ。</p>
+  </header>
+  <div class="main-grid">
+    <aside class="sidebar">
+      <div class="book-page">
+        <form id="formation-form" method="post" action="{{ url_for('formation', user_id=user_id) }}">
+          <input type="hidden" name="order" id="order-input">
+          <input type="hidden" name="reserve" id="reserve-input">
+          <button id="confirm-btn" type="button" class="ornate-button">編成を確定</button>
+          <button type="submit" name="reset" value="1" class="ornate-button">再編成</button>
         </form>
-      </li>
-      {% endfor %}
-    </ul>
-
-    <form action="{{ url_for('formation', user_id=user_id) }}" method="post" class="reset-form">
-      <button type="submit" name="reset" value="1" class="reset-btn">リセット</button>
-    </form>
-
-    <a class="book-link" href="{{ url_for('party', user_id=user_id) }}">← 戻る</a>
+        <h2 style="margin-top: 20px;">部隊の状態</h2>
+        <div style="font-style: italic; color: #666;">
+          <p>汝の部隊の総合力がここに表示されるであろう。</p>
+        </div>
+      </div>
+    </aside>
+    <main class="main-content">
+      <section class="book-page">
+        <h2>召喚陣 (汝の部隊)</h2>
+        <div class="team-slots">
+          {% for entry in party_info %}
+          <div id="slot-{{ loop.index }}" class="drop-area" data-slot="true">
+            <div class="monster-item" data-uid="{{ entry.uid }}" data-details='{{ entry.detail | tojson | forceescape }}' draggable="true">
+              {% if entry.monster.image_filename %}
+              <img src="{{ url_for('static', filename='images/' + entry.monster.image_filename) }}" alt="{{ entry.monster.name }}">
+              {% else %}
+              {{ entry.monster.name }}
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+          {% for i in range(party_info|length + 1, 4) %}
+          <div id="slot-{{ i }}" class="drop-area" data-slot="true">
+            <div class="monster-placeholder">スロット {{ i }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+      <section class="book-page">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <h2>待機中の幻獣 (ストック)</h2>
+        </div>
+        <div id="monster-pool" class="drop-area">
+          <div class="monster-grid">
+            {% for entry in reserve_info %}
+            <div id="monster-{{ entry.uid }}" class="monster-item" data-uid="{{ entry.uid }}" data-details='{{ entry.detail | tojson | forceescape }}' draggable="true">
+              {% if entry.monster.image_filename %}
+              <img alt="{{ entry.monster.name }}" src="{{ url_for('static', filename='images/' + entry.monster.image_filename) }}">
+              {% else %}
+              <span class="monster-placeholder">{{ entry.monster.name }}</span>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <footer>
+    <p>© 2023 幻獣の魔導書. All rights reserved.</p>
+  </footer>
+</div>
+<div id="monster-detail-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-card">
+    <button class="modal-close-btn" aria-label="閉じる">&times;</button>
+    <div id="modal-card-body"></div>
   </div>
 </div>
-
-<style>
-  body {
-    background: #f9eee0;
-    min-height: 100vh;
-  }
-  .book-bg {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-    padding-top: 48px;
-  }
-  .book-page {
-    background: #f7f2e6;
-    border: 4px solid #b68b4c;
-    border-radius: 18px;
-    max-width: 460px;
-    width: 96%;
-    box-shadow:
-      0 4px 32px #7b51120a,
-      0 0 0 10px #e6d3b6;
-    padding: 32px 24px 38px 24px;
-    position: relative;
-  }
-  .book-title {
-    font-family: 'Georgia', 'Times New Roman', serif;
-    text-align: center;
-    font-size: 2rem;
-    margin-bottom: 1em;
-    color: #895c1a;
-    letter-spacing: 2px;
-    text-shadow: 0 2px 1px #f4e3bd, 0 0 6px #f4e3bd88;
-    border-bottom: 2px solid #b68b4c55;
-    padding-bottom: 0.2em;
-  }
-  .section-title {
-    font-family: 'Georgia', serif;
-    font-size: 1.3rem;
-    color: #6c4a1b;
-    margin-top: 1.4em;
-    margin-bottom: 0.6em;
-    letter-spacing: 1px;
-    border-left: 4px solid #b68b4c;
-    padding-left: 8px;
-  }
-  .member-list {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 1.2em 0;
-  }
-  .member-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(90deg, #f6e9d1 80%, #e6d3b6 100%);
-    border-radius: 8px;
-    box-shadow: 0 1px 5px #c1b28b33 inset;
-    border-left: 5px solid #b68b4cbb;
-    margin-bottom: 0.8em;
-    padding: 8px 12px 8px 10px;
-    position: relative;
-    transition: box-shadow 0.3s ease, border-color 0.3s ease;
-  }
-  .member-item.magic-hover {
-    box-shadow: 0 0 22px 3px #ffc85788, 0 0 0 6px #e0c38a22 inset;
-    border-color: #c39b3d;
-  }
-  .member-left {
-    display: flex;
-    align-items: center;
-    gap: 0.8em;
-  }
-  .member-index {
-    font-family: 'Georgia', serif;
-    font-size: 1.05rem;
-    color: #7c5e2a;
-  }
-  .monster-img {
-    width: 52px;
-    height: 52px;
-    object-fit: contain;
-    border-radius: 6px;
-    background: #e3dac0;
-    border: 2px solid #c9b383;
-    box-shadow: 0 2px 4px #b68b4c1a;
-  }
-  .member-name {
-    font-family: 'Georgia', serif;
-    font-size: 1.08rem;
-    color: #5d4b29;
-    letter-spacing: 1px;
-  }
-  .member-actions .action-form {
-    display: flex;
-    gap: 0.3em;
-  }
-  .arrow-btn {
-    background: #8c6d3b;
-    color: #f7efe2;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.95rem;
-    width: 32px;
-    height: 28px;
-    cursor: pointer;
-    box-shadow: 0 2px 6px #5a3e22;
-    transition: background 0.2s ease, box-shadow 0.2s ease;
-  }
-  .arrow-btn:hover {
-    background: #b68b4c;
-    box-shadow: 0 3px 8px #7b5112;
-  }
-  .remove-btn {
-    background: #ab2a2a;
-    color: #fffbe6;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    padding: 4px 8px;
-    cursor: pointer;
-    box-shadow: 0 2px 6px #7b3e3e;
-    transition: background 0.2s ease, box-shadow 0.2s ease;
-  }
-  .remove-btn:hover {
-    background: #c03939;
-    box-shadow: 0 3px 8px #8b2b2b;
-  }
-  .reserve-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.6em;
-    background: #f2f0e5;
-    border: none;
-    border-radius: 6px;
-    padding: 6px 10px;
-    cursor: pointer;
-    font-family: 'Georgia', serif;
-    font-size: 1rem;
-    color: #5d4b29;
-    box-shadow: 0 1px 4px #b5a47d22;
-    transition: background 0.2s ease, box-shadow 0.2s ease;
-  }
-  .reserve-btn:hover {
-    background: #e6d3b6;
-    box-shadow: 0 2px 6px #b68b4c33;
-  }
-  .reset-form {
-    text-align: center;
-    margin-top: 1em;
-  }
-  .reset-btn {
-    background: #75562e;
-    color: #f7efe2;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    padding: 6px 20px;
-    cursor: pointer;
-    box-shadow: 0 2px 6px #55401f;
-    transition: background 0.2s ease, box-shadow 0.2s ease;
-  }
-  .reset-btn:hover {
-    background: #a17c4b;
-    box-shadow: 0 3px 8px #7b5112;
-  }
-  .book-link {
-    display: block;
-    margin: 1.2em auto 0 auto;
-    color: #9c7228;
-    font-family: 'Georgia', serif;
-    font-size: 1rem;
-    text-decoration: underline wavy #b68b4c66;
-    letter-spacing: 1px;
-    padding-top: 8px;
-    text-align: center;
-    transition: color 0.2s ease;
-  }
-  .book-link:hover {
-    color: #ad8236;
-    text-decoration: underline wavy #a17c4b;
-  }
-
-  /* ふわっと現れる */
-  .fade-in {
-    opacity: 0;
-    transform: translateY(32px) scale(0.98);
-    transition: 0.9s cubic-bezier(0.19, 1, 0.22, 1);
-  }
-  .fade-in.show {
-    opacity: 1;
-    transform: none;
-  }
-</style>
-
-<script>
-  // ページ開いたらふわっと出現
-  window.addEventListener('DOMContentLoaded', function() {
-    document.querySelector('.fade-in').classList.add('show');
-    // 編集中リストにマウスオーバーで魔法の光演出
-    document.querySelectorAll('.member-item').forEach(function(el) {
-      el.addEventListener('mouseenter', function() {
-        el.classList.add('magic-hover');
-      });
-      el.addEventListener('mouseleave', function() {
-        el.classList.remove('magic-hover');
-      });
-    });
-  });
-</script>
+{% endblock %}
+{% block scripts %}
+  <script src="{{ url_for('static', filename='party/formation.js') }}"></script>
 {% endblock %}

@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
+import json
 from .. import database_setup
 from ..player import Player
 from ..monsters.monster_data import MONSTER_BOOK_DATA
@@ -81,29 +82,53 @@ def equip(user_id):
 
 @party_bp.route('/formation/<int:user_id>', methods=['GET', 'POST'], endpoint='formation')
 def formation(user_id):
-    """Allow reordering of the player's party."""
+    """Edit the player's party formation with drag-and-drop."""
     player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('auth.index'))
+
     if request.method == 'POST':
-        try:
-            idx = int(request.form.get('index', -1))
-        except (TypeError, ValueError):
-            idx = -1
-        move = request.form.get('move')
-        if move == 'up':
-            player.move_monster(idx, idx - 1)
-        elif move == 'down':
-            player.move_monster(idx, idx + 1)
-        if 'remove' in request.form:
-            player.move_to_reserve(idx)
-        if 'add_index' in request.form:
-            try:
-                add_idx = int(request.form.get('add_index'))
-                player.move_from_reserve(add_idx)
-            except (TypeError, ValueError):
-                pass
         if 'reset' in request.form:
             player.reset_formation()
+        elif request.form.get('order'):
+            try:
+                order_uids = json.loads(request.form.get('order'))
+                reserve_uids = json.loads(request.form.get('reserve', '[]'))
+            except json.JSONDecodeError:
+                order_uids, reserve_uids = [], []
+            all_monsters = player.party_monsters + player.reserve_monsters
+            uid_map = {str(i): m for i, m in enumerate(all_monsters)}
+            new_party = [uid_map[str(uid)] for uid in order_uids if str(uid) in uid_map]
+            new_reserve = [uid_map[str(uid)] for uid in reserve_uids if str(uid) in uid_map]
+            used = set(str(u) for u in order_uids + reserve_uids)
+            for i, m in enumerate(all_monsters):
+                if str(i) not in used:
+                    new_reserve.append(m)
+            if new_party:
+                player.party_monsters = new_party
+                player.reserve_monsters = new_reserve
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
-    return render_template('formation.html', player=player, user_id=user_id)
+
+    all_monsters = player.party_monsters + player.reserve_monsters
+    party_info = []
+    reserve_info = []
+    for uid, m in enumerate(all_monsters):
+        detail = {
+            'name': m.name,
+            'level': m.level,
+            'hp': m.hp,
+            'max_hp': m.max_hp,
+            'exp': m.exp,
+            'exp_to_next': m.calculate_exp_to_next_level(),
+            'image': url_for('static', filename='images/' + m.image_filename) if m.image_filename else '',
+            'stats': {'attack': m.attack, 'defense': m.defense, 'speed': m.speed},
+            'skills': m.get_skill_details(),
+            'description': MONSTER_BOOK_DATA.get(m.monster_id).description if MONSTER_BOOK_DATA.get(m.monster_id) else 'このモンスターに関する詳しい説明はまだ見つかっていない。'
+        }
+        info = {'monster': m, 'detail': detail, 'uid': uid}
+        if uid < len(player.party_monsters):
+            party_info.append(info)
+        else:
+            reserve_info.append(info)
+
+    return render_template('formation.html', party_info=party_info, reserve_info=reserve_info, user_id=user_id)
