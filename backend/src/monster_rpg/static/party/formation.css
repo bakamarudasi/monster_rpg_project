@@ -1,0 +1,121 @@
+/* Formation page styles */
+body {
+    /* wood desk texture background */
+    background-color: #6f4f28;
+    background-image: linear-gradient(45deg, rgba(0,0,0,0.2) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.2) 75%),
+                      linear-gradient(45deg, rgba(0,0,0,0.2) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.2) 75%);
+    background-size: 60px 60px;
+    background-position: 0 0, 30px 30px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    color: #3c2f2f;
+    line-height: 1.7;
+    margin: 0;
+    padding: 20px;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #fff;
+}
+header h1 {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 3.2em;
+    font-weight: bold;
+    font-style: italic;
+    color: #f0e68c;
+    text-shadow: 3px 3px 5px rgba(0,0,0,0.7);
+}
+.book-page {
+    background-color: #faf0e6;
+    border: 1px solid #c8b496;
+    padding: 25px;
+    box-shadow: 0px 0px 2px rgba(0,0,0,0.3),
+                -3px 3px 3px rgba(0,0,0,0.2),
+                -6px 6px 4px rgba(0,0,0,0.1),
+                -9px 9px 5px rgba(0,0,0,0.05);
+    margin-bottom: 25px;
+    border-radius: 2px 5px 5px 2px;
+    position: relative;
+}
+.book-page h2 {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 1.8em;
+    color: #5d4037;
+    border-bottom: 1px solid #dcdcdc;
+    padding-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-style: italic;
+}
+.main-grid {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 30px;
+}
+.ornate-button {
+    display: block;
+    width: 100%;
+    background-color: #8c7853;
+    border: 1px solid #5d4037;
+    border-radius: 3px;
+    padding: 10px 15px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    text-align: center;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    box-shadow: inset 0 0 2px rgba(255,255,255,0.4), 2px 2px 3px rgba(0,0,0,0.4);
+    transition: all 0.2s;
+}
+.ornate-button:hover { background-color: #a28d6a; }
+.ornate-button:active { box-shadow: inset 2px 2px 3px rgba(0,0,0,0.4); transform: translateY(1px); }
+.team-slots, .monster-grid { display: grid; gap: 15px; }
+.team-slots { grid-template-columns: repeat(3, 1fr); }
+.monster-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+.drop-area {
+    background-color: #f5eadd;
+    border: 1px solid #dcdcdc;
+    background-image: radial-gradient(#d2b48c 1px, transparent 1px);
+    background-size: 10px 10px;
+    min-height: 140px;
+    padding: 5px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #888;
+    transition: all 0.3s ease;
+}
+.monster-item { cursor: grab; transition: all 0.2s ease; max-width: 100%; position: relative; }
+.monster-item img {
+    display: block;
+    width: 100%;
+    border: 4px solid #bda072;
+    border-radius: 3px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    pointer-events: none;
+}
+.monster-item.dragging { opacity: 0.5; transform: rotate(-5deg) scale(0.9); cursor: grabbing; }
+.drop-area.drag-over { background-color: #fdf5e6; border-color: #bda072; box-shadow: inset 0 0 15px #bda072; }
+.monster-placeholder { width: 100%; height: 100%; display:flex; align-items:center; justify-content:center; font-style: italic; }
+footer {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 0.9em;
+    color: #e0e0e0;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+@media (max-width: 768px) {
+    .main-grid { grid-template-columns: 1fr; }
+    header h1 { font-size: 2.5em; }
+}
