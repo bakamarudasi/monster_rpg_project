@@ -1,7 +1,7 @@
 # backend/Dockerfile
 
 # ベースとなるPythonの公式イメージを指定
-FROM python:3.9-slim
+FROM python:3.11-slim
 
 # コンテナ内での作業ディレクトリを設定
 WORKDIR /app
