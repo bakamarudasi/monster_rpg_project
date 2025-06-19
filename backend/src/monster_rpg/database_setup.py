@@ -1,8 +1,9 @@
 # database_setup.py (新規作成)
+import os
 import sqlite3
 import hashlib
 
-DATABASE_NAME = "monster_rpg_save.db"
+DATABASE_NAME = os.getenv("MONSTER_RPG_DB", "monster_rpg_save.db")
 
 
 def _hash_password(password: str) -> str:

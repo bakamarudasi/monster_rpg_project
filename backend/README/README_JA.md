@@ -18,6 +18,7 @@ Pythonで作られた小さなテキストベースRPGのプロトタイプで�
    python -m monster_rpg.database_setup
    ```
    既に存在しない場合 `monster_rpg_save.db` が作成されます。
+   環境変数 `MONSTER_RPG_DB` を設定すると保存先を変更できます。
    デフォルトユーザー `player1` が自動で作成されます。追加ユーザーを作る場合は `database_setup.create_user()` を利用してください。
 3. 代わりに簡易ウェブサーバーを起動するには:
    ```bash
@@ -92,7 +93,7 @@ docker-compose up
 - セーブ時にモンスターのHPとMPも保存されるため、続きから再開しても状態が維持されます。
 
 ## セーブについて
-プレイヤーデータは `monster_rpg_save.db` に保存されます。モンスターのHP/MPもセーブされるようになり、前回の状態を維持したまま再開できます。
+プレイヤーデータは `monster_rpg_save.db` に保存されます。環境変数 `MONSTER_RPG_DB` を使えばファイル名を変更できます。モンスターのHP/MPもセーブされるようになり、前回の状態を維持したまま再開できます。
 ゲームをアップデートした際は `python -m monster_rpg.database_setup` を再実行するか、コード内で `database_setup.initialize_database()` を呼び出すことで、HP/MP列や `exploration_progress` テーブルなどの新しいデータが既存のセーブに追加されます。
 
 ## モンスター画像
