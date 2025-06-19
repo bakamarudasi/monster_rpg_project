@@ -19,7 +19,7 @@
     "description": "見渡す限りの草原が広がっている。時折、弱いモンスターの姿が見える。",
     "connections": { "南": "village_square", "北東": "forest_entrance" },
     "encounter_rate": 0.6,
-    "enemy_pool": { "slime": 60, "goblin": 40 },
+    "enemy_pool": { "slime": 40, "goblin": 10, "wild_rat": 20, "walking_mushroom": 30 },
     "party_size": [1, 2],
     "avg_enemy_level": 1,
     "x": 1, "y": 0
