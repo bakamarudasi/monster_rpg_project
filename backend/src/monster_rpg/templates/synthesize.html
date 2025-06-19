@@ -407,8 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 zone.dataset.type = draggedElement.dataset.type;
                 zone.dataset.name = draggedElement.dataset.name;
 
-                const originalContent = draggedElement.innerHTML;
-                zone.innerHTML = ''; // Clear placeholder text
+                zone.textContent = ''; // Clear placeholder text
                 
                 if (draggedElement.dataset.type === 'monster') {
                     const img = draggedElement.querySelector('.monster-img').cloneNode(true);
@@ -442,7 +441,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 itemToReturn.style.display = 'flex';
             }
 
-            zone.innerHTML = `ここに${zone.id === 'base-slot' ? '素体' : '触媒'}を<br>ドラッグ`;
+            zone.textContent = '';
+            zone.appendChild(document.createTextNode('ここに' + (zone.id === 'base-slot' ? '素体' : '触媒') + 'を'));
+            zone.appendChild(document.createElement('br'));
+            zone.appendChild(document.createTextNode('ドラッグ'));
             delete zone.dataset.id;
             delete zone.dataset.type;
             delete zone.dataset.name;
