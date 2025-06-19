@@ -53,6 +53,11 @@ STATUS_DEFINITIONS = {
         "on_turn": lambda m: _status_damage(m, 2),
         "message": "毒",
     },
+    "spore_poison": {
+        "duration": 3,
+        "on_turn": lambda m: _status_damage(m, max(1, m.max_hp // 16)),
+        "message": "毒",
+    },
     "freeze": {
         "duration": 2,
         "skip_turn": True,
