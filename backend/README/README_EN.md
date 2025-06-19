@@ -18,6 +18,8 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
    python -m monster_rpg.database_setup
    ```
    This creates `monster_rpg_save.db` if it does not already exist.
+   Set the `MONSTER_RPG_DB` environment variable to use a different
+   location for the SQLite save file.
    A default user `player1` will be created automatically. Use `database_setup.create_user()` to add more users.
 3. To run the simple web server instead:
    ```bash
@@ -98,8 +100,9 @@ Other notable modules include `player.py` (player data and save/load logic), `ba
   where you left off.
 
 ## Saving
-The game saves player data to `monster_rpg_save.db`. Monster HP/MP values now
-persist across sessions. If you upgrade the game, run
+The game saves player data to `monster_rpg_save.db` by default. You can
+override the filename by setting the `MONSTER_RPG_DB` environment variable.
+Monster HP/MP values now persist across sessions. If you upgrade the game, run
 `python -m monster_rpg.database_setup` again (or call
 `database_setup.initialize_database()` in code) to add any new columns and
 tables, such as the HP/MP fields or the `exploration_progress` table, to
