@@ -3,7 +3,7 @@
 This is a small text-based RPG prototype written in Python. It uses SQLite to store simple save data and now supports multiple user accounts. A minimal Flask web server is also included.
 
 > **Note**
-> The provided `docker-compose.yml` file defines a `DATABASE_URL` pointing to a PostgreSQL container. The Python application currently ignores this variable and always uses the local SQLite database `monster_rpg_save.db`.
+> The `docker-compose.yml` file simply launches the Flask backend and no longer includes a PostgreSQL service. The game continues to use the local SQLite database `monster_rpg_save.db`.
 
 ## Requirements
 - Python 3 (tested with Python 3.11)
@@ -36,14 +36,14 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
 
 ## Running with Docker
 
-The repository includes a `docker-compose.yml` for a sample Postgres + Flask setup. Build the images then launch the containers:
+The repository includes a `docker-compose.yml` that starts the Flask backend using SQLite. Build the image and launch the container:
 
 ```bash
 docker-compose build
 docker-compose up
 ```
 
-The backend service exposes port 5000. Source files under `./backend/src` are mounted into the container. Database data is stored in the named volume `postgres_data`. The `DATABASE_URL` variable in `docker-compose.yml` sets the connection string for the app (currently ignored by the Python code).
+The backend service exposes port 5000 and mounts `./backend/src` into the container so code changes are reflected immediately.
 
 ## Project Structure
 

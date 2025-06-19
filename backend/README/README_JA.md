@@ -3,7 +3,7 @@
 Pythonで作られた小さなテキストベースRPGのプロトタイプです。SQLiteを利用してシンプルなセーブデータを保存し、複数のユーザーアカウントにも対応しています。最小構成のFlaskウェブサーバーも同梱されています。
 
 > **補足**
-> `docker-compose.yml` では PostgreSQL コンテナを指す `DATABASE_URL` が設定されていますが、Python コードは現時点でこの変数を参照せず、常にローカルの SQLite データベース `monster_rpg_save.db` を使用します。
+> `docker-compose.yml` は Flask バックエンドを起動するだけで、PostgreSQL サービスは含まれていません。ゲームは引き続きローカルの SQLite データベース `monster_rpg_save.db` を利用します。
 
 ## 必要環境
 - Python 3 (検証済み: 3.11)
@@ -34,14 +34,14 @@ Pythonで作られた小さなテキストベースRPGのプロトタイプで�
 
 ## Dockerでの実行
 
-リポジトリにはサンプルのPostgreSQL+Flask環境を用意した `docker-compose.yml` が含まれています。以下のコマンドでイメージをビルドし、コンテナを起動します。
+リポジトリには Flask バックエンドを SQLite で起動する `docker-compose.yml` が用意されています。以下のコマンドでイメージをビルドし、コンテナを起動します。
 
 ```bash
 docker-compose build
 docker-compose up
 ```
 
-バックエンドサービスは5000番ポートを公開します。`./backend/src` をコンテナ内 `/app` としてマウントし、データベースのデータは名前付きボリューム `postgres_data` に保存されます。`docker-compose.yml` 内の `DATABASE_URL` 変数はアプリの接続先を示します（Pythonコードでは現在使用されていません）。
+バックエンドサービスは5000番ポートを公開します。`./backend/src` をコンテナ内 `/app` としてマウントするため、コードの変更が即時反映されます。
 
 ## プロジェクト構成
 
