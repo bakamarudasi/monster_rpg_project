@@ -2,7 +2,7 @@ import random
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 from .. import database_setup
 from ..player import Player
-from ..items.equipment import Equipment, EquipmentInstance
+from ..items.equipment import Equipment, EquipmentInstance, create_titled_equipment
 from ..monsters.monster_class import Monster
 from ..map_data import LOCATIONS
 from ..exploration import generate_enemy_party
@@ -279,11 +279,19 @@ def battle(user_id):
             for enemy in battle_obj.enemy_party:
                 for item_obj, rate in getattr(enemy, 'drop_items', []):
                     if random.random() < rate:
-                        if isinstance(item_obj, (Equipment, EquipmentInstance)):
+                        if isinstance(item_obj, Equipment):
+                            new_equip = create_titled_equipment(item_obj.equip_id)
+                            if new_equip:
+                                player.equipment_inventory.append(new_equip)
+                                msgs.append({'type': 'info', 'message': f'{new_equip.name} を手に入れた！'})
+                            else:
+                                msgs.append({'type': 'info', 'message': f'{item_obj.name} を手に入れ損ねた...'})
+                        elif isinstance(item_obj, EquipmentInstance):
                             player.equipment_inventory.append(item_obj)
+                            msgs.append({'type': 'info', 'message': f'{item_obj.name} を手に入れた！'})
                         else:
                             player.items.append(item_obj)
-                        msgs.append({'type': 'info', 'message': f'{item_obj.name} を手に入れた！'})
+                            msgs.append({'type': 'info', 'message': f'{item_obj.name} を手に入れた！'})
             msgs.append({'type': 'info', 'message': f'勝利した！ {gold_gain}G を得た。'})
         else:
             msgs.append({'type': 'info', 'message': '敗北してしまった...'})
