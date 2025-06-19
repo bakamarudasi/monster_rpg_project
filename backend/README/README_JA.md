@@ -27,10 +27,11 @@ Pythonで作られた小さなテキストベースRPGのプロトタイプで�
    `webapp.py` は `/new_game` や `/load_game` といった最低限のJSON APIのみを提供し、戦闘機能は含まれていません。
 4. `start_rpg.py` を使うと、完全なウェブ版を起動できます:
    ```bash
-   pip install -r requirements.txt
-   python -m monster_rpg.start_rpg
-   ```
-   これにより <http://localhost:5000/> でサーバーが起動し、Flaskテンプレートを使用した画面で戦闘を含む完全なゲームを楽しめます。
+  pip install -r requirements.txt
+  python -m monster_rpg.start_rpg
+  ```
+  これにより <http://localhost:5000/> でサーバーが起動し、Flaskテンプレートを使用した画面で戦闘を含む完全なゲームを楽しめます。
+  `FLASK_SECRET_KEY` 環境変数を設定することで Flask の secret key を変更できます。未設定の場合は `dev-secret` が使用されます。
 
 ## Dockerでの実行
 

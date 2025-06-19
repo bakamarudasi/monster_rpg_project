@@ -16,6 +16,7 @@ except ImportError as e:  # pragma: no cover - dependency check
         "Install dependencies with 'pip install -r requirements.txt'."
     ) from e
 import random
+import os
 
 import sqlite3
 from . import database_setup
@@ -28,7 +29,7 @@ from .map_data import LOCATIONS, get_map_overview, get_map_grid, load_locations
 from .exploration import generate_enemy_party
 
 app = Flask(__name__)
-app.secret_key = "dev-secret"
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret")
 
 database_setup.initialize_database()
 load_locations()

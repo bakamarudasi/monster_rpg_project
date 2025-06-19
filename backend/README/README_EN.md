@@ -27,12 +27,14 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
    `webapp.py` exposes only a couple JSON endpoints (like `/new_game` and
    `/load_game`) and does not include the battle system.
 4. Another web interface exists. Use the provided launcher script:
-   ```bash
+  ```bash
    pip install -r requirements.txt
    python -m monster_rpg.start_rpg
    ```
    This starts the server at <http://localhost:5000/> using Flask templates
    and provides the full game including battles.
+   Set the `FLASK_SECRET_KEY` environment variable to customize the
+   Flask secret key (defaults to `dev-secret`).
 
 ## Running with Docker
 
