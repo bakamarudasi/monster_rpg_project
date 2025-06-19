@@ -4,6 +4,6 @@
 {% if user_id %}
 <a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
 {% else %}
-<a href="{{ url_for('index') }}">トップへ</a>
+<a href="{{ url_for('auth.index') }}">トップへ</a>
 {% endif %}
 {% endblock %}
