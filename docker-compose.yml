@@ -30,4 +30,4 @@ services:
 
 # トップレベルで名前付きボリュームを定義
 volumes:
-  postgres_data
+  postgres_data:
