@@ -200,7 +200,9 @@ def battle(user_id):
             return redirect(url_for('auth.index'))
     if not battle_obj:
         if request.method == 'POST':
-            if request.form.get('continue_explore'):
+            data_src = request.get_json(silent=True)
+            data_src = data_src if data_src is not None else request.form
+            if data_src.get('continue_explore'):
                 return redirect(url_for('explore.explore', user_id=user_id), code=307)
             return redirect(url_for('battle.battle', user_id=user_id))
         loc = LOCATIONS.get(player.current_location_id)
@@ -216,9 +218,11 @@ def battle(user_id):
         active_battles[user_id] = battle_obj
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
     if request.method == 'POST':
+        data_src = request.get_json(silent=True)
+        data_src = data_src if data_src is not None else request.form
         current_actor = battle_obj.current_actor()
         if current_actor in battle_obj.player_party:
-            act_val = request.form.get('action', 'attack')
+            act_val = data_src.get('action', 'attack')
             if act_val == 'run':
                 action = {'type': 'run'}
             elif act_val.startswith('skill'):
@@ -226,8 +230,8 @@ def battle(user_id):
                     s_idx = int(act_val[5:])
                 except ValueError:
                     s_idx = 0
-                tgt_e = request.form.get('target_enemy', '-1')
-                tgt_a = request.form.get('target_ally', '0')
+                tgt_e = data_src.get('target_enemy', '-1')
+                tgt_a = data_src.get('target_ally', '0')
                 try:
                     tgt_e = int(tgt_e)
                 except ValueError:
@@ -238,14 +242,14 @@ def battle(user_id):
                     tgt_a = 0
                 action = {'type': 'skill', 'skill': s_idx, 'target_enemy': tgt_e, 'target_ally': tgt_a}
             elif act_val == 'scout':
-                tgt = request.form.get('target_enemy', '-1')
+                tgt = data_src.get('target_enemy', '-1')
                 try:
                     tgt = int(tgt)
                 except ValueError:
                     tgt = -1
                 action = {'type': 'scout', 'target_enemy': tgt}
             else:
-                tgt = request.form.get('target_enemy', '-1')
+                tgt = data_src.get('target_enemy', '-1')
                 try:
                     tgt = int(tgt)
                 except ValueError:
@@ -286,7 +290,9 @@ def battle(user_id):
         player.last_battle_log = msgs
         del active_battles[user_id]
         player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
-        if request.form.get('continue_explore'):
+        data_src = request.get_json(silent=True)
+        data_src = data_src if data_src is not None else request.form
+        if data_src.get('continue_explore'):
             return redirect(url_for('explore.explore', user_id=user_id))
         if request.method == 'POST':
             html = render_template('battle.html', messages=msgs, user_id=user_id)

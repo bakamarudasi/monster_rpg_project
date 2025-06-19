@@ -97,7 +97,13 @@ function setupBattleUI() {
             const postUrl = form.action;  // use the form's action URL
             const submitBtn = form.querySelector('button[type="submit"]');
             if (submitBtn) submitBtn.disabled = true;
-            fetch(postUrl, { method: 'POST', body: formData })
+
+            const payload = Object.fromEntries(formData.entries());
+            fetch(postUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
                 .then(resp => resp.json())
                 .then(data => {
                     if (data.finished) {
