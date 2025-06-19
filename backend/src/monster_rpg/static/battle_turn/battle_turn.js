@@ -244,4 +244,16 @@ function showDamageIndicator(container, text) {
     setTimeout(() => popup.remove(), 800);
 }
 
-document.addEventListener('DOMContentLoaded', setupBattleUI);
+document.addEventListener('DOMContentLoaded', () => {
+    setupBattleUI();
+    const form = document.querySelector('.command-window form');
+    if (form) {
+        const m = form.action.match(/\/battle\/(\d+)/);
+        if (m) {
+            fetch(`/battle-json/${m[1]}`)
+                .then(resp => resp.json())
+                .then(data => applyBattleData(data))
+                .catch(err => console.error('Fetch error', err));
+        }
+    }
+});
