@@ -114,6 +114,13 @@ existing save files.
 Place monster pictures under `src/monster_rpg/static/images/` on your local machine. The folder is kept in the repository via an empty `.gitkeep` file but ignored by Git so large image files do not get uploaded.
 The game does **not** include any monster artwork. You must supply PNG files whose names match the `image_filename` entries in `monsters/monster_data.py`. Example files are `slime.png` and `wolf.png`.
 
+## Building Tailwind CSS
+Run the Tailwind CLI whenever you modify `tailwind_src.css` to regenerate the compiled stylesheet:
+
+```bash
+npx tailwindcss -i src/monster_rpg/static/tailwind_src.css -o src/monster_rpg/static/tailwind.css
+```
+
 ## Testing
 Install the package in editable mode before running the test suite:
 

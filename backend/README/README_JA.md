@@ -100,6 +100,13 @@ docker-compose up
 モンスターの画像はローカルの `src/monster_rpg/static/images/` 以下に配置してください。リポジトリには空の `.gitkeep` ファイルのみ含め、大きな画像ファイルはGitにアップロードされないようにしています。
 本プロジェクトにはモンスターの画像素材は付属していません。`monsters/monster_data.py` の `image_filename` に合わせ、`slime.png` や `wolf.png` などの名前で画像ファイルを用意してください。
 
+## Tailwind CSS のビルド
+`tailwind_src.css` を編集したら、次のコマンドでコンパイル済みスタイルシートを更新します:
+
+```bash
+npx tailwindcss -i src/monster_rpg/static/tailwind_src.css -o src/monster_rpg/static/tailwind.css
+```
+
 ## テスト
 `pytest` を実行する前に、パッケージを編集可能モードでインストールしてください:
 
