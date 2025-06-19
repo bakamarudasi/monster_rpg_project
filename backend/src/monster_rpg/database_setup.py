@@ -108,6 +108,26 @@ def initialize_database():
 
     cursor.execute(
         """
+        CREATE TABLE IF NOT EXISTS market_listings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            seller_id INTEGER,
+            item_type TEXT,
+            item_id TEXT,
+            price INTEGER,
+            monster_level INTEGER,
+            monster_exp INTEGER,
+            monster_hp INTEGER,
+            monster_max_hp INTEGER,
+            monster_mp INTEGER,
+            monster_max_mp INTEGER,
+            is_sold INTEGER DEFAULT 0,
+            buyer_id INTEGER
+        )
+        """
+    )
+
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS monster_book_status (
             player_id INTEGER,
             monster_id TEXT,
