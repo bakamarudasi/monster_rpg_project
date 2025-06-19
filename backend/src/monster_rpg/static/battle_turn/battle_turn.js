@@ -170,7 +170,7 @@ function applyBattleData(data) {
 
     const logEl = document.querySelector('.log');
     if (logEl) {
-        logEl.innerHTML = '';
+        logEl.textContent = '';
         data.log.forEach(entry => {
             const li = document.createElement('li');
             li.textContent = entry.message;
@@ -187,7 +187,7 @@ function applyBattleData(data) {
         const actionSel = document.getElementById('action');
         if (label) label.textContent = data.current_actor.name + ':';
         if (actionSel) {
-            actionSel.innerHTML = '';
+            actionSel.textContent = '';
             const atkOpt = document.createElement('option');
             atkOpt.value = 'attack';
             atkOpt.dataset.target = 'enemy';

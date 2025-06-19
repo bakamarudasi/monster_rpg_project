@@ -31,65 +31,150 @@
     });
 
     function displayMonsterDetails(data) {
-      let skillsHtml = '';
-      if (data.skills && data.skills.length > 0) {
-        skillsHtml = `<ul>${data.skills.map(skill => `<li><strong>${skill.name}</strong>: ${skill.description}</li>`).join('')}</ul>`;
-      } else {
-        skillsHtml = '<p>覚えているスキルはない。</p>';
-      }
+      modalCardBody.textContent = '';
 
       const expNeeded = data.exp_to_next - data.exp;
-      let equippedHtml = '<ul>';
-      (data.equipment_slots || []).forEach(slot => {
-        const name = data.equipment && data.equipment[slot] ? data.equipment[slot] : '空き';
-        const btn = data.equipment && data.equipment[slot] ? ` <button class="unequip-btn" data-slot="${slot}" data-idx="${data.index}">外す</button>` : '';
-        equippedHtml += `<li>${slot}: ${name}${btn}</li>`;
-      });
-      equippedHtml += '</ul>';
 
-      let equipListHtml = '';
-      if (equipmentList.length > 0) {
-        equipListHtml = '<ul>' + equipmentList.map(eq => `<li>${eq.name} <button class="equip-btn" data-equip-id="${eq.id}" data-idx="${data.index}">装備</button></li>`).join('') + '</ul>';
+      const imgArea = document.createElement('div');
+      imgArea.className = 'card-image-area';
+      const img = document.createElement('img');
+      img.src = data.image;
+      img.alt = data.name;
+      img.className = 'card-monster-img';
+      imgArea.appendChild(img);
+      modalCardBody.appendChild(imgArea);
+
+      const header = document.createElement('div');
+      header.className = 'card-header';
+      const h2 = document.createElement('h2');
+      h2.id = 'modal-title';
+      h2.className = 'card-monster-name';
+      h2.textContent = data.name;
+      header.appendChild(h2);
+      const lvhp = document.createElement('div');
+      lvhp.className = 'card-monster-lvhp';
+      const spanLv = document.createElement('span');
+      spanLv.textContent = 'Lv. ' + data.level;
+      const spanHp = document.createElement('span');
+      spanHp.textContent = 'HP: ' + data.hp + ' / ' + data.max_hp;
+      const spanExp = document.createElement('span');
+      spanExp.textContent = 'EXP: ' + data.exp + ' / ' + data.exp_to_next + ' (残り ' + expNeeded + ')';
+      lvhp.append(spanLv, document.createTextNode(' | '), spanHp, document.createTextNode(' | '), spanExp);
+      header.appendChild(lvhp);
+      modalCardBody.appendChild(header);
+
+      const content = document.createElement('div');
+      content.className = 'card-content';
+
+      const statsGrid = document.createElement('div');
+      statsGrid.className = 'card-stats-grid';
+
+      const atkSpan = document.createElement('span');
+      atkSpan.textContent = 'こうげき: ';
+      const atkVal = document.createElement('strong');
+      atkVal.textContent = data.stats.attack;
+      atkSpan.appendChild(atkVal);
+      statsGrid.appendChild(atkSpan);
+
+      const defSpan = document.createElement('span');
+      defSpan.textContent = 'ぼうぎょ: ';
+      const defVal = document.createElement('strong');
+      defVal.textContent = data.stats.defense;
+      defSpan.appendChild(defVal);
+      statsGrid.appendChild(defSpan);
+
+      const spdSpan = document.createElement('span');
+      spdSpan.textContent = 'すばやさ: ';
+      const spdVal = document.createElement('strong');
+      spdVal.textContent = data.stats.speed;
+      spdSpan.appendChild(spdVal);
+      statsGrid.appendChild(spdSpan);
+      content.appendChild(statsGrid);
+
+      const skillsSection = document.createElement('div');
+      skillsSection.className = 'card-section card-skills-list';
+      const skillsHeader = document.createElement('h3');
+      skillsHeader.textContent = 'スキル';
+      skillsSection.appendChild(skillsHeader);
+      if (data.skills && data.skills.length > 0) {
+        const ul = document.createElement('ul');
+        data.skills.forEach(skill => {
+          const li = document.createElement('li');
+          const strong = document.createElement('strong');
+          strong.textContent = skill.name;
+          li.appendChild(strong);
+          li.appendChild(document.createTextNode(': ' + skill.description));
+          ul.appendChild(li);
+        });
+        skillsSection.appendChild(ul);
       } else {
-        equipListHtml = '<p>装備を持っていない。</p>';
+        const p = document.createElement('p');
+        p.textContent = '覚えているスキルはない。';
+        skillsSection.appendChild(p);
+      }
+      content.appendChild(skillsSection);
+
+      const descSection = document.createElement('div');
+      descSection.className = 'card-section card-description';
+      descSection.style.marginTop = '16px';
+      const descHeader = document.createElement('h3');
+      descHeader.textContent = '説明';
+      const descP = document.createElement('p');
+      descP.textContent = data.description;
+      descSection.append(descHeader, descP);
+      content.appendChild(descSection);
+
+      const equipSection = document.createElement('div');
+      equipSection.className = 'card-section card-equipment-list';
+      equipSection.style.marginTop = '16px';
+      const equipHeader = document.createElement('h3');
+      equipHeader.textContent = '装備中';
+      equipSection.appendChild(equipHeader);
+
+      const equippedUl = document.createElement('ul');
+      (data.equipment_slots || []).forEach(slot => {
+        const li = document.createElement('li');
+        const name = data.equipment && data.equipment[slot] ? data.equipment[slot] : '空き';
+        li.textContent = slot + ': ' + name;
+        if (data.equipment && data.equipment[slot]) {
+          const btn = document.createElement('button');
+          btn.className = 'unequip-btn';
+          btn.dataset.slot = slot;
+          btn.dataset.idx = data.index;
+          btn.textContent = '外す';
+          li.appendChild(document.createTextNode(' '));
+          li.appendChild(btn);
+        }
+        equippedUl.appendChild(li);
+      });
+      equipSection.appendChild(equippedUl);
+
+      const equipHeader2 = document.createElement('h3');
+      equipHeader2.textContent = '装備する';
+      equipSection.appendChild(equipHeader2);
+
+      if (equipmentList.length > 0) {
+        const invUl = document.createElement('ul');
+        equipmentList.forEach(eq => {
+          const li = document.createElement('li');
+          const btn = document.createElement('button');
+          btn.className = 'equip-btn';
+          btn.dataset.equipId = eq.id;
+          btn.dataset.idx = data.index;
+          btn.textContent = '装備';
+          li.textContent = eq.name + ' ';
+          li.appendChild(btn);
+          invUl.appendChild(li);
+        });
+        equipSection.appendChild(invUl);
+      } else {
+        const p = document.createElement('p');
+        p.textContent = '装備を持っていない。';
+        equipSection.appendChild(p);
       }
 
-      modalCardBody.innerHTML = `
-        <div class="card-image-area">
-          <img src="${data.image}" alt="${data.name}" class="card-monster-img">
-        </div>
-
-        <div class="card-header">
-            <h2 id="modal-title" class="card-monster-name">${data.name}</h2>
-            <div class="card-monster-lvhp">
-                <span>Lv. ${data.level}</span> | <span>HP: ${data.hp} / ${data.max_hp}</span> | <span>EXP: ${data.exp} / ${data.exp_to_next} (残り ${expNeeded})</span>
-            </div>
-        </div>
-        
-        <div class="card-content">
-            <div class="card-stats-grid">
-              <span>こうげき: <strong>${data.stats.attack}</strong></span>
-              <span>ぼうぎょ: <strong>${data.stats.defense}</strong></span>
-              <span>すばやさ: <strong>${data.stats.speed}</strong></span>
-            </div>
-    
-            <div class="card-section card-skills-list">
-                <h3>スキル</h3>
-                ${skillsHtml}
-            </div>
-            
-            <div class="card-section card-description" style="margin-top: 16px;">
-                <h3>説明</h3>
-                <p>${data.description}</p>
-            </div>
-            <div class="card-section card-equipment-list" style="margin-top: 16px;">
-                <h3>装備中</h3>
-                ${equippedHtml}
-                <h3>装備する</h3>
-                ${equipListHtml}
-            </div>
-        </div>
-      `;
+      content.appendChild(equipSection);
+      modalCardBody.appendChild(content);
       modal.classList.add('show');
       modalCardBody.querySelectorAll('.equip-btn').forEach(btn => {
         btn.addEventListener('click', () => {
