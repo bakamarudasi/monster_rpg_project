@@ -115,6 +115,22 @@ footer {
     color: #e0e0e0;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
 }
+.book-link {
+    display: block;
+    margin: 0 auto;
+    color: #9c7228;
+    font-family: 'Georgia', serif;
+    font-size: 1.05em;
+    text-decoration: underline wavy #b68b4c66;
+    letter-spacing: 1.1px;
+    padding-top: 8px;
+    text-align: center;
+    transition: color .17s;
+}
+.book-link:hover {
+    color: #ad8236;
+    text-decoration: underline wavy #a17c4b;
+}
 @media (max-width: 768px) {
     .main-grid { grid-template-columns: 1fr; }
     header h1 { font-size: 2.5em; }
