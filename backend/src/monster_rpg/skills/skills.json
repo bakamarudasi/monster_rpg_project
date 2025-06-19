@@ -294,6 +294,15 @@
     "description": "敵を眠らせる魔法",
     "category": "魔法"
   },
+  "poison_spore": {
+    "name": "ポイズンスポア",
+    "power": 0,
+    "cost": 3,
+    "skill_type": "status",
+    "effects": [{"type": "status", "status": "spore_poison", "chance": 0.4}],
+    "description": "毒の胞子で40%の確率で毒状態にする",
+    "category": "魔法"
+  },
   "paralysis_shock": {
     "name": "パラライズショック",
     "power": 25,

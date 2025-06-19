@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Callable, Dict, List
+import random
 
 from .skills import Skill
 from ..monsters.monster_class import Monster
@@ -39,8 +40,12 @@ def _handle_buff(caster: Monster, target: Monster, effect: dict) -> None:
 def _handle_status(caster: Monster, target: Monster, effect: dict) -> None:
     status = effect.get("status")
     duration = effect.get("duration")
+    chance = float(effect.get("chance", 1.0))
     if status:
-        target.apply_status(status, duration)
+        if random.random() < chance:
+            target.apply_status(status, duration)
+        else:
+            print(f"{target.name} は状態異常を受けなかった。")
 
 
 def _handle_revive(caster: Monster, target: Monster, effect: dict) -> None:
