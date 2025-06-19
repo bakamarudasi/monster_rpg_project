@@ -717,5 +717,63 @@
       "synthesis_hint": "虫や雷、速さを重んずる者と合成で特異な進化を遂ぐ。"
     }
   }
+},
+"wild_rat": {
+  "name": "ワイルドラット",
+  "ai_role": "attacker",
+  "rank": "E",
+  "element": "無",
+  "image_filename": "wild_rat.png",
+  "stats": { "hp": 24, "mp": 0, "attack": 7, "defense": 5, "speed": 9 },
+  "skills": [],
+  "drop_items": [
+    ["small_potion", 0.1]
+  ],
+  "learnset": {
+    "3": ["sand_attack"]
+  },
+  "book": {
+    "description": "素早く動き回る、少し大きくてどう猛なネズミ。集団で現れることもある。",
+    "location_hint": "草原や街道、民家の近くなど、どこにでも現れる。",
+    "synthesis_hint": "素早さの高い種族と配合すると、先手を取りやすいモンスターが生まれるかも。"
+  }
+},
+"walking_mushroom": {
+  "name": "ウォーキングマッシュルーム",
+  "ai_role": "attacker",
+  "rank": "E",
+  "element": "土",
+  "image_filename": "walking_mushroom.png",
+  "stats": { "hp": 22, "mp": 12, "attack": 5, "defense": 6, "speed": 3 },
+  "skills": ["poison_spore"],
+  "drop_items": [
+    ["antidote", 0.1]
+  ],
+  "learnset": {},
+  "book": {
+    "description": "カサから胞子をまきちらす、歩くキノコのモンスター。胞子には毒が含まれていることがある。",
+    "location_hint": "村の近くの草原や、湿った森の入り口あたりで見かける。",
+    "synthesis_hint": "植物系のモンスターは、他の種族と合成すると面白い特性を発揮することがある。"
+  }
+},
+"imp": {
+  "name": "インプ",
+  "ai_role": "attacker",
+  "rank": "E",
+  "element": "火",
+  "image_filename": "imp.png",
+  "stats": { "hp": 20, "mp": 15, "attack": 4, "defense": 4, "speed": 7 },
+  "skills": ["fireball_weak"],
+  "drop_items": [
+    ["magic_stone", 0.08]
+  ],
+  "learnset": {},
+  "book": {
+    "description": "いたずら好きの小悪魔。小さな火の玉を飛ばしてくるが、威力はたいしたことない。",
+    "location_hint": "人の集まる場所の近くに現れることがある。村の周りでも目撃されている。",
+    "synthesis_hint": "悪魔系のモンスターは、強力な魔法の素質を秘めている。"
+  }
 }
+
+
 
