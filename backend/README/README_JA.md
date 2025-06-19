@@ -108,7 +108,9 @@ npx tailwindcss -i src/monster_rpg/static/tailwind_src.css -o src/monster_rpg/st
 ```
 
 ## テスト
-`pytest` を実行する前に、パッケージを編集可能モードでインストールしてください:
+テストはパッケージがインストールされていることを前提としています。
+`pytest` を実行する前に **必ず** `pip install -e .` を実行してください。これを省略
+するとインポートエラーでテストが失敗します:
 
 ```bash
 pip install -e .

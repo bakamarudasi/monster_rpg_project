@@ -122,7 +122,8 @@ npx tailwindcss -i src/monster_rpg/static/tailwind_src.css -o src/monster_rpg/st
 ```
 
 ## Testing
-Install the package in editable mode before running the test suite:
+The tests rely on the project being installed. **Always** install the package in
+editable mode before running `pytest` or the imports will fail:
 
 ```bash
 pip install -e .
