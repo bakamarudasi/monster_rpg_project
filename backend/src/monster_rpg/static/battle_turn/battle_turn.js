@@ -125,7 +125,8 @@ function setupBattleUI() {
     }
 
     const cmdWindow = document.querySelector('.command-window');
-    if (cmdWindow) cmdWindow.scrollIntoView({behavior: 'smooth'});
+    // Disabled auto scrolling to keep the battle screen position
+    // if (cmdWindow) cmdWindow.scrollIntoView({behavior: 'smooth'});
 }
 
 function updateUnitList(units, infoList) {
@@ -232,7 +233,8 @@ function applyBattleData(data) {
     }
 
     const cmdWindow = document.querySelector('.command-window');
-    if (cmdWindow) cmdWindow.scrollIntoView({behavior: 'smooth'});
+    // Disabled auto scrolling to keep the battle screen position
+    // if (cmdWindow) cmdWindow.scrollIntoView({behavior: 'smooth'});
 }
 
 function showDamageIndicator(container, text) {
