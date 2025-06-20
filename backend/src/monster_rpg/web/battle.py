@@ -181,31 +181,6 @@ def run_simple_battle(player_party: list, enemy_party: list):
             battle.step()
     return battle.outcome or 'lose', battle.log
 
-def handle_battle(player: Player, location) -> list[str]:
-    msgs: list[str] = []
-    enemies = generate_enemy_party(location, player)
-    if not enemies:
-        msgs.append('モンスターは現れなかった。')
-        return msgs
-    enemy_names = ', '.join(e.name for e in enemies)
-    msgs.append(f'{enemy_names} が現れた！')
-    party = player.party_monsters
-    outcome, battle_log = run_simple_battle(party, enemies)
-    msgs.extend([e['message'] if isinstance(e, dict) else e for e in battle_log])
-    if outcome == 'win':
-        total_exp = sum(e.level * 10 for e in enemies)
-        gold_gain = sum(e.level * 5 for e in enemies)
-        alive_members = [m for m in party if m.is_alive]
-        if alive_members and total_exp:
-            share = total_exp // len(alive_members)
-            for m in alive_members:
-                m.gain_exp(share)
-        player.gold += gold_gain
-        msgs.append(f'勝利した！ {gold_gain}G を得た。')
-    else:
-        msgs.append('敗北してしまった...')
-    player.last_battle_log = msgs
-    return msgs
 
 # Active battles keyed by user_id
 active_battles: dict[int, Battle] = {}
