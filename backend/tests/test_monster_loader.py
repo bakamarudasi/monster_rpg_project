@@ -1,7 +1,11 @@
 import unittest
 
 from monster_rpg.monsters.monster_data import load_monsters
-from monster_rpg.monsters.monster_class import RANK_D
+from monster_rpg.monsters.monster_class import (
+    RANK_D,
+    GROWTH_TYPE_POWER,
+    GROWTH_TYPE_MAGIC,
+)
 
 
 class MonsterLoaderTests(unittest.TestCase):
@@ -16,6 +20,8 @@ class MonsterLoaderTests(unittest.TestCase):
         # validate attributes from JSON
         self.assertEqual(monsters['slime'].name, 'スライム')
         self.assertEqual(monsters['goblin'].rank, RANK_D)
+        self.assertEqual(monsters['orc_warrior'].growth_type, GROWTH_TYPE_POWER)
+        self.assertEqual(monsters['elf_mage'].growth_type, GROWTH_TYPE_MAGIC)
 
     def test_skill_sets_provide_skills_and_learnset(self):
         monsters, _ = load_monsters()
