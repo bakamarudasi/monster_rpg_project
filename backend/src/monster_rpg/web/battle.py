@@ -3,7 +3,6 @@ from flask import Blueprint, render_template, redirect, url_for, request, jsonif
 from .. import database_setup
 from ..player import Player
 from ..items.equipment import Equipment, EquipmentInstance, create_titled_equipment
-from ..monsters.monster_class import Monster
 from ..map_data import LOCATIONS
 from ..exploration import generate_enemy_party
 

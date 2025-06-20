@@ -1,6 +1,4 @@
 from ..player import Player
-from ..items.equipment import Equipment, EquipmentInstance
-from ..monsters.monster_class import Monster
 
 
 def process_synthesis_payload(player: Player, data: dict):

@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Callable, Dict, List
 import random
 
-from .skills import Skill
 from ..monsters.monster_class import Monster
 
 
