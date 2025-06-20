@@ -324,5 +324,95 @@
     "effects": [{"type": "status", "status": "confuse"}],
     "description": "混乱ガスで敵全体を混乱させる",
     "category": "魔法"
+  },
+  "tackle": {
+    "name": "タックル",
+    "power": 15,
+    "cost": 0,
+    "skill_type": "attack",
+    "effects": [{"type": "damage", "amount": 15}],
+    "description": "体当たりで攻撃する",
+    "category": "物理"
+  },
+  "supersonic": {
+    "name": "スーパーソニック",
+    "power": 0,
+    "cost": 3,
+    "skill_type": "status",
+    "effects": [{"type": "status", "status": "confuse"}],
+    "description": "超音波で敵を混乱させる",
+    "category": "魔法"
+  },
+  "sand_attack": {
+    "name": "すなかけ",
+    "power": 0,
+    "cost": 2,
+    "skill_type": "status",
+    "effects": [{"type": "status", "status": "blind"}],
+    "description": "砂をかけて目を眩ませる",
+    "category": "弱体"
+  },
+  "fireball_weak": {
+    "name": "ファイアボール(弱)",
+    "power": 15,
+    "cost": 3,
+    "skill_type": "attack",
+    "effects": [{"type": "damage", "amount": 15}],
+    "description": "小さな火の玉で攻撃する",
+    "category": "魔法"
+  },
+  "water_blast": {
+    "name": "ウォーターブラスト",
+    "power": 30,
+    "cost": 5,
+    "skill_type": "attack",
+    "effects": [{"type": "damage", "amount": 30}],
+    "description": "水の衝撃を浴びせる",
+    "category": "魔法"
+  },
+  "ice_bolt": {
+    "name": "アイスボルト",
+    "power": 25,
+    "cost": 4,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage", "amount": 25},
+      {"type": "status", "status": "freeze"}
+    ],
+    "description": "氷の矢を放つ",
+    "category": "魔法"
+  },
+  "lightning": {
+    "name": "ライトニング",
+    "power": 35,
+    "cost": 5,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage", "amount": 35},
+      {"type": "status", "status": "paralyze"}
+    ],
+    "description": "電撃で攻撃する",
+    "category": "魔法"
+  },
+  "attack_up": {
+    "name": "アタックアップ",
+    "power": 0,
+    "cost": 3,
+    "skill_type": "buff",
+    "target": "ally",
+    "duration": 3,
+    "effects": [{"type": "buff", "stat": "attack", "amount": 5, "duration": 3}],
+    "description": "攻撃力を上げる",
+    "category": "補助"
+  },
+  "defense_down": {
+    "name": "ディフェンスダウン",
+    "power": 0,
+    "cost": 4,
+    "skill_type": "debuff",
+    "duration": 3,
+    "effects": [{"type": "buff", "stat": "defense", "amount": -5, "duration": 3}],
+    "description": "敵の防御力を下げる",
+    "category": "弱体"
   }
 }
