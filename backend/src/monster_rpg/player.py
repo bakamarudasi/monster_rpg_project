@@ -1,5 +1,6 @@
 # player.py
 import sqlite3
+import logging
 from .map_data import STARTING_LOCATION_ID
 from .monsters.monster_class import Monster  # Monsterクラスをインポート
 from .monsters.monster_data import ALL_MONSTERS  # モンスター定義をインポート
@@ -23,6 +24,9 @@ from .monster_book import MonsterBook
 
 # Debug flag to control verbose output
 DEBUG_MODE = False
+
+# Module-level logger
+logger = logging.getLogger(__name__)
 
 class Player:
     def __init__(self, name, player_level=1, gold=50, user_id=None):
@@ -441,9 +445,19 @@ class Player:
         parent2 = self.party_monsters[monster2_idx]
 
         if DEBUG_MODE:
-            print("[DEBUG player.py] Synthesizing with:")
-            print(f"[DEBUG player.py]   Parent 1: name='{parent1.name}', monster_id='{parent1.monster_id}' (type: {type(parent1.monster_id)})")
-            print(f"[DEBUG player.py]   Parent 2: name='{parent2.name}', monster_id='{parent2.monster_id}' (type: {type(parent2.monster_id)})")
+            logger.debug("Synthesizing with:")
+            logger.debug(
+                "  Parent 1: name='%s', monster_id='%s' (type: %s)",
+                parent1.name,
+                parent1.monster_id,
+                type(parent1.monster_id),
+            )
+            logger.debug(
+                "  Parent 2: name='%s', monster_id='%s' (type: %s)",
+                parent2.name,
+                parent2.monster_id,
+                type(parent2.monster_id),
+            )
 
         if not parent1.monster_id or not parent2.monster_id:
             return False, "エラー: 合成元のモンスターにIDが設定されていません。", None
@@ -455,11 +469,22 @@ class Player:
         recipe_key = tuple(recipe_key_parts)
         
         if DEBUG_MODE:
-            print(f"[DEBUG player.py]   ID1 original: '{parent1.monster_id}', ID1 lower: '{id1_lower}'")
-            print(f"[DEBUG player.py]   ID2 original: '{parent2.monster_id}', ID2 lower: '{id2_lower}'")
-            print(f"[DEBUG player.py]   Recipe key parts (sorted): {recipe_key_parts}")
-            print(f"[DEBUG player.py]   Recipe key for lookup: {recipe_key}")
-            print(f"[DEBUG player.py]   Available recipes in SYNTHESIS_RECIPES: {SYNTHESIS_RECIPES}")
+            logger.debug(
+                "  ID1 original: '%s', ID1 lower: '%s'",
+                parent1.monster_id,
+                id1_lower,
+            )
+            logger.debug(
+                "  ID2 original: '%s', ID2 lower: '%s'",
+                parent2.monster_id,
+                id2_lower,
+            )
+            logger.debug("  Recipe key parts (sorted): %s", recipe_key_parts)
+            logger.debug("  Recipe key for lookup: %s", recipe_key)
+            logger.debug(
+                "  Available recipes in SYNTHESIS_RECIPES: %s",
+                SYNTHESIS_RECIPES,
+            )
 
         if recipe_key in SYNTHESIS_RECIPES:
             # 合成に必要なアイテムがあればチェック
