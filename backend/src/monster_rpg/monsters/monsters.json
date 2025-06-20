@@ -6,7 +6,7 @@
     "element": "水",
     "image_filename": "slime.png",
     "stats": { "hp": 25, "mp": 0, "attack": 8, "defense": 5, "speed": 5 },
-    "skills": ["heal"],
+    "skill_sets": ["starter_slime"],
     "drop_items": [
       ["small_potion", 0.5]
     ],
@@ -24,7 +24,7 @@
     "element": "無",
     "image_filename": "goblin.png",
     "stats": { "hp": 40, "mp": 0, "attack": 12, "defense": 8, "speed": 7 },
-    "skills": ["fireball"],
+    "skill_sets": ["starter_goblin"],
     "drop_items": [
       ["small_potion", 0.2],
       ["magic_stone", 0.1],
@@ -66,7 +66,7 @@
     "element": "無",
     "image_filename": "wolf.png",
     "stats": { "hp": 50, "mp": 0, "attack": 15, "defense": 7, "speed": 10 },
-    "skills": [],
+    "skill_sets": ["starter_wolf"],
     "drop_items": [
       ["medium_potion", 0.1]
     ],

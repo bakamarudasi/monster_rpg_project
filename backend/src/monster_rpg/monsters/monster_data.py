@@ -9,6 +9,7 @@ from .monster_class import (
     RANK_D,
 )
 from ..skills.skills import ALL_SKILLS
+from ..skills.skill_sets import ALL_SKILL_SETS
 from ..items.item_data import ALL_ITEMS
 from ..items.equipment import ALL_EQUIPMENT
 
@@ -57,7 +58,22 @@ def _load_from_json(filepath: str | None = None) -> Tuple[Dict[str, Monster], Di
             rank=attrs.get("rank", RANK_D),
             image_filename=attrs.get("image_filename"),
         )
-        m.skills = [ALL_SKILLS[s] for s in attrs.get("skills", []) if s in ALL_SKILLS]
+        skill_ids = list(attrs.get("skills", []))
+        for set_id in attrs.get("skill_sets", []):
+            sset = ALL_SKILL_SETS.get(set_id)
+            if not sset:
+                continue
+            for lvl, ids in sset.get("learnset", {}).items():
+                if lvl <= m.level:
+                    if isinstance(ids, str):
+                        ids = [ids]
+                    for sid in ids:
+                        if sid not in skill_ids:
+                            skill_ids.append(sid)
+        for sid in attrs.get("additional_skills", []):
+            if sid not in skill_ids:
+                skill_ids.append(sid)
+        m.skills = [ALL_SKILLS[s] for s in skill_ids if s in ALL_SKILLS]
 
         drops = []
         for item_id, rate in attrs.get("drop_items", []):
@@ -66,7 +82,25 @@ def _load_from_json(filepath: str | None = None) -> Tuple[Dict[str, Monster], Di
                 drops.append((item, rate))
         m.drop_items = drops
 
-        learnset = attrs.get("learnset", {})
+        learnset = attrs.get("learnset", {}).copy()
+        for set_id in attrs.get("skill_sets", []):
+            sset = ALL_SKILL_SETS.get(set_id)
+            if not sset:
+                continue
+            for lvl, ids in sset.get("learnset", {}).items():
+                key = str(lvl)
+                existing = learnset.get(key)
+                if existing is None:
+                    learnset[key] = ids
+                    continue
+                if isinstance(existing, str):
+                    existing = [existing]
+                if isinstance(ids, str):
+                    ids = [ids]
+                for sid in ids:
+                    if sid not in existing:
+                        existing.append(sid)
+                learnset[key] = existing
         m.learnset = {int(k): v for k, v in learnset.items()}
 
         monsters[monster_id] = m
