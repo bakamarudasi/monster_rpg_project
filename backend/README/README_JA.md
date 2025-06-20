@@ -56,7 +56,7 @@ docker-compose up
 従来の「平均型」「早熟型」「大器晩成型」に加え、「パワー型」「魔法型」「防御型」「スピード型」
 を選択でき、魔法型はMPと魔力も上昇します。
 
-`monsters/monsters.json` は JSON 形式のモンスター定義例です。`monster_loader.load_monsters()` を使うことで、ファイルからモンスターを一括読み込みできます。ファイルが存在しない、または JSON が不正な場合は `ValueError` が送出されます。
+`monsters/monsters.json` は JSON 形式のモンスター定義例です。`monster_rpg.monsters.load_monsters()` を使うことで、ファイルからモンスターを一括読み込みできます。ファイルが存在しない、または JSON が不正な場合は `ValueError` が送出されます。
 
 ### スキルとアイテム
 - `skills/skills.py` — `Skill` クラスを定義し、`skills/skills.json` からスキル情報を読み込みます。辞書 `ALL_SKILLS` に利用可能なスキルを格納します。

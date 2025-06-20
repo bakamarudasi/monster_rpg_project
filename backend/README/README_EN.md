@@ -61,7 +61,7 @@ Besides the default Average/Early/Late patterns, additional Power, Magic, Defens
 Speed types prioritize the corresponding attributes and, for Magic, also raise MP and
 magic power.
 
-Use `monster_loader.load_monsters()` to read monster definitions from `monsters/monsters.json`. A `ValueError` is raised if the file is missing or contains invalid JSON.
+Use `monster_rpg.monsters.load_monsters()` to read monster definitions from `monsters/monsters.json`. A `ValueError` is raised if the file is missing or contains invalid JSON.
 
 ### Skills and Items
 - `skills/skills.py` &mdash; defines the `Skill` class and loads definitions from `skills/skills.json`. The dictionary `ALL_SKILLS` stores all available skills.
