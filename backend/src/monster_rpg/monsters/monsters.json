@@ -22,7 +22,11 @@
         0.5
       ]
     ],
-    "learnset": {},
+    "learnset": {
+      "2": [
+        "guard_up"
+      ]
+    },
     "book": {
       "description": "ぷるぷるした弱小モンスター。水属性で、初心者の相手に最適。",
       "location_hint": "村の近くの草原などに出現",
@@ -61,6 +65,9 @@
       ]
     ],
     "learnset": {
+      "3": [
+        "power_up"
+      ],
       "4": [
         "sand_attack"
       ]
@@ -128,7 +135,11 @@
         0.1
       ]
     ],
-    "learnset": {},
+    "learnset": {
+      "4": [
+        "speed_up"
+      ]
+    },
     "book": {
       "description": "俊敏な牙獣。群れで行動することが多い。",
       "location_hint": "妖精の森の奥地や丘陵街道に出現",

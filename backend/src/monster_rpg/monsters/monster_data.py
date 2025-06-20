@@ -125,15 +125,6 @@ def load_monsters(filepath: str | None = None) -> Tuple[Dict[str, Monster], Dict
 # Load monster data at import time
 ALL_MONSTERS, MONSTER_BOOK_DATA = _load_from_json()
 
-# Additional learnsets applied to loaded monsters for compatibility
-_LEARNSETS = {
-    "slime": {2: ["guard_up"]},
-    "goblin": {3: ["power_up"]},
-    "wolf": {4: ["speed_up"]},
-}
-for mid, ls in _LEARNSETS.items():
-    if mid in ALL_MONSTERS:
-        ALL_MONSTERS[mid].learnset.update(ls)
 
 # Provide direct access to common monsters
 SLIME = ALL_MONSTERS.get("slime")
