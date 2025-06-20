@@ -94,7 +94,7 @@ function setupBattleUI() {
         form.addEventListener('submit', evt => {
             evt.preventDefault();
             const formData = new FormData(form);
-            const postUrl = form.action;  // use the form's action URL
+            const postUrl = form.getAttribute('action');  // use the form's action URL
             const submitBtn = form.querySelector('button[type="submit"]');
             if (submitBtn) submitBtn.disabled = true;
 
@@ -254,9 +254,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setupBattleUI();
     const form = document.querySelector('.command-window form');
     if (form) {
-        const m = form.action.match(/\/battle\/(\d+)/);
+        const m = form.getAttribute('action').match(/\/battle\/(\d+)/);
         if (m) {
-            fetch(`/battle-json/${m[1]}`)
+            fetch(`/battle/${m[1]}`)
                 .then(resp => resp.json())
                 .then(data => applyBattleData(data))
                 .catch(err => console.error('Fetch error', err));
