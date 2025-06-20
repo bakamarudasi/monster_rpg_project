@@ -1,7 +1,14 @@
 from __future__ import annotations
 
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Optional
 import random
+
+# copied from battle to avoid circular import
+ELEMENTAL_MULTIPLIERS = {
+    ("火", "風"): 1.5,
+    ("風", "水"): 1.5,
+    ("水", "火"): 1.5,
+}
 
 from .skills import Skill
 from ..monsters.monster_class import Monster
@@ -18,18 +25,45 @@ def deal_damage(target: Monster, damage: int) -> int:
     return actual
 
 
-def _handle_damage(caster: Monster, target: Monster, effect: dict) -> None:
-    amount = int(effect.get("amount", 0))
-    deal_damage(target, amount)
+def calculate_skill_damage(caster: Monster, target: Monster, skill: Skill) -> int:
+    """Calculate damage for a skill taking caster stats and elements into account."""
+    if skill.category == "魔法":
+        base_stat = getattr(caster, "magic", 0)
+    else:
+        base_stat = caster.total_attack()
+
+    base = base_stat + skill.power - target.total_defense()
+    damage = max(1, base)
+
+    mult = ELEMENTAL_MULTIPLIERS.get((caster.element, target.element))
+    if mult is None:
+        rev = ELEMENTAL_MULTIPLIERS.get((target.element, caster.element))
+        mult = 0.5 if rev is not None else 1.0
+
+    damage = int(damage * mult)
+    return max(1, damage)
 
 
-def _handle_heal(caster: Monster, target: Monster, effect: dict) -> None:
+def _handle_damage(caster: Monster, target: Monster, effect: dict, skill: Optional[Skill] = None) -> None:
+    if skill is not None:
+        damage = calculate_skill_damage(caster, target, skill)
+        target.hp -= damage
+        print(f"{target.name} に {damage} のダメージ！ (残りHP: {max(0, target.hp)})")
+        if target.hp <= 0:
+            target.is_alive = False
+            print(f"{target.name} は倒れた！")
+    else:
+        amount = int(effect.get("amount", 0))
+        deal_damage(target, amount)
+
+
+def _handle_heal(caster: Monster, target: Monster, effect: dict, skill: Optional[Skill] = None) -> None:
     stat = effect.get("stat", "hp")
     amount = effect.get("amount", 0)
     target.heal(stat, amount)
 
 
-def _handle_buff(caster: Monster, target: Monster, effect: dict) -> None:
+def _handle_buff(caster: Monster, target: Monster, effect: dict, skill: Optional[Skill] = None) -> None:
     stat = effect.get("stat")
     amount = int(effect.get("amount", 0))
     duration = int(effect.get("duration", 0))
@@ -37,7 +71,7 @@ def _handle_buff(caster: Monster, target: Monster, effect: dict) -> None:
         target.apply_buff(stat, amount, duration)
 
 
-def _handle_status(caster: Monster, target: Monster, effect: dict) -> None:
+def _handle_status(caster: Monster, target: Monster, effect: dict, skill: Optional[Skill] = None) -> None:
     status = effect.get("status")
     duration = effect.get("duration")
     chance = float(effect.get("chance", 1.0))
@@ -48,7 +82,7 @@ def _handle_status(caster: Monster, target: Monster, effect: dict) -> None:
             print(f"{target.name} は状態異常を受けなかった。")
 
 
-def _handle_revive(caster: Monster, target: Monster, effect: dict) -> None:
+def _handle_revive(caster: Monster, target: Monster, effect: dict, skill: Optional[Skill] = None) -> None:
     if target.is_alive:
         print(f"{target.name} はまだ倒れていない。")
         return
@@ -66,13 +100,13 @@ def _handle_revive(caster: Monster, target: Monster, effect: dict) -> None:
     print(f"{target.name} が復活した！ HP: {target.hp}")
 
 
-def _handle_cure_status(caster: Monster, target: Monster, effect: dict) -> None:
+def _handle_cure_status(caster: Monster, target: Monster, effect: dict, skill: Optional[Skill] = None) -> None:
     status = effect.get("status")
     if status:
         target.cure_status(status)
 
 
-HANDLERS: Dict[str, Callable[[Monster, Monster, dict], None]] = {
+HANDLERS: Dict[str, Callable[[Monster, Monster, dict, Optional[Skill]], None]] = {
     "damage": _handle_damage,
     "heal": _handle_heal,
     "buff": _handle_buff,
@@ -86,15 +120,16 @@ def apply_effects(
     caster: Monster,
     target: Monster,
     effects: List[dict],
+    skill: Optional[Skill] = None,
 ) -> None:
     """Apply effect dictionaries to a target."""
     for eff in effects:
         handler = HANDLERS.get(eff.get("type"))
         if handler:
-            handler(caster, target, eff)
+            handler(caster, target, eff, skill)
         else:
             # fallback: status name shortcut
             name = eff.get("type")
             if name:
-                _handle_status(caster, target, {"status": name, "duration": eff.get("duration")})
+                _handle_status(caster, target, {"status": name, "duration": eff.get("duration")}, skill)
 

@@ -188,7 +188,7 @@ def apply_skill_effect(
             continue
 
         if skill_obj.effects:
-            apply_effects(caster, target, skill_obj.effects)
+            apply_effects(caster, target, skill_obj.effects, skill_obj)
         else:
             print(f"スキル「{skill_obj.name}」は効果がなかった...")
 

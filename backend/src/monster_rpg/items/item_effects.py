@@ -26,5 +26,5 @@ def apply_item_effect(item: Item, target: Optional[Monster]) -> bool:
         print("対象モンスターがいません。")
         return False
     for eff in effects:
-        apply_effects(target, target, [eff])
+        apply_effects(target, target, [eff], None)
     return True
