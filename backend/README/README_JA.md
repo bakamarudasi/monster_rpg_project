@@ -58,6 +58,36 @@ docker-compose up
 - `skills/skills.py` — `Skill` クラスを定義し、`skills/skills.json` からスキル情報を読み込みます。辞書 `ALL_SKILLS` に利用可能なスキルを格納します。
 - `items/item_data.py` — `Item` クラスを定義し、`items/items.json` を読み込んで `ALL_ITEMS` を生成します。
 - `skills/__init__.py` — ディレクトリをパッケージとして扱うための空モジュールです。
+- `skills/skill_sets.py` — `skills/skill_sets.json` に定義された再利用可能なスキルセットを読み込みます。
+
+#### スキルセット
+`skill_sets.json` では、複数のモンスターで共有できる習得データをまとめて管理します。各エントリは識別子をキーとし、表示用の `name` と、レベルをキーにスキルIDを列挙した `learnset` を持ちます。
+
+```json
+{
+  "starter_slime": {
+    "name": "スライム基礎",
+    "learnset": {
+      "1": ["heal"],
+      "2": ["guard_up"]
+    }
+  }
+}
+```
+
+`monsters.json` では `skill_sets` 配列と任意の `additional_skills` リストを指定できます。これらのセットに含まれる習得スキルは、モンスター自身の `learnset` と結合されます。
+
+```json
+{
+  "slime": {
+    "skill_sets": ["starter_slime"],
+    "additional_skills": ["tackle"],
+    "learnset": { "5": ["water_blast"] }
+  }
+}
+```
+
+この例ではスライムは `starter_slime` セットのスキルに加え、`tackle` を初期習得し、レベルアップ時にはセットの習得表と `water_blast` の両方を学びます。
 
 ### マップ
 - `map_data.py` — `Location` クラスと、各エリアの接続関係を示す辞書 `LOCATIONS` を定義します。 `STARTING_LOCATION_ID` がプレイヤーの初期位置です。各場所では、出現モンスターとその重みを設定する `enemy_pool` と、敵の数範囲を指定する `party_size` を利用できます。さらに、特定のアイテムが必要なエリアには `required_item` を設定できます。

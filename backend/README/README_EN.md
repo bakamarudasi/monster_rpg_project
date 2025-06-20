@@ -62,6 +62,36 @@ Use `monster_loader.load_monsters()` to read monster definitions from `monsters/
 - `skills/skills.py` &mdash; defines the `Skill` class and loads definitions from `skills/skills.json`. The dictionary `ALL_SKILLS` stores all available skills.
 - `items/item_data.py` &mdash; defines the `Item` class and loads data from `items/items.json` as `ALL_ITEMS`.
 - `skills/__init__.py` &mdash; an empty module used to mark the directory as a package.
+- `skills/skill_sets.py` &mdash; loads reusable skill packages defined in `skills/skill_sets.json`.
+
+#### Skill Sets
+`skill_sets.json` groups common learnsets that multiple monsters can reference. Each entry is keyed by an identifier and contains a display `name` and a `learnset` dictionary mapping a level to one or more skill IDs.
+
+```json
+{
+  "starter_slime": {
+    "name": "Slime Basics",
+    "learnset": {
+      "1": ["heal"],
+      "2": ["guard_up"]
+    }
+  }
+}
+```
+
+Monsters may include a `skill_sets` array and an optional `additional_skills` list inside `monsters.json`. Learnsets from these sets are merged with the monster's own `learnset`.
+
+```json
+{
+  "slime": {
+    "skill_sets": ["starter_slime"],
+    "additional_skills": ["tackle"],
+    "learnset": { "5": ["water_blast"] }
+  }
+}
+```
+
+In this example the Slime will start with the skills from the `starter_slime` set plus `tackle`, and will learn both the set's moves and `water_blast` as it levels.
 
 ### Maps
 - `map_data.py` &mdash; defines the `Location` class and the dictionary `LOCATIONS` which describes available areas and how they connect. `STARTING_LOCATION_ID` indicates where the player begins. Locations can include an `enemy_pool` dict for weighted encounters, a `party_size` range for the number of enemies, and an optional `required_item` field to lock certain areas until the player has that item.
