@@ -112,6 +112,14 @@ STATUS_DEFINITIONS = {
         "skip_chance": 0.5,
         "message": "混乱",
     },
+    "taunt": {
+        "duration": 2,
+        "message": "挑発",
+    },
+    "cant_attack": {
+        "duration": 1,
+        "message": "攻撃封じ",
+    },
 }
 
 
@@ -201,10 +209,11 @@ def display_party_status(party: list[Monster], party_name: str):
             f"  {i + 1}. {monster.name} (Lv.{monster.level}, HP: {monster.hp}/{monster.max_hp}, MP: {monster.mp}/{monster.max_mp}) {status_mark}"
         )
 
-def process_status_effects(monster: Monster) -> bool:
-    """状態異常を処理し、行動不能ならTrueを返す"""
+def process_status_effects(monster: Monster) -> dict[str, bool]:
+    """状態異常を処理し、各種フラグを返す"""
     expired = []
     skip_turn = False
+    active_names = [e["name"] for e in monster.status_effects]
     for effect in list(monster.status_effects):
         name = effect["name"]
         data = STATUS_DEFINITIONS.get(name, {})
@@ -230,7 +239,11 @@ def process_status_effects(monster: Monster) -> bool:
         monster.status_effects.remove(e)
         msg = STATUS_DEFINITIONS.get(e["name"], {}).get("message", e["name"])
         print(f"{monster.name} の {msg} が治った。")
-    return skip_turn
+    return {
+        "skip_turn": skip_turn,
+        "force_attack": "taunt" in active_names,
+        "cant_attack": "cant_attack" in active_names,
+    }
 
 def get_player_choice(prompt: str, max_choice: int) -> int:
     """プレイヤーに番号で選択させ、有効な値を返すまでループします。"""
@@ -281,9 +294,30 @@ def enemy_take_action(enemy_actor: Monster, active_player_party: list[Monster], 
         print(f"{enemy_actor.name} は様子を見ている...")
         return
 
+    taunted = any(e["name"] == "taunt" for e in enemy_actor.status_effects)
+    cant_attack = any(e["name"] == "cant_attack" for e in enemy_actor.status_effects)
+
     usable_skills = [s for s in enemy_actor.skills if enemy_actor.mp >= s.cost]
 
     role = getattr(enemy_actor, "ai_role", "attacker")
+
+    if taunted:
+        if cant_attack:
+            print(f"{enemy_actor.name} は挑発されているが攻撃できない！")
+            return
+        if role == "attacker":
+            target = min(alive_player_targets, key=lambda m: m.hp)
+        else:
+            target = random.choice(alive_player_targets)
+        print(f"{enemy_actor.name} は挑発により攻撃！ -> {target.name}")
+        damage = calculate_damage(enemy_actor, target)
+        target.hp -= damage
+        print(f"{target.name} は {damage} のダメージを受けた！ (残りHP: {max(0, target.hp)})")
+        if target.hp <= 0:
+            target.is_alive = False
+            print(f"{target.name} は倒れた！")
+        return
+
     selected_skill = None
     skill_targets: list[Monster] = []
 
@@ -329,6 +363,9 @@ def enemy_take_action(enemy_actor: Monster, active_player_party: list[Monster], 
     if selected_skill is not None:
         apply_skill_effect(enemy_actor, skill_targets, selected_skill, active_enemy_party, active_player_party)
     else:
+        if cant_attack:
+            print(f"{enemy_actor.name} は攻撃できず様子を見ている...")
+            return
         if role == "attacker":
             target = min(alive_player_targets, key=lambda m: m.hp)
         else:
@@ -451,11 +488,29 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster], player
             if not actor.is_alive:
                 continue
 
-            skip = process_status_effects(actor)
-            if skip or not actor.is_alive:
+            flags = process_status_effects(actor)
+            if flags["skip_turn"] or not actor.is_alive:
                 continue
 
+            force_attack = flags["force_attack"]
+            cant_attack = flags["cant_attack"]
+
             if actor in active_player_party:
+                if force_attack:
+                    alive_targets = [m for m in active_enemy_party if m.is_alive]
+                    if cant_attack or not alive_targets:
+                        print(f"{actor.name} は攻撃できない！")
+                        continue
+                    target = alive_targets[0]
+                    print(f"{actor.name} は挑発され {target.name} を攻撃！")
+                    damage = calculate_damage(actor, target)
+                    target.hp -= damage
+                    print(f"{target.name} に {damage} のダメージを与えた！ (残りHP: {max(0, target.hp)})")
+                    if target.hp <= 0:
+                        target.is_alive = False
+                        print(f"{target.name} を倒した！")
+                    continue
+
                 while True:
                     print(f"\n>>> {actor.name} の行動！ <<<")
                     print("1: たたかう")
@@ -466,6 +521,9 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster], player
                     action_choice = get_player_choice("行動を選んでください", 5)
 
                     if action_choice == 1:  # たたかう
+                        if cant_attack:
+                            print(f"{actor.name} は攻撃できない！")
+                            continue
                         target = select_target(active_enemy_party, "\n攻撃対象を選んでください:")
                         if target:
                             print(f"\n{actor.name} の攻撃！ -> {target.name}")

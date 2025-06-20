@@ -67,6 +67,8 @@ class StatusEffectTests(unittest.TestCase):
             "stun",
             "sleep",
             "confuse",
+            "taunt",
+            "cant_attack",
         ]
         for status in statuses:
             target = Monster("T", hp=20, attack=5, defense=2, speed=10)
