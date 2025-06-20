@@ -3,6 +3,7 @@ import unittest
 import os
 
 from monster_rpg.player import Player
+from monster_rpg import save_manager
 from monster_rpg.items.item_data import ALL_ITEMS
 from monster_rpg.monsters.monster_data import ALL_MONSTERS
 from monster_rpg import database_setup
@@ -46,7 +47,7 @@ class ItemMonsterSynthesisRouteTests(unittest.TestCase):
         player.add_monster_to_party('slime')
         player.items.append(ALL_ITEMS['dragon_scale'])
         player.items.append(ALL_ITEMS['magic_stone'])
-        player.save_game(self.db_path, user_id=self.user_id)
+        save_manager.save_game(player, self.db_path, user_id=self.user_id)
 
     def tearDown(self):
         if os.path.exists(self.db_path):
@@ -83,7 +84,7 @@ class ItemMonsterSynthesisRouteTests(unittest.TestCase):
         from monster_rpg.items.equipment import ALL_EQUIPMENT
         self.assertTrue(data['name'].endswith(ALL_EQUIPMENT['bronze_sword'].name))
 
-        loaded = Player.load_game(self.db_path, user_id=self.user_id)
+        loaded = save_manager.load_game(self.db_path, user_id=self.user_id)
         self.assertEqual(len(loaded.equipment_inventory), 1)
 
 if __name__ == '__main__':

@@ -1,185 +1,44 @@
-# player.py
-import sqlite3
+"""Player data model with minimal game management logic."""
+
+from __future__ import annotations
+
 import logging
 from .map_data import STARTING_LOCATION_ID
-from .monsters.monster_class import Monster  # Monsterクラスをインポート
-from .monsters.monster_data import ALL_MONSTERS  # モンスター定義をインポート
-from .items.item_data import ALL_ITEMS
-from .monsters.synthesis_rules import (
-    SYNTHESIS_RECIPES,
-    SYNTHESIS_ITEMS_REQUIRED,
-    MONSTER_ITEM_RECIPES,
-)
-from .items.equipment import (
-    CRAFTING_RECIPES,
-    create_titled_equipment,
-    EquipmentInstance,
-    Equipment,
-    ALL_EQUIPMENT,
-)
-from .items.titles import ALL_TITLES
-import random  # 将来的にスキル継承などで使うかも
-import copy
+from .monsters.monster_class import Monster
 from .monster_book import MonsterBook
 
-# Debug flag to control verbose output
-DEBUG_MODE = False
+from . import save_manager, party_manager, synthesis_manager
 
-# Module-level logger
 logger = logging.getLogger(__name__)
 
+
 class Player:
-    def __init__(self, name, player_level=1, gold=50, user_id=None):
+    def __init__(self, name: str, player_level: int = 1, gold: int = 50, user_id: int | None = None):
         self.name = name
         self.player_level = player_level
         self.exp = 0
-        self.party_monsters = []  # Monsterオブジェクトを格納
-        # フォーメーション外の控えモンスターを保持するリスト
+        self.party_monsters: list[Monster] = []
         self.reserve_monsters: list[Monster] = []
         self.gold = gold
         self.items = []
         self.equipment_inventory = []
         self.current_location_id = STARTING_LOCATION_ID
-        self.db_id = None # データベース上のID (ロード時に設定)
+        self.db_id: int | None = None
         self.user_id = user_id
-        self.exploration_progress = {}
+        self.exploration_progress: dict[str, int] = {}
         self.monster_book = MonsterBook()
-        self.last_battle_log = []
+        self.last_battle_log: list[str] = []
 
-    def save_game(self, db_name, user_id=None):
-        conn = sqlite3.connect(db_name)
-        cursor = conn.cursor()
+    # --- Persistence -----------------------------------------------------
+    def save_game(self, db_name: str, user_id: int | None = None) -> None:
+        save_manager.save_game(self, db_name, user_id)
 
-        if user_id is not None:
-            self.user_id = user_id
-        if self.user_id is None:
-            self.user_id = 1
+    @staticmethod
+    def load_game(db_name: str, user_id: int = 1) -> "Player | None":
+        return save_manager.load_game(db_name, user_id)
 
-        if self.db_id:
-            cursor.execute(
-                """
-                UPDATE player_data
-                SET name=?, player_level=?, exp=?, gold=?, current_location_id=?, user_id=?
-                WHERE id=?
-                """,
-                (
-                    self.name,
-                    self.player_level,
-                    self.exp,
-                    self.gold,
-                    self.current_location_id,
-                    self.user_id,
-                    self.db_id,
-                ),
-            )
-        else:
-            cursor.execute(
-                """
-                INSERT INTO player_data (user_id, name, player_level, exp, gold, current_location_id)
-                VALUES (?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    self.user_id,
-                    self.name,
-                    self.player_level,
-                    self.exp,
-                    self.gold,
-                    self.current_location_id,
-                ),
-            )
-            self.db_id = cursor.lastrowid
-
-        # パーティモンスターを保存
-        cursor.execute("DELETE FROM party_monsters WHERE player_id=?", (self.db_id,))
-        for monster in self.party_monsters:
-            cursor.execute(
-                "INSERT INTO party_monsters (player_id, monster_id, level, exp, hp, max_hp, mp, max_mp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                (
-                    self.db_id,
-                    monster.monster_id,
-                    monster.level,
-                    monster.exp,
-                    monster.hp,
-                    monster.max_hp,
-                    monster.mp,
-                    monster.max_mp,
-                ),
-            )
-
-        # 控えモンスターを保存
-        cursor.execute("DELETE FROM storage_monsters WHERE player_id=?", (self.db_id,))
-        for monster in self.reserve_monsters:
-            cursor.execute(
-                "INSERT INTO storage_monsters (player_id, monster_id, level, exp, hp, max_hp, mp, max_mp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                (
-                    self.db_id,
-                    monster.monster_id,
-                    monster.level,
-                    monster.exp,
-                    monster.hp,
-                    monster.max_hp,
-                    monster.mp,
-                    monster.max_mp,
-                ),
-            )
-
-        # 所持アイテムを保存
-        cursor.execute("DELETE FROM player_items WHERE player_id=?", (self.db_id,))
-        for item in self.items:
-            item_id = getattr(item, "item_id", str(item))
-            cursor.execute(
-                "INSERT INTO player_items (player_id, item_id) VALUES (?, ?)",
-                (self.db_id, item_id),
-            )
-
-        cursor.execute("DELETE FROM player_equipment WHERE player_id=?", (self.db_id,))
-        for equip in self.equipment_inventory:
-            if hasattr(equip, "base_item"):
-                equip_id = equip.base_item.equip_id
-                title_id = equip.title.title_id if getattr(equip, "title", None) else None
-                instance_id = getattr(equip, "instance_id", None)
-            else:
-                equip_id = getattr(equip, "equip_id", str(equip))
-                title_id = None
-                instance_id = None
-            cursor.execute(
-                "INSERT INTO player_equipment (player_id, equip_id, title_id, instance_id) VALUES (?, ?, ?, ?)",
-                (self.db_id, equip_id, title_id, instance_id),
-            )
-
-        # 探索進捗を保存
-        cursor.execute(
-            "DELETE FROM exploration_progress WHERE player_id=?", (self.db_id,)
-        )
-        for loc_id, prog in self.exploration_progress.items():
-            cursor.execute(
-                "INSERT INTO exploration_progress (player_id, location_id, progress)"
-                " VALUES (?, ?, ?)",
-                (self.db_id, loc_id, prog),
-            )
-
-        cursor.execute(
-            "DELETE FROM monster_book_status WHERE player_id=?",
-            (self.db_id,),
-        )
-        all_ids = self.monster_book.seen.union(self.monster_book.captured)
-        for mid in all_ids:
-            cursor.execute(
-                "INSERT INTO monster_book_status (player_id, monster_id, seen, captured)"
-                " VALUES (?, ?, ?, ?)",
-                (
-                    self.db_id,
-                    mid,
-                    int(mid in self.monster_book.seen),
-                    int(mid in self.monster_book.captured),
-                ),
-            )
-
-        conn.commit()
-        conn.close()
-        print(f"{self.name} のデータがセーブされました。")
-
-    def show_status(self):
+    # --- Status helpers --------------------------------------------------
+    def show_status(self) -> None:
         print(f"===== {self.name} のステータス =====")
         print(f"レベル: {self.player_level}")
         print(f"経験値: {self.exp}")
@@ -188,571 +47,67 @@ class Player:
         if self.party_monsters:
             print("--- パーティーメンバー ---")
             for i, monster in enumerate(self.party_monsters):
-                print(f"  {i+1}. {monster.name} (ID: {monster.monster_id}, Lv.{monster.level})") # IDも表示
+                print(f"  {i+1}. {monster.name} (ID: {monster.monster_id}, Lv.{monster.level})")
             print("------------------------")
         else:
             print("  (まだ仲間モンスターがいません)")
         print("=" * 26)
 
-    def get_exploration(self, location_id):
+    def get_exploration(self, location_id: str) -> int:
         return self.exploration_progress.get(location_id, 0)
 
-    def increase_exploration(self, location_id, amount):
+    def increase_exploration(self, location_id: str, amount: int) -> int:
         current = self.exploration_progress.get(location_id, 0)
         new_value = min(100, current + amount)
         self.exploration_progress[location_id] = new_value
         return new_value
 
+    # --- Party management ------------------------------------------------
     def add_monster_to_party(self, monster_id_or_object):
-        """
-        手持ちモンスターに新しいモンスターを加えます。
-        引数はモンスターID (ALL_MONSTERSのキー) または Monsterオブジェクト。
-        """
-        newly_added_monster = None # 追加されたモンスターを一時的に保持
-        if isinstance(monster_id_or_object, str): # モンスターIDの場合
-            monster_id_key = monster_id_or_object.lower() # 確実に小文字で検索
-            if monster_id_key in ALL_MONSTERS:
-                # ALL_MONSTERSのテンプレートから新しいインスタンスをコピーして仲間にする
-                # print(f"[DEBUG player.py add_monster_to_party] Copying from ALL_MONSTERS with key: '{monster_id_key}'")
-                # print(f"[DEBUG player.py add_monster_to_party]   Template monster_id: '{ALL_MONSTERS[monster_id_key].monster_id}'")
-                new_monster_instance = ALL_MONSTERS[monster_id_key].copy()
-                if new_monster_instance is None: # copy()が失敗した場合
-                    print(f"エラー: モンスター '{monster_id_key}' のコピーに失敗しました。")
-                    return
+        return party_manager.add_monster_to_party(self, monster_id_or_object)
 
-                # 仲間にする際は通常レベル1、経験値0、HP最大で初期化することが多い
-                new_monster_instance.level = 1 # またはALL_MONSTERS[monster_id_key].level
-                new_monster_instance.exp = 0
-                new_monster_instance.hp = new_monster_instance.max_hp # HPは最大に
-                new_monster_instance.mp = new_monster_instance.max_mp
-                
-                self.party_monsters.append(new_monster_instance)
-                print(f"{new_monster_instance.name} が仲間に加わった！")
-                newly_added_monster = new_monster_instance
-            else:
-                print(f"エラー: モンスターID '{monster_id_key}' は存在しません。")
-        elif isinstance(monster_id_or_object, Monster): # Monsterオブジェクトの場合
-            monster_object = monster_id_or_object
-            # print(f"[DEBUG player.py add_monster_to_party] Copying from Monster object: name='{monster_object.name}', monster_id='{monster_object.monster_id}'")
-            copied_monster = monster_object.copy()
-            if copied_monster is None: # copy()が失敗した場合
-                print(f"エラー: モンスターオブジェクト '{monster_object.name}' のコピーに失敗しました。")
-                return
-
-            self.party_monsters.append(copied_monster)
-            copied_monster.mp = copied_monster.max_mp
-            print(f"{copied_monster.name} が仲間に加わった！")
-            newly_added_monster = copied_monster
-        else:
-            print("エラー: add_monster_to_party の引数が不正です。")
-        
-        if newly_added_monster:
-            print(f"[DEBUG player.py add_monster_to_party] Actual monster_id of added monster '{newly_added_monster.name}': '{newly_added_monster.monster_id}' (type: {type(newly_added_monster.monster_id)})")
-            self.monster_book.record_captured(newly_added_monster.monster_id)
-
-
-    def show_all_party_monsters_status(self):
-        if not self.party_monsters:
-            print(f"{self.name} はまだ仲間モンスターを持っていません。")
-            return
-
-        print(f"===== {self.name} のパーティーメンバー詳細 =====")
-        for i, monster in enumerate(self.party_monsters):
-            print(f"--- {i+1}. ---")
-            monster.show_status()
-        print("=" * 30)
+    def show_all_party_monsters_status(self) -> None:
+        party_manager.show_all_party_monsters_status(self)
 
     def move_monster(self, from_idx: int, to_idx: int) -> bool:
-        """パーティ内でモンスターの位置を移動する。"""
-        if not (
-            0 <= from_idx < len(self.party_monsters)
-            and 0 <= to_idx < len(self.party_monsters)
-        ):
-            return False
-        monster = self.party_monsters.pop(from_idx)
-        self.party_monsters.insert(to_idx, monster)
-        return True
+        return party_manager.move_monster(self, from_idx, to_idx)
 
     def move_to_reserve(self, party_idx: int) -> bool:
-        """指定したパーティメンバーを控えに移動する。"""
-        if not (0 <= party_idx < len(self.party_monsters)):
-            return False
-        if len(self.party_monsters) <= 1:
-            # 最低1体はパーティに残す
-            return False
-        monster = self.party_monsters.pop(party_idx)
-        self.reserve_monsters.append(monster)
-        return True
+        return party_manager.move_to_reserve(self, party_idx)
 
     def move_from_reserve(self, reserve_idx: int) -> bool:
-        """控えからパーティにモンスターを移動する。"""
-        if not (0 <= reserve_idx < len(self.reserve_monsters)):
-            return False
-        monster = self.reserve_monsters.pop(reserve_idx)
-        self.party_monsters.append(monster)
-        return True
+        return party_manager.move_from_reserve(self, reserve_idx)
 
     def reset_formation(self) -> None:
-        """先頭のモンスターを残して他を控えに移す。"""
-        while len(self.party_monsters) > 1:
-            self.reserve_monsters.append(self.party_monsters.pop())
+        party_manager.reset_formation(self)
 
-    def show_items(self):
-        if not self.items:
-            print("アイテムを何も持っていない。")
-            return
+    def show_items(self) -> None:
+        party_manager.show_items(self)
 
-        print("===== 所持アイテム =====")
-        for i, item in enumerate(self.items, 1):
-            name = getattr(item, "name", str(item))
-            desc = getattr(item, "description", "")
-            print(f"{i}. {name} - {desc}")
-        print("=" * 20)
+    def use_item(self, item_idx: int, target_monster: Monster) -> bool:
+        return party_manager.use_item(self, item_idx, target_monster)
 
-    def use_item(self, item_idx, target_monster):
-        if not (0 <= item_idx < len(self.items)):
-            print("無効なアイテム番号です。")
-            return False
+    def rest_at_inn(self, cost: int) -> bool:
+        return party_manager.rest_at_inn(self, cost)
 
-        item = self.items[item_idx]
-        from .items import apply_item_effect
+    def buy_item(self, item_id: str, price: int) -> bool:
+        return party_manager.buy_item(self, item_id, price)
 
-        success = apply_item_effect(item, target_monster)
-        if success:
-            self.items.pop(item_idx)
-        return success
+    def buy_monster(self, monster_id: str, price: int) -> bool:
+        return party_manager.buy_monster(self, monster_id, price)
 
-    def rest_at_inn(self, cost):
-        if self.gold >= cost:
-            self.gold -= cost
-            print(f"{cost}G を支払い、宿屋に泊まった。")
-            for monster in self.party_monsters:
-                monster.hp = monster.max_hp
-                monster.mp = monster.max_mp
-                monster.is_alive = True
-            print("パーティは完全に回復した！")
-            return True
-        else:
-            print("お金が足りない！宿屋に泊まれない...")
-            return False
+    def craft_equipment(self, equip_id: str):
+        return party_manager.craft_equipment(self, equip_id)
 
-    def buy_item(self, item_id, price):
-        if self.gold < price:
-            print("お金が足りない！")
-            return False
-        if item_id not in ALL_ITEMS:
-            print("そのアイテムは存在しない。")
-            return False
-        self.gold -= price
-        self.items.append(ALL_ITEMS[item_id])
-        print(f"{ALL_ITEMS[item_id].name} を {price}G で購入した。")
-        return True
+    def equip_to_monster(self, party_idx: int, equip_id: str | None = None, slot: str | None = None) -> bool:
+        return party_manager.equip_to_monster(self, party_idx, equip_id, slot)
 
-    def buy_monster(self, monster_id, price):
-        if self.gold < price:
-            print("お金が足りない！")
-            return False
-        if monster_id not in ALL_MONSTERS:
-            print("そのモンスターは存在しない。")
-            return False
-        self.gold -= price
-        self.add_monster_to_party(monster_id)
-        print(f"{ALL_MONSTERS[monster_id].name} を {price}G で仲間にした。")
-        return True
+    # --- Synthesis -------------------------------------------------------
+    def synthesize_monster(self, monster1_idx: int, monster2_idx: int, item_id: str | None = None):
+        return synthesis_manager.synthesize_monster(self, monster1_idx, monster2_idx, item_id)
 
-    def craft_equipment(self, equip_id):
-        recipe = CRAFTING_RECIPES.get(equip_id)
-        if not recipe:
-            print("その装備は作成できない。")
-            return None
-        for item_id, qty in recipe.items():
-            count = sum(1 for it in self.items if getattr(it, "item_id", None) == item_id)
-            if count < qty:
-                print("素材が足りない。")
-                return None
-        # consume items
-        for item_id, qty in recipe.items():
-            removed = 0
-            for i in range(len(self.items)-1, -1, -1):
-                if getattr(self.items[i], "item_id", None) == item_id and removed < qty:
-                    self.items.pop(i)
-                    removed += 1
-        new_equip = create_titled_equipment(equip_id)
-        if new_equip:
-            self.equipment_inventory.append(new_equip)
-            print(f"{new_equip.name} を作成した！")
-            return new_equip
-        print("装備の作成に失敗した。")
-        return None
-
-    def equip_to_monster(self, party_idx, equip_id=None, slot=None):
-        """Equip or unequip an item for the given monster.
-
-        If ``equip_id`` is ``None``, the method will unequip the item in
-        ``slot`` and return it to the player's inventory.
-        """
-        if not (0 <= party_idx < len(self.party_monsters)):
-            print("無効なモンスター番号")
-            return False
-
-        monster = self.party_monsters[party_idx]
-
-        if equip_id is None:
-            if slot is None or slot not in monster.equipment:
-                print("そのスロットには装備がない。")
-                return False
-            equip = monster.equipment.pop(slot)
-            self.equipment_inventory.append(equip)
-            print(f"{monster.name} の {slot} を外した。")
-            return True
-
-        equip = None
-        for e in self.equipment_inventory:
-            if isinstance(e, EquipmentInstance):
-                if e.instance_id == equip_id or e.base_item.equip_id == equip_id:
-                    equip = e
-                    break
-            else:
-                if getattr(e, "equip_id", None) == equip_id:
-                    equip = e
-                    break
-        if not equip:
-            print("その装備を所持していない。")
-            return False
-
-        monster.equip(equip)
-        self.equipment_inventory.remove(equip)
-        print(f"{monster.name} に {equip.name} を装備した。")
-        return True
-
-    def synthesize_monster(self, monster1_idx, monster2_idx, item_id=None): # item_id は将来用
-        """
-        指定された2体のモンスターを合成して新しいモンスターを生成します。
-        合成に使用したモンスターはパーティからいなくなります。
-        :param monster1_idx: パーティ内の1体目のモンスターのインデックス
-        :param monster2_idx: パーティ内の2体目のモンスターのインデックス
-        :param item_id: (オプション) 合成に必要なアイテムのID
-        :return: (成功フラグ, メッセージ, 新しいモンスターオブジェクト or None)
-        """
-        if not (0 <= monster1_idx < len(self.party_monsters) and \
-                0 <= monster2_idx < len(self.party_monsters)):
-            return False, "無効なモンスターの選択です。", None
-        
-        if monster1_idx == monster2_idx:
-            return False, "同じモンスター同士は合成できません。", None
-
-        parent1 = self.party_monsters[monster1_idx]
-        parent2 = self.party_monsters[monster2_idx]
-
-        if DEBUG_MODE:
-            logger.debug("Synthesizing with:")
-            logger.debug(
-                "  Parent 1: name='%s', monster_id='%s' (type: %s)",
-                parent1.name,
-                parent1.monster_id,
-                type(parent1.monster_id),
-            )
-            logger.debug(
-                "  Parent 2: name='%s', monster_id='%s' (type: %s)",
-                parent2.name,
-                parent2.monster_id,
-                type(parent2.monster_id),
-            )
-
-        if not parent1.monster_id or not parent2.monster_id:
-            return False, "エラー: 合成元のモンスターにIDが設定されていません。", None
-            
-        id1_lower = parent1.monster_id.lower() # ここで日本語の monster_id が小文字化される（日本語のまま）
-        id2_lower = parent2.monster_id.lower() # 同上
-        
-        recipe_key_parts = sorted([id1_lower, id2_lower])
-        recipe_key = tuple(recipe_key_parts)
-        
-        if DEBUG_MODE:
-            logger.debug(
-                "  ID1 original: '%s', ID1 lower: '%s'",
-                parent1.monster_id,
-                id1_lower,
-            )
-            logger.debug(
-                "  ID2 original: '%s', ID2 lower: '%s'",
-                parent2.monster_id,
-                id2_lower,
-            )
-            logger.debug("  Recipe key parts (sorted): %s", recipe_key_parts)
-            logger.debug("  Recipe key for lookup: %s", recipe_key)
-            logger.debug(
-                "  Available recipes in SYNTHESIS_RECIPES: %s",
-                SYNTHESIS_RECIPES,
-            )
-
-        if recipe_key in SYNTHESIS_RECIPES:
-            # 合成に必要なアイテムがあればチェック
-            required_item = SYNTHESIS_ITEMS_REQUIRED.get(recipe_key)
-            if required_item:
-                item_index = next(
-                    (i for i, itm in enumerate(self.items) if getattr(itm, "item_id", None) == required_item),
-                    None,
-                )
-                if item_index is None:
-                    item_name = ALL_ITEMS[required_item].name if required_item in ALL_ITEMS else required_item
-                    return False, f"合成には {item_name} が必要だ。", None
-                # 消費アイテムとして取り除く
-                self.items.pop(item_index)
-
-            result_monster_id = SYNTHESIS_RECIPES[recipe_key]
-
-            if result_monster_id in ALL_MONSTERS:
-                base_new_monster_template = ALL_MONSTERS[result_monster_id]
-                new_monster = base_new_monster_template.copy()
-                if new_monster is None:  # copy()が失敗した場合
-                    return False, f"エラー: 合成結果のモンスター '{result_monster_id}' の生成に失敗しました。", None
-
-                # --------------------------------------------------
-                # ▼ 継承システム: スキルとステータスボーナス
-                # --------------------------------------------------
-                inherited_skills = []
-                for parent in (parent1, parent2):
-                    if parent.skills:
-                        skill = random.choice(parent.skills)
-                        current_names = [s.name for s in new_monster.skills + inherited_skills]
-                        if getattr(skill, "name", None) not in current_names:
-                            inherited_skills.append(copy.deepcopy(skill))
-
-                new_monster.skills.extend(inherited_skills)
-
-                avg_level = (parent1.level + parent2.level) / 2
-                hp_bonus = int(avg_level * 2)
-                atk_bonus = int(avg_level)
-                def_bonus = int(avg_level)
-                spd_bonus = int(avg_level * 0.5)
-
-                new_monster.max_hp += hp_bonus
-                new_monster.attack += atk_bonus
-                new_monster.defense += def_bonus
-                new_monster.speed += spd_bonus
-
-                # 初期状態を整える
-                new_monster.level = 1
-                new_monster.exp = 0
-                new_monster.hp = new_monster.max_hp
-                new_monster.is_alive = True
-
-                indices_to_remove = sorted([monster1_idx, monster2_idx], reverse=True)
-                removed_monster_names = []
-                for idx in indices_to_remove:
-                    removed_monster_names.append(self.party_monsters.pop(idx).name)
-
-                self.party_monsters.append(new_monster)
-                # Record the synthesis result in the monster book so that it
-                # counts as captured.
-                self.monster_book.record_captured(new_monster.monster_id)
-
-                return (
-                    True,
-                    f"{removed_monster_names[1]} と {removed_monster_names[0]} を合成して {new_monster.name} が誕生した！",
-                    new_monster,
-                )
-            else:
-                return False, f"エラー: 合成結果のモンスターID '{result_monster_id}' がモンスター定義に存在しません。", None
-        else:
-            return False, f"{parent1.name} と {parent2.name} の組み合わせでは何も生まれなかった...", None
-
-
-    def synthesize_monster_with_item(self, monster_idx, item_id):
-        """Combine a single monster and an item to create a new monster."""
-        if not (0 <= monster_idx < len(self.party_monsters)):
-            return False, "無効なモンスターの選択です。", None
-
-        item_index = next(
-            (i for i, it in enumerate(self.items) if getattr(it, "item_id", None) == item_id),
-            None,
-        )
-        if item_index is None:
-            return False, "そのアイテムを所持していない。", None
-
-        parent = self.party_monsters[monster_idx]
-        recipe_key = (parent.monster_id.lower(), item_id)
-
-        if recipe_key not in MONSTER_ITEM_RECIPES:
-            item_name = ALL_ITEMS[item_id].name if item_id in ALL_ITEMS else item_id
-            return False, f"{parent.name} と {item_name} では何も起こらなかった...", None
-
-        result_id = MONSTER_ITEM_RECIPES[recipe_key]
-        if result_id not in ALL_MONSTERS:
-            return False, f"エラー: 合成結果のモンスターID '{result_id}' が見つかりません。", None
-
-        new_mon = ALL_MONSTERS[result_id].copy()
-        if new_mon is None:
-            return False, f"エラー: 合成結果のモンスター '{result_id}' の生成に失敗しました。", None
-
-        # consume materials
-        removed_name = self.party_monsters.pop(monster_idx).name
-        self.items.pop(item_index)
-
-        new_mon.level = 1
-        new_mon.exp = 0
-        new_mon.hp = new_mon.max_hp
-        new_mon.is_alive = True
-        self.party_monsters.append(new_mon)
-        # Newly synthesized monsters should count as captured in the Monster
-        # Book just like those recruited in battle.
-        self.monster_book.record_captured(new_mon.monster_id)
-
-        item_name = ALL_ITEMS[item_id].name if item_id in ALL_ITEMS else item_id
-        return True, f"{removed_name} と {item_name} を合成して {new_mon.name} が誕生した！", new_mon
-
+    def synthesize_monster_with_item(self, monster_idx: int, item_id: str):
+        return synthesis_manager.synthesize_monster_with_item(self, monster_idx, item_id)
 
     def synthesize_items(self, item1_id: str, item2_id: str):
-        """Combine two items/equipment and produce a new item or equipment."""
-        from .monsters.synthesis_rules import ITEM_ITEM_RECIPES
-
-        key = tuple(sorted([item1_id, item2_id]))
-        if key not in ITEM_ITEM_RECIPES:
-            return False, "その組み合わせでは何も起こらなかった...", None
-
-        def remove_material(iid):
-            for idx, it in enumerate(self.items):
-                if getattr(it, "item_id", None) == iid:
-                    return self.items.pop(idx)
-            for idx, eq in enumerate(self.equipment_inventory):
-                if isinstance(eq, EquipmentInstance):
-                    if eq.base_item.equip_id == iid:
-                        return self.equipment_inventory.pop(idx)
-                elif getattr(eq, "equip_id", None) == iid:
-                    return self.equipment_inventory.pop(idx)
-            return None
-
-        mat1 = remove_material(item1_id)
-        if not mat1:
-            return False, "素材が足りない。", None
-        mat2 = remove_material(item2_id)
-        if not mat2:
-            # put mat1 back
-            if isinstance(mat1, (Equipment, EquipmentInstance)):
-                self.equipment_inventory.append(mat1)
-            else:
-                self.items.append(mat1)
-            return False, "素材が足りない。", None
-
-        result_id = ITEM_ITEM_RECIPES[key]
-        if result_id in ALL_ITEMS:
-            new_obj = ALL_ITEMS[result_id]
-            self.items.append(new_obj)
-        elif result_id in ALL_EQUIPMENT:
-            new_obj = create_titled_equipment(result_id)
-            if new_obj:
-                self.equipment_inventory.append(new_obj)
-        else:
-            return False, "レシピ結果が不明です。", None
-
-        return True, f"{getattr(new_obj, 'name', '')} を手に入れた！", new_obj
-
-
-    @staticmethod
-    def load_game(db_name, user_id=1):
-        conn = sqlite3.connect(db_name)
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT id, name, player_level, exp, gold, current_location_id, user_id FROM player_data WHERE user_id=? ORDER BY id DESC LIMIT 1",
-            (user_id,),
-        )
-        row = cursor.fetchone()
-
-        if row:
-            db_id, name, level, exp, gold, location_id, u_id = row
-            loaded_player = Player(name, player_level=level, gold=gold, user_id=u_id)
-            loaded_player.exp = exp
-            loaded_player.current_location_id = location_id
-            loaded_player.db_id = db_id
-
-            # パーティモンスターを読み込む
-            cursor.execute(
-                "SELECT monster_id, level, exp, hp, max_hp, mp, max_mp FROM party_monsters WHERE player_id=?",
-                (db_id,),
-            )
-            for monster_id, m_level, m_exp, hp, max_hp, mp, max_mp in cursor.fetchall():
-                if monster_id in ALL_MONSTERS:
-                    monster = ALL_MONSTERS[monster_id].copy()
-                    if monster.level < m_level:
-                        monster.advance_to_level(m_level, verbose=False)
-                    monster.exp = m_exp
-                    if max_hp is not None:
-                        monster.max_hp = max_hp
-                    if hp is not None:
-                        monster.hp = hp
-                    if max_mp is not None:
-                        monster.max_mp = max_mp
-                    if mp is not None:
-                        monster.mp = mp
-                    loaded_player.party_monsters.append(monster)
-
-            # 控えモンスターを読み込む
-            cursor.execute(
-                "SELECT monster_id, level, exp, hp, max_hp, mp, max_mp FROM storage_monsters WHERE player_id=?",
-                (db_id,),
-            )
-            for monster_id, m_level, m_exp, hp, max_hp, mp, max_mp in cursor.fetchall():
-                if monster_id in ALL_MONSTERS:
-                    monster = ALL_MONSTERS[monster_id].copy()
-                    if monster.level < m_level:
-                        monster.advance_to_level(m_level, verbose=False)
-                    monster.exp = m_exp
-                    if max_hp is not None:
-                        monster.max_hp = max_hp
-                    if hp is not None:
-                        monster.hp = hp
-                    if max_mp is not None:
-                        monster.max_mp = max_mp
-                    if mp is not None:
-                        monster.mp = mp
-                    loaded_player.reserve_monsters.append(monster)
-
-            # 所持アイテムを読み込む
-            cursor.execute(
-                "SELECT item_id FROM player_items WHERE player_id=?",
-                (db_id,),
-            )
-            for (item_id,) in cursor.fetchall():
-                if item_id in ALL_ITEMS:
-                    loaded_player.items.append(ALL_ITEMS[item_id])
-
-            cursor.execute(
-                "SELECT equip_id, title_id, instance_id FROM player_equipment WHERE player_id=?",
-                (db_id,),
-            )
-            for equip_id, title_id, instance_id in cursor.fetchall():
-                if equip_id in ALL_EQUIPMENT:
-                    base = ALL_EQUIPMENT[equip_id]
-                    if title_id and title_id in ALL_TITLES:
-                        title = ALL_TITLES[title_id]
-                        equip = EquipmentInstance(base_item=base, title=title, instance_id=instance_id)
-                    else:
-                        equip = base
-                    loaded_player.equipment_inventory.append(equip)
-
-            # 探索進捗を読み込む
-            cursor.execute(
-                "SELECT location_id, progress FROM exploration_progress WHERE player_id=?",
-                (db_id,),
-            )
-            for loc_id, prog in cursor.fetchall():
-                loaded_player.exploration_progress[loc_id] = prog
-
-            cursor.execute(
-                "SELECT monster_id, seen, captured FROM monster_book_status WHERE player_id=?",
-                (db_id,),
-            )
-            for mid, seen, captured in cursor.fetchall():
-                if seen:
-                    loaded_player.monster_book.seen.add(mid)
-                if captured:
-                    loaded_player.monster_book.captured.add(mid)
-
-            conn.close()
-            print(f"{name} のデータがロードされました。")
-            return loaded_player
-        else:
-            conn.close()
-            print("セーブデータが見つかりませんでした。")
-            return None
+        return synthesis_manager.synthesize_items(self, item1_id, item2_id)

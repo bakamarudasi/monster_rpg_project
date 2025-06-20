@@ -3,6 +3,7 @@ import unittest
 
 from monster_rpg import database_setup
 from monster_rpg.player import Player
+from monster_rpg import save_manager
 from monster_rpg.monsters.monster_data import ALL_MONSTERS
 from monster_rpg.items.item_data import ALL_ITEMS
 from monster_rpg.items.equipment import ALL_EQUIPMENT
@@ -27,8 +28,8 @@ class SaveLoadTests(unittest.TestCase):
         player.add_monster_to_party('goblin')
         player.items.append(ALL_ITEMS['small_potion'])
 
-        player.save_game(self.db_path)
-        loaded = Player.load_game(self.db_path, user_id=self.user1)
+        save_manager.save_game(player, self.db_path)
+        loaded = save_manager.load_game(self.db_path, user_id=self.user1)
 
         self.assertIsNotNone(loaded)
         monster_ids = sorted(m.monster_id for m in loaded.party_monsters)
@@ -39,14 +40,14 @@ class SaveLoadTests(unittest.TestCase):
     def test_multiple_users_separate_saves(self):
         p1 = Player('A', user_id=self.user1)
         p1.add_monster_to_party('slime')
-        p1.save_game(self.db_path)
+        save_manager.save_game(p1, self.db_path)
 
         p2 = Player('B', user_id=self.user2)
         p2.add_monster_to_party('goblin')
-        p2.save_game(self.db_path)
+        save_manager.save_game(p2, self.db_path)
 
-        l1 = Player.load_game(self.db_path, user_id=self.user1)
-        l2 = Player.load_game(self.db_path, user_id=self.user2)
+        l1 = save_manager.load_game(self.db_path, user_id=self.user1)
+        l2 = save_manager.load_game(self.db_path, user_id=self.user2)
 
         self.assertEqual(len(l1.party_monsters), 1)
         self.assertEqual(l1.party_monsters[0].monster_id, 'slime')
@@ -56,17 +57,17 @@ class SaveLoadTests(unittest.TestCase):
     def test_exploration_progress_saved_and_loaded(self):
         player = Player('Explorer', user_id=self.user1)
         player.increase_exploration('forest_entrance', 40)
-        player.save_game(self.db_path)
+        save_manager.save_game(player, self.db_path)
 
-        loaded = Player.load_game(self.db_path, user_id=self.user1)
+        loaded = save_manager.load_game(self.db_path, user_id=self.user1)
         self.assertEqual(loaded.get_exploration('forest_entrance'), 40)
 
     def test_save_and_load_equipment(self):
         player = Player('EquipTester', user_id=self.user1)
         player.equipment_inventory.append(ALL_EQUIPMENT['bronze_sword'])
-        player.save_game(self.db_path)
+        save_manager.save_game(player, self.db_path)
 
-        loaded = Player.load_game(self.db_path, user_id=self.user1)
+        loaded = save_manager.load_game(self.db_path, user_id=self.user1)
         self.assertEqual(len(loaded.equipment_inventory), 1)
         self.assertEqual(loaded.equipment_inventory[0].equip_id, 'bronze_sword')
 
@@ -76,9 +77,9 @@ class SaveLoadTests(unittest.TestCase):
         m = player.party_monsters[0]
         m.hp -= 2
         m.mp -= 1
-        player.save_game(self.db_path)
+        save_manager.save_game(player, self.db_path)
 
-        loaded = Player.load_game(self.db_path, user_id=self.user1)
+        loaded = save_manager.load_game(self.db_path, user_id=self.user1)
         lm = loaded.party_monsters[0]
         self.assertEqual(lm.hp, m.hp)
         self.assertEqual(lm.max_hp, m.max_hp)
