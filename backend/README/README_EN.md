@@ -56,6 +56,11 @@ The backend service exposes port 5000 and mounts `./backend/src` into the contai
 - `monsters/monster_data.py` &mdash; contains predefined monster instances and the dictionary `ALL_MONSTERS` used by the game.
 - `monsters/__init__.py` &mdash; exposes the monster classes and data for easier imports.
 
+Monsters have several *growth types* which control how their stats increase when leveling.
+Besides the default Average/Early/Late patterns, additional Power, Magic, Defense and
+Speed types prioritize the corresponding attributes and, for Magic, also raise MP and
+magic power.
+
 Use `monster_loader.load_monsters()` to read monster definitions from `monsters/monsters.json`. A `ValueError` is raised if the file is missing or contains invalid JSON.
 
 ### Skills and Items

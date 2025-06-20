@@ -5,6 +5,10 @@ from .monster_class import (
     GROWTH_TYPE_AVERAGE,
     GROWTH_TYPE_EARLY,
     GROWTH_TYPE_LATE,
+    GROWTH_TYPE_POWER,
+    GROWTH_TYPE_MAGIC,
+    GROWTH_TYPE_DEFENSE,
+    GROWTH_TYPE_SPEED,
 )
 from .monster_data import ALL_MONSTERS, load_monsters
 from .synthesis_rules import (
