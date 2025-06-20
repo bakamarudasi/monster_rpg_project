@@ -149,8 +149,8 @@ def buy_listing(player: Player, listing_id: int) -> bool:
         else:
             if item_id in ALL_MONSTERS:
                 mon = ALL_MONSTERS[item_id].copy()
-                while mon.level < m_level:
-                    mon.gain_exp(mon.calculate_exp_to_next_level())
+                if mon.level < m_level:
+                    mon.advance_to_level(m_level, verbose=False)
                 mon.exp = m_exp
                 mon.hp = m_hp if m_hp is not None else mon.max_hp
                 mon.max_hp = m_max_hp if m_max_hp is not None else mon.max_hp

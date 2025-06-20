@@ -674,8 +674,8 @@ class Player:
             for monster_id, m_level, m_exp, hp, max_hp, mp, max_mp in cursor.fetchall():
                 if monster_id in ALL_MONSTERS:
                     monster = ALL_MONSTERS[monster_id].copy()
-                    while monster.level < m_level:
-                        monster.gain_exp(monster.calculate_exp_to_next_level())
+                    if monster.level < m_level:
+                        monster.advance_to_level(m_level, verbose=False)
                     monster.exp = m_exp
                     if max_hp is not None:
                         monster.max_hp = max_hp
@@ -695,8 +695,8 @@ class Player:
             for monster_id, m_level, m_exp, hp, max_hp, mp, max_mp in cursor.fetchall():
                 if monster_id in ALL_MONSTERS:
                     monster = ALL_MONSTERS[monster_id].copy()
-                    while monster.level < m_level:
-                        monster.gain_exp(monster.calculate_exp_to_next_level())
+                    if monster.level < m_level:
+                        monster.advance_to_level(m_level, verbose=False)
                     monster.exp = m_exp
                     if max_hp is not None:
                         monster.max_hp = max_hp
