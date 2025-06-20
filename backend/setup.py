@@ -17,8 +17,6 @@ setup(
         ]
     },
     install_requires=[
-        'Flask',
-        'networkx',
-        'matplotlib'
+        'Flask'
     ],
 )
