@@ -1,6 +1,6 @@
 import unittest
 
-from monster_rpg.monsters.monster_loader import load_monsters
+from monster_rpg.monsters.monster_data import load_monsters
 from monster_rpg.monsters.monster_data import ALL_MONSTERS
 
 
