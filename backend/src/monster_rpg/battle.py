@@ -42,6 +42,12 @@ def _slow_apply(monster: Monster):
         m.speed += 5
     return revert
 
+def _charge_apply(monster: Monster):
+    monster.defense -= 5
+    def revert(m: Monster = monster):
+        m.defense += 5
+    return revert
+
 STATUS_DEFINITIONS = {
     "burn": {
         "duration": 3,
@@ -119,6 +125,11 @@ STATUS_DEFINITIONS = {
     "cant_attack": {
         "duration": 1,
         "message": "攻撃封じ",
+    },
+    "charging": {
+        "duration": 2,
+        "message": "チャージ",
+        "on_apply": lambda m: _charge_apply(m),
     },
 }
 
@@ -244,6 +255,43 @@ def process_status_effects(monster: Monster) -> dict[str, bool]:
         "force_attack": "taunt" in active_names,
         "cant_attack": "cant_attack" in active_names,
     }
+
+def process_charge_state(actor: Monster, allies: list[Monster], enemies: list[Monster]) -> bool:
+    """Trigger charged skills if the actor is in a charging state."""
+    entry = next((e for e in actor.status_effects if e["name"] == "charging"), None)
+    if not entry:
+        return False
+    if entry in actor.status_effects:
+        actor.status_effects.remove(entry)
+    remove_cb = entry.get("remove_func")
+    if callable(remove_cb):
+        try:
+            remove_cb()
+        except Exception as e:  # noqa: BLE001
+            print(f"Error removing charge effect from {actor.name}: {e}")
+    skill_id = entry.get("release_skill_id")
+    if not skill_id:
+        return False
+    from .skills.skills import ALL_SKILLS  # local import to avoid cycle
+    skill_obj = ALL_SKILLS.get(skill_id)
+    if skill_obj is None:
+        print(f"Unknown release skill id: {skill_id}")
+        return False
+    targets: list[Monster] = []
+    if skill_obj.target == "enemy":
+        targets = [m for m in enemies if m.is_alive]
+        if skill_obj.scope != "all" and targets:
+            targets = [targets[0]]
+    elif skill_obj.target == "ally":
+        if skill_obj.scope == "all":
+            targets = [m for m in allies if m.is_alive]
+        else:
+            targets = [actor]
+    else:
+        targets = [actor]
+    if targets:
+        apply_skill_effect(actor, targets, skill_obj, allies, enemies)
+    return True
 
 def get_player_choice(prompt: str, max_choice: int) -> int:
     """プレイヤーに番号で選択させ、有効な値を返すまでループします。"""
@@ -489,6 +537,14 @@ def start_battle(player_party: list[Monster], enemy_party: list[Monster], player
                 continue
 
             flags = process_status_effects(actor)
+            if actor in active_player_party:
+                allies = active_player_party
+                enemies = active_enemy_party
+            else:
+                allies = active_enemy_party
+                enemies = active_player_party
+            if process_charge_state(actor, allies, enemies):
+                continue
             if flags["skip_turn"] or not actor.is_alive:
                 continue
 

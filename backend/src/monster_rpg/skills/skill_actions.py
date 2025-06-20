@@ -106,6 +106,15 @@ def _handle_cure_status(caster: Monster, target: Monster, effect: dict, skill: O
         target.cure_status(status)
 
 
+def _handle_charge(caster: Monster, target: Monster, effect: dict, skill: Optional[Skill] = None) -> None:
+    """Apply a charging state that will trigger another skill next turn."""
+    release_id = effect.get("release_skill_id")
+    duration = int(effect.get("duration", 2))
+    target.apply_status("charging", duration)
+    if target.status_effects and target.status_effects[-1]["name"] == "charging":
+        target.status_effects[-1]["release_skill_id"] = release_id
+
+
 HANDLERS: Dict[str, Callable[[Monster, Monster, dict, Optional[Skill]], None]] = {
     "damage": _handle_damage,
     "heal": _handle_heal,
@@ -113,6 +122,7 @@ HANDLERS: Dict[str, Callable[[Monster, Monster, dict, Optional[Skill]], None]] =
     "status": _handle_status,
     "revive": _handle_revive,
     "cure_status": _handle_cure_status,
+    "charge": _handle_charge,
 }
 
 
