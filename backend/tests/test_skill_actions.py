@@ -42,6 +42,30 @@ class SkillActionIntegrationTests(unittest.TestCase):
         apply_skill_effect(mage, [target4], mag_skill)
         self.assertGreater(target3.hp, target4.hp)
 
+    def test_hp_cost_percent_handler(self):
+        m = Monster('Hero', hp=50, attack=10, defense=5)
+        ctx = apply_effects(m, m, [{'type': 'hp_cost_percent', 'percent': 0.2}])
+        self.assertEqual(m.hp, 40)
+        self.assertIn('last_hp_cost', ctx)
+        self.assertEqual(ctx['last_hp_cost'], 10)
+
+    def test_blood_saber_skill(self):
+        hero = Monster('Hero', hp=50, attack=15, defense=5)
+        enemy = Monster('Enemy', hp=40, attack=5, defense=2)
+        skill = ALL_SKILLS['blood_saber']
+        apply_skill_effect(hero, [enemy], skill)
+        self.assertEqual(hero.hp, 45)
+        self.assertLess(enemy.hp, 40)
+
+    def test_last_wish_skill(self):
+        hero = Monster('Hero', hp=30, attack=15, defense=5)
+        enemy = Monster('Enemy', hp=40, attack=5, defense=2)
+        skill = ALL_SKILLS['last_wish']
+        apply_skill_effect(hero, [enemy], skill)
+        self.assertFalse(hero.is_alive)
+        self.assertEqual(hero.hp, 0)
+        self.assertLess(enemy.hp, 40)
+
 
 if __name__ == '__main__':
     unittest.main()
