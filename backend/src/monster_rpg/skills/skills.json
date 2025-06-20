@@ -427,6 +427,19 @@
     "description": "HPを10%消費して強烈な斬撃を放つ",
     "category": "物理"
   },
+  "demonize": {
+    "name": "デモナイズ",
+    "power": 0,
+    "cost": 4,
+    "skill_type": "buff",
+    "target": "ally",
+    "duration": 3,
+    "effects": [
+      {"type": "buff_percent", "stat": "attack", "amount": 0.5, "duration": 3}
+    ],
+    "description": "味方の攻撃力を50%高める",
+    "category": "補助"
+  },
   "last_wish": {
     "name": "ラストウィッシュ",
     "power": 80,

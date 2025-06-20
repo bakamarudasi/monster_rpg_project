@@ -242,6 +242,22 @@ class Monster:
                 'remove_func': revert,
             })
 
+    def apply_buff_percent(self, stat: str, percent_amount: float, duration: int) -> None:
+        if not stat:
+            return
+        bonus = int(getattr(self, stat) * percent_amount)
+        setattr(self, stat, getattr(self, stat) + bonus)
+
+        def revert(m: "Monster" = self, s: str = stat, b: int = bonus) -> None:
+            setattr(m, s, getattr(m, s) - b)
+
+        if duration > 0:
+            self.status_effects.append({
+                'name': f'buff_percent_{stat}',
+                'remaining': duration,
+                'remove_func': revert,
+            })
+
     def apply_status(self, name: str, duration: int | None = None) -> None:
         from ..battle import apply_status
         apply_status(self, name, duration)
