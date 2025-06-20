@@ -15,3 +15,16 @@ from .synthesis_rules import (
 )
 from .evolution_rules import EVOLUTION_RULES
 
+__all__ = [
+    "Monster",
+    "GROWTH_TYPE_AVERAGE",
+    "GROWTH_TYPE_EARLY",
+    "GROWTH_TYPE_LATE",
+    "ALL_MONSTERS",
+    "load_monsters",
+    "SYNTHESIS_RECIPES",
+    "SYNTHESIS_ITEMS_REQUIRED",
+    "MONSTER_ITEM_RECIPES",
+    "EVOLUTION_RULES",
+]
+

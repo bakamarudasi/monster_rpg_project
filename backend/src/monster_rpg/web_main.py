@@ -7,4 +7,4 @@ from .web.battle import Battle, active_battles
 
 app = create_app()
 
-__all__ = ["app", "Battle", "active_battles"]
+__all__ = ["app", "Battle", "active_battles", "random"]

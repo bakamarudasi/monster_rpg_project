@@ -7,7 +7,6 @@ from . import database_setup
 from .player import Player
 from .items.item_data import ALL_ITEMS
 from .monsters.monster_data import ALL_MONSTERS
-from .monsters.monster_class import Monster
 
 DATABASE = database_setup.DATABASE_NAME
 
