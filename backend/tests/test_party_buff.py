@@ -20,5 +20,14 @@ class PartyBuffTests(unittest.TestCase):
         self.assertEqual(m1.attack, 10)
         self.assertEqual(m2.attack, 12)
 
+    def test_demonize_percent_buff(self):
+        monster = Monster('Hero', hp=40, attack=20, defense=10)
+        skill = ALL_SKILLS['demonize']
+        apply_skill_effect(monster, [monster], skill)
+        self.assertEqual(monster.attack, 30)
+        for _ in range(skill.effects[0]['duration']):
+            process_status_effects(monster)
+        self.assertEqual(monster.attack, 20)
+
 if __name__ == '__main__':
     unittest.main()

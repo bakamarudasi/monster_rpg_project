@@ -242,6 +242,27 @@ class Monster:
                 'remove_func': revert,
             })
 
+    def apply_buff_percent(self, stat: str, percent_amount: float, duration: int) -> None:
+        """Apply a percentage based buff to the given stat."""
+        if not hasattr(self, stat):
+            return
+
+        base_value = getattr(self, stat)
+        bonus_amount = int(base_value * percent_amount)
+        setattr(self, stat, base_value + bonus_amount)
+        print(f"✨ {self.name} の {stat} が {bonus_amount} 上昇した！")
+
+        def revert_buff(monster_instance: "Monster" = self, stat_name: str = stat, applied_bonus: int = bonus_amount) -> None:
+            current_value = getattr(monster_instance, stat_name)
+            setattr(monster_instance, stat_name, current_value - applied_bonus)
+
+        if duration > 0:
+            self.status_effects.append({
+                'name': f'buff_percent_{stat}',
+                'remaining': duration,
+                'remove_func': revert_buff,
+            })
+
     def apply_status(self, name: str, duration: int | None = None) -> None:
         from ..battle import apply_status
         apply_status(self, name, duration)

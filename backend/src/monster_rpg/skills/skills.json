@@ -414,5 +414,16 @@
     "effects": [{"type": "buff", "stat": "defense", "amount": -5, "duration": 3}],
     "description": "敵の防御力を下げる",
     "category": "弱体"
+  },
+  "demonize": {
+    "name": "鬼神化",
+    "power": 0,
+    "cost": 18,
+    "skill_type": "buff",
+    "category": "補助",
+    "description": "3ターンの間、自身の肉体を限界以上に活性化させ、攻撃力を50%上昇させる。",
+    "effects": [
+      { "type": "buff_percent", "stat": "attack", "amount": 0.50, "duration": 3 }
+    ]
   }
 }

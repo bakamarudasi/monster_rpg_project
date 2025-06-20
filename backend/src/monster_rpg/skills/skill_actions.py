@@ -71,6 +71,15 @@ def _handle_buff(caster: Monster, target: Monster, effect: dict, skill: Optional
         target.apply_buff(stat, amount, duration)
 
 
+def _handle_buff_percent(caster: Monster, target: Monster, effect: dict, skill: Optional[Skill] = None) -> None:
+    """Handle percentage-based buff effects."""
+    stat = effect.get("stat")
+    amount = float(effect.get("amount", 0.0))
+    duration = int(effect.get("duration", getattr(skill, "duration", 0)))
+    if stat:
+        target.apply_buff_percent(stat, amount, duration)
+
+
 def _handle_status(caster: Monster, target: Monster, effect: dict, skill: Optional[Skill] = None) -> None:
     status = effect.get("status")
     duration = effect.get("duration")
@@ -110,6 +119,7 @@ HANDLERS: Dict[str, Callable[[Monster, Monster, dict, Optional[Skill]], None]] =
     "damage": _handle_damage,
     "heal": _handle_heal,
     "buff": _handle_buff,
+    "buff_percent": _handle_buff_percent,
     "status": _handle_status,
     "revive": _handle_revive,
     "cure_status": _handle_cure_status,
