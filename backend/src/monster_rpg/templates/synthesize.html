@@ -334,7 +334,7 @@
                     </div>
                     {% endfor %}
                     {% for eq in player.equipment_inventory %}
-                     <div class="item-entry draggable-item" draggable="true" data-id="{{ eq.base_item.equip_id if hasattr(eq,'base_item') else eq.equip_id }}" data-type="item" data-name="{{ eq.name }}">
+                     <div class="item-entry draggable-item" draggable="true" data-id="{{ eq.base_item.equip_id if eq.base_item is defined else eq.equip_id }}" data-type="item" data-name="{{ eq.name }}">
                         <span class="card-name">{{ eq.name }}</span>
                     </div>
                     {% endfor %}
