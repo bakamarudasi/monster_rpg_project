@@ -1,7 +1,5 @@
 """Web entry point for the Monster RPG game."""
 
-import random
-
 from .web import create_app
 from .web.battle import Battle, active_battles
 

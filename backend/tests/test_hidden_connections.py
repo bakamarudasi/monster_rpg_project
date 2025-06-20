@@ -28,8 +28,8 @@ class HiddenConnectionsTests(unittest.TestCase):
     def test_connections_unlocked_at_100(self):
         loc = LOCATIONS['deep_forest']
         self.assertNotIn('さらに奥へ', loc.connections)
-        with patch('monster_rpg.web_main.random.randint', return_value=20), \
-             patch('monster_rpg.web_main.random.random', return_value=1.0):
+        with patch('monster_rpg.web.explore.random.randint', return_value=20), \
+             patch('monster_rpg.web.explore.random.random', return_value=1.0):
             self.client.post(f'/explore/{self.user_id}')
         self.assertIn('さらに奥へ', loc.connections)
 
