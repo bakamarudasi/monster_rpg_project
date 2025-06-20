@@ -3,15 +3,6 @@ import random
 from .monsters import Monster, ALL_MONSTERS
 from .map_data import Location
 
-
-def show_exploration_progress(progress: int) -> None:
-    """表示用の簡易プログレスバーを描画する"""
-    bar_length = 20
-    filled = int(bar_length * progress / 100)
-    bar = "#" * filled + "-" * (bar_length - filled)
-    print(f"探索度: [{bar}] {progress}%")
-
-
 def get_monster_instance_copy(monster_id_or_object: Monster | str) -> Monster | None:
     """モンスターの新しいインスタンス（コピー）を返します。"""
     if isinstance(monster_id_or_object, str):
