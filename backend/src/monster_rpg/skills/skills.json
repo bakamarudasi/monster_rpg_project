@@ -414,5 +414,29 @@
     "effects": [{"type": "buff", "stat": "defense", "amount": -5, "duration": 3}],
     "description": "敵の防御力を下げる",
     "category": "弱体"
+  },
+  "blood_saber": {
+    "name": "ブラッドセイバー",
+    "power": 60,
+    "cost": 0,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "hp_cost_percent", "percent": 0.1},
+      {"type": "damage"}
+    ],
+    "description": "HPを10%消費して強烈な斬撃を放つ",
+    "category": "物理"
+  },
+  "last_wish": {
+    "name": "ラストウィッシュ",
+    "power": 80,
+    "cost": 0,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "self_ko"},
+      {"type": "damage", "amount": 80}
+    ],
+    "description": "自らを犠牲に大ダメージを与える",
+    "category": "物理"
   }
 }
