@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, request, jsonif
 import json
 from .. import database_setup
 from ..player import Player
+from .. import save_manager
 from ..monsters.monster_data import MONSTER_BOOK_DATA
 from ..items.equipment import EquipmentInstance
 
@@ -10,7 +11,7 @@ party_bp = Blueprint('party', __name__)
 @party_bp.route('/party/<int:user_id>', endpoint='party')
 def party(user_id):
     """Show the player's party."""
-    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('auth.index'))
     party_info = []
@@ -52,7 +53,7 @@ def party(user_id):
 @party_bp.route('/equip/<int:user_id>', methods=['POST'], endpoint='equip')
 def equip(user_id):
     """Equip an item from inventory to a monster."""
-    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return jsonify({'success': False, 'error': 'player not found'}), 404
     if request.is_json:
@@ -72,7 +73,7 @@ def equip(user_id):
         return jsonify({'success': False, 'error': 'invalid equip_id'}), 400
     success = player.equip_to_monster(idx_int, equip_id if equip_id not in ['', None] else None, slot)
     if success:
-        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+        save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
     monster = player.party_monsters[idx_int]
     equipment_inventory = [
         {
@@ -97,7 +98,7 @@ def equip(user_id):
 @party_bp.route('/formation/<int:user_id>', methods=['GET', 'POST'], endpoint='formation')
 def formation(user_id):
     """Edit the player's party formation with drag-and-drop."""
-    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('auth.index'))
 
@@ -121,7 +122,7 @@ def formation(user_id):
             if new_party:
                 player.party_monsters = new_party
                 player.reserve_monsters = new_reserve
-        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+        save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
 
     all_monsters = player.party_monsters + player.reserve_monsters
     party_info = []

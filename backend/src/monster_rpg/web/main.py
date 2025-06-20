@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request
 from .. import database_setup
 from ..player import Player
+from .. import save_manager
 from ..map_data import LOCATIONS, get_map_overview, get_map_grid
 from ..monsters.monster_data import ALL_MONSTERS, MONSTER_BOOK_DATA
 
@@ -8,7 +9,7 @@ main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/play/<int:user_id>', endpoint='play')
 def play(user_id):
-    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('auth.index'))
     loc = LOCATIONS.get(player.current_location_id)
@@ -24,14 +25,14 @@ def play(user_id):
 
 @main_bp.route('/status/<int:user_id>', endpoint='status')
 def status(user_id):
-    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('auth.index'))
     return render_template('status.html', player=player, user_id=user_id)
 
 @main_bp.route('/monster_book/<int:user_id>', endpoint='monster_book')
 def monster_book(user_id):
-    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('auth.index'))
     entries = []
@@ -53,7 +54,7 @@ def monster_book(user_id):
 
 @main_bp.route('/map/<int:user_id>', endpoint='world_map')
 def world_map(user_id):
-    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('auth.index'))
     overview = get_map_overview()
@@ -66,7 +67,7 @@ def world_map(user_id):
 
 @main_bp.route('/battle_log/<int:user_id>', endpoint='battle_log')
 def battle_log(user_id):
-    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('auth.index'))
     log = getattr(player, 'last_battle_log', [])
@@ -74,7 +75,7 @@ def battle_log(user_id):
 
 @main_bp.route('/move/<int:user_id>', methods=['POST'], endpoint='move')
 def move(user_id):
-    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('auth.index'))
     dest = request.form.get('dest')
@@ -85,12 +86,12 @@ def move(user_id):
             msg = f"{loc.name} に入るには {req} が必要だ。"
             return render_template('result.html', message=msg, user_id=user_id)
         player.current_location_id = dest
-        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+        save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
     return redirect(url_for('main.play', user_id=user_id))
 
 @main_bp.route('/save/<int:user_id>', methods=['POST'], endpoint='save')
 def save(user_id):
-    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if player:
-        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+        save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
     return redirect(url_for('main.play', user_id=user_id))

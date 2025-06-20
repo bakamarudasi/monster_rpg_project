@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 from .. import database_setup
 from ..player import Player
+from .. import save_manager
 from ..items.equipment import Equipment, EquipmentInstance
 from ..monsters.monster_class import Monster
 from ..items.item_data import ALL_ITEMS
@@ -12,7 +13,7 @@ inventory_bp = Blueprint('inventory', __name__)
 
 @inventory_bp.route('/items/<int:user_id>', methods=['GET', 'POST'], endpoint='items')
 def items(user_id):
-    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('auth.index'))
     message = None
@@ -26,13 +27,13 @@ def items(user_id):
             item_name = player.items[idx].name
             success = player.use_item(idx, player.party_monsters[target_idx])
             message = f"{item_name} を使った。" if success else "アイテムを使えなかった。"
-        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+        save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
     return render_template('items.html', player=player, user_id=user_id, message=message)
 
 @inventory_bp.route('/synthesize/<int:user_id>', methods=['GET', 'POST'], endpoint='synthesize')
 def synthesize(user_id):
     """Display the synthesis page and handle legacy POST requests."""
-    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('auth.index'))
     message = None
@@ -41,7 +42,7 @@ def synthesize(user_id):
             data = request.get_json(silent=True) or {}
             success, msg, result = process_synthesis_payload(player, data)
             if success:
-                player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+                save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
             resp = {'success': success}
             if success:
                 if isinstance(result, (Equipment, EquipmentInstance)):
@@ -59,14 +60,14 @@ def synthesize(user_id):
         except (TypeError, ValueError):
             idx1 = idx2 = -1
         success, msg, _ = player.synthesize_monster(idx1, idx2)
-        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+        save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
         message = msg
     return render_template('synthesize.html', player=player, user_id=user_id, message=message)
 
 @inventory_bp.route('/synthesize_action/<int:user_id>', methods=['POST'], endpoint='synthesize_action')
 def synthesize_action(user_id):
     """Handle monster synthesis via JSON payload."""
-    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return jsonify({'success': False, 'error': 'player not found'}), 404
     if not request.is_json:
@@ -76,7 +77,7 @@ def synthesize_action(user_id):
     if msg in {'invalid base index', 'invalid base id', 'invalid material index', 'invalid material id', 'invalid types'} and not success:
         return jsonify({'success': False, 'error': msg}), 400
     if success:
-        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+        save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
         resp = {'success': True}
         if isinstance(result, (Equipment, EquipmentInstance)):
             resp.update({'result_type': 'equipment', 'name': result.name})
@@ -89,7 +90,7 @@ def synthesize_action(user_id):
 
 @inventory_bp.route('/shop/<int:user_id>', methods=['GET', 'POST'], endpoint='shop')
 def shop(user_id):
-    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('auth.index'))
     loc = LOCATIONS.get(player.current_location_id)
@@ -113,7 +114,7 @@ def shop(user_id):
                 message = f"{mname} を仲間にした。"
             else:
                 message = '購入できなかった。'
-        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+        save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
     entries = []
     for iid, pr in loc.shop_items.items():
         name = ALL_ITEMS[iid].name if iid in ALL_ITEMS else iid
@@ -125,7 +126,7 @@ def shop(user_id):
 
 @inventory_bp.route('/inn/<int:user_id>', methods=['POST'], endpoint='inn')
 def inn(user_id):
-    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('auth.index'))
     loc = LOCATIONS.get(player.current_location_id)
@@ -134,5 +135,5 @@ def inn(user_id):
     cost = getattr(loc, 'inn_cost', 10)
     success = player.rest_at_inn(cost)
     msg = '宿屋で休んだ。' if success else 'お金が足りない。'
-    player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+    save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
     return render_template('result.html', message=msg, user_id=user_id)

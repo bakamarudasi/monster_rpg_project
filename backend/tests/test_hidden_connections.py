@@ -5,6 +5,7 @@ from unittest.mock import patch
 from monster_rpg import database_setup
 from monster_rpg.web_main import app
 from monster_rpg.player import Player
+from monster_rpg import save_manager
 from monster_rpg.map_data import LOCATIONS
 
 class HiddenConnectionsTests(unittest.TestCase):
@@ -19,7 +20,7 @@ class HiddenConnectionsTests(unittest.TestCase):
         player = Player('Tester', user_id=self.user_id)
         player.current_location_id = 'deep_forest'
         player.increase_exploration('deep_forest', 90)
-        player.save_game(self.db_path, user_id=self.user_id)
+        save_manager.save_game(player, self.db_path, user_id=self.user_id)
 
     def tearDown(self):
         if os.path.exists(self.db_path):

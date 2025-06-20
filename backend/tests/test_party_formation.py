@@ -3,6 +3,7 @@ import unittest
 
 from monster_rpg import database_setup
 from monster_rpg.player import Player
+from monster_rpg import save_manager
 from monster_rpg.monsters.monster_data import ALL_MONSTERS
 from monster_rpg.web_main import app
 
@@ -33,7 +34,7 @@ class FormationRouteTests(unittest.TestCase):
         for mid in ('slime', 'goblin', 'wolf'):
             if mid in ALL_MONSTERS:
                 player.add_monster_to_party(mid)
-        player.save_game(self.db_path, user_id=self.user_id)
+        save_manager.save_game(player, self.db_path, user_id=self.user_id)
 
     def tearDown(self):
         if os.path.exists(self.db_path):
@@ -45,14 +46,14 @@ class FormationRouteTests(unittest.TestCase):
             data={'order': '[1,2,0]', 'reserve': '[]'}
         )
         self.assertEqual(resp.status_code, 200)
-        player = Player.load_game(self.db_path, user_id=self.user_id)
+        player = save_manager.load_game(self.db_path, user_id=self.user_id)
         ids = [m.monster_id for m in player.party_monsters]
         self.assertEqual(ids, ['goblin', 'wolf', 'slime'])
 
     def test_reset_formation(self):
         resp = self.client.post(f'/formation/{self.user_id}', data={'reset': '1'})
         self.assertEqual(resp.status_code, 200)
-        player = Player.load_game(self.db_path, user_id=self.user_id)
+        player = save_manager.load_game(self.db_path, user_id=self.user_id)
         self.assertEqual([m.monster_id for m in player.party_monsters], ['slime'])
         self.assertEqual(
             [m.monster_id for m in player.reserve_monsters],

@@ -2,6 +2,7 @@ import random
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 from .. import database_setup
 from ..player import Player
+from .. import save_manager
 from ..items.equipment import Equipment, EquipmentInstance, create_titled_equipment
 from ..monsters.monster_class import Monster
 from ..map_data import LOCATIONS
@@ -193,7 +194,7 @@ def battle(user_id):
     if battle_obj:
         player = battle_obj.player
     else:
-        player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+        player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
         if not player:
             return redirect(url_for('auth.index'))
     if not battle_obj:
@@ -214,7 +215,7 @@ def battle(user_id):
         enemy_names = ', '.join(e.name for e in enemies)
         battle_obj.log.append({'type': 'info', 'message': f'{enemy_names} が現れた！'})
         active_battles[user_id] = battle_obj
-        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+        save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
     if request.method == 'POST':
         data_src = request.get_json(silent=True)
         data_src = data_src if data_src is not None else request.form
@@ -254,14 +255,14 @@ def battle(user_id):
                     tgt = -1
                 action = {'type': 'attack', 'target_enemy': tgt}
             battle_obj.step(action)
-            player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+            save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
         while not battle_obj.finished and battle_obj.current_actor() not in battle_obj.player_party:
             battle_obj.step()
-        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+        save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
     else:
         while not battle_obj.finished and battle_obj.current_actor() not in battle_obj.player_party:
             battle_obj.step()
-        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+        save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
     if battle_obj.finished:
         outcome = battle_obj.outcome
         msgs = battle_obj.log[:]
@@ -295,7 +296,7 @@ def battle(user_id):
             msgs.append({'type': 'info', 'message': '敗北してしまった...'})
         player.last_battle_log = msgs
         del active_battles[user_id]
-        player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+        save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
         data_src = request.get_json(silent=True)
         data_src = data_src if data_src is not None else request.form
         if data_src.get('continue_explore'):

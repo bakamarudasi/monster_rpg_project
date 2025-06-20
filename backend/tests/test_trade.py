@@ -4,6 +4,7 @@ import unittest
 from monster_rpg import database_setup
 from monster_rpg.web_main import app
 from monster_rpg.player import Player
+from monster_rpg import save_manager
 from monster_rpg.items.item_data import ALL_ITEMS
 from monster_rpg.monsters.monster_data import ALL_MONSTERS
 
@@ -25,11 +26,11 @@ class TradeTests(unittest.TestCase):
         seller.move_to_reserve(0)
         mon = seller.reserve_monsters[0]
         mon.gain_exp(mon.calculate_exp_to_next_level())
-        seller.save_game(self.db_path, user_id=self.seller_id)
+        save_manager.save_game(seller, self.db_path, user_id=self.seller_id)
 
         buyer = Player('Buyer', user_id=self.buyer_id, gold=200)
         buyer.add_monster_to_party('goblin')
-        buyer.save_game(self.db_path, user_id=self.buyer_id)
+        save_manager.save_game(buyer, self.db_path, user_id=self.buyer_id)
 
     def tearDown(self):
         if os.path.exists(self.db_path):
@@ -52,7 +53,7 @@ class TradeTests(unittest.TestCase):
         resp = self.client.post(f'/market/buy/{self.buyer_id}/{monster_listing["id"]}')
         self.assertEqual(resp.status_code, 200)
 
-        buyer = Player.load_game(self.db_path, user_id=self.buyer_id)
+        buyer = save_manager.load_game(self.db_path, user_id=self.buyer_id)
         self.assertEqual(len(buyer.items), 1)
         self.assertEqual(buyer.items[0].item_id, 'small_potion')
         self.assertTrue(any(m.monster_id == 'slime' for m in buyer.party_monsters))

@@ -4,6 +4,7 @@ import unittest
 from monster_rpg import database_setup
 from monster_rpg.web_main import app
 from monster_rpg.player import Player
+from monster_rpg import save_manager
 
 class ContinueExploreRedirectTests(unittest.TestCase):
     def setUp(self):
@@ -15,7 +16,7 @@ class ContinueExploreRedirectTests(unittest.TestCase):
         self.user_id = database_setup.create_user('tester', 'pw')
         self.client = app.test_client()
         player = Player('Tester', user_id=self.user_id)
-        player.save_game(self.db_path, user_id=self.user_id)
+        save_manager.save_game(player, self.db_path, user_id=self.user_id)
 
     def tearDown(self):
         if os.path.exists(self.db_path):

@@ -2,6 +2,7 @@ import random
 from flask import Blueprint, render_template, redirect, url_for
 from .. import database_setup
 from ..player import Player
+from .. import save_manager
 from ..map_data import LOCATIONS
 from ..exploration import generate_enemy_party, get_monster_instance_copy
 from .battle import Battle, active_battles
@@ -10,7 +11,7 @@ explore_bp = Blueprint('explore', __name__)
 
 @explore_bp.route('/explore/<int:user_id>', methods=['POST'], endpoint='explore')
 def explore(user_id):
-    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return redirect(url_for('auth.index'))
     loc = LOCATIONS.get(player.current_location_id)
@@ -35,7 +36,7 @@ def explore(user_id):
                 active_battles[user_id] = battle_obj
                 while not battle_obj.finished and battle_obj.current_actor() not in battle_obj.player_party:
                     battle_obj.step()
-                player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+                save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
                 return render_template(
                     'battle_turn.html', user_id=user_id, battle=battle_obj,
                     player_party=battle_obj.player_party, enemy_party=battle_obj.enemy_party,
@@ -51,7 +52,7 @@ def explore(user_id):
             active_battles[user_id] = battle_obj
             while not battle_obj.finished and battle_obj.current_actor() not in battle_obj.player_party:
                 battle_obj.step()
-            player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+            save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
             return render_template(
                 'battle_turn.html', user_id=user_id, battle=battle_obj,
                 player_party=battle_obj.player_party, enemy_party=battle_obj.enemy_party,
@@ -61,5 +62,5 @@ def explore(user_id):
             messages.append('モンスターは現れなかった。')
     else:
         messages.append('モンスターは現れなかった。')
-    player.save_game(database_setup.DATABASE_NAME, user_id=user_id)
+    save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
     return render_template('explore.html', messages=messages, user_id=user_id, progress=after, player=player)

@@ -3,6 +3,7 @@ import unittest
 import os
 
 from monster_rpg.player import Player
+from monster_rpg import save_manager
 from monster_rpg.monsters.monster_data import ALL_MONSTERS
 from monster_rpg import database_setup
 from monster_rpg.web_main import app
@@ -43,7 +44,7 @@ class SynthesisRouteTests(unittest.TestCase):
         player = Player('Tester', user_id=self.user_id)
         player.add_monster_to_party('slime')
         player.add_monster_to_party('wolf')
-        player.save_game(self.db_path, user_id=self.user_id)
+        save_manager.save_game(player, self.db_path, user_id=self.user_id)
 
     def tearDown(self):
         if os.path.exists(self.db_path):
@@ -63,7 +64,7 @@ class SynthesisRouteTests(unittest.TestCase):
         data = resp.get_json()
         self.assertTrue(data['success'])
         self.assertEqual(data['name'], ALL_MONSTERS['water_wolf'].name)
-        loaded = Player.load_game(self.db_path, user_id=self.user_id)
+        loaded = save_manager.load_game(self.db_path, user_id=self.user_id)
         self.assertIn('water_wolf', loaded.monster_book.captured)
 
 if __name__ == '__main__':
