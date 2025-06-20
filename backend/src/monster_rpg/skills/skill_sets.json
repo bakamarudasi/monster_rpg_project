@@ -1,0 +1,22 @@
+{
+  "starter_slime": {
+    "name": "スライム基礎",
+    "learnset": {
+      "1": ["heal"],
+      "2": ["guard_up"]
+    }
+  },
+  "starter_goblin": {
+    "name": "ゴブリン基礎",
+    "learnset": {
+      "1": ["fireball"],
+      "3": ["power_up"]
+    }
+  },
+  "starter_wolf": {
+    "name": "ウルフ基礎",
+    "learnset": {
+      "4": ["speed_up"]
+    }
+  }
+}
