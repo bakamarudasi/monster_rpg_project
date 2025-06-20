@@ -286,7 +286,7 @@ class Monster:
             })
         return details
 
-    def _try_evolution(self):
+    def _try_evolution(self, verbose=True):
         """Check evolution rules and evolve if conditions are met."""
         rule = EVOLUTION_RULES.get(self.monster_id)
         if not rule:
@@ -307,9 +307,10 @@ class Monster:
         evolved.exp = self.exp
         evolved.equipment = getattr(self, 'equipment', {}).copy()
         self.__dict__.update(evolved.__dict__)
-        print(f"{template.name} に進化した！")
+        if verbose:
+            print(f"{template.name} に進化した！")
 
-    def _learn_skills_for_level(self):
+    def _learn_skills_for_level(self, verbose=True):
         if not isinstance(getattr(self, "learnset", None), dict):
             return
         skill_ids = self.learnset.get(self.level)
@@ -324,7 +325,8 @@ class Monster:
             if any(getattr(s, "name", None) == template.name for s in self.skills):
                 continue
             self.skills.append(copy.deepcopy(template))
-            print(f"{self.name} は {template.name} を覚えた！")
+            if verbose:
+                print(f"{self.name} は {template.name} を覚えた！")
 
     def calculate_exp_to_next_level(self):
         if self.growth_type == GROWTH_TYPE_EARLY:
@@ -345,12 +347,13 @@ class Monster:
             exp_needed = calculate_exp_for_average(self.level)
         return exp_needed
 
-    def gain_exp(self, amount):
+    def gain_exp(self, amount, verbose=True):
         if not self.is_alive:
             return
 
         self.exp += amount
-        print(f"{self.name} は {amount} の経験値を獲得した！ (現在EXP: {self.exp})")
+        if verbose:
+            print(f"{self.name} は {amount} の経験値を獲得した！ (現在EXP: {self.exp})")
 
         exp_needed_for_next_level = self.calculate_exp_to_next_level()
         if exp_needed_for_next_level is None:
@@ -358,7 +361,7 @@ class Monster:
 
         while self.exp >= exp_needed_for_next_level and self.is_alive:
             self.exp -= exp_needed_for_next_level
-            self.level_up()
+            self.level_up(verbose=verbose)
 
             exp_needed_for_next_level = self.calculate_exp_to_next_level()
             if exp_needed_for_next_level is None:
@@ -367,9 +370,10 @@ class Monster:
         if self.exp < 0:
             self.exp = 0
 
-    def level_up(self):
+    def level_up(self, verbose=True):
         self.level += 1
-        print(f"🎉🎉🎉 {self.name} は レベル {self.level} に上がった！ 🎉🎉�")
+        if verbose:
+            print(f"🎉🎉🎉 {self.name} は レベル {self.level} に上がった！ 🎉🎉")
 
         status_gains_dict = {}
         if self.growth_type == GROWTH_TYPE_EARLY:
@@ -416,12 +420,18 @@ class Monster:
         self.mp = self.max_mp
         self.magic += magic_increase
 
-        print(
-            f"最大HPが {hp_increase}、最大MPが {mp_increase}、攻撃力が {attack_increase}、防御力が {defense_increase}、魔力が {magic_increase}、素早さが {speed_increase} 上昇した！"
-        )
+        if verbose:
+            print(
+                f"最大HPが {hp_increase}、最大MPが {mp_increase}、攻撃力が {attack_increase}、防御力が {defense_increase}、魔力が {magic_increase}、素早さが {speed_increase} 上昇した！"
+            )
 
-        self._try_evolution()
-        self._learn_skills_for_level()
+        self._try_evolution(verbose=verbose)
+        self._learn_skills_for_level(verbose=verbose)
+
+    def advance_to_level(self, target_level, verbose=False):
+        """Raise this monster's level until reaching target_level."""
+        while self.level < target_level and self.is_alive:
+            self.level_up(verbose=verbose)
 
     def copy(self):
         new_skills = [copy.deepcopy(skill) for skill in self.skills]
