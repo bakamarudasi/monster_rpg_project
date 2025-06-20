@@ -79,6 +79,29 @@ class Battle:
                 self.log.append({'type': 'info', 'message': f'{actor.name} は MP がたりない！'})
                 return
             actor.mp -= skill.cost
+
+            if skill.skill_type == 'heal' and getattr(skill, 'target', 'ally') == 'ally':
+                if skill.scope == 'all':
+                    targets = [m for m in self.player_party if m.is_alive]
+                else:
+                    t_idx = act.get('target_ally', 0)
+                    if 0 <= t_idx < len(self.player_party) and self.player_party[t_idx].is_alive:
+                        targets = [self.player_party[t_idx]]
+                    else:
+                        target = next((p for p in self.player_party if p.is_alive), None)
+                        targets = [target] if target else []
+                if not targets:
+                    return
+                for t in targets:
+                    amount = 0
+                    for eff in skill.effects:
+                        if eff.get('type') == 'heal':
+                            amount = eff.get('amount', skill.power)
+                            stat = eff.get('stat', 'hp')
+                            t.heal(stat, amount)
+                    self.log.append({'type': 'player_heal', 'message': f'{actor.name}の{skill.name}! {t.name}のHPが{amount}回復した!'})
+                return
+
             t_idx = act.get('target_enemy', -1)
             if 0 <= t_idx < len(self.enemy_party) and self.enemy_party[t_idx].is_alive:
                 target = self.enemy_party[t_idx]
