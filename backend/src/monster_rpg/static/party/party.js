@@ -193,6 +193,9 @@
               equipmentList.length = 0;
               resp.equipment_inventory.forEach(e => equipmentList.push(e));
               data.equipment = resp.monster_equipment;
+              if (resp.monster_stats) {
+                data.stats = resp.monster_stats;
+              }
               displayMonsterDetails(data);
             }
           })
@@ -218,6 +221,9 @@
               equipmentList.length = 0;
               resp.equipment_inventory.forEach(e => equipmentList.push(e));
               data.equipment = resp.monster_equipment;
+              if (resp.monster_stats) {
+                data.stats = resp.monster_stats;
+              }
               displayMonsterDetails(data);
             }
           })
