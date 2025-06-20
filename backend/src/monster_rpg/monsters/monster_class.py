@@ -5,6 +5,10 @@ from .evolution_rules import EVOLUTION_RULES
 GROWTH_TYPE_AVERAGE = "平均型"
 GROWTH_TYPE_EARLY = "早熟型"
 GROWTH_TYPE_LATE = "大器晩成型"
+GROWTH_TYPE_POWER = "パワー型"
+GROWTH_TYPE_MAGIC = "魔法型"
+GROWTH_TYPE_DEFENSE = "防御型"
+GROWTH_TYPE_SPEED = "スピード型"
 
 # モンスターランク定義 (monster_data.pyと共通で使う場合は、別の共通ファイルに定義するのも良い)
 RANK_S = "S"
@@ -66,6 +70,27 @@ def get_status_gains_late(current_level):
         "defense": defense_gain,
         "speed": speed_gain,
     }
+
+def get_status_gains_power(current_level):
+    base = get_status_gains_average(current_level)
+    base["attack"] += 2 + (current_level // 5)
+    return base
+
+def get_status_gains_magic(current_level):
+    base = get_status_gains_average(current_level)
+    base["mp"] = base.get("mp", 0) + 3 + (current_level // 4)
+    base["magic"] = base.get("magic", 0) + 2 + (current_level // 5)
+    return base
+
+def get_status_gains_defense(current_level):
+    base = get_status_gains_average(current_level)
+    base["defense"] += 2 + (current_level // 5)
+    return base
+
+def get_status_gains_speed(current_level):
+    base = get_status_gains_average(current_level)
+    base["speed"] += 2 + (current_level // 5)
+    return base
 
 def calculate_exp_for_average(current_level):
     return (current_level ** 2) * 20 + 50
@@ -292,6 +317,13 @@ class Monster:
             exp_needed = calculate_exp_for_late(self.level)
         elif self.growth_type == GROWTH_TYPE_AVERAGE:
             exp_needed = calculate_exp_for_average(self.level)
+        elif self.growth_type in (
+            GROWTH_TYPE_POWER,
+            GROWTH_TYPE_MAGIC,
+            GROWTH_TYPE_DEFENSE,
+            GROWTH_TYPE_SPEED,
+        ):
+            exp_needed = calculate_exp_for_average(self.level)
         else:
             print(f"警告: 未知の成長タイプ '{self.growth_type}' が指定されました。平均型として計算します。")
             exp_needed = calculate_exp_for_average(self.level)
@@ -328,6 +360,14 @@ class Monster:
             status_gains_dict = get_status_gains_early(self.level)
         elif self.growth_type == GROWTH_TYPE_LATE:
             status_gains_dict = get_status_gains_late(self.level)
+        elif self.growth_type == GROWTH_TYPE_POWER:
+            status_gains_dict = get_status_gains_power(self.level)
+        elif self.growth_type == GROWTH_TYPE_MAGIC:
+            status_gains_dict = get_status_gains_magic(self.level)
+        elif self.growth_type == GROWTH_TYPE_DEFENSE:
+            status_gains_dict = get_status_gains_defense(self.level)
+        elif self.growth_type == GROWTH_TYPE_SPEED:
+            status_gains_dict = get_status_gains_speed(self.level)
         elif self.growth_type == GROWTH_TYPE_AVERAGE:
             status_gains_dict = get_status_gains_average(self.level)
         else:
@@ -338,23 +378,30 @@ class Monster:
             status_gains_dict = {}
 
         status_gains_dict.setdefault("hp", 0)
+        status_gains_dict.setdefault("mp", 0)
         status_gains_dict.setdefault("attack", 0)
         status_gains_dict.setdefault("defense", 0)
+        status_gains_dict.setdefault("magic", 0)
         status_gains_dict.setdefault("speed", 0)
 
         hp_increase = status_gains_dict["hp"]
+        mp_increase = status_gains_dict["mp"]
         attack_increase = status_gains_dict["attack"]
         defense_increase = status_gains_dict["defense"]
+        magic_increase = status_gains_dict["magic"]
         speed_increase = status_gains_dict["speed"]
             
         self.max_hp += hp_increase
-        self.hp = self.max_hp 
+        self.hp = self.max_hp
         self.attack += attack_increase
         self.defense += defense_increase
         self.speed += speed_increase
+        self.max_mp += mp_increase
+        self.mp = self.max_mp
+        self.magic += magic_increase
 
         print(
-            f"最大HPが {hp_increase}、攻撃力が {attack_increase}、防御力が {defense_increase}、素早さが {speed_increase} 上昇した！"
+            f"最大HPが {hp_increase}、最大MPが {mp_increase}、攻撃力が {attack_increase}、防御力が {defense_increase}、魔力が {magic_increase}、素早さが {speed_increase} 上昇した！"
         )
 
         self._try_evolution()
