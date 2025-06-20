@@ -6,10 +6,21 @@
     "element": "水",
     "image_filename": "slime.png",
     "growth_type": "防御型",
-    "stats": { "hp": 25, "mp": 0, "attack": 8, "defense": 5, "speed": 5 },
-    "skill_sets": ["starter_slime"],
+    "stats": {
+      "hp": 25,
+      "mp": 10,
+      "attack": 8,
+      "defense": 5,
+      "speed": 5
+    },
+    "skill_sets": [
+      "starter_slime"
+    ],
     "drop_items": [
-      ["small_potion", 0.5]
+      [
+        "small_potion",
+        0.5
+      ]
     ],
     "learnset": {},
     "book": {
@@ -25,15 +36,34 @@
     "element": "無",
     "image_filename": "goblin.png",
     "growth_type": "パワー型",
-    "stats": { "hp": 40, "mp": 0, "attack": 12, "defense": 8, "speed": 7 },
-    "skill_sets": ["starter_goblin"],
+    "stats": {
+      "hp": 40,
+      "mp": 15,
+      "attack": 12,
+      "defense": 8,
+      "speed": 7
+    },
+    "skill_sets": [
+      "starter_goblin"
+    ],
     "drop_items": [
-      ["small_potion", 0.2],
-      ["magic_stone", 0.1],
-      ["bronze_sword", 0.2]
+      [
+        "small_potion",
+        0.2
+      ],
+      [
+        "magic_stone",
+        0.1
+      ],
+      [
+        "bronze_sword",
+        0.2
+      ]
     ],
     "learnset": {
-      "4": ["sand_attack"]
+      "4": [
+        "sand_attack"
+      ]
     },
     "book": {
       "description": "棍棒を持った、少し知恵のあるモンスター。集団で現れることが多く、油断は禁物。",
@@ -48,13 +78,26 @@
     "element": "風",
     "image_filename": "bat.png",
     "growth_type": "スピード型",
-    "stats": { "hp": 18, "mp": 10, "attack": 6, "defense": 4, "speed": 8 },
-    "skills": ["tackle"],
+    "stats": {
+      "hp": 18,
+      "mp": 10,
+      "attack": 6,
+      "defense": 4,
+      "speed": 8
+    },
+    "skills": [
+      "tackle"
+    ],
     "drop_items": [
-      ["herb", 0.15]
+      [
+        "herb",
+        0.15
+      ]
     ],
     "learnset": {
-      "5": ["supersonic"]
+      "5": [
+        "supersonic"
+      ]
     },
     "book": {
       "description": "素早い動きで相手を翻弄する。雷系の攻撃に非常に弱いという弱点を持つ。",
@@ -69,10 +112,21 @@
     "element": "無",
     "image_filename": "wolf.png",
     "growth_type": "スピード型",
-    "stats": { "hp": 50, "mp": 0, "attack": 15, "defense": 7, "speed": 10 },
-    "skill_sets": ["starter_wolf"],
+    "stats": {
+      "hp": 50,
+      "mp": 8,
+      "attack": 15,
+      "defense": 7,
+      "speed": 10
+    },
+    "skill_sets": [
+      "starter_wolf"
+    ],
     "drop_items": [
-      ["medium_potion", 0.1]
+      [
+        "medium_potion",
+        0.1
+      ]
     ],
     "learnset": {},
     "book": {
@@ -88,7 +142,13 @@
     "element": "混合",
     "image_filename": "slime_goblin_hybrid.png",
     "growth_type": "平均型",
-    "stats": { "hp": 35, "mp": 0, "attack": 10, "defense": 7, "speed": 6 },
+    "stats": {
+      "hp": 35,
+      "mp": 10,
+      "attack": 10,
+      "defense": 7,
+      "speed": 6
+    },
     "skills": [],
     "drop_items": [],
     "learnset": {},
@@ -105,8 +165,16 @@
     "element": "火",
     "image_filename": "dragon_pup.png",
     "growth_type": "大器晩成型",
-    "stats": { "hp": 70, "mp": 0, "attack": 25, "defense": 20, "speed": 7 },
-    "skills": ["fireball"],
+    "stats": {
+      "hp": 70,
+      "mp": 20,
+      "attack": 25,
+      "defense": 20,
+      "speed": 7
+    },
+    "skills": [
+      "fireball"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -122,8 +190,16 @@
     "element": "火",
     "image_filename": "phoenix_chick.png",
     "growth_type": "大器晩成型",
-    "stats": { "hp": 60, "mp": 0, "attack": 18, "defense": 22, "speed": 8 },
-    "skills": ["heal"],
+    "stats": {
+      "hp": 60,
+      "mp": 20,
+      "attack": 18,
+      "defense": 22,
+      "speed": 8
+    },
+    "skills": [
+      "heal"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -139,8 +215,16 @@
     "element": "土",
     "image_filename": "orc_warrior.png",
     "growth_type": "パワー型",
-    "stats": { "hp": 60, "mp": 0, "attack": 22, "defense": 15, "speed": 6 },
-    "skills": ["power_up"],
+    "stats": {
+      "hp": 60,
+      "mp": 10,
+      "attack": 22,
+      "defense": 15,
+      "speed": 6
+    },
+    "skills": [
+      "power_up"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -156,8 +240,16 @@
     "element": "闇",
     "image_filename": "skeleton_archer.png",
     "growth_type": "スピード型",
-    "stats": { "hp": 45, "mp": 0, "attack": 18, "defense": 8, "speed": 9 },
-    "skills": ["poison_dart"],
+    "stats": {
+      "hp": 45,
+      "mp": 10,
+      "attack": 18,
+      "defense": 8,
+      "speed": 9
+    },
+    "skills": [
+      "poison_dart"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -173,8 +265,17 @@
     "element": "風",
     "image_filename": "elf_mage.png",
     "growth_type": "魔法型",
-    "stats": { "hp": 55, "mp": 0, "attack": 14, "defense": 10, "speed": 11 },
-    "skills": ["ice_spear", "heal"],
+    "stats": {
+      "hp": 55,
+      "mp": 30,
+      "attack": 14,
+      "defense": 10,
+      "speed": 11
+    },
+    "skills": [
+      "ice_spear",
+      "heal"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -190,8 +291,16 @@
     "element": "土",
     "image_filename": "troll_brute.png",
     "growth_type": "パワー型",
-    "stats": { "hp": 90, "mp": 0, "attack": 28, "defense": 18, "speed": 4 },
-    "skills": ["regen"],
+    "stats": {
+      "hp": 90,
+      "mp": 15,
+      "attack": 28,
+      "defense": 18,
+      "speed": 4
+    },
+    "skills": [
+      "regen"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -200,15 +309,23 @@
       "synthesis_hint": "頑強なる者と混ぜれば、更なる剛の者となる。"
     }
   },
-    "mermaid_siren": {
+  "mermaid_siren": {
     "name": "マーメイドサイレン",
     "ai_role": "attacker",
     "rank": "B",
     "element": "水",
     "image_filename": "mermaid_siren.png",
     "growth_type": "魔法型",
-    "stats": { "hp": 65, "mp": 0, "attack": 20, "defense": 14, "speed": 10 },
-    "skills": ["sleep_spell"],
+    "stats": {
+      "hp": 65,
+      "mp": 20,
+      "attack": 20,
+      "defense": 14,
+      "speed": 10
+    },
+    "skills": [
+      "sleep_spell"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -224,8 +341,16 @@
     "element": "雷",
     "image_filename": "thunder_eagle.png",
     "growth_type": "スピード型",
-    "stats": { "hp": 70, "mp": 0, "attack": 24, "defense": 16, "speed": 14 },
-    "skills": ["thunder_bolt"],
+    "stats": {
+      "hp": 70,
+      "mp": 25,
+      "attack": 24,
+      "defense": 16,
+      "speed": 14
+    },
+    "skills": [
+      "thunder_bolt"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -241,8 +366,17 @@
     "element": "土",
     "image_filename": "giant_golem.png",
     "growth_type": "防御型",
-    "stats": { "hp": 120, "mp": 0, "attack": 32, "defense": 35, "speed": 3 },
-    "skills": ["earth_quake", "guard_up"],
+    "stats": {
+      "hp": 120,
+      "mp": 30,
+      "attack": 32,
+      "defense": 35,
+      "speed": 3
+    },
+    "skills": [
+      "earth_quake",
+      "guard_up"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -258,8 +392,16 @@
     "element": "闇",
     "image_filename": "shadow_panther.png",
     "growth_type": "スピード型",
-    "stats": { "hp": 80, "mp": 0, "attack": 30, "defense": 18, "speed": 18 },
-    "skills": ["dark_pulse"],
+    "stats": {
+      "hp": 80,
+      "mp": 25,
+      "attack": 30,
+      "defense": 18,
+      "speed": 18
+    },
+    "skills": [
+      "dark_pulse"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -275,8 +417,18 @@
     "element": "闇",
     "image_filename": "vampire_lord.png",
     "growth_type": "魔法型",
-    "stats": { "hp": 95, "mp": 0, "attack": 35, "defense": 22, "speed": 15 },
-    "skills": ["dark_pulse", "cure", "paralysis_shock"],
+    "stats": {
+      "hp": 95,
+      "mp": 45,
+      "attack": 35,
+      "defense": 22,
+      "speed": 15
+    },
+    "skills": [
+      "dark_pulse",
+      "cure",
+      "paralysis_shock"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -292,8 +444,18 @@
     "element": "光",
     "image_filename": "celestial_dragon.png",
     "growth_type": "魔法型",
-    "stats": { "hp": 150, "mp": 0, "attack": 45, "defense": 40, "speed": 12 },
-    "skills": ["meteor_strike", "holy_light", "revive"],
+    "stats": {
+      "hp": 150,
+      "mp": 60,
+      "attack": 45,
+      "defense": 40,
+      "speed": 12
+    },
+    "skills": [
+      "meteor_strike",
+      "holy_light",
+      "revive"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -309,8 +471,16 @@
     "element": "水",
     "image_filename": "water_wolf.png",
     "growth_type": "平均型",
-    "stats": { "hp": 55, "mp": 0, "attack": 17, "defense": 9, "speed": 11 },
-    "skills": ["ice_spear"],
+    "stats": {
+      "hp": 55,
+      "mp": 20,
+      "attack": 17,
+      "defense": 9,
+      "speed": 11
+    },
+    "skills": [
+      "ice_spear"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -326,8 +496,17 @@
     "element": "毒",
     "image_filename": "poison_orc.png",
     "growth_type": "パワー型",
-    "stats": { "hp": 70, "mp": 0, "attack": 24, "defense": 16, "speed": 7 },
-    "skills": ["poison_dart", "weaken_armor"],
+    "stats": {
+      "hp": 70,
+      "mp": 20,
+      "attack": 24,
+      "defense": 16,
+      "speed": 7
+    },
+    "skills": [
+      "poison_dart",
+      "weaken_armor"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -343,8 +522,18 @@
     "element": "氷",
     "image_filename": "frost_elf.png",
     "growth_type": "魔法型",
-    "stats": { "hp": 60, "mp": 0, "attack": 16, "defense": 12, "speed": 12 },
-    "skills": ["ice_spear", "heal", "speed_up"],
+    "stats": {
+      "hp": 60,
+      "mp": 30,
+      "attack": 16,
+      "defense": 12,
+      "speed": 12
+    },
+    "skills": [
+      "ice_spear",
+      "heal",
+      "speed_up"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -360,8 +549,18 @@
     "element": "闇",
     "image_filename": "undead_warrior.png",
     "growth_type": "パワー型",
-    "stats": { "hp": 75, "mp": 0, "attack": 25, "defense": 17, "speed": 8 },
-    "skills": ["dark_pulse", "stun_blow", "guard_up"],
+    "stats": {
+      "hp": 75,
+      "mp": 25,
+      "attack": 25,
+      "defense": 17,
+      "speed": 8
+    },
+    "skills": [
+      "dark_pulse",
+      "stun_blow",
+      "guard_up"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -377,8 +576,18 @@
     "element": "雷",
     "image_filename": "storm_golem.png",
     "growth_type": "防御型",
-    "stats": { "hp": 130, "mp": 0, "attack": 35, "defense": 38, "speed": 4 },
-    "skills": ["earth_quake", "thunder_bolt", "guard_up"],
+    "stats": {
+      "hp": 130,
+      "mp": 40,
+      "attack": 35,
+      "defense": 38,
+      "speed": 4
+    },
+    "skills": [
+      "earth_quake",
+      "thunder_bolt",
+      "guard_up"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -394,8 +603,19 @@
     "element": "光",
     "image_filename": "celestial_panther.png",
     "growth_type": "スピード型",
-    "stats": { "hp": 110, "mp": 0, "attack": 38, "defense": 28, "speed": 19 },
-    "skills": ["holy_light", "meteor_strike", "speed_up", "power_up"],
+    "stats": {
+      "hp": 110,
+      "mp": 40,
+      "attack": 38,
+      "defense": 28,
+      "speed": 19
+    },
+    "skills": [
+      "holy_light",
+      "meteor_strike",
+      "speed_up",
+      "power_up"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -411,8 +631,18 @@
     "element": "闇",
     "image_filename": "abyss_watcher.png",
     "growth_type": "スピード型",
-    "stats": { "hp": 95, "mp": 0, "attack": 34, "defense": 24, "speed": 17 },
-    "skills": ["dark_pulse", "stun_blow", "speed_up"],
+    "stats": {
+      "hp": 95,
+      "mp": 30,
+      "attack": 34,
+      "defense": 24,
+      "speed": 17
+    },
+    "skills": [
+      "dark_pulse",
+      "stun_blow",
+      "speed_up"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -428,8 +658,18 @@
     "element": "火",
     "image_filename": "cinder_sentinel.png",
     "growth_type": "防御型",
-    "stats": { "hp": 140, "mp": 0, "attack": 42, "defense": 42, "speed": 8 },
-    "skills": ["meteor_strike", "guard_up", "power_up"],
+    "stats": {
+      "hp": 140,
+      "mp": 45,
+      "attack": 42,
+      "defense": 42,
+      "speed": 8
+    },
+    "skills": [
+      "meteor_strike",
+      "guard_up",
+      "power_up"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -445,8 +685,17 @@
     "element": "火",
     "image_filename": "ashen_drake.png",
     "growth_type": "パワー型",
-    "stats": { "hp": 125, "mp": 0, "attack": 38, "defense": 30, "speed": 13 },
-    "skills": ["dragon_breath", "thunder_bolt"],
+    "stats": {
+      "hp": 125,
+      "mp": 40,
+      "attack": 38,
+      "defense": 30,
+      "speed": 13
+    },
+    "skills": [
+      "dragon_breath",
+      "thunder_bolt"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -462,8 +711,18 @@
     "element": "毒",
     "image_filename": "blighted_knight.png",
     "growth_type": "防御型",
-    "stats": { "hp": 110, "mp": 0, "attack": 36, "defense": 28, "speed": 10 },
-    "skills": ["poison_dart", "weaken_armor", "guard_up"],
+    "stats": {
+      "hp": 110,
+      "mp": 30,
+      "attack": 36,
+      "defense": 28,
+      "speed": 10
+    },
+    "skills": [
+      "poison_dart",
+      "weaken_armor",
+      "guard_up"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -479,8 +738,17 @@
     "element": "闇",
     "image_filename": "gravetide_hollow.png",
     "growth_type": "魔法型",
-    "stats": { "hp": 90, "mp": 0, "attack": 30, "defense": 18, "speed": 11 },
-    "skills": ["sleep_spell", "dark_pulse"],
+    "stats": {
+      "hp": 90,
+      "mp": 25,
+      "attack": 30,
+      "defense": 18,
+      "speed": 11
+    },
+    "skills": [
+      "sleep_spell",
+      "dark_pulse"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -495,8 +763,18 @@
     "rank": "S",
     "element": "雷",
     "image_filename": "nameless_kingling.png",
-    "stats": { "hp": 155, "mp": 0, "attack": 48, "defense": 35, "speed": 16 },
-    "skills": ["thunder_bolt", "meteor_strike", "power_up"],
+    "stats": {
+      "hp": 155,
+      "mp": 60,
+      "attack": 48,
+      "defense": 35,
+      "speed": 16
+    },
+    "skills": [
+      "thunder_bolt",
+      "meteor_strike",
+      "power_up"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -511,8 +789,18 @@
     "rank": "A",
     "element": "氷",
     "image_filename": "pontiff_shade.png",
-    "stats": { "hp": 100, "mp": 0, "attack": 32, "defense": 22, "speed": 15 },
-    "skills": ["ice_spear", "curse", "slow"],
+    "stats": {
+      "hp": 100,
+      "mp": 35,
+      "attack": 32,
+      "defense": 22,
+      "speed": 15
+    },
+    "skills": [
+      "ice_spear",
+      "curse",
+      "slow"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -528,8 +816,17 @@
     "element": "毒",
     "image_filename": "desert_scorpion.png",
     "growth_type": "パワー型",
-    "stats": { "hp": 60, "mp": 0, "attack": 20, "defense": 14, "speed": 9 },
-    "skills": ["poison_dart", "stun_blow"],
+    "stats": {
+      "hp": 60,
+      "mp": 15,
+      "attack": 20,
+      "defense": 14,
+      "speed": 9
+    },
+    "skills": [
+      "poison_dart",
+      "stun_blow"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -545,8 +842,18 @@
     "element": "土",
     "image_filename": "sand_wyrm.png",
     "growth_type": "パワー型",
-    "stats": { "hp": 95, "mp": 0, "attack": 28, "defense": 22, "speed": 14 },
-    "skills": ["earth_quake", "power_up", "poison_dart"],
+    "stats": {
+      "hp": 95,
+      "mp": 30,
+      "attack": 28,
+      "defense": 22,
+      "speed": 14
+    },
+    "skills": [
+      "earth_quake",
+      "power_up",
+      "poison_dart"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -562,8 +869,17 @@
     "element": "火",
     "image_filename": "lava_elemental.png",
     "growth_type": "パワー型",
-    "stats": { "hp": 110, "mp": 0, "attack": 35, "defense": 30, "speed": 5 },
-    "skills": ["meteor_strike", "dragon_breath"],
+    "stats": {
+      "hp": 110,
+      "mp": 45,
+      "attack": 35,
+      "defense": 30,
+      "speed": 5
+    },
+    "skills": [
+      "meteor_strike",
+      "dragon_breath"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -579,8 +895,18 @@
     "element": "氷",
     "image_filename": "crystal_drake.png",
     "growth_type": "防御型",
-    "stats": { "hp": 100, "mp": 0, "attack": 33, "defense": 25, "speed": 12 },
-    "skills": ["ice_spear", "guard_up", "power_up"],
+    "stats": {
+      "hp": 100,
+      "mp": 30,
+      "attack": 33,
+      "defense": 25,
+      "speed": 12
+    },
+    "skills": [
+      "ice_spear",
+      "guard_up",
+      "power_up"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -596,8 +922,18 @@
     "element": "水",
     "image_filename": "kraken.png",
     "growth_type": "パワー型",
-    "stats": { "hp": 140, "mp": 0, "attack": 38, "defense": 32, "speed": 7 },
-    "skills": ["ice_spear", "heal", "slow"],
+    "stats": {
+      "hp": 140,
+      "mp": 40,
+      "attack": 38,
+      "defense": 32,
+      "speed": 7
+    },
+    "skills": [
+      "ice_spear",
+      "heal",
+      "slow"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -613,8 +949,18 @@
     "element": "光",
     "image_filename": "sky_seraph.png",
     "growth_type": "魔法型",
-    "stats": { "hp": 120, "mp": 0, "attack": 40, "defense": 28, "speed": 18 },
-    "skills": ["holy_light", "thunder_bolt", "revive"],
+    "stats": {
+      "hp": 120,
+      "mp": 50,
+      "attack": 40,
+      "defense": 28,
+      "speed": 18
+    },
+    "skills": [
+      "holy_light",
+      "thunder_bolt",
+      "revive"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -630,8 +976,17 @@
     "element": "闇",
     "image_filename": "spectral_raven.png",
     "growth_type": "スピード型",
-    "stats": { "hp": 55, "mp": 0, "attack": 19, "defense": 11, "speed": 20 },
-    "skills": ["dark_pulse", "sleep_spell"],
+    "stats": {
+      "hp": 55,
+      "mp": 20,
+      "attack": 19,
+      "defense": 11,
+      "speed": 20
+    },
+    "skills": [
+      "dark_pulse",
+      "sleep_spell"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -647,8 +1002,18 @@
     "element": "氷",
     "image_filename": "mist_wraith.png",
     "growth_type": "魔法型",
-    "stats": { "hp": 70, "mp": 0, "attack": 24, "defense": 15, "speed": 13 },
-    "skills": ["ice_spear", "slow", "curse"],
+    "stats": {
+      "hp": 70,
+      "mp": 30,
+      "attack": 24,
+      "defense": 15,
+      "speed": 13
+    },
+    "skills": [
+      "ice_spear",
+      "slow",
+      "curse"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -664,8 +1029,18 @@
     "element": "水",
     "image_filename": "coral_hydra.png",
     "growth_type": "平均型",
-    "stats": { "hp": 115, "mp": 0, "attack": 32, "defense": 28, "speed": 9 },
-    "skills": ["heal", "poison_dart", "guard_up"],
+    "stats": {
+      "hp": 115,
+      "mp": 35,
+      "attack": 32,
+      "defense": 28,
+      "speed": 9
+    },
+    "skills": [
+      "heal",
+      "poison_dart",
+      "guard_up"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -681,8 +1056,17 @@
     "element": "土",
     "image_filename": "iron_juggernaut.png",
     "growth_type": "防御型",
-    "stats": { "hp": 140, "mp": 0, "attack": 40, "defense": 45, "speed": 4 },
-    "skills": ["earth_quake", "power_up"],
+    "stats": {
+      "hp": 140,
+      "mp": 25,
+      "attack": 40,
+      "defense": 45,
+      "speed": 4
+    },
+    "skills": [
+      "earth_quake",
+      "power_up"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -698,8 +1082,18 @@
     "element": "闇",
     "image_filename": "blood_fiend.png",
     "growth_type": "パワー型",
-    "stats": { "hp": 105, "mp": 0, "attack": 37, "defense": 23, "speed": 14 },
-    "skills": ["paralysis_shock", "dark_pulse", "regen"],
+    "stats": {
+      "hp": 105,
+      "mp": 35,
+      "attack": 37,
+      "defense": 23,
+      "speed": 14
+    },
+    "skills": [
+      "paralysis_shock",
+      "dark_pulse",
+      "regen"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -715,8 +1109,18 @@
     "element": "光",
     "image_filename": "moonlit_dryad.png",
     "growth_type": "魔法型",
-    "stats": { "hp": 85, "mp": 0, "attack": 26, "defense": 20, "speed": 16 },
-    "skills": ["holy_light", "heal", "speed_up"],
+    "stats": {
+      "hp": 85,
+      "mp": 30,
+      "attack": 26,
+      "defense": 20,
+      "speed": 16
+    },
+    "skills": [
+      "holy_light",
+      "heal",
+      "speed_up"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -732,8 +1136,18 @@
     "element": "火",
     "image_filename": "obsidian_titan.png",
     "growth_type": "防御型",
-    "stats": { "hp": 165, "mp": 0, "attack": 48, "defense": 48, "speed": 6 },
-    "skills": ["meteor_strike", "guard_up", "power_up"],
+    "stats": {
+      "hp": 165,
+      "mp": 50,
+      "attack": 48,
+      "defense": 48,
+      "speed": 6
+    },
+    "skills": [
+      "meteor_strike",
+      "guard_up",
+      "power_up"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -749,8 +1163,18 @@
     "element": "雷",
     "image_filename": "electro_mantis.png",
     "growth_type": "スピード型",
-    "stats": { "hp": 90, "mp": 0, "attack": 31, "defense": 18, "speed": 22 },
-    "skills": ["thunder_bolt", "stun_blow", "speed_up"],
+    "stats": {
+      "hp": 90,
+      "mp": 30,
+      "attack": 31,
+      "defense": 18,
+      "speed": 22
+    },
+    "skills": [
+      "thunder_bolt",
+      "stun_blow",
+      "speed_up"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {
@@ -758,65 +1182,97 @@
       "location_hint": "雷雨降りし森、或いは廃れし発電所に棲む。",
       "synthesis_hint": "虫や雷、速さを重んずる者と合成で特異な進化を遂ぐ。"
     }
-  }
-,
-"wild_rat": {
-  "name": "ワイルドラット",
-  "ai_role": "attacker",
-  "rank": "E",
-  "element": "無",
-  "image_filename": "wild_rat.png",
-  "growth_type": "スピード型",
-  "stats": { "hp": 24, "mp": 0, "attack": 7, "defense": 5, "speed": 9 },
-  "skills": [],
-  "drop_items": [
-    ["small_potion", 0.1]
-  ],
-  "learnset": {
-    "3": ["sand_attack"]
   },
-  "book": {
-    "description": "素早く動き回る、少し大きくてどう猛なネズミ。集団で現れることもある。",
-    "location_hint": "草原や街道、民家の近くなど、どこにでも現れる。",
-    "synthesis_hint": "素早さの高い種族と配合すると、先手を取りやすいモンスターが生まれるかも。"
+  "wild_rat": {
+    "name": "ワイルドラット",
+    "ai_role": "attacker",
+    "rank": "E",
+    "element": "無",
+    "image_filename": "wild_rat.png",
+    "growth_type": "スピード型",
+    "stats": {
+      "hp": 24,
+      "mp": 5,
+      "attack": 7,
+      "defense": 5,
+      "speed": 9
+    },
+    "skills": [],
+    "drop_items": [
+      [
+        "small_potion",
+        0.1
+      ]
+    ],
+    "learnset": {
+      "3": [
+        "sand_attack"
+      ]
+    },
+    "book": {
+      "description": "素早く動き回る、少し大きくてどう猛なネズミ。集団で現れることもある。",
+      "location_hint": "草原や街道、民家の近くなど、どこにでも現れる。",
+      "synthesis_hint": "素早さの高い種族と配合すると、先手を取りやすいモンスターが生まれるかも。"
+    }
+  },
+  "walking_mushroom": {
+    "name": "ウォーキングマッシュルーム",
+    "ai_role": "attacker",
+    "rank": "E",
+    "element": "土",
+    "image_filename": "walking_mushroom.png",
+    "growth_type": "魔法型",
+    "stats": {
+      "hp": 22,
+      "mp": 12,
+      "attack": 5,
+      "defense": 6,
+      "speed": 3
+    },
+    "skills": [
+      "poison_spore"
+    ],
+    "drop_items": [
+      [
+        "antidote",
+        0.1
+      ]
+    ],
+    "learnset": {},
+    "book": {
+      "description": "カサから胞子をまきちらす、歩くキノコのモンスター。胞子には毒が含まれていることがある。",
+      "location_hint": "村の近くの草原や、湿った森の入り口あたりで見かける。",
+      "synthesis_hint": "植物系のモンスターは、他の種族と合成すると面白い特性を発揮することがある。"
+    }
+  },
+  "imp": {
+    "name": "インプ",
+    "ai_role": "attacker",
+    "rank": "E",
+    "element": "火",
+    "image_filename": "imp.png",
+    "growth_type": "魔法型",
+    "stats": {
+      "hp": 20,
+      "mp": 15,
+      "attack": 4,
+      "defense": 4,
+      "speed": 7
+    },
+    "skills": [
+      "fireball_weak"
+    ],
+    "drop_items": [
+      [
+        "magic_stone",
+        0.08
+      ]
+    ],
+    "learnset": {},
+    "book": {
+      "description": "いたずら好きの小悪魔。小さな火の玉を飛ばしてくるが、威力はたいしたことない。",
+      "location_hint": "人の集まる場所の近くに現れることがある。村の周りでも目撃されている。",
+      "synthesis_hint": "悪魔系のモンスターは、強力な魔法の素質を秘めている。"
+    }
   }
-},
-"walking_mushroom": {
-  "name": "ウォーキングマッシュルーム",
-  "ai_role": "attacker",
-  "rank": "E",
-  "element": "土",
-  "image_filename": "walking_mushroom.png",
-  "growth_type": "魔法型",
-  "stats": { "hp": 22, "mp": 12, "attack": 5, "defense": 6, "speed": 3 },
-  "skills": ["poison_spore"],
-  "drop_items": [
-    ["antidote", 0.1]
-  ],
-  "learnset": {},
-  "book": {
-    "description": "カサから胞子をまきちらす、歩くキノコのモンスター。胞子には毒が含まれていることがある。",
-    "location_hint": "村の近くの草原や、湿った森の入り口あたりで見かける。",
-    "synthesis_hint": "植物系のモンスターは、他の種族と合成すると面白い特性を発揮することがある。"
-  }
-},
-"imp": {
-  "name": "インプ",
-  "ai_role": "attacker",
-  "rank": "E",
-  "element": "火",
-  "image_filename": "imp.png",
-  "growth_type": "魔法型",
-  "stats": { "hp": 20, "mp": 15, "attack": 4, "defense": 4, "speed": 7 },
-  "skills": ["fireball_weak"],
-  "drop_items": [
-    ["magic_stone", 0.08]
-  ],
-  "learnset": {},
-  "book": {
-    "description": "いたずら好きの小悪魔。小さな火の玉を飛ばしてくるが、威力はたいしたことない。",
-    "location_hint": "人の集まる場所の近くに現れることがある。村の周りでも目撃されている。",
-    "synthesis_hint": "悪魔系のモンスターは、強力な魔法の素質を秘めている。"
-  }
-}
 }
