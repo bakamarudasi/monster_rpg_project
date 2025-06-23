@@ -27,19 +27,25 @@ function setupBattleUI() {
         if (!actionSel) return;
         const enemySel = document.querySelector('select[name="target_enemy"]');
         const allySel = document.querySelector('select[name="target_ally"]');
+        const itemSel = document.querySelector('select[name="item_idx"]');
         const opt = actionSel.selectedOptions[0];
         const target = opt.dataset.target || 'enemy';
         const scope = opt.dataset.scope || 'single';
 
+        const isItem = opt.value === 'item';
+
         if (target === 'none' || scope === 'all') {
             enemySel.style.display = 'none';
             allySel.style.display = 'none';
+            if (itemSel) itemSel.style.display = 'none';
         } else if (target === 'ally') {
             enemySel.style.display = 'none';
             allySel.style.display = '';
+            if (itemSel) itemSel.style.display = isItem ? '' : 'none';
         } else {
             enemySel.style.display = '';
             allySel.style.display = 'none';
+            if (itemSel) itemSel.style.display = 'none';
         }
     }
     const actionSel = document.getElementById('action');
@@ -210,6 +216,13 @@ function applyBattleData(data) {
                 opt.textContent = sk.name;
                 actionSel.appendChild(opt);
             });
+
+            const itemOpt = document.createElement('option');
+            itemOpt.value = 'item';
+            itemOpt.dataset.target = 'ally';
+            itemOpt.dataset.scope = 'single';
+            itemOpt.textContent = 'アイテム';
+            actionSel.appendChild(itemOpt);
 
             const scoutOpt = document.createElement('option');
             scoutOpt.value = 'scout';
