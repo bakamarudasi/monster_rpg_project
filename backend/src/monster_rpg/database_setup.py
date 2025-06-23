@@ -102,7 +102,8 @@ def initialize_database():
         player_id INTEGER,
         equip_id TEXT,
         title_id TEXT,
-        instance_id TEXT
+        instance_id TEXT,
+        random_bonuses TEXT
     )
     """)
 
@@ -144,6 +145,7 @@ def initialize_database():
         _add_column_if_missing(table, "max_hp", "INTEGER")
         _add_column_if_missing(table, "mp", "INTEGER")
         _add_column_if_missing(table, "max_mp", "INTEGER")
+    _add_column_if_missing("player_equipment", "random_bonuses", "TEXT")
 
     # exploration_progress テーブルの作成
     cursor.execute(

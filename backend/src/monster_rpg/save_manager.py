@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
+import json
 from typing import Optional
 
 from .map_data import STARTING_LOCATION_ID
@@ -113,13 +114,15 @@ def save_game(player: "Player", db_name: str, user_id: Optional[int] = None) -> 
             equip_id = equip.base_item.equip_id
             title_id = equip.title.title_id if getattr(equip, "title", None) else None
             instance_id = getattr(equip, "instance_id", None)
+            bonuses = json.dumps(equip.random_bonuses) if getattr(equip, "random_bonuses", None) else None
         else:
             equip_id = getattr(equip, "equip_id", str(equip))
             title_id = None
             instance_id = None
+            bonuses = None
         cursor.execute(
-            "INSERT INTO player_equipment (player_id, equip_id, title_id, instance_id) VALUES (?, ?, ?, ?)",
-            (player.db_id, equip_id, title_id, instance_id),
+            "INSERT INTO player_equipment (player_id, equip_id, title_id, instance_id, random_bonuses) VALUES (?, ?, ?, ?, ?)",
+            (player.db_id, equip_id, title_id, instance_id, bonuses),
         )
 
     cursor.execute(
@@ -219,15 +222,21 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
                 loaded_player.items.append(ALL_ITEMS[item_id])
 
         cursor.execute(
-            "SELECT equip_id, title_id, instance_id FROM player_equipment WHERE player_id=?",
+            "SELECT equip_id, title_id, instance_id, random_bonuses FROM player_equipment WHERE player_id=?",
             (db_id,),
         )
-        for equip_id, title_id, instance_id in cursor.fetchall():
+        for equip_id, title_id, instance_id, bonuses_json in cursor.fetchall():
             if equip_id in ALL_EQUIPMENT:
                 base = ALL_EQUIPMENT[equip_id]
                 if title_id and title_id in ALL_TITLES:
                     title = ALL_TITLES[title_id]
-                    equip = EquipmentInstance(base_item=base, title=title, instance_id=instance_id)
+                    bonuses = json.loads(bonuses_json) if bonuses_json else {}
+                    equip = EquipmentInstance(
+                        base_item=base,
+                        title=title,
+                        random_bonuses=bonuses,
+                        instance_id=instance_id,
+                    )
                 else:
                     equip = base
                 loaded_player.equipment_inventory.append(equip)
