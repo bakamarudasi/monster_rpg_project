@@ -33,6 +33,8 @@ function setupBattleUI() {
         const scope = opt.dataset.scope || 'single';
 
         const isItem = opt.value === 'item';
+        const skillUI = document.getElementById('skill-ui');
+        if (skillUI) skillUI.style.display = opt.value === 'skill' ? '' : 'none';
 
         if (target === 'none' || scope === 'all') {
             enemySel.style.display = 'none';
@@ -171,6 +173,78 @@ function updateUnitList(units, infoList) {
     });
 }
 
+function buildSkillUI(actor) {
+    const tabsContainer = document.getElementById('skill-tabs');
+    const panelsContainer = document.getElementById('skill-panels');
+    const descArea = document.getElementById('skill-desc');
+    const hiddenInput = document.getElementById('selected-skill-id');
+    const actionSel = document.getElementById('action');
+    if (!tabsContainer || !panelsContainer || !descArea || !hiddenInput) return;
+
+    tabsContainer.textContent = '';
+    panelsContainer.textContent = '';
+    descArea.textContent = '';
+    hiddenInput.value = '';
+
+    if (!actor || !Array.isArray(actor.skills)) return;
+
+    const groups = {};
+    actor.skills.forEach((sk, idx) => {
+        const type = sk.skill_type || 'その他';
+        if (!groups[type]) groups[type] = [];
+        const copy = Object.assign({ index: idx }, sk);
+        groups[type].push(copy);
+    });
+
+    const groupEntries = Object.entries(groups);
+    groupEntries.forEach(([type, skills], i) => {
+        const tab = document.createElement('button');
+        tab.className = 'skill-tab';
+        tab.textContent = type;
+        if (i === 0) tab.classList.add('active');
+        tabsContainer.appendChild(tab);
+
+        const panel = document.createElement('div');
+        panel.className = 'skill-panel';
+        if (i !== 0) panel.classList.add('hidden');
+        skills.forEach(sk => {
+            const btn = document.createElement('button');
+            btn.className = 'skill-btn';
+            btn.textContent = sk.name + (sk.cost ? ` (MP:${sk.cost})` : '');
+            const unitEl = document.querySelector(`[data-unit-id="${actor.unit_id}"]`);
+            const mp = unitEl ? parseInt(unitEl.dataset.mp || '0') : 0;
+            if (sk.cost && mp < sk.cost) {
+                btn.disabled = true;
+                btn.classList.add('disabled');
+            }
+            btn.addEventListener('click', () => {
+                panelsContainer.querySelectorAll('.skill-btn.selected').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                hiddenInput.value = sk.index;
+                descArea.textContent = sk.description || '';
+                const opt = actionSel ? actionSel.querySelector('option[value="skill"]') : null;
+                if (opt) {
+                    opt.dataset.target = sk.target || 'enemy';
+                    opt.dataset.scope = sk.scope || 'single';
+                }
+                if (actionSel) {
+                    actionSel.value = 'skill';
+                    updateTargets();
+                }
+            });
+            panel.appendChild(btn);
+        });
+        panelsContainer.appendChild(panel);
+
+        tab.addEventListener('click', () => {
+            tabsContainer.querySelectorAll('.skill-tab').forEach(t => t.classList.remove('active'));
+            panelsContainer.querySelectorAll('.skill-panel').forEach(p => p.classList.add('hidden'));
+            tab.classList.add('active');
+            panel.classList.remove('hidden');
+        });
+    });
+}
+
 function applyBattleData(data) {
     const detailPanel = document.getElementById('enemy-detail');
     if (detailPanel) detailPanel.classList.remove('open');
@@ -208,14 +282,12 @@ function applyBattleData(data) {
             atkOpt.textContent = '攻撃';
             actionSel.appendChild(atkOpt);
 
-            data.current_actor.skills.forEach((sk, idx) => {
-                const opt = document.createElement('option');
-                opt.value = 'skill' + idx;
-                opt.dataset.target = sk.target;
-                opt.dataset.scope = sk.scope;
-                opt.textContent = sk.name;
-                actionSel.appendChild(opt);
-            });
+            const skillOpt = document.createElement('option');
+            skillOpt.value = 'skill';
+            skillOpt.dataset.target = 'enemy';
+            skillOpt.dataset.scope = 'single';
+            skillOpt.textContent = 'スキル';
+            actionSel.appendChild(skillOpt);
 
             const itemOpt = document.createElement('option');
             itemOpt.value = 'item';
@@ -243,6 +315,8 @@ function applyBattleData(data) {
 
         const activeUnit = Array.from(allyUnits).find(u => u.dataset.unitId === data.current_actor.unit_id);
         if (activeUnit) activeUnit.classList.add('active-turn');
+
+        buildSkillUI(data.current_actor);
     }
 
     const cmdWindow = document.querySelector('.command-window');

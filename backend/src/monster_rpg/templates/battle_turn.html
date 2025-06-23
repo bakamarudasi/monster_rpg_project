@@ -68,14 +68,17 @@
                     <label for="action">{{ current_actor.name }}:</label>
                     <select name="action" id="action">
                         <option value="attack" data-target="enemy" data-scope="single">攻撃</option>
-                        {% for sk in current_actor.skills %}
-                        {% set s_idx = loop.index0 %}
-                        <option value="skill{{ s_idx }}" data-target="{{ sk.target }}" data-scope="{{ sk.scope }}">{{ sk.name }}</option>
-                        {% endfor %}
+                        <option value="skill" data-target="enemy" data-scope="single">スキル</option>
                         <option value="item" data-target="ally" data-scope="single">アイテム</option>
                         <option value="scout" data-target="enemy" data-scope="single">スカウト</option>
                         <option value="run" data-target="none" data-scope="none">逃げる</option>
                     </select>
+                    <div id="skill-ui">
+                        <input type="hidden" name="selected_skill_id" id="selected-skill-id">
+                        <div id="skill-tabs" class="skill-tabs"></div>
+                        <div id="skill-panels" class="skill-panels"></div>
+                        <div id="skill-desc" class="skill-desc"></div>
+                    </div>
                     <div>
                         <select name="target_enemy">
                             {% for e in enemy_party if e.is_alive %}
