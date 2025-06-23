@@ -38,9 +38,14 @@ def explore(user_id):
                     battle_obj.step()
                 save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
                 return render_template(
-                    'battle_turn.html', user_id=user_id, battle=battle_obj,
-                    player_party=battle_obj.player_party, enemy_party=battle_obj.enemy_party,
-                    log=battle_obj.log, current_actor=battle_obj.current_actor(),
+                    'battle_turn.html',
+                    user_id=user_id,
+                    player=player,
+                    battle=battle_obj,
+                    player_party=battle_obj.player_party,
+                    enemy_party=battle_obj.enemy_party,
+                    log=battle_obj.log,
+                    current_actor=battle_obj.current_actor(),
                 )
     if (loc.possible_enemies or getattr(loc, 'enemy_pool', None)) and random.random() < loc.encounter_rate:
         enemies = generate_enemy_party(loc, player)
@@ -54,9 +59,14 @@ def explore(user_id):
                 battle_obj.step()
             save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
             return render_template(
-                'battle_turn.html', user_id=user_id, battle=battle_obj,
-                player_party=battle_obj.player_party, enemy_party=battle_obj.enemy_party,
-                log=battle_obj.log, current_actor=battle_obj.current_actor(),
+                'battle_turn.html',
+                user_id=user_id,
+                player=player,
+                battle=battle_obj,
+                player_party=battle_obj.player_party,
+                enemy_party=battle_obj.enemy_party,
+                log=battle_obj.log,
+                current_actor=battle_obj.current_actor(),
             )
         else:
             messages.append('モンスターは現れなかった。')
