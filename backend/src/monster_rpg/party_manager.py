@@ -14,6 +14,7 @@ from .items.equipment import (
     EquipmentInstance,
     Equipment,
 )
+from .items.equipment_synthesis import EQUIPMENT_SYNTHESIS_RULES
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -195,6 +196,94 @@ def craft_equipment(player: "Player", equip_id: str):
         return new_equip
     print("装備の作成に失敗した。")
     return None
+
+
+MATERIAL_MAPPING = {
+    "weapon": {"common": "weapon_core_common", "rare": "weapon_core_rare"},
+    "armor": {"common": "armor_fragment_common", "rare": "armor_fragment_rare"},
+}
+
+
+def disassemble_equipment(player: "Player", equip_instance_id: str):
+    """Break down equipment and award materials."""
+    idx = None
+    equip = None
+    for i, e in enumerate(player.equipment_inventory):
+        if isinstance(e, EquipmentInstance) and e.instance_id == equip_instance_id:
+            idx = i
+            equip = e
+            break
+        if not isinstance(e, EquipmentInstance) and getattr(e, "equip_id", None) == equip_instance_id:
+            idx = i
+            equip = EquipmentInstance(base_item=e, title=None)
+            break
+    if equip is None or idx is None:
+        print("その装備を所持していない。")
+        return False
+
+    category = equip.base_item.category
+    rarity = getattr(equip.base_item, "rarity", "common")
+    item_id = MATERIAL_MAPPING.get(category, {}).get(rarity)
+    if not item_id or item_id not in ALL_ITEMS:
+        print("分解できない装備だ。")
+        return False
+
+    player.equipment_inventory.pop(idx)
+    player.items.append(ALL_ITEMS[item_id])
+    print(f"{equip.name} を分解して {ALL_ITEMS[item_id].name} を手に入れた。")
+    return True
+
+
+def limit_break_equipment(player: "Player", equip_instance_id: str) -> bool:
+    """Upgrade equipment using synthesis materials."""
+    equip = None
+    for e in player.equipment_inventory:
+        if isinstance(e, EquipmentInstance) and e.instance_id == equip_instance_id:
+            equip = e
+            break
+        if not isinstance(e, EquipmentInstance) and getattr(e, "equip_id", None) == equip_instance_id:
+            equip = EquipmentInstance(base_item=e, title=None)
+            player.equipment_inventory.remove(e)
+            player.equipment_inventory.append(equip)
+            break
+
+    if equip is None:
+        print("その装備を所持していない。")
+        return False
+
+    rules = EQUIPMENT_SYNTHESIS_RULES.get(equip.base_item.category, [])
+    next_rank = equip.synthesis_rank + 1
+    rule = next((r for r in rules if r.get("rank") == next_rank), None)
+    if not rule:
+        print("これ以上強化できない。")
+        return False
+
+    for c in rule.get("cost", []):
+        item_id = c.get("item_id")
+        amount = int(c.get("amount", 0))
+        have = sum(1 for it in player.items if getattr(it, "item_id", None) == item_id)
+        if have < amount:
+            print("素材が足りない。")
+            return False
+
+    for c in rule.get("cost", []):
+        item_id = c.get("item_id")
+        amount = int(c.get("amount", 0))
+        removed = 0
+        for i in range(len(player.items) - 1, -1, -1):
+            if getattr(player.items[i], "item_id", None) == item_id and removed < amount:
+                player.items.pop(i)
+                removed += 1
+
+    equip.synthesis_rank = next_rank
+    bonus_type = rule.get("bonus_type")
+    value = rule.get("value")
+    if bonus_type == "base_stats_multiplier" and isinstance(value, (int, float)):
+        equip.stat_multiplier *= float(value)
+    elif bonus_type == "add_sub_stat_slot":
+        equip.sub_stat_slots += int(value)
+    print(f"{equip.name} がランク{equip.synthesis_rank}になった！")
+    return True
 
 
 def equip_to_monster(player: "Player", party_idx: int, equip_id: str | None = None, slot: str | None = None) -> bool:

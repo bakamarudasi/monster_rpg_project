@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sqlite3
 import json
+import uuid
 from typing import Optional
 
 from .map_data import STARTING_LOCATION_ID
@@ -121,8 +122,17 @@ def save_game(player: "Player", db_name: str, user_id: Optional[int] = None) -> 
             instance_id = None
             bonuses = None
         cursor.execute(
-            "INSERT INTO player_equipment (player_id, equip_id, title_id, instance_id, random_bonuses) VALUES (?, ?, ?, ?, ?)",
-            (player.db_id, equip_id, title_id, instance_id, bonuses),
+            "INSERT INTO player_equipment (player_id, equip_id, title_id, instance_id, random_bonuses, synthesis_rank, stat_multiplier, sub_stat_slots) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                player.db_id,
+                equip_id,
+                title_id,
+                instance_id,
+                bonuses,
+                getattr(equip, "synthesis_rank", 0),
+                getattr(equip, "stat_multiplier", 1.0),
+                getattr(equip, "sub_stat_slots", 0),
+            ),
         )
 
     cursor.execute(
@@ -222,10 +232,10 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
                 loaded_player.items.append(ALL_ITEMS[item_id])
 
         cursor.execute(
-            "SELECT equip_id, title_id, instance_id, random_bonuses FROM player_equipment WHERE player_id=?",
+            "SELECT equip_id, title_id, instance_id, random_bonuses, synthesis_rank, stat_multiplier, sub_stat_slots FROM player_equipment WHERE player_id=?",
             (db_id,),
         )
-        for equip_id, title_id, instance_id, bonuses_json in cursor.fetchall():
+        for equip_id, title_id, instance_id, bonuses_json, rank, mult, slots in cursor.fetchall():
             if equip_id in ALL_EQUIPMENT:
                 base = ALL_EQUIPMENT[equip_id]
                 if title_id and title_id in ALL_TITLES:
@@ -236,9 +246,20 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
                         title=title,
                         random_bonuses=bonuses,
                         instance_id=instance_id,
+                        synthesis_rank=rank or 0,
+                        stat_multiplier=mult or 1.0,
+                        sub_stat_slots=slots or 0,
                     )
                 else:
-                    equip = base
+                    equip = EquipmentInstance(
+                        base_item=base,
+                        title=None,
+                        random_bonuses=json.loads(bonuses_json) if bonuses_json else {},
+                        instance_id=instance_id or str(uuid.uuid4()),
+                        synthesis_rank=rank or 0,
+                        stat_multiplier=mult or 1.0,
+                        sub_stat_slots=slots or 0,
+                    )
                 loaded_player.equipment_inventory.append(equip)
 
         cursor.execute(

@@ -23,6 +23,7 @@ class Equipment:
     name: str
     slot: str
     category: str
+    rarity: str = "common"
     attack: int = 0
     defense: int = 0
 
@@ -32,6 +33,7 @@ BRONZE_SWORD = Equipment(
     "ブロンズソード",
     slot="weapon",
     category="weapon",
+    rarity="common",
     attack=3,
 )
 LEATHER_ARMOR = Equipment(
@@ -39,6 +41,7 @@ LEATHER_ARMOR = Equipment(
     "レザーアーマー",
     slot="armor",
     category="armor",
+    rarity="common",
     defense=2,
 )
 
@@ -55,6 +58,9 @@ class EquipmentInstance:
     title: Title | None
     random_bonuses: Dict[str, Any] = field(default_factory=dict)
     instance_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    synthesis_rank: int = 0
+    stat_multiplier: float = 1.0
+    sub_stat_slots: int = 0
 
     @property
     def name(self) -> str:
@@ -70,13 +76,15 @@ class EquipmentInstance:
     def total_attack(self) -> int:
         bonus = self.title.stat_bonuses.get("attack", 0) if self.title else 0
         bonus += self._bonus_for("attack")
-        return self.base_item.attack + bonus
+        base = int(self.base_item.attack * self.stat_multiplier)
+        return base + bonus
 
     @property
     def total_defense(self) -> int:
         bonus = self.title.stat_bonuses.get("defense", 0) if self.title else 0
         bonus += self._bonus_for("defense")
-        return self.base_item.defense + bonus
+        base = int(self.base_item.defense * self.stat_multiplier)
+        return base + bonus
 
     @property
     def total_speed(self) -> int:
