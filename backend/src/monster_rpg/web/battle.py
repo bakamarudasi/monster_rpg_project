@@ -117,6 +117,19 @@ class Battle:
                 target.is_alive = False
                 self.log.append({'type': 'info', 'message': f'{target.name}をたおした！'})
             return
+        if act.get('type') == 'item':
+            idx = act.get('item_idx', -1)
+            t_idx = act.get('target_ally', 0)
+            if self.player and 0 <= idx < len(self.player.items) and 0 <= t_idx < len(self.player_party):
+                item_name = self.player.items[idx].name
+                target = self.player_party[t_idx]
+                success = self.player.use_item(idx, target)
+                msg = f'{actor.name}は {item_name} を使った。' if success else f'{actor.name}は {item_name} を使えなかった。'
+            else:
+                success = False
+                msg = f'{actor.name} はアイテムを使えなかった。'
+            self.log.append({'type': 'info', 'message': msg})
+            return
         if act.get('type') == 'scout':
             t_idx = act.get('target_enemy', -1)
             if 0 <= t_idx < len(self.enemy_party) and self.enemy_party[t_idx].is_alive:
@@ -240,6 +253,18 @@ def battle(user_id):
                 except ValueError:
                     tgt_a = 0
                 action = {'type': 'skill', 'skill': s_idx, 'target_enemy': tgt_e, 'target_ally': tgt_a}
+            elif act_val == 'item':
+                idx_val = data_src.get('item_idx', '-1')
+                tgt_a = data_src.get('target_ally', '0')
+                try:
+                    idx_val = int(idx_val)
+                except ValueError:
+                    idx_val = -1
+                try:
+                    tgt_a = int(tgt_a)
+                except ValueError:
+                    tgt_a = 0
+                action = {'type': 'item', 'item_idx': idx_val, 'target_ally': tgt_a}
             elif act_val == 'scout':
                 tgt = data_src.get('target_enemy', '-1')
                 try:

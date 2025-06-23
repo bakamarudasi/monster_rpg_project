@@ -72,6 +72,7 @@
                         {% set s_idx = loop.index0 %}
                         <option value="skill{{ s_idx }}" data-target="{{ sk.target }}" data-scope="{{ sk.scope }}">{{ sk.name }}</option>
                         {% endfor %}
+                        <option value="item" data-target="ally" data-scope="single">アイテム</option>
                         <option value="scout" data-target="enemy" data-scope="single">スカウト</option>
                         <option value="run" data-target="none" data-scope="none">逃げる</option>
                     </select>
@@ -84,6 +85,11 @@
                         <select name="target_ally">
                             {% for a in player_party if a.is_alive %}
                             <option value="{{ loop.index0 }}">{{ a.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <select name="item_idx">
+                            {% for it in player.items %}
+                            <option value="{{ loop.index0 }}">{{ it.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
