@@ -120,7 +120,7 @@ Example location requiring an item:
 Other notable modules include `player.py` (player data and save/load logic), `battle.py` (battle system), and `monsters/synthesis_rules.py` (monster fusion recipes).
 
 ## New Features
-- Items can now be used both outside and during battle. The included potions restore HP and can turn the tide mid-fight.
+- Items can be used outside of battle to restore HP. Using items during battle will be added in a future update.
 - The starting village has a shop where you can buy Small Potions or even purchase a Slime companion.
 - Defeated monsters may drop items, which are automatically added to your inventory.
 - Basic equipment crafting has been added. Use collected items to craft simple weapons and armor.
