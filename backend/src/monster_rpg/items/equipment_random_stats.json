@@ -2,21 +2,75 @@
   "random_stat_pools_by_category": {
     "weapon": {
       "main_stat_pool": [
-        {"stat": "attack", "weight": 1, "min": 1, "max": 3}
+        {
+          "stat": "attack",
+          "weight": 1,
+          "tiers": [
+            {"weight": 50, "amount": 10},
+            {"weight": 30, "amount": 13},
+            {"weight": 15, "amount": 16},
+            {"weight": 5,  "amount": 20}
+          ]
+        }
       ],
       "sub_stat_pool": [
-        {"stat": "defense", "weight": 1, "min": 1, "max": 2},
-        {"stat": "speed", "weight": 1, "min": 1, "max": 2}
+        {
+          "stat": "defense",
+          "weight": 1,
+          "tiers": [
+            {"weight": 50, "amount": 10},
+            {"weight": 30, "amount": 13},
+            {"weight": 15, "amount": 16},
+            {"weight": 5,  "amount": 20}
+          ]
+        },
+        {
+          "stat": "speed",
+          "weight": 1,
+          "tiers": [
+            {"weight": 50, "amount": 2},
+            {"weight": 30, "amount": 3},
+            {"weight": 15, "amount": 4},
+            {"weight": 5,  "amount": 5}
+          ]
+        }
       ],
       "sub_stat_count": {"initial_min": 1, "initial_max": 2}
     },
     "armor": {
       "main_stat_pool": [
-        {"stat": "defense", "weight": 1, "min": 1, "max": 3}
+        {
+          "stat": "defense",
+          "weight": 1,
+          "tiers": [
+            {"weight": 50, "amount": 10},
+            {"weight": 30, "amount": 13},
+            {"weight": 15, "amount": 16},
+            {"weight": 5,  "amount": 20}
+          ]
+        }
       ],
       "sub_stat_pool": [
-        {"stat": "attack", "weight": 1, "min": 1, "max": 2},
-        {"stat": "speed", "weight": 1, "min": 1, "max": 2}
+        {
+          "stat": "attack",
+          "weight": 1,
+          "tiers": [
+            {"weight": 50, "amount": 10},
+            {"weight": 30, "amount": 13},
+            {"weight": 15, "amount": 16},
+            {"weight": 5,  "amount": 20}
+          ]
+        },
+        {
+          "stat": "speed",
+          "weight": 1,
+          "tiers": [
+            {"weight": 50, "amount": 2},
+            {"weight": 30, "amount": 3},
+            {"weight": 15, "amount": 4},
+            {"weight": 5,  "amount": 5}
+          ]
+        }
       ],
       "sub_stat_count": {"initial_min": 1, "initial_max": 2}
     }

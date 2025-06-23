@@ -107,6 +107,19 @@ class EquipmentInstance:
         return total
 
 
+def _choose_amount(entry: Dict[str, Any]) -> int:
+    """Return a stat amount using tiers if provided."""
+    if "tiers" in entry:
+        tier_weighted = []
+        for tier in entry["tiers"]:
+            tier_weighted.extend([tier] * tier.get("weight", 1))
+        tier_choice = random.choice(tier_weighted)
+        if "amount" in tier_choice:
+            return tier_choice["amount"]
+        return random.randint(tier_choice.get("min", 1), tier_choice.get("max", 1))
+    return random.randint(entry.get("min", 1), entry.get("max", 1))
+
+
 def _generate_random_bonuses(category: str) -> Dict[str, Any]:
     pools = RANDOM_STAT_CONFIG.get("random_stat_pools_by_category", {}).get(category, {})
     result: Dict[str, Any] = {}
@@ -116,7 +129,7 @@ def _generate_random_bonuses(category: str) -> Dict[str, Any]:
         for entry in main_pool:
             weighted.extend([entry] * entry.get("weight", 1))
         choice = random.choice(weighted)
-        amount = random.randint(choice.get("min", 1), choice.get("max", 1))
+        amount = _choose_amount(choice)
         result["main_stat"] = {"stat": choice["stat"], "amount": amount}
     sub_pool = pools.get("sub_stat_pool", [])
     if sub_pool:
@@ -132,7 +145,7 @@ def _generate_random_bonuses(category: str) -> Dict[str, Any]:
             if entry["stat"] in stats_used:
                 weighted = [e for e in weighted if e["stat"] != entry["stat"]]
                 continue
-            amount = random.randint(entry.get("min", 1), entry.get("max", 1))
+            amount = _choose_amount(entry)
             chosen_stats.append({"stat": entry["stat"], "amount": amount})
             stats_used.add(entry["stat"])
             weighted = [e for e in weighted if e["stat"] != entry["stat"]]
