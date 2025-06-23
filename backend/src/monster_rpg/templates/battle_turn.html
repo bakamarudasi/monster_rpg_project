@@ -17,7 +17,8 @@
                  data-down="{{ not e.is_alive }}" data-unit-id="enemy-{{ loop.index0 }}"
                  data-name="{{ e.name }}" data-level="{{ e.level }}" data-hp="{{ e.hp }}"
                  data-max-hp="{{ e.max_hp }}" data-mp="{{ e.mp }}" data-max-mp="{{ e.max_mp }}"
-                 data-attack="{{ e.attack }}" data-defense="{{ e.defense }}" data-speed="{{ e.speed }}">
+                 data-attack="{{ e.attack }}" data-defense="{{ e.defense }}" data-speed="{{ e.speed }}"
+                 data-statuses="{{ e.status_effects|tojson }}">
                 
                 {% if e.image_filename %}
                     <img class="unit-img" src="{{ url_for('static', filename='images/' + e.image_filename) }}" alt="{{ e.name }}">
@@ -44,7 +45,8 @@
             {% if hp_pct <= 25 %}{% set hp_cls = hp_cls + ' critical' %}{% elif hp_pct <= 50 %}{% set hp_cls = hp_cls + ' low' %}{% endif %}
 
                 <div class="battle-unit ally{% if not m.is_alive %} down{% endif %}{% if current_actor and m is sameas current_actor %} active-turn{% endif %}"
-                     data-down="{{ not m.is_alive }}" data-unit-id="ally-{{ loop.index0 }}" data-mp="{{ m.mp }}" data-max-mp="{{ m.max_mp }}">
+                     data-down="{{ not m.is_alive }}" data-unit-id="ally-{{ loop.index0 }}" data-mp="{{ m.mp }}" data-max-mp="{{ m.max_mp }}"
+                     data-statuses="{{ m.status_effects|tojson }}">
                     
                     {% if m.image_filename %}
                         <img class="unit-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
@@ -123,6 +125,7 @@
             <li>攻撃 <span id="detail-attack"></span></li>
             <li>防御 <span id="detail-defense"></span></li>
             <li>素早さ <span id="detail-speed"></span></li>
+            <li>状態 <span id="detail-statuses"></span></li>
         </ul>
     </div>
 </div>

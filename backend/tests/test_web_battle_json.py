@@ -33,6 +33,8 @@ class BattleViewJsonTests(unittest.TestCase):
         data = resp.get_json()
         self.assertIsInstance(data, dict)
         self.assertIn('hp_values', data)
+        self.assertIn('status_effects', data['hp_values']['player'][0])
+        self.assertIn('status_effects', data['hp_values']['enemy'][0])
         self.assertIn('log', data)
         self.assertIn('finished', data)
 
@@ -45,6 +47,8 @@ class BattleViewJsonTests(unittest.TestCase):
         data = resp.get_json()
         self.assertIsInstance(data, dict)
         self.assertIn('hp_values', data)
+        self.assertIn('status_effects', data['hp_values']['enemy'][0])
+        self.assertIn('status_effects', data['hp_values']['player'][0])
         self.assertIn('log', data)
         self.assertIn('finished', data)
 

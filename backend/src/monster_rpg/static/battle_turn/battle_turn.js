@@ -84,12 +84,19 @@ function setupBattleUI() {
         attack: document.getElementById('detail-attack'),
         defense: document.getElementById('detail-defense'),
         speed: document.getElementById('detail-speed'),
+        statuses: document.getElementById('detail-statuses'),
     };
     document.querySelectorAll('.enemy.battle-unit').forEach(el => {
         el.addEventListener('click', () => {
             for (const key in fields) {
                 const dataKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
                 fields[key].textContent = el.dataset[dataKey] || '';
+            }
+            try {
+                const list = JSON.parse(el.dataset.statuses || '[]');
+                fields.statuses.textContent = list.map(s => `${s.display}(${s.remaining})`).join('、');
+            } catch (e) {
+                fields.statuses.textContent = '';
             }
             detailPanel.classList.add('open');
         });
@@ -144,6 +151,7 @@ function updateUnitList(units, infoList) {
         const prevHp = parseInt(unit.dataset.hp || '0');
         unit.dataset.hp = info.hp;
         unit.dataset.mp = info.mp;
+        unit.dataset.statuses = JSON.stringify(info.status_effects || []);
         if (!info.alive) unit.classList.add('down');
         const fill = unit.querySelector('.hp-fill');
         const pct = Math.round(info.hp / info.max_hp * 100);
