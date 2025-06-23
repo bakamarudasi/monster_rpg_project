@@ -41,6 +41,7 @@ def create_app():
         'party': 'party.party',
         'equip': 'party.equip',
         'formation': 'party.formation',
+        'party_manage': 'party.manage',
         'items': 'inventory.items',
         'synthesize': 'inventory.synthesize',
         'synthesize_action': 'inventory.synthesize_action',

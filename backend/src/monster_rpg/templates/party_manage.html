@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block head_extra %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='party/formation.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='party/party.css') }}">
+{% endblock %}
+{% block content %}
+<div class="container">
+  <header>
+    <h1>幻獣の魔導書</h1>
+    <p>汝の最も恐るべき幻獣の部隊を編成せよ。</p>
+  </header>
+  <div class="main-grid">
+    <aside class="sidebar">
+      <div class="book-page">
+        <form id="formation-form" method="post" action="{{ url_for('party.manage', user_id=user_id) }}">
+          <input type="hidden" name="order" id="order-input">
+          <input type="hidden" name="reserve" id="reserve-input">
+          <button id="confirm-btn" type="button" class="ornate-button">編成を確定</button>
+          <button type="submit" name="reset" value="1" class="ornate-button">再編成</button>
+        </form>
+        <h2 style="margin-top: 20px;">部隊の状態</h2>
+        <div style="font-style: italic; color: #666;">
+          <p>汝の部隊の総合力がここに表示されるであろう。</p>
+        </div>
+      </div>
+    </aside>
+    <main class="main-content">
+      <section class="book-page">
+        <h2>召喚陣 (汝の部隊)</h2>
+        <div class="team-slots">
+          {% for entry in party_info %}
+          <div id="slot-{{ loop.index }}" class="drop-area" data-slot="true">
+            <div class="monster-item" data-uid="{{ entry.uid }}" data-details='{{ entry.detail | tojson | forceescape }}' draggable="true">
+              {% if entry.monster.image_filename %}
+              <img src="{{ url_for('static', filename='images/' + entry.monster.image_filename) }}" alt="{{ entry.monster.name }}">
+              {% else %}
+              {{ entry.monster.name }}
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+          {% for i in range(party_info|length + 1, 4) %}
+          <div id="slot-{{ i }}" class="drop-area" data-slot="true">
+            <div class="monster-placeholder">スロット {{ i }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+      <section class="book-page">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <h2>待機中の幻獣 (ストック)</h2>
+        </div>
+        <div id="monster-pool" class="drop-area">
+          <div class="monster-grid">
+            {% for entry in reserve_info %}
+            <div id="monster-{{ entry.uid }}" class="monster-item" data-uid="{{ entry.uid }}" data-details='{{ entry.detail | tojson | forceescape }}' draggable="true">
+              {% if entry.monster.image_filename %}
+              <img alt="{{ entry.monster.name }}" src="{{ url_for('static', filename='images/' + entry.monster.image_filename) }}">
+              {% else %}
+              <span class="monster-placeholder">{{ entry.monster.name }}</span>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+    <footer>
+      <p>© 2023 幻獣の魔導書. All rights reserved.</p>
+    </footer>
+    <a class="book-link" href="{{ url_for('play', user_id=user_id) }}">← 戻る</a>
+  </div>
+<div id="monster-detail-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+  <div class="modal-card">
+    <button class="modal-close-btn" aria-label="閉じる">&times;</button>
+    <div id="modal-card-body"></div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+  <script id="party-data" type="application/json">
+    {{ {
+        'equipment_list': equipment_list,
+        'equip_url': url_for('party.equip', user_id=user_id)
+    } | tojson | safe }}
+  </script>
+  <script src="{{ url_for('static', filename='party/party_manage.js') }}"></script>
+{% endblock %}
