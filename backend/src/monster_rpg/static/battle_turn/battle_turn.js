@@ -176,7 +176,9 @@ function updateUnitList(units, infoList) {
         if (mpText) mpText.textContent = info.mp + '/' + info.max_mp;
 
         if (!isNaN(prevHp) && info.hp < prevHp) {
-            showDamageIndicator(unit, '-' + (prevHp - info.hp));
+            showPopupIndicator(unit, '-' + (prevHp - info.hp), 'damage-indicator');
+        } else if (!isNaN(prevHp) && info.hp > prevHp) {
+            showPopupIndicator(unit, '+' + (info.hp - prevHp), 'heal-indicator');
         }
     });
 }
@@ -332,9 +334,9 @@ function applyBattleData(data) {
     // if (cmdWindow) cmdWindow.scrollIntoView({behavior: 'smooth'});
 }
 
-function showDamageIndicator(container, text) {
+function showPopupIndicator(container, text, className) {
     const popup = document.createElement('div');
-    popup.className = 'damage-indicator';
+    popup.className = className;
     popup.textContent = text;
     container.appendChild(popup);
 
