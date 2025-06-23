@@ -5,7 +5,7 @@ from .. import save_manager
 from ..items.equipment import Equipment, EquipmentInstance
 from ..monsters.monster_class import Monster
 from ..items.item_data import ALL_ITEMS
-from ..monsters.monster_data import ALL_MONSTERS
+from ..monsters.monster_data import ALL_MONSTERS, MONSTER_BOOK_DATA
 from ..map_data import LOCATIONS
 from .utils import process_synthesis_payload
 
@@ -117,12 +117,43 @@ def shop(user_id):
         save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
     entries = []
     for iid, pr in loc.shop_items.items():
-        name = ALL_ITEMS[iid].name if iid in ALL_ITEMS else iid
-        entries.append(('item', iid, name, pr))
+        item = ALL_ITEMS.get(iid)
+        name = item.name if item else iid
+        desc = item.description if item else ""
+        entries.append(("item", iid, name, pr, desc))
     for mid, pr in loc.shop_monsters.items():
-        mname = ALL_MONSTERS[mid].name if mid in ALL_MONSTERS else mid
-        entries.append(('monster', mid, mname, pr))
-    return render_template('shop.html', player=player, user_id=user_id, entries=entries, message=message)
+        mon = ALL_MONSTERS.get(mid)
+        mname = mon.name if mon else mid
+        desc = MONSTER_BOOK_DATA.get(mid).description if mid in MONSTER_BOOK_DATA else ""
+        entries.append(("monster", mid, mname, pr, desc))
+
+    item_map = {iid: it.name for iid, it in ALL_ITEMS.items()}
+    monster_map = {mid: mon.name for mid, mon in ALL_MONSTERS.items()}
+    player_items = [{"idx": i, "name": it.name} for i, it in enumerate(player.items)]
+    reserve_mons = [{"idx": i, "name": m.name} for i, m in enumerate(player.reserve_monsters)]
+
+    buy_base = url_for("market.buy_route", user_id=user_id, listing_id=0)
+    buy_base = buy_base.rsplit("/", 1)[0] + "/"
+
+    market_data = {
+        "listings_url": url_for("market.listings"),
+        "list_item_url": url_for("market.list_item_route", user_id=user_id),
+        "list_monster_url": url_for("market.list_monster_route", user_id=user_id),
+        "buy_url": buy_base,
+        "item_map": item_map,
+        "monster_map": monster_map,
+        "player_items": player_items,
+        "reserve_monsters": reserve_mons,
+    }
+
+    return render_template(
+        "shop.html",
+        player=player,
+        user_id=user_id,
+        entries=entries,
+        message=message,
+        market_data=market_data,
+    )
 
 @inventory_bp.route('/inn/<int:user_id>', methods=['POST'], endpoint='inn')
 def inn(user_id):
