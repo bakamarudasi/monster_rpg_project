@@ -102,6 +102,12 @@ class Player:
     def equip_to_monster(self, party_idx: int, equip_id: str | None = None, slot: str | None = None) -> bool:
         return party_manager.equip_to_monster(self, party_idx, equip_id, slot)
 
+    def disassemble_equipment(self, equip_id: str) -> bool:
+        return party_manager.disassemble_equipment(self, equip_id)
+
+    def limit_break_equipment(self, equip_id: str) -> bool:
+        return party_manager.limit_break_equipment(self, equip_id)
+
     # --- Synthesis -------------------------------------------------------
     def synthesize_monster(self, monster1_idx: int, monster2_idx: int, item_id: str | None = None):
         return synthesis_manager.synthesize_monster(self, monster1_idx, monster2_idx, item_id)

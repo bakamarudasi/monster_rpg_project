@@ -1,0 +1,12 @@
+{
+  "weapon": [
+    { "rank": 1, "cost": [{ "item_id": "weapon_core_common", "amount": 5 }], "bonus_type": "base_stats_multiplier", "value": 1.05, "description": "基礎性能+5%" },
+    { "rank": 2, "cost": [{ "item_id": "weapon_core_common", "amount": 15 }], "bonus_type": "base_stats_multiplier", "value": 1.12, "description": "基礎性能+12%" },
+    { "rank": 3, "cost": [{ "item_id": "weapon_core_rare", "amount": 10 }], "bonus_type": "add_sub_stat_slot", "value": 1, "description": "サブステータス最大数+1" }
+  ],
+  "armor": [
+    { "rank": 1, "cost": [{ "item_id": "armor_fragment_common", "amount": 5 }], "bonus_type": "base_stats_multiplier", "value": 1.05, "description": "基礎性能+5%" },
+    { "rank": 2, "cost": [{ "item_id": "armor_fragment_common", "amount": 15 }], "bonus_type": "base_stats_multiplier", "value": 1.12, "description": "基礎性能+12%" },
+    { "rank": 3, "cost": [{ "item_id": "armor_fragment_rare", "amount": 10 }], "bonus_type": "add_sub_stat_slot", "value": 1, "description": "サブステータス最大数+1" }
+  ]
+}

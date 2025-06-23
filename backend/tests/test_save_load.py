@@ -69,7 +69,8 @@ class SaveLoadTests(unittest.TestCase):
 
         loaded = save_manager.load_game(self.db_path, user_id=self.user1)
         self.assertEqual(len(loaded.equipment_inventory), 1)
-        self.assertEqual(loaded.equipment_inventory[0].equip_id, 'bronze_sword')
+        equip = loaded.equipment_inventory[0]
+        self.assertEqual(equip.base_item.equip_id, 'bronze_sword')
 
     def test_hp_mp_persist(self):
         player = Player('HPTester', user_id=self.user1)

@@ -67,5 +67,21 @@
   "frost_crystal": {
     "name": "フロストクリスタル",
     "description": "極寒地で採れる冷気を封じ込めた氷晶。"
+  },
+  "weapon_core_common": {
+    "name": "下級・武器の核",
+    "description": "武器強化に使われる基本的な素材。"
+  },
+  "weapon_core_rare": {
+    "name": "上級・武器の核",
+    "description": "高品質な武器強化素材。"
+  },
+  "armor_fragment_common": {
+    "name": "下級・防具の欠片",
+    "description": "防具強化に使われる基本的な素材。"
+  },
+  "armor_fragment_rare": {
+    "name": "上級・防具の欠片",
+    "description": "高品質な防具強化素材。"
   }
 }
