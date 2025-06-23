@@ -37,15 +37,18 @@ def _status_heal(monster: Monster, amount: int):
         print(f"{monster.name} は {healed} 回復した！ (HP: {monster.hp})")
 
 def _slow_apply(monster: Monster):
-    monster.speed = max(1, monster.speed - 5)
+    monster.apply_buff('speed', -5, 0)
+    if monster.speed < 1:
+        monster.apply_buff('speed', 1 - monster.speed, 0)
+
     def revert(m: Monster = monster):
-        m.speed += 5
+        m.apply_buff('speed', 5, 0)
     return revert
 
 def _charge_apply(monster: Monster):
-    monster.defense -= 5
+    monster.apply_buff('defense', -5, 0)
     def revert(m: Monster = monster):
-        m.defense += 5
+        m.apply_buff('defense', 5, 0)
     return revert
 
 STATUS_DEFINITIONS = {

@@ -119,10 +119,18 @@ class Monster:
         self.max_hp = hp
         self.mp = mp
         self.max_mp = mp
-        self.attack = attack
-        self.defense = defense
+
+        # 基本ステータスを保持し、装備やバフによる補正は別管理とする
+        self.base_attack = attack
+        self.base_defense = defense
+        self.base_speed = speed
         # 魔力パラメータ。魔法に関するバフ等で利用される
-        self.magic = 0
+        self.base_magic = 0
+
+        # 一時的な補正値と倍率
+        self._stat_bonuses = {"attack": 0, "defense": 0, "speed": 0, "magic": 0}
+        self._stat_multipliers = {"attack": 1.0, "defense": 1.0, "speed": 1.0, "magic": 1.0}
+
         self.level = level
         self.exp = exp
         self.element = element
@@ -137,8 +145,7 @@ class Monster:
             self.monster_id = name.lower()
         
         self.image_filename = image_filename
-        self.rank = rank 
-        self.speed = speed  # speed 属性を保存
+        self.rank = rank
         self.drop_items = drop_items if drop_items else []
         self.scout_rate = scout_rate  # スカウト成功率(0.0-1.0)
         self.ai_role = ai_role
@@ -146,6 +153,49 @@ class Monster:
         self.equipment = {}
         self.equipment_slots = ["weapon", "armor", "accessory"]
         self.learnset = learnset if learnset else {}
+
+    # ------------------------------------------------------------------
+    # Derived stat properties
+    # ------------------------------------------------------------------
+    @property
+    def attack(self) -> int:
+        base = self.base_attack + self._stat_bonuses.get("attack", 0)
+        total = base + self._equipment_bonus("attack")
+        return int(total * self._stat_multipliers.get("attack", 1.0))
+
+    @attack.setter
+    def attack(self, value: int) -> None:
+        self.base_attack = value
+
+    @property
+    def defense(self) -> int:
+        base = self.base_defense + self._stat_bonuses.get("defense", 0)
+        total = base + self._equipment_bonus("defense")
+        return int(total * self._stat_multipliers.get("defense", 1.0))
+
+    @defense.setter
+    def defense(self, value: int) -> None:
+        self.base_defense = value
+
+    @property
+    def speed(self) -> int:
+        base = self.base_speed + self._stat_bonuses.get("speed", 0)
+        total = base + self._equipment_bonus("speed")
+        return int(total * self._stat_multipliers.get("speed", 1.0))
+
+    @speed.setter
+    def speed(self, value: int) -> None:
+        self.base_speed = value
+
+    @property
+    def magic(self) -> int:
+        base = self.base_magic + self._stat_bonuses.get("magic", 0)
+        total = base + self._equipment_bonus("magic")
+        return int(total * self._stat_multipliers.get("magic", 1.0))
+
+    @magic.setter
+    def magic(self, value: int) -> None:
+        self.base_magic = value
 
     def show_status(self):
         print(f"名前: {self.name} (ID: {self.monster_id}, Lv.{self.level}, Rank: {self.rank})") 
@@ -179,30 +229,24 @@ class Monster:
             return
         self.equipment[equipment.slot] = equipment
 
-    def total_attack(self):
+    def _equipment_bonus(self, stat: str) -> int:
         bonus = 0
         for e in self.equipment.values():
-            if hasattr(e, 'total_attack'):
-                bonus += e.total_attack
+            attr = f'total_{stat}'
+            if hasattr(e, attr):
+                bonus += getattr(e, attr)
             else:
-                bonus += getattr(e, 'attack', 0)
-        return self.attack + bonus
+                bonus += getattr(e, stat, 0)
+        return bonus
+
+    def total_attack(self):
+        return self.attack
 
     def total_defense(self):
-        bonus = 0
-        for e in self.equipment.values():
-            if hasattr(e, 'total_defense'):
-                bonus += e.total_defense
-            else:
-                bonus += getattr(e, 'defense', 0)
-        return self.defense + bonus
+        return self.defense
 
     def total_speed(self):
-        bonus = 0
-        for e in self.equipment.values():
-            if hasattr(e, 'total_speed'):
-                bonus += e.total_speed
-        return self.speed + bonus
+        return self.speed
 
     # ------------------------------------------------------------------
     # Effect helper methods
@@ -230,10 +274,10 @@ class Monster:
     def apply_buff(self, stat: str, amount: int, duration: int) -> None:
         if not stat:
             return
-        setattr(self, stat, getattr(self, stat) + amount)
+        self._stat_bonuses[stat] = self._stat_bonuses.get(stat, 0) + amount
 
         def revert(m: "Monster" = self, s: str = stat, a: int = amount) -> None:
-            setattr(m, s, getattr(m, s) - a)
+            m._stat_bonuses[s] = m._stat_bonuses.get(s, 0) - a
 
         if duration > 0:
             self.status_effects.append({
@@ -245,11 +289,11 @@ class Monster:
     def apply_buff_percent(self, stat: str, percent_amount: float, duration: int) -> None:
         if not stat:
             return
-        bonus = int(getattr(self, stat) * percent_amount)
-        setattr(self, stat, getattr(self, stat) + bonus)
+        bonus_multiplier = 1.0 + percent_amount
+        self._stat_multipliers[stat] = self._stat_multipliers.get(stat, 1.0) * bonus_multiplier
 
-        def revert(m: "Monster" = self, s: str = stat, b: int = bonus) -> None:
-            setattr(m, s, getattr(m, s) - b)
+        def revert(m: "Monster" = self, s: str = stat, bm: float = bonus_multiplier) -> None:
+            m._stat_multipliers[s] = m._stat_multipliers.get(s, 1.0) / bm
 
         if duration > 0:
             self.status_effects.append({
@@ -413,12 +457,12 @@ class Monster:
             
         self.max_hp += hp_increase
         self.hp = self.max_hp
-        self.attack += attack_increase
-        self.defense += defense_increase
-        self.speed += speed_increase
+        self.base_attack += attack_increase
+        self.base_defense += defense_increase
+        self.base_speed += speed_increase
         self.max_mp += mp_increase
         self.mp = self.max_mp
-        self.magic += magic_increase
+        self.base_magic += magic_increase
 
         if verbose:
             print(
@@ -438,19 +482,19 @@ class Monster:
         
         new_monster = Monster(
             name=self.name,
-            hp=self.max_hp, 
-            attack=self.attack,
-            defense=self.defense,
+            hp=self.max_hp,
+            attack=self.base_attack,
+            defense=self.base_defense,
             mp=self.max_mp,
             level=self.level,
-            exp=self.exp,    
+            exp=self.exp,
             element=self.element,
             skills=new_skills,
             growth_type=self.growth_type,
             monster_id=self.monster_id, 
             image_filename=self.image_filename,
             rank=self.rank,
-            speed=self.speed,  # speed 属性をコピー時に引き継ぐ
+            speed=self.base_speed,  # speed 属性をコピー時に引き継ぐ
             drop_items=copy.deepcopy(self.drop_items),
             scout_rate=self.scout_rate,
             ai_role=self.ai_role,
@@ -460,6 +504,6 @@ class Monster:
         new_monster.hp = new_monster.max_hp
         new_monster.max_mp = self.max_mp
         new_monster.mp = new_monster.max_mp
-        new_monster.magic = self.magic
+        new_monster.base_magic = self.base_magic
         new_monster.is_alive = True
         return new_monster
