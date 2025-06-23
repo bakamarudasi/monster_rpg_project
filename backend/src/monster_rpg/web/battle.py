@@ -1,5 +1,6 @@
 import random
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
+from ..battle import STATUS_DEFINITIONS
 from .. import database_setup
 from ..player import Player
 from .. import save_manager
@@ -329,16 +330,72 @@ def battle(user_id):
         if request.method == 'POST':
             html = render_template('battle.html', messages=msgs, user_id=user_id)
             hp_vals = {
-                'player': [{'hp': m.hp, 'max_hp': m.max_hp, 'mp': m.mp, 'max_mp': m.max_mp, 'alive': m.is_alive} for m in battle_obj.player_party],
-                'enemy': [{'hp': m.hp, 'max_hp': m.max_hp, 'mp': m.mp, 'max_mp': m.max_mp, 'alive': m.is_alive} for m in battle_obj.enemy_party],
+                'player': [{
+                    'hp': m.hp,
+                    'max_hp': m.max_hp,
+                    'mp': m.mp,
+                    'max_mp': m.max_mp,
+                    'alive': m.is_alive,
+                    'status_effects': [
+                        {
+                            'name': e['name'],
+                            'remaining': e['remaining'],
+                            'display': STATUS_DEFINITIONS.get(e['name'], {}).get('message', e['name'])
+                        }
+                        for e in m.status_effects
+                    ],
+                } for m in battle_obj.player_party],
+                'enemy': [{
+                    'hp': m.hp,
+                    'max_hp': m.max_hp,
+                    'mp': m.mp,
+                    'max_mp': m.max_mp,
+                    'alive': m.is_alive,
+                    'status_effects': [
+                        {
+                            'name': e['name'],
+                            'remaining': e['remaining'],
+                            'display': STATUS_DEFINITIONS.get(e['name'], {}).get('message', e['name'])
+                        }
+                        for e in m.status_effects
+                    ],
+                } for m in battle_obj.enemy_party],
             }
             return jsonify({'hp_values': hp_vals, 'log': battle_obj.log, 'finished': True, 'turn': battle_obj.turn, 'html': html})
         return render_template('battle.html', messages=msgs, user_id=user_id)
     current_actor = battle_obj.current_actor()
     if request.method == 'POST':
         hp_vals = {
-            'player': [{'hp': m.hp, 'max_hp': m.max_hp, 'mp': m.mp, 'max_mp': m.max_mp, 'alive': m.is_alive} for m in battle_obj.player_party],
-            'enemy': [{'hp': m.hp, 'max_hp': m.max_hp, 'mp': m.mp, 'max_mp': m.max_mp, 'alive': m.is_alive} for m in battle_obj.enemy_party],
+            'player': [{
+                'hp': m.hp,
+                'max_hp': m.max_hp,
+                'mp': m.mp,
+                'max_mp': m.max_mp,
+                'alive': m.is_alive,
+                'status_effects': [
+                    {
+                        'name': e['name'],
+                        'remaining': e['remaining'],
+                        'display': STATUS_DEFINITIONS.get(e['name'], {}).get('message', e['name'])
+                    }
+                    for e in m.status_effects
+                ],
+            } for m in battle_obj.player_party],
+            'enemy': [{
+                'hp': m.hp,
+                'max_hp': m.max_hp,
+                'mp': m.mp,
+                'max_mp': m.max_mp,
+                'alive': m.is_alive,
+                'status_effects': [
+                    {
+                        'name': e['name'],
+                        'remaining': e['remaining'],
+                        'display': STATUS_DEFINITIONS.get(e['name'], {}).get('message', e['name'])
+                    }
+                    for e in m.status_effects
+                ],
+            } for m in battle_obj.enemy_party],
         }
         actor = battle_obj.current_actor()
         actor_data = None
@@ -360,8 +417,36 @@ def battle_json(user_id):
     if not battle_obj:
         return jsonify({'error': 'no_active_battle'}), 404
     hp_vals = {
-        'player': [{'hp': m.hp, 'max_hp': m.max_hp, 'mp': m.mp, 'max_mp': m.max_mp, 'alive': m.is_alive} for m in battle_obj.player_party],
-        'enemy': [{'hp': m.hp, 'max_hp': m.max_hp, 'mp': m.mp, 'max_mp': m.max_mp, 'alive': m.is_alive} for m in battle_obj.enemy_party],
+        'player': [{
+            'hp': m.hp,
+            'max_hp': m.max_hp,
+            'mp': m.mp,
+            'max_mp': m.max_mp,
+            'alive': m.is_alive,
+            'status_effects': [
+                {
+                    'name': e['name'],
+                    'remaining': e['remaining'],
+                    'display': STATUS_DEFINITIONS.get(e['name'], {}).get('message', e['name'])
+                }
+                for e in m.status_effects
+            ],
+        } for m in battle_obj.player_party],
+        'enemy': [{
+            'hp': m.hp,
+            'max_hp': m.max_hp,
+            'mp': m.mp,
+            'max_mp': m.max_mp,
+            'alive': m.is_alive,
+            'status_effects': [
+                {
+                    'name': e['name'],
+                    'remaining': e['remaining'],
+                    'display': STATUS_DEFINITIONS.get(e['name'], {}).get('message', e['name'])
+                }
+                for e in m.status_effects
+            ],
+        } for m in battle_obj.enemy_party],
     }
     if battle_obj.finished:
         html = render_template('battle.html', messages=battle_obj.log, user_id=user_id)
