@@ -79,9 +79,9 @@ def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, i
             def_bonus = int(avg_level)
             spd_bonus = int(avg_level * 0.5)
             new_monster.max_hp += hp_bonus
-            new_monster.attack += atk_bonus
-            new_monster.defense += def_bonus
-            new_monster.speed += spd_bonus
+            new_monster.base_attack += atk_bonus
+            new_monster.base_defense += def_bonus
+            new_monster.base_speed += spd_bonus
             new_monster.level = 1
             new_monster.exp = 0
             new_monster.hp = new_monster.max_hp
