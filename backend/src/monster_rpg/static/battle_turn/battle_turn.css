@@ -197,3 +197,16 @@ button:hover { background: #004cd1; }
     transform: translateY(-40px);
     opacity: 1;
 }
+
+/* --- Skill selection UI --- */
+#skill-ui { display: none; margin-top: .5rem; }
+.skill-tabs { display: flex; border-bottom: 1px solid #555; margin-bottom: .5rem; }
+.skill-tab { flex: 1; padding: .3rem .5rem; background: #333; border: none; color: #eee; cursor: pointer; border-bottom: 2px solid transparent; }
+.skill-tab.active { background: #004cd1; border-color: #88c0ff; }
+.skill-panels { }
+.skill-panel.hidden { display: none; }
+.skill-panel { display: flex; flex-wrap: wrap; gap: .25rem; }
+.skill-btn { background: #444; border: 1px solid #777; border-radius: 4px; padding: .3rem .6rem; cursor: pointer; }
+.skill-btn.selected { background: #0066cc; }
+.skill-btn.disabled { opacity: 0.5; cursor: not-allowed; }
+.skill-desc { margin-top: .5rem; min-height: 1.5rem; font-size: .9rem; color: #fff; }
