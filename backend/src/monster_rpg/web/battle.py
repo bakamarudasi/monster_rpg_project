@@ -122,14 +122,32 @@ class Battle:
             idx = act.get('item_idx', -1)
             t_idx = act.get('target_ally', 0)
             if self.player and 0 <= idx < len(self.player.items) and 0 <= t_idx < len(self.player_party):
-                item_name = self.player.items[idx].name
+                item_obj = self.player.items[idx]
+                item_name = item_obj.name
                 target = self.player_party[t_idx]
+                before_hp = target.hp
+                before_mp = target.mp
+                before_status = {e['name'] for e in target.status_effects}
                 success = self.player.use_item(idx, target)
-                msg = f'{actor.name}は {item_name} を使った。' if success else f'{actor.name}は {item_name} を使えなかった。'
+                if success:
+                    msg = f'{actor.name}は {item_name} を使った。'
+                    self.log.append({'type': 'info', 'message': msg})
+                    healed_hp = target.hp - before_hp
+                    healed_mp = target.mp - before_mp
+                    if healed_hp > 0:
+                        self.log.append({'type': 'player_heal', 'message': f'{target.name}のHPが{healed_hp}回復した!'})
+                    if healed_mp > 0:
+                        self.log.append({'type': 'player_heal', 'message': f'{target.name}のMPが{healed_mp}回復した!'})
+                    after_status = {e['name'] for e in target.status_effects}
+                    cured = before_status - after_status
+                    for st in cured:
+                        disp = STATUS_DEFINITIONS.get(st, {}).get('message', st)
+                        self.log.append({'type': 'info', 'message': f'{target.name} の{disp}が治った!'})
+                else:
+                    msg = f'{actor.name}は {item_name} を使えなかった。'
+                    self.log.append({'type': 'info', 'message': msg})
             else:
-                success = False
-                msg = f'{actor.name} はアイテムを使えなかった。'
-            self.log.append({'type': 'info', 'message': msg})
+                self.log.append({'type': 'info', 'message': f'{actor.name} はアイテムを使えなかった。'})
             return
         if act.get('type') == 'scout':
             t_idx = act.get('target_enemy', -1)
