@@ -16,6 +16,8 @@ class HiddenConnectionsTests(unittest.TestCase):
         database_setup.DATABASE_NAME = self.db_path
         database_setup.initialize_database()
         self.user_id = database_setup.create_user('tester', 'pw')
+        app.config['TESTING'] = True
+        app.config['WTF_CSRF_ENABLED'] = False
         self.client = app.test_client()
         player = Player('Tester', user_id=self.user_id)
         player.current_location_id = 'deep_forest'
@@ -28,6 +30,7 @@ class HiddenConnectionsTests(unittest.TestCase):
 
     def test_connections_unlocked_at_100(self):
         loc = LOCATIONS['deep_forest']
+        loc.boss_enemy_id = None
         self.assertNotIn('さらに奥へ', loc.connections)
         with patch('monster_rpg.web.explore.random.randint', return_value=20), \
              patch('monster_rpg.web.explore.random.random', return_value=1.0):

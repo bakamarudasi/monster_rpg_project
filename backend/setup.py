@@ -17,6 +17,7 @@ setup(
         ]
     },
     install_requires=[
-        'Flask'
+        'Flask',
+        'Flask-WTF'
     ],
 )

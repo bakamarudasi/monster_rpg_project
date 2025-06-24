@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+from flask_wtf.csrf import CSRFProtect
 from .. import database_setup
 from ..map_data import load_locations
 
@@ -10,6 +11,8 @@ def create_app():
     static = os.path.join(base_dir, '..', 'static')
     app = Flask(__name__, template_folder=templates, static_folder=static)
     app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret")
+    app.config.setdefault("WTF_CSRF_SECRET_KEY", app.secret_key)
+    csrf = CSRFProtect(app)
     database_setup.initialize_database()
     load_locations()
 
