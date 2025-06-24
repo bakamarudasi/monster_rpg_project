@@ -40,5 +40,13 @@ class BattleGetJsonTests(unittest.TestCase):
         self.assertIn('log', data)
         self.assertIn('finished', data)
 
+    def test_get_returns_404_without_active_battle(self):
+        active_battles.pop(self.user_id, None)
+        resp = self.client.get(f'/battle-json/{self.user_id}')
+        self.assertEqual(resp.status_code, 404)
+        data = resp.get_json()
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data.get('error'), 'no_active_battle')
+
 if __name__ == '__main__':
     unittest.main()

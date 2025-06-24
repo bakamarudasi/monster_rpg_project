@@ -362,7 +362,12 @@ function setupBattleUI() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })
-                .then(resp => resp.json())
+                .then(resp => {
+                    if (!resp.ok) {
+                        throw new Error(`HTTP ${resp.status}`);
+                    }
+                    return resp.json();
+                })
                 .then(data => {
                     if (data.finished) {
                         document.open();
@@ -374,7 +379,7 @@ function setupBattleUI() {
                 })
                 .catch(err => {
                     console.error('Fetch error', err);
-                    alert('通信エラーが発生しました');
+                    alert(`通信エラー: ${err.message}`);
                 })
                 .finally(() => {
                     if (submitBtn) submitBtn.disabled = false;
@@ -576,9 +581,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const m = form.getAttribute('action').match(/\/battle\/(\d+)/);
         if (m) {
             fetch(`/battle/${m[1]}`)
-                .then(resp => resp.json())
+                .then(resp => {
+                    if (!resp.ok) {
+                        throw new Error(`HTTP ${resp.status}`);
+                    }
+                    return resp.json();
+                })
                 .then(data => applyBattleData(data))
-                .catch(err => console.error('Fetch error', err));
+                .catch(err => {
+                    console.error('Fetch error', err);
+                    alert(`通信エラー: ${err.message}`);
+                });
         }
     }
 });
