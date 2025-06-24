@@ -132,40 +132,48 @@ function buildActionUI(data) {
     const actionSel = document.getElementById('action');
     if (actionSel) {
         actionSel.textContent = '';
-        const defs = [
-            {val:'attack', txt:'攻撃', target:'enemy', scope:'single'},
-            {val:'skill',  txt:'スキル', target:'enemy', scope:'single'},
-            {val:'item',   txt:'アイテム', target:'ally', scope:'single'},
-            {val:'scout',  txt:'スカウト', target:'enemy', scope:'single'},
-            {val:'run',    txt:'逃げる', target:'none', scope:'none'}
-        ];
-        defs.forEach(d => {
+    }
+
+    const defs = [
+        {val:'attack', txt:'攻撃', target:'enemy', scope:'single'},
+        {val:'skill',  txt:'スキル', target:'enemy', scope:'single'},
+        {val:'item',   txt:'アイテム', target:'ally', scope:'single'},
+        {val:'scout',  txt:'スカウト', target:'enemy', scope:'single'},
+        {val:'run',    txt:'逃げる', target:'none', scope:'none'}
+    ];
+
+    const actionsPanel = document.getElementById('tab-panel-actions') || document.getElementById('tab-actions');
+    if (actionsPanel) actionsPanel.textContent = '';
+
+    defs.forEach(d => {
+        if (actionSel) {
             const opt = document.createElement('option');
             opt.value = d.val;
             opt.dataset.target = d.target;
             opt.dataset.scope = d.scope;
             opt.textContent = d.txt;
             actionSel.appendChild(opt);
-        });
-    }
+        }
 
-    const actionsPanel = document.getElementById('tab-actions');
-    if (actionsPanel) {
-        actionsPanel.textContent = '';
-        ['attack','scout','run'].forEach(act => {
+        if (actionsPanel && ['attack','scout','run'].includes(d.val)) {
             const btn = document.createElement('button');
             btn.type = 'button';
-            const map = {attack:'攻撃',scout:'スカウト',run:'逃げる'};
-            btn.textContent = map[act];
+            btn.textContent = d.txt;
             btn.addEventListener('click', () => {
-                if (actionSel) actionSel.value = act;
+                if (actionSel) {
+                    actionSel.value = d.val;
+                    if (actionSel.tagName !== 'SELECT') {
+                        actionSel.dataset.target = d.target;
+                        actionSel.dataset.scope = d.scope;
+                    }
+                }
                 updateTargets();
             });
             actionsPanel.appendChild(btn);
-        });
-    }
+        }
+    });
 
-    const itemsPanel = document.getElementById('tab-items');
+    const itemsPanel = document.getElementById('tab-panel-items') || document.getElementById('tab-items');
     const itemSel = document.querySelector('select[name="item_idx"]');
     if (itemsPanel && itemSel && Array.isArray(data.items)) {
         itemsPanel.textContent = '';
@@ -180,7 +188,13 @@ function buildActionUI(data) {
             btn.type = 'button';
             btn.textContent = it.name;
             btn.addEventListener('click', () => {
-                if (actionSel) actionSel.value = 'item';
+                if (actionSel) {
+                    actionSel.value = 'item';
+                    if (actionSel.tagName !== 'SELECT') {
+                        actionSel.dataset.target = 'ally';
+                        actionSel.dataset.scope = 'single';
+                    }
+                }
                 itemSel.value = i;
                 updateTargets();
             });
@@ -243,13 +257,25 @@ function setupBattleUI() {
         const enemySel = document.querySelector('select[name="target_enemy"]');
         const allySel = document.querySelector('select[name="target_ally"]');
         const itemSel = document.querySelector('select[name="item_idx"]');
-        const opt = actionSel.selectedOptions[0];
-        const target = opt.dataset.target || 'enemy';
-        const scope = opt.dataset.scope || 'single';
 
-        const isItem = opt.value === 'item';
+        let actionVal = actionSel.value;
+        let target = 'enemy';
+        let scope = 'single';
+        if (actionSel.tagName === 'SELECT') {
+            const opt = actionSel.selectedOptions[0];
+            if (opt) {
+                target = opt.dataset.target || target;
+                scope = opt.dataset.scope || scope;
+                actionVal = opt.value;
+            }
+        } else {
+            target = actionSel.dataset.target || target;
+            scope = actionSel.dataset.scope || scope;
+        }
+
+        const isItem = actionVal === 'item';
         const skillUI = document.getElementById('skill-ui');
-        if (skillUI) skillUI.style.display = opt.value === 'skill' ? '' : 'none';
+        if (skillUI) skillUI.style.display = actionVal === 'skill' ? '' : 'none';
 
         if (target === 'none' || scope === 'all') {
             enemySel.style.display = 'none';
@@ -267,7 +293,9 @@ function setupBattleUI() {
     }
     const actionSel = document.getElementById('action');
     if (actionSel) {
-        actionSel.addEventListener('change', updateTargets);
+        if (actionSel.tagName === 'SELECT') {
+            actionSel.addEventListener('change', updateTargets);
+        }
         updateTargets();
     }
     window.updateTargets = updateTargets;
@@ -500,52 +528,25 @@ function applyBattleData(data) {
 
     if (data.current_actor) {
         const label = document.querySelector('label[for="action"]');
-        const actionSel = document.getElementById('action');
         if (label) label.textContent = data.current_actor.name + ':';
-        if (actionSel) {
-            actionSel.textContent = '';
-            const atkOpt = document.createElement('option');
-            atkOpt.value = 'attack';
-            atkOpt.dataset.target = 'enemy';
-            atkOpt.dataset.scope = 'single';
-            atkOpt.textContent = '攻撃';
-            actionSel.appendChild(atkOpt);
 
-            const skillOpt = document.createElement('option');
-            skillOpt.value = 'skill';
-            skillOpt.dataset.target = 'enemy';
-            skillOpt.dataset.scope = 'single';
-            skillOpt.textContent = 'スキル';
-            actionSel.appendChild(skillOpt);
-
-            const itemOpt = document.createElement('option');
-            itemOpt.value = 'item';
-            itemOpt.dataset.target = 'ally';
-            itemOpt.dataset.scope = 'single';
-            itemOpt.textContent = 'アイテム';
-            actionSel.appendChild(itemOpt);
-
-            const scoutOpt = document.createElement('option');
-            scoutOpt.value = 'scout';
-            scoutOpt.dataset.target = 'enemy';
-            scoutOpt.dataset.scope = 'single';
-            scoutOpt.textContent = 'スカウト';
-            actionSel.appendChild(scoutOpt);
-
-            const runOpt = document.createElement('option');
-            runOpt.value = 'run';
-            runOpt.dataset.target = 'none';
-            runOpt.dataset.scope = 'none';
-            runOpt.textContent = '逃げる';
-            actionSel.appendChild(runOpt);
-
-            updateTargets();
-        }
+        buildActionUI(data);
+        updateTargets();
 
         const activeUnit = Array.from(allyUnits).find(u => u.dataset.unitId === data.current_actor.unit_id);
         if (activeUnit) activeUnit.classList.add('active-turn');
 
         buildSkillUI(data.current_actor);
+
+        // reset tabs to Actions when new actor's turn starts
+        const buttons = document.querySelectorAll('.tab-buttons .tab-btn');
+        const panels = document.querySelectorAll('.tab-panel');
+        buttons.forEach(b => b.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+        const firstBtn = document.querySelector('.tab-buttons .tab-btn');
+        const firstPanel = document.getElementById(firstBtn ? firstBtn.dataset.panel : 'tab-actions');
+        if (firstBtn) firstBtn.classList.add('active');
+        if (firstPanel) firstPanel.classList.add('active');
     }
 
     const cmdWindow = document.querySelector('.command-window');
