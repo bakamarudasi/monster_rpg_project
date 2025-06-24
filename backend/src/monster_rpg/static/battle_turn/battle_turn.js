@@ -1,4 +1,219 @@
+function buildUnitElement(info, idx, side) {
+    const unit = document.createElement('div');
+    unit.className = `battle-unit ${side}`;
+    if (!info.alive) unit.classList.add('down');
+    unit.dataset.unitId = `${side}-${idx}`;
+    unit.dataset.name = info.name;
+    unit.dataset.level = info.level;
+    unit.dataset.hp = info.hp;
+    unit.dataset.maxHp = info.max_hp;
+    unit.dataset.mp = info.mp;
+    unit.dataset.maxMp = info.max_mp;
+    unit.dataset.attack = info.attack;
+    unit.dataset.defense = info.defense;
+    unit.dataset.speed = info.speed;
+    unit.dataset.statuses = JSON.stringify(info.statuses || []);
+
+    if (info.image) {
+        const img = document.createElement('img');
+        img.className = 'unit-img';
+        img.src = info.image;
+        img.alt = info.name;
+        unit.appendChild(img);
+    }
+
+    const infoBox = document.createElement('div');
+    infoBox.className = 'member-info';
+    const nm = document.createElement('div');
+    nm.className = 'member-name';
+    nm.textContent = info.name;
+    infoBox.appendChild(nm);
+
+    const hpBar = document.createElement('div');
+    hpBar.className = 'hp-bar';
+    const hpFill = document.createElement('div');
+    hpFill.className = 'hp-fill';
+    const pct = Math.round(info.hp / info.max_hp * 100);
+    if (pct <= 25) hpFill.classList.add('critical');
+    else if (pct <= 50) hpFill.classList.add('low');
+    hpFill.style.width = pct + '%';
+    hpBar.appendChild(hpFill);
+    infoBox.appendChild(hpBar);
+
+    const mpBar = document.createElement('div');
+    mpBar.className = 'mp-bar';
+    const mpFill = document.createElement('div');
+    mpFill.className = 'mp-fill';
+    const mpPct = info.max_mp > 0 ? Math.round(info.mp / info.max_mp * 100) : 0;
+    mpFill.style.width = mpPct + '%';
+    mpBar.appendChild(mpFill);
+    infoBox.appendChild(mpBar);
+
+    unit.appendChild(infoBox);
+
+    const hpText = document.createElement('div');
+    hpText.className = 'hp-text';
+    hpText.textContent = info.hp + '/' + info.max_hp;
+    unit.appendChild(hpText);
+
+    const mpText = document.createElement('div');
+    mpText.className = 'mp-text';
+    mpText.textContent = info.mp + '/' + info.max_mp;
+    unit.appendChild(mpText);
+
+    return unit;
+}
+
+function populatePartyAreas(data) {
+    const enemyArea = document.getElementById('enemy-party-area');
+    const allyArea = document.getElementById('ally-party-area');
+    if (enemyArea && Array.isArray(data.enemy_info)) {
+        enemyArea.textContent = '';
+        data.enemy_info.forEach((e, i) => enemyArea.appendChild(buildUnitElement(e, i, 'enemy')));
+    }
+    if (allyArea && Array.isArray(data.ally_info)) {
+        allyArea.textContent = '';
+        data.ally_info.forEach((a, i) => allyArea.appendChild(buildUnitElement(a, i, 'ally')));
+    }
+
+    const enemySel = document.querySelector('select[name="target_enemy"]');
+    const allySel = document.querySelector('select[name="target_ally"]');
+    const itemSel = document.querySelector('select[name="item_idx"]');
+    if (enemySel && Array.isArray(data.enemy_info)) {
+        enemySel.textContent = '';
+        data.enemy_info.forEach((e, i) => {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = e.name;
+            enemySel.appendChild(opt);
+        });
+    }
+    if (allySel && Array.isArray(data.ally_info)) {
+        allySel.textContent = '';
+        data.ally_info.forEach((a, i) => {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = a.name;
+            allySel.appendChild(opt);
+        });
+    }
+    if (itemSel && Array.isArray(data.items)) {
+        itemSel.textContent = '';
+        data.items.forEach((it, i) => {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = it.name;
+            itemSel.appendChild(opt);
+        });
+    }
+}
+
+function updateTurnOrder(list) {
+    const bar = document.getElementById('turn-order-bar');
+    if (!bar) return;
+    bar.textContent = '';
+    list.forEach(id => {
+        const unit = document.querySelector(`[data-unit-id="${id}"]`);
+        if (!unit) return;
+        const img = unit.querySelector('.unit-img');
+        if (img) {
+            const icon = img.cloneNode(true);
+            icon.classList.add('turn-order-icon');
+            bar.appendChild(icon);
+        } else {
+            const span = document.createElement('span');
+            span.textContent = unit.dataset.name || id;
+            bar.appendChild(span);
+        }
+    });
+}
+
+function buildActionUI(data) {
+    const actionSel = document.getElementById('action');
+    if (actionSel) {
+        actionSel.textContent = '';
+        const defs = [
+            {val:'attack', txt:'攻撃', target:'enemy', scope:'single'},
+            {val:'skill',  txt:'スキル', target:'enemy', scope:'single'},
+            {val:'item',   txt:'アイテム', target:'ally', scope:'single'},
+            {val:'scout',  txt:'スカウト', target:'enemy', scope:'single'},
+            {val:'run',    txt:'逃げる', target:'none', scope:'none'}
+        ];
+        defs.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d.val;
+            opt.dataset.target = d.target;
+            opt.dataset.scope = d.scope;
+            opt.textContent = d.txt;
+            actionSel.appendChild(opt);
+        });
+    }
+
+    const actionsPanel = document.getElementById('tab-actions');
+    if (actionsPanel) {
+        actionsPanel.textContent = '';
+        ['attack','scout','run'].forEach(act => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            const map = {attack:'攻撃',scout:'スカウト',run:'逃げる'};
+            btn.textContent = map[act];
+            btn.addEventListener('click', () => {
+                if (actionSel) actionSel.value = act;
+                updateTargets();
+            });
+            actionsPanel.appendChild(btn);
+        });
+    }
+
+    const itemsPanel = document.getElementById('tab-items');
+    const itemSel = document.querySelector('select[name="item_idx"]');
+    if (itemsPanel && itemSel && Array.isArray(data.items)) {
+        itemsPanel.textContent = '';
+        itemSel.textContent = '';
+        data.items.forEach((it,i) => {
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = it.name;
+            itemSel.appendChild(opt);
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = it.name;
+            btn.addEventListener('click', () => {
+                if (actionSel) actionSel.value = 'item';
+                itemSel.value = i;
+                updateTargets();
+            });
+            itemsPanel.appendChild(btn);
+        });
+    }
+}
+
+function selectTabs() {
+    const buttons = document.querySelectorAll('.tab-buttons .tab-btn');
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            buttons.forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            const panel = document.getElementById(btn.dataset.panel);
+            if (panel) panel.classList.add('active');
+        });
+    });
+}
+
 function setupBattleUI() {
+    const dataElem = document.getElementById('battle-init-data');
+    let initData = {};
+    if (dataElem) {
+        try { initData = JSON.parse(dataElem.textContent); } catch(e) { console.error(e); }
+    }
+
+    populatePartyAreas(initData);
+    buildActionUI(initData);
+    updateTurnOrder(initData.turn_order || []);
+    selectTabs();
+
     /* HPバーのアニメーション */
     document.querySelectorAll('.hp-fill').forEach(fill => {
         const finalWidth = fill.style.width;
@@ -258,12 +473,16 @@ function buildSkillUI(actor) {
 function applyBattleData(data) {
     const detailPanel = document.getElementById('enemy-detail');
     if (detailPanel) detailPanel.classList.remove('open');
-    const allyUnits = document.querySelectorAll('.ally-party-display .battle-unit');
+    const allyUnits = document.querySelectorAll('#ally-party-area .battle-unit');
     allyUnits.forEach(el => el.classList.remove('active-turn'));
     updateUnitList(allyUnits, data.hp_values.player);
 
-    const enemyUnits = document.querySelectorAll('.enemy-area .battle-unit');
+    const enemyUnits = document.querySelectorAll('#enemy-party-area .battle-unit');
     updateUnitList(enemyUnits, data.hp_values.enemy);
+
+    if (Array.isArray(data.turn_order)) {
+        updateTurnOrder(data.turn_order);
+    }
 
     const logEl = document.querySelector('.log');
     if (logEl) {
