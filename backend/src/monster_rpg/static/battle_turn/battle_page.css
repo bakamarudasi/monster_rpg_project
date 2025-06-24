@@ -1,0 +1,34 @@
+.battle-page {
+    max-width: 960px;
+    margin: 1rem auto;
+    padding: 1rem;
+    background: #f8f0c0;
+    border: 1px solid #d8caa0;
+    border-radius: 8px;
+}
+.turn-order-bar {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+.party-area {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.command-tabs {
+    margin-top: 1rem;
+}
+.tab-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+.tab-buttons button {
+    padding: 0.3rem 0.6rem;
+}
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+

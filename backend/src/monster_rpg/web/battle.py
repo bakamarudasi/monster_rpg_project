@@ -10,6 +10,45 @@ from ..map_data import LOCATIONS
 from ..exploration import generate_enemy_party
 
 
+def serialize_monster(m, unit_id):
+    return {
+        'unit_id': unit_id,
+        'name': m.name,
+        'level': m.level,
+        'hp': m.hp,
+        'max_hp': m.max_hp,
+        'mp': m.mp,
+        'max_mp': m.max_mp,
+        'attack': m.attack,
+        'defense': m.defense,
+        'speed': m.speed,
+        'alive': m.is_alive,
+        'image': url_for('static', filename='images/' + m.image_filename) if m.image_filename else None,
+        'statuses': [
+            {
+                'name': e['name'],
+                'remaining': e['remaining'],
+                'display': STATUS_DEFINITIONS.get(e['name'], {}).get('message', e['name'])
+            }
+            for e in m.status_effects
+        ],
+    }
+
+
+def turn_order_ids(battle_obj):
+    ids = []
+    for actor in battle_obj.turn_order:
+        if not actor.is_alive:
+            continue
+        if actor in battle_obj.player_party:
+            idx = battle_obj.player_party.index(actor)
+            ids.append(f'ally-{idx}')
+        else:
+            idx = battle_obj.enemy_party.index(actor)
+            ids.append(f'enemy-{idx}')
+    return ids
+
+
 class Battle:
     """Stateful battle that processes actions sequentially."""
 
@@ -381,7 +420,7 @@ def battle(user_id):
                     ],
                 } for m in battle_obj.enemy_party],
             }
-            return jsonify({'hp_values': hp_vals, 'log': battle_obj.log, 'finished': True, 'turn': battle_obj.turn, 'html': html})
+            return jsonify({'hp_values': hp_vals, 'log': battle_obj.log, 'finished': True, 'turn': battle_obj.turn, 'html': html, 'turn_order': turn_order_ids(battle_obj)})
         return render_template('battle.html', messages=msgs, user_id=user_id)
     current_actor = battle_obj.current_actor()
     if request.method == 'POST':
@@ -426,8 +465,24 @@ def battle(user_id):
                 'unit_id': f'ally-{idx}',
                 'skills': [{'name': sk.name, 'target': getattr(sk, 'target', 'enemy'), 'scope': getattr(sk, 'scope', 'single')} for sk in actor.skills],
             }
-        return jsonify({'hp_values': hp_vals, 'log': battle_obj.log, 'finished': False, 'turn': battle_obj.turn, 'current_actor': actor_data})
-    return render_template('battle_turn.html', user_id=user_id, battle=battle_obj, player_party=battle_obj.player_party, enemy_party=battle_obj.enemy_party, log=battle_obj.log, current_actor=current_actor)
+        return jsonify({'hp_values': hp_vals, 'log': battle_obj.log, 'finished': False, 'turn': battle_obj.turn, 'current_actor': actor_data, 'turn_order': turn_order_ids(battle_obj)})
+    init_data = {
+        'ally_info': [serialize_monster(m, f'ally-{i}') for i, m in enumerate(battle_obj.player_party)],
+        'enemy_info': [serialize_monster(m, f'enemy-{i}') for i, m in enumerate(battle_obj.enemy_party)],
+        'items': [{'name': it.name} for it in (player.items if player else [])],
+        'turn': battle_obj.turn,
+        'log': battle_obj.log,
+        'current_actor': None,
+        'turn_order': turn_order_ids(battle_obj)
+    }
+    if current_actor and current_actor in battle_obj.player_party:
+        idx = battle_obj.player_party.index(current_actor)
+        init_data['current_actor'] = {
+            'name': current_actor.name,
+            'unit_id': f'ally-{idx}',
+            'skills': [{'name': sk.name, 'target': getattr(sk, 'target', 'enemy'), 'scope': getattr(sk, 'scope', 'single')} for sk in current_actor.skills],
+        }
+    return render_template('battle_turn.html', user_id=user_id, init_data=init_data)
 
 
 @battle_bp.route('/battle-json/<int:user_id>', methods=['GET'], endpoint='battle_json')
@@ -470,7 +525,7 @@ def battle_json(user_id):
     }
     if battle_obj.finished:
         html = render_template('battle.html', messages=battle_obj.log, user_id=user_id)
-        return jsonify({'hp_values': hp_vals, 'log': battle_obj.log, 'finished': True, 'turn': battle_obj.turn, 'html': html})
+        return jsonify({'hp_values': hp_vals, 'log': battle_obj.log, 'finished': True, 'turn': battle_obj.turn, 'html': html, 'turn_order': turn_order_ids(battle_obj)})
     actor = battle_obj.current_actor()
     actor_data = None
     if actor and actor in battle_obj.player_party:
@@ -480,4 +535,4 @@ def battle_json(user_id):
             'unit_id': f'ally-{idx}',
             'skills': [{'name': sk.name, 'target': getattr(sk, 'target', 'enemy'), 'scope': getattr(sk, 'scope', 'single')} for sk in actor.skills],
         }
-    return jsonify({'hp_values': hp_vals, 'log': battle_obj.log, 'finished': False, 'turn': battle_obj.turn, 'current_actor': actor_data})
+    return jsonify({'hp_values': hp_vals, 'log': battle_obj.log, 'finished': False, 'turn': battle_obj.turn, 'current_actor': actor_data, 'turn_order': turn_order_ids(battle_obj)})
