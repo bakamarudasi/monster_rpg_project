@@ -57,6 +57,7 @@ def _load_from_json(filepath: str | None = None) -> Tuple[Dict[str, Monster], Di
             monster_id=monster_id,
             rank=attrs.get("rank", RANK_D),
             image_filename=attrs.get("image_filename"),
+            skill_sequence=attrs.get("skill_sequence"),
         )
         skill_ids = list(attrs.get("skills", []))
         for set_id in attrs.get("skill_sets", []):

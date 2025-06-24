@@ -4,7 +4,7 @@ from typing import cast
 from .player import Player  # Playerクラスは直接使わないが、型ヒントなどで参照される可能性を考慮
 from .monsters import Monster  # Monsterクラスのみ参照
 from .items.equipment import Equipment, EquipmentInstance, create_titled_equipment
-from .skills.skills import Skill  # Skillクラスを参照
+from .skills.skills import Skill, ALL_SKILLS  # Skillクラスを参照
 from .skills.skill_actions import apply_effects
 # import traceback # デバッグ時に必要なら再度有効化
 
@@ -134,6 +134,10 @@ STATUS_DEFINITIONS = {
         "message": "チャージ",
         "on_apply": lambda m: _charge_apply(m),
     },
+    "defending": {
+        "duration": 1,
+        "message": "防御",
+    },
 }
 
 
@@ -156,6 +160,17 @@ def apply_status(target: Monster, status_name: str, duration: int | None = None)
     print(f"{target.name} は{data['message']}状態になった！")
 
 
+def is_defending(monster: Monster) -> bool:
+    """Return True if the monster is in defending state."""
+    return any(e["name"] == "defending" for e in monster.status_effects)
+
+
+def defend(monster: Monster) -> None:
+    """Apply defending status for one turn."""
+    apply_status(monster, "defending", 1)
+    print(f"{monster.name} は身を守っている！")
+
+
 def calculate_damage(attacker: Monster, defender: Monster) -> int:
     """通常攻撃のダメージを計算します。"""
     base = attacker.total_attack() - defender.total_defense()
@@ -175,6 +190,9 @@ def calculate_damage(attacker: Monster, defender: Monster) -> int:
     # クリティカル判定
     if random.random() < CRITICAL_HIT_CHANCE:
         damage = int(damage * CRITICAL_HIT_MULTIPLIER)
+
+    if is_defending(defender):
+        damage = int(damage * 0.5)
 
     return max(1, damage)  # 最低1ダメージは保証
 
@@ -351,6 +369,35 @@ def enemy_take_action(enemy_actor: Monster, active_player_party: list[Monster], 
     usable_skills = [s for s in enemy_actor.skills if enemy_actor.mp >= s.cost]
 
     role = getattr(enemy_actor, "ai_role", "attacker")
+
+    sequence = getattr(enemy_actor, "skill_sequence", [])
+    if sequence:
+        idx = getattr(enemy_actor, "_seq_idx", 0)
+        skill_id = sequence[idx % len(sequence)]
+        skill_obj = ALL_SKILLS.get(skill_id)
+        enemy_actor._seq_idx = idx + 1
+        if skill_obj and enemy_actor.mp >= skill_obj.cost:
+            targets: list[Monster] = []
+            if skill_obj.target == "enemy":
+                if skill_obj.scope == "all":
+                    targets = alive_player_targets
+                else:
+                    targets = [min(alive_player_targets, key=lambda m: m.hp)]
+            elif skill_obj.target == "ally":
+                allies = [m for m in active_enemy_party if m.is_alive]
+                if skill_obj.scope == "all":
+                    targets = allies
+                else:
+                    targets = [enemy_actor]
+            else:
+                targets = [enemy_actor]
+            if targets:
+                apply_skill_effect(enemy_actor, targets, skill_obj, active_enemy_party, active_player_party)
+                return
+
+    if enemy_actor.hp <= enemy_actor.max_hp * 0.3 and not is_defending(enemy_actor):
+        defend(enemy_actor)
+        return
 
     if taunted:
         if cant_attack:

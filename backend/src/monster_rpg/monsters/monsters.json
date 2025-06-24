@@ -467,6 +467,11 @@
       "holy_light",
       "revive"
     ],
+    "skill_sequence": [
+      "meteor_strike",
+      "holy_light",
+      "revive"
+    ],
     "drop_items": [],
     "learnset": {},
     "book": {

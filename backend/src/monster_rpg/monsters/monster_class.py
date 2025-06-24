@@ -110,10 +110,28 @@ def calculate_exp_for_late(current_level):
         return (current_level ** 2) * 20 + 50
 
 class Monster:
-    def __init__(self, name, hp, attack, defense, mp=30, level=1, exp=0, element=None, skills=None,
-                 growth_type=GROWTH_TYPE_AVERAGE, monster_id=None, image_filename=None,
-                 rank=RANK_D, speed=5, drop_items=None, scout_rate=0.25,
-                 ai_role="attacker", learnset=None):
+    def __init__(
+        self,
+        name,
+        hp,
+        attack,
+        defense,
+        mp=30,
+        level=1,
+        exp=0,
+        element=None,
+        skills=None,
+        growth_type=GROWTH_TYPE_AVERAGE,
+        monster_id=None,
+        image_filename=None,
+        rank=RANK_D,
+        speed=5,
+        drop_items=None,
+        scout_rate=0.25,
+        ai_role="attacker",
+        learnset=None,
+        skill_sequence=None,
+    ):
         self.name = name
         self.hp = hp
         self.max_hp = hp
@@ -153,6 +171,7 @@ class Monster:
         self.equipment = {}
         self.equipment_slots = ["weapon", "armor", "accessory"]
         self.learnset = learnset if learnset else {}
+        self.skill_sequence = skill_sequence if skill_sequence else []
 
     # ------------------------------------------------------------------
     # Derived stat properties
@@ -506,4 +525,5 @@ class Monster:
         new_monster.mp = new_monster.max_mp
         new_monster.base_magic = self.base_magic
         new_monster.is_alive = True
+        new_monster.skill_sequence = self.skill_sequence[:]
         return new_monster

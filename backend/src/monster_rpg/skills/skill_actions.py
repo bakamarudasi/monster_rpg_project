@@ -14,9 +14,16 @@ from .skills import Skill
 from ..monsters.monster_class import Monster
 
 
+def is_defending(monster: Monster) -> bool:
+    """Check if the monster is in defending state."""
+    return any(e.get("name") == "defending" for e in monster.status_effects)
+
+
 def deal_damage(target: Monster, damage: int) -> int:
     """Apply raw damage considering defense."""
     actual = max(1, damage - target.defense)
+    if is_defending(target):
+        actual = int(actual * 0.5)
     target.hp -= actual
     print(f"{target.name} に {actual} のダメージ！ (残りHP: {max(0, target.hp)})")
     if target.hp <= 0:
@@ -41,6 +48,8 @@ def calculate_skill_damage(caster: Monster, target: Monster, skill: Skill) -> in
         mult = 0.5 if rev is not None else 1.0
 
     damage = int(damage * mult)
+    if is_defending(target):
+        damage = int(damage * 0.5)
     return max(1, damage)
 
 
