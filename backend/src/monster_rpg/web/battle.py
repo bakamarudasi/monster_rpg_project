@@ -318,6 +318,8 @@ def battle(user_id):
                             player.items.append(item_obj)
                             msgs.append({'type': 'item_drop', 'message': f'{item_obj.name} を手に入れた！', 'item_name': item_obj.name})
             msgs.append({'type': 'info', 'message': f'勝利した！ {gold_gain}G を得た。'})
+        elif outcome == 'fled':
+            msgs.append({'type': 'info', 'message': 'うまく逃げ切れた！'})
         else:
             msgs.append({'type': 'info', 'message': '敗北してしまった...'})
         player.last_battle_log = msgs
