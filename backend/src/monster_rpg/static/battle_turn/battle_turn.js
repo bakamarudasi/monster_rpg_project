@@ -1,3 +1,4 @@
+(() => {
 function buildUnitElement(info, idx, side) {
     const unit = document.createElement('div');
     unit.className = `battle-unit ${side}`;
@@ -216,6 +217,47 @@ function selectTabs() {
     });
 }
 
+function updateTargets() {
+    const actionSel = document.getElementById('action');
+    if (!actionSel) return;
+    const enemySel = document.querySelector('select[name="target_enemy"]');
+    const allySel = document.querySelector('select[name="target_ally"]');
+    const itemSel = document.querySelector('select[name="item_idx"]');
+
+    let actionVal = actionSel.value;
+    let target = 'enemy';
+    let scope = 'single';
+    if (actionSel.tagName === 'SELECT') {
+        const opt = actionSel.selectedOptions[0];
+        if (opt) {
+            target = opt.dataset.target || target;
+            scope = opt.dataset.scope || scope;
+            actionVal = opt.value;
+        }
+    } else {
+        target = actionSel.dataset.target || target;
+        scope = actionSel.dataset.scope || scope;
+    }
+
+    const isItem = actionVal === 'item';
+    const skillUI = document.getElementById('skill-ui');
+    if (skillUI) skillUI.style.display = actionVal === 'skill' ? '' : 'none';
+
+    if (target === 'none' || scope === 'all') {
+        enemySel.style.display = 'none';
+        allySel.style.display = 'none';
+        if (itemSel) itemSel.style.display = 'none';
+    } else if (target === 'ally') {
+        enemySel.style.display = 'none';
+        allySel.style.display = '';
+        if (itemSel) itemSel.style.display = isItem ? '' : 'none';
+    } else {
+        enemySel.style.display = '';
+        allySel.style.display = 'none';
+        if (itemSel) itemSel.style.display = 'none';
+    }
+}
+
 function setupBattleUI() {
     const dataElem = document.getElementById('battle-init-data');
     let initData = {};
@@ -251,46 +293,6 @@ function setupBattleUI() {
     });
 
     /* ターゲット選択の表示切り替え */
-    function updateTargets() {
-        const actionSel = document.getElementById('action');
-        if (!actionSel) return;
-        const enemySel = document.querySelector('select[name="target_enemy"]');
-        const allySel = document.querySelector('select[name="target_ally"]');
-        const itemSel = document.querySelector('select[name="item_idx"]');
-
-        let actionVal = actionSel.value;
-        let target = 'enemy';
-        let scope = 'single';
-        if (actionSel.tagName === 'SELECT') {
-            const opt = actionSel.selectedOptions[0];
-            if (opt) {
-                target = opt.dataset.target || target;
-                scope = opt.dataset.scope || scope;
-                actionVal = opt.value;
-            }
-        } else {
-            target = actionSel.dataset.target || target;
-            scope = actionSel.dataset.scope || scope;
-        }
-
-        const isItem = actionVal === 'item';
-        const skillUI = document.getElementById('skill-ui');
-        if (skillUI) skillUI.style.display = actionVal === 'skill' ? '' : 'none';
-
-        if (target === 'none' || scope === 'all') {
-            enemySel.style.display = 'none';
-            allySel.style.display = 'none';
-            if (itemSel) itemSel.style.display = 'none';
-        } else if (target === 'ally') {
-            enemySel.style.display = 'none';
-            allySel.style.display = '';
-            if (itemSel) itemSel.style.display = isItem ? '' : 'none';
-        } else {
-            enemySel.style.display = '';
-            allySel.style.display = 'none';
-            if (itemSel) itemSel.style.display = 'none';
-        }
-    }
     const actionSel = document.getElementById('action');
     if (actionSel) {
         if (actionSel.tagName === 'SELECT') {
@@ -298,7 +300,7 @@ function setupBattleUI() {
         }
         updateTargets();
     }
-    window.updateTargets = updateTargets;
+
 
     /* 現在のHP/MPをdata属性に保存 */
     document.querySelectorAll('.battle-unit').forEach(unit => {
@@ -595,3 +597,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+})();
