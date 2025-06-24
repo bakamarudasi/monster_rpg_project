@@ -16,6 +16,8 @@ class BattleItemMpStatusTests(unittest.TestCase):
         database_setup.DATABASE_NAME = self.db_path
         database_setup.initialize_database()
         self.user_id = database_setup.create_user('tester2', 'pw')
+        app.config['TESTING'] = True
+        app.config['WTF_CSRF_ENABLED'] = False
         self.client = app.test_client()
         player = Player('Tester2', user_id=self.user_id)
         hero = Monster('Hero', hp=50, attack=5, defense=2, speed=10)

@@ -17,6 +17,8 @@ class TradeTests(unittest.TestCase):
         database_setup.initialize_database()
         self.seller_id = database_setup.create_user('seller', 'pw1')
         self.buyer_id = database_setup.create_user('buyer', 'pw2')
+        app.config['TESTING'] = True
+        app.config['WTF_CSRF_ENABLED'] = False
         self.client = app.test_client()
 
         seller = Player('Seller', user_id=self.seller_id)

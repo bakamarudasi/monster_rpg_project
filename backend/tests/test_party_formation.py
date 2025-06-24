@@ -29,6 +29,8 @@ class FormationRouteTests(unittest.TestCase):
         database_setup.DATABASE_NAME = self.db_path
         database_setup.initialize_database()
         self.user_id = database_setup.create_user('tester', 'pw')
+        app.config['TESTING'] = True
+        app.config['WTF_CSRF_ENABLED'] = False
         self.client = app.test_client()
         player = Player('Tester', user_id=self.user_id)
         for mid in ('slime', 'goblin', 'wolf'):
