@@ -1,6 +1,7 @@
 import random
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 from ..battle import STATUS_DEFINITIONS
+from ..skills.skill_actions import apply_effects
 from .. import database_setup
 from ..player import Player
 from .. import save_manager
@@ -146,42 +147,51 @@ class Battle:
                 self.log.append({'type': 'info', 'message': f'{actor.name} は MP がたりない！'})
                 return
             actor.mp -= skill.cost
-
-            if skill.skill_type == 'heal' and getattr(skill, 'target', 'ally') == 'ally':
-                if skill.scope == 'all':
-                    targets = [m for m in self.player_party if m.is_alive]
-                else:
-                    t_idx = act.get('target_ally', 0)
-                    if 0 <= t_idx < len(self.player_party) and self.player_party[t_idx].is_alive:
-                        targets = [self.player_party[t_idx]]
-                    else:
-                        target = next((p for p in self.player_party if p.is_alive), None)
-                        targets = [target] if target else []
-                if not targets:
-                    return
-                for t in targets:
-                    amount = 0
-                    for eff in skill.effects:
-                        if eff.get('type') == 'heal':
-                            amount = eff.get('amount', skill.power)
-                            stat = eff.get('stat', 'hp')
-                            t.heal(stat, amount)
-                    self.log.append({'type': 'player_heal', 'message': f'{actor.name}の{skill.name}! {t.name}のHPが{amount}回復した!'})
-                return
-
-            t_idx = act.get('target_enemy', -1)
-            if 0 <= t_idx < len(self.enemy_party) and self.enemy_party[t_idx].is_alive:
-                target = self.enemy_party[t_idx]
+            if getattr(skill, 'target', 'enemy') == 'ally':
+                party = self.player_party
+                idx_key = 'target_ally'
             else:
-                target = next((e for e in self.enemy_party if e.is_alive), None)
-            if not target:
+                party = self.enemy_party
+                idx_key = 'target_enemy'
+
+            if skill.scope == 'all':
+                targets = [m for m in party if m.is_alive]
+            else:
+                t_idx = act.get(idx_key, 0 if idx_key == 'target_ally' else -1)
+                if 0 <= t_idx < len(party) and party[t_idx].is_alive:
+                    targets = [party[t_idx]]
+                else:
+                    target = next((m for m in party if m.is_alive), None)
+                    targets = [target] if target else []
+
+            if not targets:
                 return
-            dmg = max(1, skill.power - target.defense)
-            target.hp -= dmg
-            self.log.append({'type': 'player_attack', 'message': f'{actor.name}の{skill.name}! {target.name}に{dmg}のダメージ!'})
-            if target.hp <= 0:
-                target.is_alive = False
-                self.log.append({'type': 'info', 'message': f'{target.name}をたおした！'})
+
+            for t in targets:
+                before_hp = t.hp
+                before_mp = t.mp
+                before_status = {e['name'] for e in t.status_effects}
+                apply_effects(actor, t, skill.effects, skill)
+                healed = t.hp - before_hp
+                mana_change = t.mp - before_mp
+                after_status = {e['name'] for e in t.status_effects}
+                damage = -healed if healed < 0 else 0
+                heal_amt = healed if healed > 0 else 0
+
+                if damage > 0:
+                    self.log.append({'type': 'player_attack', 'message': f'{actor.name}の{skill.name}! {t.name}に{damage}のダメージ!'})
+                    if t.hp <= 0:
+                        self.log.append({'type': 'info', 'message': f'{t.name}をたおした！'})
+                if heal_amt > 0:
+                    self.log.append({'type': 'player_heal', 'message': f'{actor.name}の{skill.name}! {t.name}のHPが{heal_amt}回復した!'})
+                if mana_change > 0:
+                    self.log.append({'type': 'player_heal', 'message': f'{t.name}のMPが{mana_change}回復した!'})
+                for st in after_status - before_status:
+                    disp = STATUS_DEFINITIONS.get(st, {}).get('message', st)
+                    self.log.append({'type': 'info', 'message': f'{t.name} は{disp}状態になった！'})
+                for st in before_status - after_status:
+                    disp = STATUS_DEFINITIONS.get(st, {}).get('message', st)
+                    self.log.append({'type': 'info', 'message': f'{t.name} の{disp}が治った!'})
             return
         if act.get('type') == 'item':
             idx = act.get('item_idx', -1)
