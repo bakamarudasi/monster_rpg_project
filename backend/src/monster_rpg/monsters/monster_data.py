@@ -55,6 +55,7 @@ def _load_from_json(filepath: str | None = None) -> Tuple[Dict[str, Monster], Di
             ai_role=attrs.get("ai_role", "attacker"),
             growth_type=attrs.get("growth_type", GROWTH_TYPE_AVERAGE),
             monster_id=monster_id,
+            family=attrs.get("family"),
             rank=attrs.get("rank", RANK_D),
             image_filename=attrs.get("image_filename"),
             skill_sequence=attrs.get("skill_sequence"),

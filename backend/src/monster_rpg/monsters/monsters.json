@@ -31,7 +31,8 @@
       "description": "ぷるぷるした弱小モンスター。水属性で、初心者の相手に最適。",
       "location_hint": "村の近くの草原などに出現",
       "synthesis_hint": "別種族と掛け合わせると特殊なモンスターが生まれるかも。"
-    }
+    },
+    "family": "slime"
   },
   "goblin": {
     "name": "ゴブリン",
@@ -76,7 +77,8 @@
       "description": "棍棒を持った、少し知恵のあるモンスター。集団で現れることが多く、油断は禁物。",
       "location_hint": "森や廃墟など、身を隠せる場所を好んでねぐらにしている。",
       "synthesis_hint": "ゴブリンの上位種は、強力な物理攻撃スキルを覚えていることが多い。"
-    }
+    },
+    "family": "beast"
   },
   "bat": {
     "name": "オオコウモリ",
@@ -110,7 +112,8 @@
       "description": "素早い動きで相手を翻弄する。雷系の攻撃に非常に弱いという弱点を持つ。",
       "location_hint": "洞窟や夜の森など、暗い場所を好む。昼間は寝ていることが多い。",
       "synthesis_hint": "素早さの高い種族と配合すると、先制攻撃に特化したモンスターが生まれやすい。"
-    }
+    },
+    "family": "beast"
   },
   "wolf": {
     "name": "ウルフ",
@@ -144,7 +147,8 @@
       "description": "俊敏な牙獣。群れで行動することが多い。",
       "location_hint": "妖精の森の奥地や丘陵街道に出現",
       "synthesis_hint": "水に関連したモンスターと相性が良い。"
-    }
+    },
+    "family": "beast"
   },
   "slime_goblin_hybrid": {
     "name": "スライムゴブリン",
@@ -167,7 +171,8 @@
       "description": "粘体と鬼童の性、異形として世に現る。ずる賢さとしぶとき身を兼備す。",
       "location_hint": "湿り気帯びし洞窟の奥深く、静かに棲みつく。",
       "synthesis_hint": "斯くも稀なる組み合わせ、斯の魔物を生む。"
-    }
+    },
+    "family": "slime"
   },
   "dragon_pup": {
     "name": "ドラゴンのこども",
@@ -192,7 +197,8 @@
       "description": "いまだ成竜にあらずとも、炎の眷属たる威厳を漂わす龍の幼子なり。",
       "location_hint": "火山の麓、またはドラゴンの古巣にて目撃談あり。",
       "synthesis_hint": "成体ドラゴンと交われば、真なる力に目覚めるとも…"
-    }
+    },
+    "family": "dragon"
   },
   "phoenix_chick": {
     "name": "不死鳥のヒナ",
@@ -217,7 +223,8 @@
       "description": "不死鳥の雛、まだ幼き身なれど、炎と再生の力をその身に宿す。",
       "location_hint": "古代の遺跡、灼熱の大地にて稀に発見さる。",
       "synthesis_hint": "炎を纏いし魔物と交わる時、伝説の力を垣間見せる。"
-    }
+    },
+    "family": "dragon"
   },
   "orc_warrior": {
     "name": "オークウォリアー",
@@ -242,7 +249,8 @@
       "description": "猛々しき力を誇るオークの戦士、凶暴にして恐れ知らず。",
       "location_hint": "峻険なる山岳、或いは荒野の野営地に集うと聞く。",
       "synthesis_hint": "毒や粘りを有する魔物との交わり、凶悪なる変化を遂ぐ。"
-    }
+    },
+    "family": "beast"
   },
   "skeleton_archer": {
     "name": "スケルトンアーチャー",
@@ -267,7 +275,8 @@
       "description": "骸骨の兵、弓を携え静かに闇を彷徨う不浄の存在。",
       "location_hint": "忘却されし墓地、暗き洞穴にて佇む姿あり。",
       "synthesis_hint": "他の屍者と合せば、更なる死の軍勢となるやも。"
-    }
+    },
+    "family": "undead"
   },
   "elf_mage": {
     "name": "エルフメイジ",
@@ -293,7 +302,8 @@
       "description": "森に住まう精霊の使い手、古の魔法を紡ぐエルフの賢者なり。",
       "location_hint": "霊樹の森、あるいは神殿跡にて目撃さる。",
       "synthesis_hint": "水・氷を司る者と合成すれば、精霊の奇跡を得るとも。"
-    }
+    },
+    "family": "humanoid"
   },
   "troll_brute": {
     "name": "トロールブルート",
@@ -318,7 +328,8 @@
       "description": "巨躯にして粗暴なる山の怪物。力は比類なきも、知恵は拙し。",
       "location_hint": "山奥の洞窟、または古き遺跡にて棲息す。",
       "synthesis_hint": "頑強なる者と混ぜれば、更なる剛の者となる。"
-    }
+    },
+    "family": "beast"
   },
   "mermaid_siren": {
     "name": "マーメイドサイレン",
@@ -343,7 +354,8 @@
       "description": "美声にて人を惑わす人魚なり。その歌声、時に死を招くとも云う。",
       "location_hint": "深き海の底、或いは静謐なる入り江に棲む。",
       "synthesis_hint": "水と魅惑の性を持つ者と合わさる時、新たなる美が生まれる。"
-    }
+    },
+    "family": "aquatic"
   },
   "thunder_eagle": {
     "name": "サンダーイーグル",
@@ -368,7 +380,8 @@
       "description": "雷光纏う天空の覇者、鷲のごとき威容で大空を翔ける。",
       "location_hint": "嵐吹き荒ぶ山頂、或いは雷雲の彼方に棲む。",
       "synthesis_hint": "岩や巨人と合成せし時、さらなる嵐を呼ぶものと成らん。"
-    }
+    },
+    "family": "beast"
   },
   "giant_golem": {
     "name": "ジャイアントゴーレム",
@@ -394,7 +407,8 @@
       "description": "大地の意思宿りし巨像。重き歩み、あらゆる障壁となる。",
       "location_hint": "古の遺跡、岩山の影にて不動のまま眠る。",
       "synthesis_hint": "雷や機械の精と交わり、新たなる命が吹き込まれる。"
-    }
+    },
+    "family": "construct"
   },
   "shadow_panther": {
     "name": "シャドウパンサー",
@@ -419,7 +433,8 @@
       "description": "深き闇に紛れる黒豹。静寂を纏い、影より影へと舞う。",
       "location_hint": "月夜の森、闇の谷間にて姿を消す。",
       "synthesis_hint": "光と闇の狭間にて、幻影と交わることで進化す。"
-    }
+    },
+    "family": "beast"
   },
   "vampire_lord": {
     "name": "ヴァンパイアロード",
@@ -446,7 +461,8 @@
       "description": "永き夜を統べる不死の王。その眼光、命ある者を畏れさせる。",
       "location_hint": "廃れし城館、夜の墓場にて徘徊す。",
       "synthesis_hint": "屍者や血を糧とする者との合成、強き呪いを生む。"
-    }
+    },
+    "family": "undead"
   },
   "celestial_dragon": {
     "name": "セレスティアルドラゴン",
@@ -478,7 +494,8 @@
       "description": "天空を司る伝説の龍。全ての理を体現せし古き守護者なり。",
       "location_hint": "雲海遥か上、神殿跡にて眠るという。",
       "synthesis_hint": "稀なる者と交われば、未知なる進化が訪れるやもしれぬ。"
-    }
+    },
+    "family": "dragon"
   },
   "water_wolf": {
     "name": "ウォーターウルフ",
@@ -503,7 +520,8 @@
       "description": "水辺に潜むウルフ。鋭い爪で襲いかかる。",
       "location_hint": "神秘の湖に出現",
       "synthesis_hint": "スライムとウルフを組み合わせると誕生するらしい。"
-    }
+    },
+    "family": "beast"
   },
   "poison_orc": {
     "name": "ポイズンオーク",
@@ -529,7 +547,8 @@
       "description": "猛毒を纏いしオークの戦鬼。触れる者皆、命を落とすと云う。",
       "location_hint": "瘴気漂う沼沢や、陰鬱なる洞穴に棲む。",
       "synthesis_hint": "毒や粘液、屍者との交わりで、なお強き変異を見せる。"
-    }
+    },
+    "family": "beast"
   },
   "frost_elf": {
     "name": "フロストエルフ",
@@ -556,7 +575,8 @@
       "description": "冷気の魔力纏いし精霊の末裔。氷の矢にて敵を討つ。",
       "location_hint": "雪深き森、氷の洞にて静かに息づく。",
       "synthesis_hint": "氷霊や精霊と合成し、新たな奇跡を起こす。"
-    }
+    },
+    "family": "humanoid"
   },
   "undead_warrior": {
     "name": "アンデッドウォリアー",
@@ -583,7 +603,8 @@
       "description": "死してなお魂を持つ戦士。その剣、恐れを知らず振るわれる。",
       "location_hint": "古き戦場跡や闇の神殿にて彷徨う。",
       "synthesis_hint": "屍者や戦士の性を有する者と交わり、更なる戦鬼を生む。"
-    }
+    },
+    "family": "undead"
   },
   "storm_golem": {
     "name": "ストームゴーレム",
@@ -610,7 +631,8 @@
       "description": "雷と大地の力が合わさりし巨像。暴風と共に歩む破壊者なり。",
       "location_hint": "雷鳴轟く峻嶺、嵐の只中に現る。",
       "synthesis_hint": "電気や大地の精と合成すれば、さらなる力を得る。"
-    }
+    },
+    "family": "construct"
   },
   "celestial_panther": {
     "name": "セレスティアルパンサー",
@@ -638,7 +660,8 @@
       "description": "天空の力を帯びし神秘の黒豹。星降る夜、その姿を見ること叶う。",
       "location_hint": "空の裂け目、星の海にて現る。",
       "synthesis_hint": "天空や幻獣の性を持つ者との合成にて生まれる稀有なる獣なり。"
-    }
+    },
+    "family": "beast"
   },
   "abyss_watcher": {
     "name": "アビスウォッチャー",
@@ -665,7 +688,8 @@
       "description": "深淵を静かに見つめる守人。その眼、世界の均衡を測るという。",
       "location_hint": "闇深き底、廃墟の片隅にて孤独に佇む。",
       "synthesis_hint": "闇や時空の理を司る者と合せば、さらなる神秘を得る。"
-    }
+    },
+    "family": "undead"
   },
   "cinder_sentinel": {
     "name": "シンダーセンチネル",
@@ -692,7 +716,8 @@
       "description": "灼熱の灰に身を包みし守護者。炎と灰、二つの相を持つ。",
       "location_hint": "火山や焦土の地、常に熱を発し続ける。",
       "synthesis_hint": "炎や石、守りを司る者と合せし時、新たなる壁とならん。"
-    }
+    },
+    "family": "construct"
   },
   "ashen_drake": {
     "name": "アシェンドレイク",
@@ -718,7 +743,8 @@
       "description": "灰の力を抱く小竜。滅びと再生、両極の性を備える。",
       "location_hint": "火山帯、焼け野原の片隅にてその影を見る。",
       "synthesis_hint": "炎、風、竜の血を引く者と交われば真価を発揮す。"
-    }
+    },
+    "family": "dragon"
   },
   "blighted_knight": {
     "name": "ブライテッドナイト",
@@ -745,7 +771,8 @@
       "description": "呪いを纏いし黒き騎士。腐敗せし鎧にて敵を圧倒す。",
       "location_hint": "呪われし城郭、死の大地にて佇む。",
       "synthesis_hint": "屍者や毒、騎士の名を持つ者との合成により進化せん。"
-    }
+    },
+    "family": "undead"
   },
   "gravetide_hollow": {
     "name": "グレイブタイドホロウ",
@@ -771,7 +798,8 @@
       "description": "墓所の深き淵にて待ち受ける怪しき影。静けさの中、獲物を待つ。",
       "location_hint": "忘却されし墓地の最深部、誰も知らぬ静寂の底。",
       "synthesis_hint": "屍者、水、闇の力を持つ者と交わりて進化するという。"
-    }
+    },
+    "family": "undead"
   },
   "nameless_kingling": {
     "name": "ネームレスキングリング",
@@ -797,7 +825,8 @@
       "description": "名もなき王の末裔。時を超えし力、今なお眠れる王威を帯びる。",
       "location_hint": "古の王家の墓所、廃都の影にて発見されし。",
       "synthesis_hint": "王族や精霊、竜の血を引く者と交わればその真価を現す。"
-    }
+    },
+    "family": "undead"
   },
   "pontiff_shade": {
     "name": "ポンティフシェイド",
@@ -823,7 +852,8 @@
       "description": "司祭の怨嗟より生まれし影。呪詛と祈り、二つの相を持つ。",
       "location_hint": "呪われし教会、闇の祭壇にて人知れず佇む。",
       "synthesis_hint": "闇や精霊、魔法を操る者と合成すれば新たな術を得る。"
-    }
+    },
+    "family": "undead"
   },
   "desert_scorpion": {
     "name": "デザートスコーピオン",
@@ -849,7 +879,8 @@
       "description": "砂海を駆ける狩人。猛毒の尾を振るい、敵を一閃に葬る。",
       "location_hint": "砂漠や蜃気楼の彼方、オアシス近辺に潜む。",
       "synthesis_hint": "毒や大地、昆虫の性を持つ者との合成が妙。"
-    }
+    },
+    "family": "insect"
   },
   "sand_wyrm": {
     "name": "サンドワーム",
@@ -876,7 +907,8 @@
       "description": "砂に潜みし大いなる蛇竜。地を震わせて地上に顕現す。",
       "location_hint": "砂漠の地底深く、静かなる闇の中。",
       "synthesis_hint": "大地や竜、虫の血を引く者と交わりて強化す。"
-    }
+    },
+    "family": "dragon"
   },
   "lava_elemental": {
     "name": "ラヴァエレメンタル",
@@ -902,7 +934,8 @@
       "description": "灼熱の溶岩に魂を持つ精霊。触れるもの総てを灰燼に帰す。",
       "location_hint": "活火山の噴火口、または溶岩の洞に宿る。",
       "synthesis_hint": "炎や石、精霊と合わさる時、真の力を発揮す。"
-    }
+    },
+    "family": "elemental"
   },
   "crystal_drake": {
     "name": "クリスタルドレイク",
@@ -929,7 +962,8 @@
       "description": "水晶の鱗を持つ小竜。美しくも苛烈なる攻撃性を秘める。",
       "location_hint": "鉱山の奥底、または地下水晶宮殿にて目撃あり。",
       "synthesis_hint": "大地や竜、光を持つ者と交わりて新たな形を成す。"
-    }
+    },
+    "family": "dragon"
   },
   "kraken": {
     "name": "クラーケン",
@@ -956,7 +990,8 @@
       "description": "深き海より現れし大いなる魔物。触手を以て船を沈めるとも。",
       "location_hint": "大海原の只中、海底遺跡にて目撃談多し。",
       "synthesis_hint": "水や巨大、触手を持つ者との合成にてさらなる変異を遂げる。"
-    }
+    },
+    "family": "aquatic"
   },
   "sky_seraph": {
     "name": "スカイセラフ",
@@ -983,7 +1018,8 @@
       "description": "空を舞う天の使い。慈悲と破壊、相反する力を持つという。",
       "location_hint": "天空の神殿、または雲の上に姿現す。",
       "synthesis_hint": "天使や光、飛翔を得意とする者と合成せよ。"
-    }
+    },
+    "family": "spirit"
   },
   "spectral_raven": {
     "name": "スペクトラルレイヴン",
@@ -1009,7 +1045,8 @@
       "description": "死霊の力宿る大鴉。その影、死の兆しを告げるという。",
       "location_hint": "薄闇の森、或いは廃墟の上空を舞う。",
       "synthesis_hint": "屍者や闇、飛行の性を持つ者と合成にて進化す。"
-    }
+    },
+    "family": "spirit"
   },
   "mist_wraith": {
     "name": "ミストレイス",
@@ -1036,7 +1073,8 @@
       "description": "霧と化せし幽鬼。物理の刃をもすり抜け、姿を変える。",
       "location_hint": "霧深き湖畔、幽玄なる森にて漂う。",
       "synthesis_hint": "霊体や水、幻影の者と交わればその性質変わる。"
-    }
+    },
+    "family": "spirit"
   },
   "coral_hydra": {
     "name": "コーラルハイドラ",
@@ -1063,7 +1101,8 @@
       "description": "珊瑚より成りし多頭の魔獣。水中にてその真価を発揮す。",
       "location_hint": "珊瑚礁の奥、浅瀬の洞にて見かけられる。",
       "synthesis_hint": "水、竜、再生の性を持つ者と合成にて強力となる。"
-    }
+    },
+    "family": "aquatic"
   },
   "iron_juggernaut": {
     "name": "アイアンジャガーノート",
@@ -1089,7 +1128,8 @@
       "description": "鉄に魂宿りし機械の巨獣。防御と火力において並ぶ者なし。",
       "location_hint": "古の工房、廃れた工場跡にて眠り続ける。",
       "synthesis_hint": "機械や鉄、巨人の性を持つ者と合成でさらに強固な体となる。"
-    }
+    },
+    "family": "construct"
   },
   "blood_fiend": {
     "name": "ブラッドフィーンド",
@@ -1116,7 +1156,8 @@
       "description": "血を糧とせし魔獣。夜毎に獲物の香りを嗅ぎ分けては徘徊す。",
       "location_hint": "夜の森、または吸血鬼の館近辺に出没す。",
       "synthesis_hint": "血や屍、吸収を得意とする者と合成すべし。"
-    }
+    },
+    "family": "demon"
   },
   "moonlit_dryad": {
     "name": "ムーンリットドリアード",
@@ -1143,7 +1184,8 @@
       "description": "月光を浴びて輝く精霊樹。癒やしの力を内に秘める。",
       "location_hint": "月夜の森、聖域の奥深くにて現れる。",
       "synthesis_hint": "精霊や木、光の性を持つ者と交わりて新たな命芽生えん。"
-    }
+    },
+    "family": "plant"
   },
   "obsidian_titan": {
     "name": "オブシディアンタイタン",
@@ -1170,7 +1212,8 @@
       "description": "黒曜石の鎧纏いし巨人。その身、あらゆる攻撃を退ける。",
       "location_hint": "火山帯の地下、炎の眠る深部にて鎮座す。",
       "synthesis_hint": "岩や炎、巨人の性を持つ者と合成し防御特化す。"
-    }
+    },
+    "family": "construct"
   },
   "electro_mantis": {
     "name": "エレクトロマンティス",
@@ -1197,7 +1240,8 @@
       "description": "雷を操る鎌切の化身。その動き、稲妻の如し。",
       "location_hint": "雷雨降りし森、或いは廃れし発電所に棲む。",
       "synthesis_hint": "虫や雷、速さを重んずる者と合成で特異な進化を遂ぐ。"
-    }
+    },
+    "family": "insect"
   },
   "wild_rat": {
     "name": "ワイルドラット",
@@ -1229,7 +1273,8 @@
       "description": "素早く動き回る、少し大きくてどう猛なネズミ。集団で現れることもある。",
       "location_hint": "草原や街道、民家の近くなど、どこにでも現れる。",
       "synthesis_hint": "素早さの高い種族と配合すると、先手を取りやすいモンスターが生まれるかも。"
-    }
+    },
+    "family": "beast"
   },
   "walking_mushroom": {
     "name": "ウォーキングマッシュルーム",
@@ -1259,7 +1304,8 @@
       "description": "カサから胞子をまきちらす、歩くキノコのモンスター。胞子には毒が含まれていることがある。",
       "location_hint": "村の近くの草原や、湿った森の入り口あたりで見かける。",
       "synthesis_hint": "植物系のモンスターは、他の種族と合成すると面白い特性を発揮することがある。"
-    }
+    },
+    "family": "plant"
   },
   "imp": {
     "name": "インプ",
@@ -1289,6 +1335,7 @@
       "description": "いたずら好きの小悪魔。小さな火の玉を飛ばしてくるが、威力はたいしたことない。",
       "location_hint": "人の集まる場所の近くに現れることがある。村の周りでも目撃されている。",
       "synthesis_hint": "悪魔系のモンスターは、強力な魔法の素質を秘めている。"
-    }
+    },
+    "family": "demon"
   }
 }

@@ -39,3 +39,15 @@ ITEM_ITEM_RECIPES = {
     ("small_potion", "small_potion"): "medium_potion",
 }
 
+# ---------------------------
+# New: family-based synthesis
+# ---------------------------
+
+# When two monsters do not match a specific recipe, their families may still
+# combine to produce a new monster. Keys are tuples of family names (sorted
+# alphabetically) and values are the resulting monster IDs.
+FAMILY_SYNTHESIS_RULES = {
+    ("beast", "slime"): "slime_goblin_hybrid",
+    ("dragon", "slime"): "dragon_pup",
+}
+
