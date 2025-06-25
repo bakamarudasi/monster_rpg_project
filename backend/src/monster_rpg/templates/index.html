@@ -5,6 +5,7 @@
   <div class="form-card">
     <form action="{{ url_for('auth.start_game') }}" method="post">
       <input name="username" placeholder="名前" required>
+      <input name="password" type="password" placeholder="パスワード">
       <button type="submit">新規ゲーム</button>
     </form>
   </div>
