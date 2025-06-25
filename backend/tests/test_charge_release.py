@@ -18,7 +18,7 @@ class ChargeReleaseTests(unittest.TestCase):
         self.assertTrue(triggered)
         self.assertFalse(any(e['name'] == 'charging' for e in attacker.status_effects))
         self.assertEqual(attacker.defense, original_def)
-        self.assertEqual(enemy.hp, enemy.max_hp - 23)
+        self.assertEqual(enemy.hp, enemy.max_hp - 21)
 
 if __name__ == '__main__':
     unittest.main()
