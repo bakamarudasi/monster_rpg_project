@@ -9,7 +9,7 @@
   {% set idx = loop.index0 %}
   <li>{{ item.name }}
     <form action="{{ url_for('items', user_id=user_id) }}" method="post" style="display:inline">
-      {{ csrf_token() }}
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="item_idx" value="{{ idx }}">
       <select name="target_idx">
       {% for m in player.party_monsters %}
