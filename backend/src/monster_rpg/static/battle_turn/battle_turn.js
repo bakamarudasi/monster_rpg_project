@@ -582,7 +582,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (form) {
         const m = form.getAttribute('action').match(/\/battle\/(\d+)/);
         if (m) {
-            fetch(`/battle/${m[1]}`)
+            // Load the current battle state without advancing the turn
+            fetch(`/battle-json/${m[1]}`)
                 .then(resp => {
                     if (!resp.ok) {
                         throw new Error(`HTTP ${resp.status}`);
