@@ -43,11 +43,64 @@ ITEM_ITEM_RECIPES = {
 # New: family-based synthesis
 # ---------------------------
 
+# Mapping of ranks to numeric values for calculating blended ranks.  Higher
+# values represent stronger monsters.  The mapping includes rank "E" used by
+# some of the weaker monsters.
+RANK_VALUES = {"S": 5, "A": 4, "B": 3, "C": 2, "D": 1, "E": 0}
+
+# Reverse lookup table for converting numeric values back to rank strings.
+VALUE_TO_RANK = {v: k for k, v in RANK_VALUES.items()}
+
 # When two monsters do not match a specific recipe, their families may still
-# combine to produce a new monster. Keys are tuples of family names (sorted
-# alphabetically) and values are the resulting monster IDs.
+# combine to produce a new monster.  Keys are tuples of family names (sorted
+# alphabetically) and values are the resulting family.  The monster to create is
+# chosen based on the parents' ranks.
 FAMILY_SYNTHESIS_RULES = {
-    ("beast", "slime"): "slime_goblin_hybrid",
+    ("beast", "slime"): "slime",
     ("dragon", "slime"): "dragon_pup",
 }
+
+
+def find_family_synthesis_result(
+    family1: str | None,
+    rank1: str | None,
+    family2: str | None,
+    rank2: str | None,
+) -> str | None:
+    """Return a monster ID for a family based synthesis result.
+
+    The function first determines the resulting family from
+    ``FAMILY_SYNTHESIS_RULES`` and then looks through all monsters to find the
+    one whose rank is closest to the blended rank of the parents.
+    """
+
+    if not family1 or not family2:
+        return None
+
+    key = tuple(sorted([family1.lower(), family2.lower()]))
+    result_family = FAMILY_SYNTHESIS_RULES.get(key)
+    if not result_family:
+        return None
+
+    from . import monster_data as all_monster_data
+
+    all_monsters = all_monster_data.ALL_MONSTERS
+
+    v1 = RANK_VALUES.get(str(rank1).upper(), 0)
+    v2 = RANK_VALUES.get(str(rank2).upper(), 0)
+    target_value = (v1 + v2) / 2
+
+    candidates = [
+        m for m in all_monsters.values() if m.family and m.family.lower() == result_family
+    ]
+    if not candidates:
+        if result_family in all_monsters:
+            return result_family
+        return None
+
+    def rank_value(mon):
+        return RANK_VALUES.get(str(mon.rank).upper(), 0)
+
+    best = min(candidates, key=lambda m: abs(rank_value(m) - target_value))
+    return best.monster_id
 
