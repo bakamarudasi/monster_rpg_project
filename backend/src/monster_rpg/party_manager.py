@@ -13,6 +13,7 @@ from .items.equipment import (
     create_titled_equipment,
     EquipmentInstance,
     Equipment,
+    _generate_random_sub_stat,
 )
 from .items.equipment_synthesis import EQUIPMENT_SYNTHESIS_RULES
 from typing import TYPE_CHECKING
@@ -291,6 +292,14 @@ def limit_break_equipment(player: "Player", equip_instance_id: str) -> bool:
         equip.stat_multiplier *= float(value)
     elif bonus_type == "add_sub_stat_slot":
         equip.sub_stat_slots += int(value)
+        current = equip.random_bonuses.setdefault("sub_stats", [])
+        used = {s.get("stat") for s in current}
+        while len(current) < equip.sub_stat_slots:
+            bonus = _generate_random_sub_stat(equip.base_item.category, used)
+            if not bonus:
+                break
+            current.append(bonus)
+            used.add(bonus["stat"])
     print(f"{equip.name} がランク{equip.synthesis_rank}になった！")
     return True
 
