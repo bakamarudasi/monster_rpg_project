@@ -12,6 +12,7 @@
     <aside class="sidebar">
       <div class="book-page">
         <form id="formation-form" method="post" action="{{ url_for('formation', user_id=user_id) }}">
+          {{ csrf_token() }}
           <input type="hidden" name="order" id="order-input">
           <input type="hidden" name="reserve" id="reserve-input">
           <button id="confirm-btn" type="button" class="ornate-button">編成を確定</button>
