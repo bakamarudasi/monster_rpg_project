@@ -128,6 +128,24 @@ def _choose_amount(entry: Dict[str, Any]) -> int:
     return random.randint(entry.get("min", 1), entry.get("max", 1))
 
 
+def _generate_random_sub_stat(category: str, used: set[str] | None = None) -> Dict[str, Any] | None:
+    """Return a single random sub stat for the given category."""
+    pools = RANDOM_STAT_CONFIG.get("random_stat_pools_by_category", {}).get(category, {})
+    sub_pool = pools.get("sub_stat_pool", [])
+    if not sub_pool:
+        return None
+    weighted = []
+    used = used or set()
+    for entry in sub_pool:
+        if entry["stat"] not in used:
+            weighted.extend([entry] * entry.get("weight", 1))
+    if not weighted:
+        return None
+    choice = random.choice(weighted)
+    amount = _choose_amount(choice)
+    return {"stat": choice["stat"], "amount": amount}
+
+
 def _generate_random_bonuses(category: str) -> Dict[str, Any]:
     pools = RANDOM_STAT_CONFIG.get("random_stat_pools_by_category", {}).get(category, {})
     result: Dict[str, Any] = {}
@@ -141,22 +159,16 @@ def _generate_random_bonuses(category: str) -> Dict[str, Any]:
         result["main_stat"] = {"stat": choice["stat"], "amount": amount}
     sub_pool = pools.get("sub_stat_pool", [])
     if sub_pool:
-        weighted = []
-        for entry in sub_pool:
-            weighted.extend([entry] * entry.get("weight", 1))
         count_cfg = pools.get("sub_stat_count", {"initial_min": 0, "initial_max": 0})
         num = random.randint(count_cfg.get("initial_min", 0), count_cfg.get("initial_max", 0))
         chosen_stats = []
         stats_used = set()
-        while weighted and len(chosen_stats) < num:
-            entry = random.choice(weighted)
-            if entry["stat"] in stats_used:
-                weighted = [e for e in weighted if e["stat"] != entry["stat"]]
-                continue
-            amount = _choose_amount(entry)
-            chosen_stats.append({"stat": entry["stat"], "amount": amount})
-            stats_used.add(entry["stat"])
-            weighted = [e for e in weighted if e["stat"] != entry["stat"]]
+        while len(chosen_stats) < num:
+            bonus = _generate_random_sub_stat(category, stats_used)
+            if not bonus:
+                break
+            chosen_stats.append(bonus)
+            stats_used.add(bonus["stat"])
         if chosen_stats:
             result["sub_stats"] = chosen_stats
     return result
@@ -170,7 +182,13 @@ def create_titled_equipment(base_equip_id: str) -> EquipmentInstance | None:
     possible_titles = list(ALL_TITLES.values())
     chosen = random.choice(possible_titles)
     bonuses = _generate_random_bonuses(base_item.category)
-    return EquipmentInstance(base_item=base_item, title=chosen, random_bonuses=bonuses)
+    slots = len(bonuses.get("sub_stats", []))
+    return EquipmentInstance(
+        base_item=base_item,
+        title=chosen,
+        random_bonuses=bonuses,
+        sub_stat_slots=slots,
+    )
 
 # simple crafting recipes: item_id -> quantity
 CRAFTING_RECIPES = {
