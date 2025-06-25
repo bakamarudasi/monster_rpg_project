@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+import os
 import sqlite3
 from . import database_setup
 from .player import Player
@@ -45,4 +46,5 @@ def load_game(user_id):
     return jsonify({'name': player.name, 'level': player.player_level, 'gold': player.gold})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    debug_mode = os.getenv("FLASK_DEBUG", "False").lower() == "true"
+    app.run(debug=debug_mode)
