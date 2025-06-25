@@ -237,22 +237,27 @@ def disassemble_equipment(player: "Player", equip_instance_id: str):
 def limit_break_equipment(player: "Player", equip_instance_id: str) -> bool:
     """Upgrade equipment using synthesis materials."""
     equip = None
-    for e in player.equipment_inventory:
+    idx = None
+    convert_later = False
+    for i, e in enumerate(player.equipment_inventory):
         if isinstance(e, EquipmentInstance) and e.instance_id == equip_instance_id:
             equip = e
+            idx = i
             break
         if not isinstance(e, EquipmentInstance) and getattr(e, "equip_id", None) == equip_instance_id:
-            equip = EquipmentInstance(base_item=e, title=None)
-            player.equipment_inventory.remove(e)
-            player.equipment_inventory.append(equip)
+            equip = e
+            idx = i
+            convert_later = True
             break
 
     if equip is None:
         print("その装備を所持していない。")
         return False
 
-    rules = EQUIPMENT_SYNTHESIS_RULES.get(equip.base_item.category, [])
-    next_rank = equip.synthesis_rank + 1
+    base_item = equip.base_item if isinstance(equip, EquipmentInstance) else equip
+    current_rank = equip.synthesis_rank if isinstance(equip, EquipmentInstance) else 0
+    rules = EQUIPMENT_SYNTHESIS_RULES.get(base_item.category, [])
+    next_rank = current_rank + 1
     rule = next((r for r in rules if r.get("rank") == next_rank), None)
     if not rule:
         print("これ以上強化できない。")
@@ -265,6 +270,10 @@ def limit_break_equipment(player: "Player", equip_instance_id: str) -> bool:
         if have < amount:
             print("素材が足りない。")
             return False
+
+    if convert_later:
+        equip = EquipmentInstance(base_item=equip, title=None)
+        player.equipment_inventory[idx] = equip
 
     for c in rule.get("cost", []):
         item_id = c.get("item_id")

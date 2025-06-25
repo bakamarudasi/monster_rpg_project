@@ -31,6 +31,14 @@ class EquipmentSynthesisTests(unittest.TestCase):
         self.assertEqual(len(player.items), 1)
         self.assertEqual(player.items[0].item_id, 'weapon_core_common')
 
+    def test_limit_break_fails_without_material_and_keeps_item(self):
+        player = Player('Tester', user_id=self.user_id)
+        player.equipment_inventory.append(BRONZE_SWORD)
+        self.assertFalse(player.limit_break_equipment(BRONZE_SWORD.equip_id))
+        self.assertEqual(len(player.equipment_inventory), 1)
+        self.assertIs(player.equipment_inventory[0], BRONZE_SWORD)
+        self.assertNotIsInstance(player.equipment_inventory[0], EquipmentInstance)
+
     def test_limit_break_persists(self):
         player = Player('Tester', user_id=self.user_id)
         equip = EquipmentInstance(base_item=BRONZE_SWORD, title=None)
