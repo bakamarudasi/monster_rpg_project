@@ -4,6 +4,7 @@
   <h1>モンスター合成RPG</h1>
   <div class="form-card">
     <form action="{{ url_for('auth.start_game') }}" method="post">
+      {{ csrf_token() }}
       <input name="username" placeholder="名前" required>
       <input name="password" type="password" placeholder="パスワード">
       <button type="submit">新規ゲーム</button>
@@ -11,12 +12,14 @@
   </div>
   <div class="form-card">
     <form action="{{ url_for('auth.load_existing') }}" method="post">
+      {{ csrf_token() }}
       <input name="user_id" placeholder="User ID" required>
       <button type="submit">ロード</button>
     </form>
   </div>
   <div class="form-card">
     <form action="{{ url_for('auth.login') }}" method="post">
+      {{ csrf_token() }}
       <input name="username" placeholder="ユーザー名" required>
       <input name="password" type="password" placeholder="パスワード" required>
       <button type="submit">ログイン</button>

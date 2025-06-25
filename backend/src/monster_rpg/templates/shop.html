@@ -178,6 +178,7 @@
           <p class="product-price">{{ price }}G</p>
         </div>
         <form action="{{ url_for('shop', user_id=user_id) }}" method="post">
+          {{ csrf_token() }}
           {% if kind == 'item' %}
             <input type="hidden" name="buy_item" value="{{ obj_id }}">
           {% else %}
