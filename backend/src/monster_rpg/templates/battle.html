@@ -39,7 +39,7 @@
 
   <div class="actions">
     <form action="{{ url_for('battle', user_id=user_id) }}" method="post" style="width: 100%; display: flex; justify-content: center;">
-      {{ csrf_token() }}
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="continue_explore" value="1">
       <button type="submit" class="btn btn-primary">探索を続ける</button>
     </form>

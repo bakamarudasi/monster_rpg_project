@@ -35,7 +35,7 @@
     </div>
 
     <form id="command-form" action="{{ url_for('battle.battle', user_id=user_id) }}" method="post">
-      {{ csrf_token() }}
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <select name="action" id="action" hidden></select>
       <select name="target_enemy" hidden></select>
       <select name="target_ally" hidden></select>
