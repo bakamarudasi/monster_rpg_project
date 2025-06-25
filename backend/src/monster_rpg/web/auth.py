@@ -16,8 +16,9 @@ def index():
 def start_game():
     """Create a new player and start the game."""
     name = request.form.get('username', 'Hero')
+    password = request.form.get('password', 'pw')
     try:
-        user_id = database_setup.create_user(name, 'pw')
+        user_id = database_setup.create_user(name, password)
     except sqlite3.IntegrityError:
         msg = '既に同じ名前の人が存在しています'
         return render_template('result.html', message=msg, user_id=None)
