@@ -135,6 +135,8 @@ def buy_listing(player: Player, listing_id: int) -> bool:
             m_max_mp,
             is_sold,
         ) = row
+        if seller_id == player.user_id:
+            return False
         if is_sold or player.gold < price:
             return False
         # deduct gold and add to seller

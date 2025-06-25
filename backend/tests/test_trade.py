@@ -7,14 +7,18 @@ from monster_rpg.player import Player
 from monster_rpg import save_manager
 from monster_rpg.items.item_data import ALL_ITEMS
 from monster_rpg.monsters.monster_data import ALL_MONSTERS
+from monster_rpg import trading
 
 class TradeTests(unittest.TestCase):
     def setUp(self):
         self.db_path = 'test_trade.db'
         if os.path.exists(self.db_path):
             os.remove(self.db_path)
+        if os.path.exists('monster_rpg_save.db'):
+            os.remove('monster_rpg_save.db')
         database_setup.DATABASE_NAME = self.db_path
         database_setup.initialize_database()
+        trading.DATABASE = self.db_path
         self.seller_id = database_setup.create_user('seller', 'pw1')
         self.buyer_id = database_setup.create_user('buyer', 'pw2')
         app.config['TESTING'] = True
@@ -61,3 +65,25 @@ class TradeTests(unittest.TestCase):
         self.assertTrue(any(m.monster_id == 'slime' for m in buyer.party_monsters))
         slime = next(m for m in buyer.party_monsters if m.monster_id == 'slime')
         self.assertGreaterEqual(slime.level, 2)
+
+    def test_cannot_buy_own_listing(self):
+        resp = self.client.post(
+            f'/market/list_item/{self.seller_id}',
+            json={'item_idx': 0, 'price': 25}
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.client.get('/market/listings')
+        data = resp.get_json()
+        self.assertEqual(len(data), 1)
+        listing_id = data[0]['id']
+
+        resp = self.client.post(f'/market/buy/{self.seller_id}/{listing_id}')
+        self.assertEqual(resp.status_code, 400)
+
+        resp = self.client.get('/market/listings')
+        self.assertEqual(len(resp.get_json()), 1)
+
+        seller = save_manager.load_game(self.db_path, user_id=self.seller_id)
+        self.assertEqual(seller.gold, 50)
+        self.assertEqual(len(seller.items), 0)
