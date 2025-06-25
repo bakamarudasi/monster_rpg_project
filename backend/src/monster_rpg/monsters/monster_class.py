@@ -526,4 +526,6 @@ class Monster:
         new_monster.base_magic = self.base_magic
         new_monster.is_alive = True
         new_monster.skill_sequence = self.skill_sequence[:]
+        new_monster.equipment = copy.deepcopy(self.equipment)
+        new_monster.equipment_slots = self.equipment_slots[:]
         return new_monster
