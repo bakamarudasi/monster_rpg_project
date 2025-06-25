@@ -124,6 +124,11 @@ def load_monsters(filepath: str | None = None) -> Tuple[Dict[str, Monster], Dict
     return _load_from_json(filepath)
 
 
+def get_all_monsters() -> Dict[str, Monster]:
+    """Return the dictionary of all loaded monsters."""
+    return ALL_MONSTERS
+
+
 # Load monster data at import time
 ALL_MONSTERS, MONSTER_BOOK_DATA = _load_from_json()
 

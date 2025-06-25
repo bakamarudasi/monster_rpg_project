@@ -15,6 +15,7 @@ from .synthesis_rules import (
     SYNTHESIS_RECIPES,
     SYNTHESIS_ITEMS_REQUIRED,
     MONSTER_ITEM_RECIPES,
+    find_family_synthesis_result,
 )
 from .evolution_rules import EVOLUTION_RULES
 
