@@ -123,6 +123,7 @@ class Monster:
         skills=None,
         growth_type=GROWTH_TYPE_AVERAGE,
         monster_id=None,
+        family=None,
         image_filename=None,
         rank=RANK_D,
         speed=5,
@@ -156,6 +157,7 @@ class Monster:
         self.status_effects = []
         self.is_alive = True
         self.growth_type = growth_type
+        self.family = family
         
         if monster_id is not None and isinstance(monster_id, str) and monster_id.strip() != "":
             self.monster_id = monster_id
@@ -510,7 +512,8 @@ class Monster:
             element=self.element,
             skills=new_skills,
             growth_type=self.growth_type,
-            monster_id=self.monster_id, 
+            monster_id=self.monster_id,
+            family=self.family,
             image_filename=self.image_filename,
             rank=self.rank,
             speed=self.base_speed,  # speed 属性をコピー時に引き継ぐ

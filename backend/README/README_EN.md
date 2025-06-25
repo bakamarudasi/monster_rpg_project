@@ -60,6 +60,11 @@ Monsters have several *growth types* which control how their stats increase when
 Besides the default Average/Early/Late patterns, additional Power, Magic, Defense and
 Speed types prioritize the corresponding attributes and, for Magic, also raise MP and
 magic power.
+Each monster entry also contains a **family** string such as `slime`, `beast` or
+`dragon`. Family tags enable fusion recipes based on monster families. When two
+monsters are fused and no specific recipe exists for their IDs, the game checks
+`FAMILY_SYNTHESIS_RULES` for a matching family pair and produces the
+corresponding monster if found.
 
 Use `monster_rpg.monsters.load_monsters()` to read monster definitions from `monsters/monsters.json`. A `ValueError` is raised if the file is missing or contains invalid JSON.
 

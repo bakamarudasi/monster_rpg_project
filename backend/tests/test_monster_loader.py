@@ -22,6 +22,8 @@ class MonsterLoaderTests(unittest.TestCase):
         self.assertEqual(monsters['goblin'].rank, RANK_D)
         self.assertEqual(monsters['orc_warrior'].growth_type, GROWTH_TYPE_POWER)
         self.assertEqual(monsters['elf_mage'].growth_type, GROWTH_TYPE_MAGIC)
+        self.assertEqual(monsters['slime'].family, 'slime')
+        self.assertEqual(monsters['goblin'].family, 'beast')
 
     def test_skill_sets_provide_skills_and_learnset(self):
         monsters, _ = load_monsters()

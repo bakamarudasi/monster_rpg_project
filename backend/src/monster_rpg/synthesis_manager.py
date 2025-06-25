@@ -13,6 +13,7 @@ from .monsters.synthesis_rules import (
     SYNTHESIS_ITEMS_REQUIRED,
     MONSTER_ITEM_RECIPES,
     ITEM_ITEM_RECIPES,
+    FAMILY_SYNTHESIS_RULES,
 )
 from .items.item_data import ALL_ITEMS
 from .items.equipment import (
@@ -63,7 +64,7 @@ def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, i
             new_monster = base_new_monster_template.copy()
             if new_monster is None:
                 return False, f"エラー: 合成結果のモンスター '{result_monster_id}' の生成に失敗しました。", None
-
+            
             inherited_skills = []
             for parent in (parent1, parent2):
                 if parent.skills:
@@ -97,6 +98,50 @@ def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, i
         else:
             return False, f"エラー: 合成結果のモンスターID '{result_monster_id}' がモンスター定義に存在しません。", None
     else:
+        family_key = None
+        if parent1.family and parent2.family:
+            family_key = tuple(sorted([parent1.family.lower(), parent2.family.lower()]))
+        if family_key and family_key in FAMILY_SYNTHESIS_RULES:
+            result_monster_id = FAMILY_SYNTHESIS_RULES[family_key]
+            if result_monster_id in ALL_MONSTERS:
+                base_new_monster_template = ALL_MONSTERS[result_monster_id]
+                new_monster = base_new_monster_template.copy()
+                if new_monster is None:
+                    return False, f"エラー: 合成結果のモンスター '{result_monster_id}' の生成に失敗しました。", None
+
+                inherited_skills = []
+                for parent in (parent1, parent2):
+                    if parent.skills:
+                        skill = random.choice(parent.skills)
+                        current_names = [s.name for s in new_monster.skills + inherited_skills]
+                        if getattr(skill, "name", None) not in current_names:
+                            inherited_skills.append(copy.deepcopy(skill))
+                new_monster.skills.extend(inherited_skills)
+
+                avg_level = (parent1.level + parent2.level) / 2
+                hp_bonus = int(avg_level * 2)
+                atk_bonus = int(avg_level)
+                def_bonus = int(avg_level)
+                spd_bonus = int(avg_level * 0.5)
+                new_monster.max_hp += hp_bonus
+                new_monster.base_attack += atk_bonus
+                new_monster.base_defense += def_bonus
+                new_monster.base_speed += spd_bonus
+                new_monster.level = 1
+                new_monster.exp = 0
+                new_monster.hp = new_monster.max_hp
+                new_monster.is_alive = True
+
+                indices_to_remove = sorted([monster1_idx, monster2_idx], reverse=True)
+                removed_monster_names = []
+                for idx in indices_to_remove:
+                    removed_monster_names.append(player.party_monsters.pop(idx).name)
+                player.party_monsters.append(new_monster)
+                player.monster_book.record_captured(new_monster.monster_id)
+                return True, f"{removed_monster_names[1]} と {removed_monster_names[0]} を合成して {new_monster.name} が誕生した！", new_monster
+            else:
+                return False, f"エラー: 合成結果のモンスターID '{result_monster_id}' がモンスター定義に存在しません。", None
+
         return False, f"{parent1.name} と {parent2.name} の組み合わせでは何も生まれなかった...", None
 
 
