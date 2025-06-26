@@ -7,13 +7,13 @@
 <div class="field-container">
     <div class="loc-header">
         <div class="header-top">
-            <h2>{{ loc.name }}</h2>
+            <h2>{{ loc.name if loc else 'Unknown' }}</h2>
             <div class="player-status">
                 <span>Lv.{{ player.player_level }}</span>
                 <span>{{ player.gold }} G</span>
             </div>
         </div>
-        <p class="loc-desc">{{ loc.description }}</p>
+        <p class="loc-desc">{{ loc.description if loc else '???' }}</p>
     </div>
 
     <hr class="window-divider">
@@ -46,10 +46,10 @@
                 <form action="{{ url_for('synthesize', user_id=user_id) }}" method="get"><button class="menu-btn"><span>ごうせい</span></button></form>
                 <form action="{{ url_for('monster_book', user_id=user_id) }}" method="get"><button class="menu-btn"><span>ずかん</span></button></form>
                 <form action="{{ url_for('world_map', user_id=user_id) }}" method="get"><button class="menu-btn"><span>マップ</span></button></form>
-                {% if loc.has_shop %}
+                {% if loc and loc.has_shop %}
                 <form action="{{ url_for('shop', user_id=user_id) }}" method="get"><button class="menu-btn"><span>ショップ</span></button></form>
                 {% endif %}
-                {% if loc.has_inn %}
+                {% if loc and loc.has_inn %}
                 <form action="{{ url_for('inn', user_id=user_id) }}" method="post">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button class="menu-btn" type="submit"><span>やどや ({{ loc.inn_cost }}G)</span></button>

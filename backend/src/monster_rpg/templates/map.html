@@ -2,7 +2,7 @@
 {% block content %}
 <div class="map-container">
   <h2>ワールドマップ</h2>
-  <div class="map-grid" data-cols="{{ map_grid[0]|length }}">
+  <div class="map-grid" data-cols="{{ map_grid[0]|length if map_grid else 0 }}">
     {% for row in map_grid %}
         {% for cell in row %}
           {% if cell %}
@@ -27,8 +27,9 @@
   <h3>探索度</h3>
   <ul class="progress-list">
     {% for loc_id, val in progress.items() %}
+      {% set loc = locations.get(loc_id) %}
       <li class="progress-item">
-        <span class="loc-name">{{ locations[loc_id].name }}</span>
+        <span class="loc-name">{{ loc.name if loc else loc_id }}</span>
         <div class="progress-bar">
           <div class="progress-fill" style="width: 0%;" data-target="{{ val }}"></div>
         </div>
