@@ -5,7 +5,7 @@ from ..player import Player
 from .. import save_manager
 from ..map_data import LOCATIONS
 from ..exploration import generate_enemy_party, get_monster_instance_copy
-from .battle import Battle, active_battles
+from .battle import Battle, active_battles, serialize_monster, turn_order_ids
 
 explore_bp = Blueprint('explore', __name__)
 
@@ -37,16 +37,31 @@ def explore(user_id):
                 while not battle_obj.finished and battle_obj.current_actor() not in battle_obj.player_party:
                     battle_obj.step()
                 save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
-                return render_template(
-                    'battle_turn.html',
-                    user_id=user_id,
-                    player=player,
-                    battle=battle_obj,
-                    player_party=battle_obj.player_party,
-                    enemy_party=battle_obj.enemy_party,
-                    log=battle_obj.log,
-                    current_actor=battle_obj.current_actor(),
-                )
+                init_data = {
+                    'ally_info': [serialize_monster(m, f'ally-{i}') for i, m in enumerate(battle_obj.player_party)],
+                    'enemy_info': [serialize_monster(m, f'enemy-{i}') for i, m in enumerate(battle_obj.enemy_party)],
+                    'items': [{'name': it.name} for it in (player.items if player else [])],
+                    'turn': battle_obj.turn,
+                    'log': battle_obj.log,
+                    'current_actor': None,
+                    'turn_order': turn_order_ids(battle_obj)
+                }
+                current = battle_obj.current_actor()
+                if current and current in battle_obj.player_party:
+                    idx = battle_obj.player_party.index(current)
+                    init_data['current_actor'] = {
+                        'name': current.name,
+                        'unit_id': f'ally-{idx}',
+                        'skills': [
+                            {
+                                'name': sk.name,
+                                'target': getattr(sk, 'target', 'enemy'),
+                                'scope': getattr(sk, 'scope', 'single')
+                            }
+                            for sk in current.skills
+                        ],
+                    }
+                return render_template('battle_turn.html', user_id=user_id, init_data=init_data)
     if (loc.possible_enemies or getattr(loc, 'enemy_pool', None)) and random.random() < loc.encounter_rate:
         enemies = generate_enemy_party(loc, player)
         if enemies:
@@ -58,16 +73,31 @@ def explore(user_id):
             while not battle_obj.finished and battle_obj.current_actor() not in battle_obj.player_party:
                 battle_obj.step()
             save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
-            return render_template(
-                'battle_turn.html',
-                user_id=user_id,
-                player=player,
-                battle=battle_obj,
-                player_party=battle_obj.player_party,
-                enemy_party=battle_obj.enemy_party,
-                log=battle_obj.log,
-                current_actor=battle_obj.current_actor(),
-            )
+            init_data = {
+                'ally_info': [serialize_monster(m, f'ally-{i}') for i, m in enumerate(battle_obj.player_party)],
+                'enemy_info': [serialize_monster(m, f'enemy-{i}') for i, m in enumerate(battle_obj.enemy_party)],
+                'items': [{'name': it.name} for it in (player.items if player else [])],
+                'turn': battle_obj.turn,
+                'log': battle_obj.log,
+                'current_actor': None,
+                'turn_order': turn_order_ids(battle_obj)
+            }
+            current = battle_obj.current_actor()
+            if current and current in battle_obj.player_party:
+                idx = battle_obj.player_party.index(current)
+                init_data['current_actor'] = {
+                    'name': current.name,
+                    'unit_id': f'ally-{idx}',
+                    'skills': [
+                        {
+                            'name': sk.name,
+                            'target': getattr(sk, 'target', 'enemy'),
+                            'scope': getattr(sk, 'scope', 'single')
+                        }
+                        for sk in current.skills
+                    ],
+                }
+            return render_template('battle_turn.html', user_id=user_id, init_data=init_data)
         else:
             messages.append('モンスターは現れなかった。')
     else:
