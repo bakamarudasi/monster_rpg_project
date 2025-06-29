@@ -5,11 +5,14 @@
 ## 起動方法
 
 ### 1. 必要なPythonパッケージのインストール
-プロジェクトのルートディレクトリ（`monster_rpg_project`）で、以下のコマンドを実行して必要なパッケージをインストールします。
+プロジェクトのルートディレクトリ（`monster_rpg_project`）で以下を実行します。
 
 ```bash
-pip install Flask
+pip install -e backend
 ```
+
+このコマンドを使わない場合は `PYTHONPATH=backend/src` を設定してください。
+必要なパッケージは `backend/requirements.txt` に記載の `Flask` と `Flask-WTF` です。
 
 ### 2. ゲームの実行
 以下のコマンドを実行してゲームを起動します。
