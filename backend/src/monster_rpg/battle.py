@@ -8,9 +8,9 @@ from .skills.skill_actions import apply_effects
 
 # Attribute compatibility multiplier definition
 ELEMENTAL_MULTIPLIERS = {
-    ("fire", "wind"): 1.5,
-    ("wind", "water"): 1.5,
-    ("water", "fire"): 1.5,
+    ("火", "風"): 1.5,
+    ("風", "水"): 1.5,
+    ("水", "火"): 1.5,
 }
 
 # Critical hit settings
@@ -179,7 +179,7 @@ def defend(monster: Monster, log: List[Dict[str, str]]) -> None:
     apply_status(monster, "defending", log, 1)
     log.append({'type': 'info', 'message': f"{monster.name} は身を守っている！"})
 
-def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, str]] | None) -> int:
+def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, str]] | None = None) -> int:
     if log is None:
         log = []
     base = attacker.total_attack() - defender.total_defense()
