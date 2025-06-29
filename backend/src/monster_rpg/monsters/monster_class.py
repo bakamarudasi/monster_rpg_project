@@ -393,7 +393,7 @@ class Monster:
         evolved = template.copy()
         evolved.level = self.level
         evolved.exp = self.exp
-        evolved.equipment = getattr(self, 'equipment', {}).copy()
+        evolved.equipment = copy.deepcopy(getattr(self, 'equipment', {}))
         self.__dict__.update(evolved.__dict__)
         if verbose and log is not None:
             log.append({'type': 'info', 'message': f"{template.name} に進化した！"})
