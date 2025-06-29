@@ -15,9 +15,96 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Helper to update text content of an element
+  function updateTextContent(elementId, text) {
+    const el = document.getElementById(elementId);
+    if (el) el.textContent = text;
+  }
+
+  // Helper to update monster stats in the modal
+  function updateMonsterStatsInModal(data) {
+    updateTextContent('detail-level', data.level);
+    updateTextContent('detail-hp', data.hp);
+    updateTextContent('detail-max-hp', data.max_hp);
+    updateTextContent('detail-mp', data.mp);
+    updateTextContent('detail-max-mp', data.max_mp);
+    updateTextContent('detail-attack', data.stats.attack);
+    updateTextContent('detail-defense', data.stats.defense);
+    updateTextContent('detail-speed', data.stats.speed);
+    
+    const statusesText = (data.statuses || []).map(s => `${s.display}(${s.remaining})`).join('、');
+    updateTextContent('detail-statuses', statusesText);
+  }
+
+  // Helper to rebuild the equipped items list
+  function rebuildEquippedList(data) {
+    const equippedUl = modalBody.querySelector('.card-equipment-list ul');
+    if (!equippedUl) return;
+    equippedUl.textContent = ''; // Clear existing list
+
+    (data.equipment_slots || []).forEach(slot => {
+      const li = document.createElement('li');
+      const name = data.equipment && data.equipment[slot] ? data.equipment[slot] : '空き';
+      li.textContent = slot + ': ' + name;
+      if (data.equipment && data.equipment[slot]) {
+        const btn = document.createElement('button');
+        btn.className = 'unequip-btn';
+        btn.dataset.slot = slot;
+        btn.dataset.idx = data.index;
+        btn.textContent = '外す';
+        li.appendChild(document.createTextNode(' '));
+        li.appendChild(btn);
+      }
+      equippedUl.appendChild(li);
+    });
+    attachUnequipListeners(); // Re-attach listeners
+  }
+
+  // Helper to rebuild the inventory list
+  function rebuildInventoryList(data) {
+    const equipSection = modalBody.querySelector('.card-equipment-list');
+    if (!equipSection) return;
+
+    let invUl = equipSection.querySelector('.inventory-list');
+    if (!invUl) {
+      invUl = document.createElement('ul');
+      invUl.className = 'inventory-list';
+      const equipHeader2 = document.createElement('h3');
+      equipHeader2.textContent = '装備する';
+      equipSection.appendChild(equipHeader2);
+      equipSection.appendChild(invUl);
+    }
+    invUl.textContent = ''; // Clear existing list
+
+    if (equipmentList.length > 0) {
+      equipmentList.forEach(eq => {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.className = 'equip-btn';
+        btn.dataset.equipId = eq.id;
+        btn.dataset.idx = data.index; // data.index needs to be accessible
+        btn.textContent = '装備';
+        li.textContent = eq.name + ' ';
+        li.appendChild(btn);
+        invUl.appendChild(li);
+      });
+      attachEquipListeners(); // Re-attach listeners
+    } else {
+      const p = document.createElement('p');
+      p.textContent = '装備を持っていない。';
+      invUl.appendChild(p); // Append to invUl, not equipSection directly
+    }
+  }
+
   function displayMonsterDetails(data) {
-    modalBody.textContent = '';
+    // Store current data for partial updates
+    modal.currentMonsterData = data;
+
+    modalBody.textContent = ''; // Clear previous content
+
     const expNeeded = data.exp_to_next - data.exp;
+
+    // Image Area
     const imgArea = document.createElement('div');
     imgArea.className = 'card-image-area';
     const img = document.createElement('img');
@@ -27,6 +114,7 @@ window.addEventListener('DOMContentLoaded', () => {
     imgArea.appendChild(img);
     modalBody.appendChild(imgArea);
 
+    // Header
     const header = document.createElement('div');
     header.className = 'card-header';
     const h2 = document.createElement('h2');
@@ -37,39 +125,58 @@ window.addEventListener('DOMContentLoaded', () => {
     const lvhp = document.createElement('div');
     lvhp.className = 'card-monster-lvhp';
     const spanLv = document.createElement('span');
+    spanLv.id = 'detail-level';
     spanLv.textContent = 'Lv. ' + data.level;
     const spanHp = document.createElement('span');
-    spanHp.textContent = 'HP: ' + data.hp + ' / ' + data.max_hp;
+    spanHp.id = 'detail-hp';
+    spanHp.textContent = 'HP: ' + data.hp;
+    const spanMaxHp = document.createElement('span');
+    spanMaxHp.id = 'detail-max-hp';
+    spanMaxHp.textContent = ' / ' + data.max_hp;
+    const spanMp = document.createElement('span');
+    spanMp.id = 'detail-mp';
+    spanMp.textContent = 'MP: ' + data.mp;
+    const spanMaxMp = document.createElement('span');
+    spanMaxMp.id = 'detail-max-mp';
+    spanMaxMp.textContent = ' / ' + data.max_mp;
     const spanExp = document.createElement('span');
+    spanExp.id = 'detail-exp';
     spanExp.textContent = 'EXP: ' + data.exp + ' / ' + data.exp_to_next + ' (残り ' + expNeeded + ')';
-    lvhp.append(spanLv, document.createTextNode(' | '), spanHp, document.createTextNode(' | '), spanExp);
+    lvhp.append(spanLv, document.createTextNode(' | '), spanHp, spanMaxHp, document.createTextNode(' | '), spanMp, spanMaxMp, document.createTextNode(' | '), spanExp);
     header.appendChild(lvhp);
     modalBody.appendChild(header);
 
+    // Content Area
     const content = document.createElement('div');
     content.className = 'card-content';
+
+    // Stats Grid
     const statsGrid = document.createElement('div');
     statsGrid.className = 'card-stats-grid';
     const atkSpan = document.createElement('span');
     atkSpan.textContent = 'こうげき: ';
     const atkVal = document.createElement('strong');
+    atkVal.id = 'detail-attack';
     atkVal.textContent = data.stats.attack;
     atkSpan.appendChild(atkVal);
     statsGrid.appendChild(atkSpan);
     const defSpan = document.createElement('span');
     defSpan.textContent = 'ぼうぎょ: ';
     const defVal = document.createElement('strong');
+    defVal.id = 'detail-defense';
     defVal.textContent = data.stats.defense;
     defSpan.appendChild(defVal);
     statsGrid.appendChild(defSpan);
     const spdSpan = document.createElement('span');
     spdSpan.textContent = 'すばやさ: ';
     const spdVal = document.createElement('strong');
+    spdVal.id = 'detail-speed';
     spdVal.textContent = data.stats.speed;
     spdSpan.appendChild(spdVal);
     statsGrid.appendChild(spdSpan);
     content.appendChild(statsGrid);
 
+    // Skills Section
     const skillsSection = document.createElement('div');
     skillsSection.className = 'card-section card-skills-list';
     const skillsHeader = document.createElement('h3');
@@ -93,6 +200,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     content.appendChild(skillsSection);
 
+    // Description Section
     const descSection = document.createElement('div');
     descSection.className = 'card-section card-description';
     descSection.style.marginTop = '16px';
@@ -103,6 +211,7 @@ window.addEventListener('DOMContentLoaded', () => {
     descSection.append(descHeader, descP);
     content.appendChild(descSection);
 
+    // Equipment Section
     if (data.index !== undefined && data.index >= 0) {
       const equipSection = document.createElement('div');
       equipSection.className = 'card-section card-equipment-list';
@@ -111,59 +220,38 @@ window.addEventListener('DOMContentLoaded', () => {
       equipHeader.textContent = '装備中';
       equipSection.appendChild(equipHeader);
 
-    const equippedUl = document.createElement('ul');
-    (data.equipment_slots || []).forEach(slot => {
-      const li = document.createElement('li');
-      const name = data.equipment && data.equipment[slot] ? data.equipment[slot] : '空き';
-      li.textContent = slot + ': ' + name;
-      if (data.equipment && data.equipment[slot]) {
-        const btn = document.createElement('button');
-        btn.className = 'unequip-btn';
-        btn.dataset.slot = slot;
-        btn.dataset.idx = data.index;
-        btn.textContent = '外す';
-        li.appendChild(document.createTextNode(' '));
-        li.appendChild(btn);
-      }
-      equippedUl.appendChild(li);
-    });
-    equipSection.appendChild(equippedUl);
+      const equippedUl = document.createElement('ul');
+      equippedUl.id = 'equipped-list'; // Add ID for easier access
+      equipSection.appendChild(equippedUl);
+      
+      const equipHeader2 = document.createElement('h3');
+      equipHeader2.textContent = '装備する';
+      equipSection.appendChild(equipHeader2);
 
-    const equipHeader2 = document.createElement('h3');
-    equipHeader2.textContent = '装備する';
-    equipSection.appendChild(equipHeader2);
-
-    if (equipmentList.length > 0) {
       const invUl = document.createElement('ul');
-      equipmentList.forEach(eq => {
-        const li = document.createElement('li');
-        const btn = document.createElement('button');
-        btn.className = 'equip-btn';
-        btn.dataset.equipId = eq.id;
-        btn.dataset.idx = data.index;
-        btn.textContent = '装備';
-        li.textContent = eq.name + ' ';
-        li.appendChild(btn);
-        invUl.appendChild(li);
-      });
+      invUl.className = 'inventory-list'; // Add class for easier access
       equipSection.appendChild(invUl);
-    } else {
-      const p = document.createElement('p');
-      p.textContent = '装備を持っていない。';
-      equipSection.appendChild(p);
-      }
 
       content.appendChild(equipSection);
     }
     modalBody.appendChild(content);
+
+    // Initial population of equipped and inventory lists
+    rebuildEquippedList(data);
+    rebuildInventoryList(data); // Pass data to rebuildInventoryList
+
     modal.classList.add('show');
     modal.focus();
+  }
 
+  // Attach listeners for equip/unequip buttons
+  function attachEquipListeners() {
     modalBody.querySelectorAll('.equip-btn').forEach(btn => {
+      btn.onclick = null; // Remove old listeners
       btn.addEventListener('click', () => {
         btn.disabled = true;
         const equipId = btn.dataset.equipId;
-        const idx = btn.dataset.idx;
+        const idx = modal.currentMonsterData.index; // Use stored data
         fetch(equipUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -174,20 +262,32 @@ window.addEventListener('DOMContentLoaded', () => {
           if (resp.success) {
             equipmentList.length = 0;
             resp.equipment_inventory.forEach(e => equipmentList.push(e));
-            data.equipment = resp.monster_equipment;
-            if (resp.monster_stats) data.stats = resp.monster_stats;
-            displayMonsterDetails(data);
+            modal.currentMonsterData.equipment = resp.monster_equipment;
+            if (resp.monster_stats) modal.currentMonsterData.stats = resp.monster_stats;
+            
+            // Partial UI updates
+            updateMonsterStatsInModal(modal.currentMonsterData);
+            rebuildEquippedList(modal.currentMonsterData);
+            rebuildInventoryList(modal.currentMonsterData);
+          } else {
+            alert('装備の更新に失敗しました: ' + (resp.message || '不明なエラー'));
           }
         })
-        .catch(() => alert('装備の更新に失敗しました'))
+        .catch(err => {
+          console.error('Fetch error', err);
+          alert('通信エラー: ' + err.message);
+        })
         .finally(() => { btn.disabled = false; });
       });
     });
+  }
 
+  function attachUnequipListeners() {
     modalBody.querySelectorAll('.unequip-btn').forEach(btn => {
+      btn.onclick = null; // Remove old listeners
       btn.addEventListener('click', () => {
         btn.disabled = true;
-        const idx = btn.dataset.idx;
+        const idx = modal.currentMonsterData.index; // Use stored data
         const slot = btn.dataset.slot;
         fetch(equipUrl, {
           method: 'POST',
@@ -199,12 +299,21 @@ window.addEventListener('DOMContentLoaded', () => {
           if (resp.success) {
             equipmentList.length = 0;
             resp.equipment_inventory.forEach(e => equipmentList.push(e));
-            data.equipment = resp.monster_equipment;
-            if (resp.monster_stats) data.stats = resp.monster_stats;
-            displayMonsterDetails(data);
+            modal.currentMonsterData.equipment = resp.monster_equipment;
+            if (resp.monster_stats) modal.currentMonsterData.stats = resp.monster_stats;
+
+            // Partial UI updates
+            updateMonsterStatsInModal(modal.currentMonsterData);
+            rebuildEquippedList(modal.currentMonsterData);
+            rebuildInventoryList(modal.currentMonsterData);
+          } else {
+            alert('装備の更新に失敗しました: ' + (resp.message || '不明なエラー'));
           }
         })
-        .catch(() => alert('装備の更新に失敗しました'))
+        .catch(err => {
+          console.error('Fetch error', err);
+          alert('通信エラー: ' + err.message);
+        })
         .finally(() => { btn.disabled = false; });
       });
     });
@@ -246,7 +355,9 @@ window.addEventListener('DOMContentLoaded', () => {
       if (!draggedItem) return;
       const existing = area.querySelector('.monster-item');
       if (existing && existing !== draggedItem) {
-        draggedItem.parentElement.appendChild(existing);
+        // Swap logic: move existing item to where draggedItem came from
+        const originalParent = draggedItem.parentElement;
+        originalParent.appendChild(existing);
       }
       area.appendChild(draggedItem);
     });

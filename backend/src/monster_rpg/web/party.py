@@ -27,9 +27,9 @@ def party(user_id):
                 'exp_to_next': m.calculate_exp_to_next_level(),
                 'image': url_for('static', filename='images/' + m.image_filename) if m.image_filename else '',
                 'stats': {
-                    'attack': m.total_attack(),
-                    'defense': m.total_defense(),
-                    'speed': m.total_speed(),
+                    'attack': m.total_attack,
+                    'defense': m.total_defense,
+                    'speed': m.total_speed,
                 },
                 'skills': m.get_skill_details(),
                 'description': MONSTER_BOOK_DATA.get(m.monster_id).description if MONSTER_BOOK_DATA.get(m.monster_id) else 'このモンスターに関する詳しい説明はまだ見つかっていない。',
@@ -84,9 +84,9 @@ def equip(user_id):
     ]
     monster_equipment = {slot: eq.name for slot, eq in monster.equipment.items()}
     monster_stats = {
-        'attack': monster.total_attack(),
-        'defense': monster.total_defense(),
-        'speed': monster.total_speed(),
+        'attack': monster.total_attack,
+        'defense': monster.total_defense,
+        'speed': monster.total_speed,
     }
     return jsonify({
         'success': success,
@@ -137,9 +137,9 @@ def formation(user_id):
             'exp_to_next': m.calculate_exp_to_next_level(),
             'image': url_for('static', filename='images/' + m.image_filename) if m.image_filename else '',
             'stats': {
-                'attack': m.total_attack(),
-                'defense': m.total_defense(),
-                'speed': m.total_speed(),
+                'attack': m.total_attack,
+                'defense': m.total_defense,
+                'speed': m.total_speed,
             },
             'skills': m.get_skill_details(),
             'description': MONSTER_BOOK_DATA.get(m.monster_id).description if MONSTER_BOOK_DATA.get(m.monster_id) else 'このモンスターに関する詳しい説明はまだ見つかっていない。'
@@ -195,9 +195,9 @@ def manage(user_id):
             'exp_to_next': m.calculate_exp_to_next_level(),
             'image': url_for('static', filename='images/' + m.image_filename) if m.image_filename else '',
             'stats': {
-                'attack': m.total_attack(),
-                'defense': m.total_defense(),
-                'speed': m.total_speed(),
+                'attack': m.total_attack,
+                'defense': m.total_defense,
+                'speed': m.total_speed,
             },
             'skills': m.get_skill_details(),
             'description': MONSTER_BOOK_DATA.get(m.monster_id).description if MONSTER_BOOK_DATA.get(m.monster_id) else 'このモンスターに関する詳しい説明はまだ見つかっていない。',

@@ -18,5 +18,69 @@
     "learnset": {
       "4": ["speed_up"]
     }
+  },
+  "mage_set": {
+    "name": "魔法使いのスキルセット",
+    "learnset": {
+      "1": ["fireball_weak"],
+      "5": ["ice_bolt"],
+      "10": ["lightning"],
+      "15": ["life_drain"],
+      "20": ["meteor_strike"]
+    }
+  },
+  "warrior_set": {
+    "name": "戦士のスキルセット",
+    "learnset": {
+      "1": ["tackle"],
+      "5": ["blade_rush"],
+      "10": ["stun_blow"],
+      "15": ["blood_saber"],
+      "20": ["last_wish"]
+    }
+  },
+  "demon_lord_set": {
+    "name": "魔王のスキルセット",
+    "learnset": {
+      "1": ["mark_of_annihilation"],
+      "10": ["embrace_of_the_void"],
+      "20": ["inferno_of_purgatory"],
+      "30": ["abyss_of_despair"]
+    }
+  },
+  "minion_set": {
+    "name": "雑魚モンスターのスキルセット",
+    "learnset": {
+      "1": ["scratch"],
+      "3": ["bite"],
+      "5": ["cry"],
+      "7": ["body_slam"],
+      "9": ["bubble"],
+      "11": ["string_shot"]
+    }
+  },
+  "guardian_set": {
+    "name": "ガーディアンのスキルセット",
+    "learnset": {
+      "1": ["stone_skin"],
+      "5": ["roar"],
+      "10": ["counter_attack"]
+    }
+  },
+  "caster_set": {
+    "name": "キャスターのスキルセット",
+    "learnset": {
+      "1": ["poison_cloud"],
+      "5": ["life_steal_mid"],
+      "10": ["mana_burn"]
+    }
+  },
+  "agile_set": {
+    "name": "アジャイルのスキルセット",
+    "learnset": {
+      "1": ["teleport"],
+      "5": ["roar"],
+      "10": ["life_steal_mid"]
+    }
   }
 }

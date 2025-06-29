@@ -19,16 +19,18 @@ def is_defending(monster: Monster) -> bool:
     return any(e.get("name") == "defending" for e in monster.status_effects)
 
 
-def deal_damage(target: Monster, damage: int) -> int:
+def deal_damage(target: Monster, damage: int, log: List[Dict[str, str]] | None) -> int:
     """Apply raw damage considering defense."""
+    if log is None:
+        log = []
     actual = max(1, damage - target.defense)
     if is_defending(target):
         actual = int(actual * 0.5)
     target.hp -= actual
-    print(f"{target.name} に {actual} のダメージ！ (残りHP: {max(0, target.hp)})")
+    log.append({'type': 'info', 'message': f"{target.name} took {actual} damage! (HP: {max(0, target.hp)})"})
     if target.hp <= 0:
         target.is_alive = False
-        print(f"{target.name} は倒れた！")
+        log.append({'type': 'info', 'message': f"{target.name} fainted!"})
     return actual
 
 
@@ -57,91 +59,161 @@ def _handle_damage(
     caster: Monster,
     target: Monster,
     effect: dict,
+    log: List[Dict[str, str]] | None,
     skill: Optional[Skill] = None,
-    context: Optional[dict[str, Any]] = None,
+    context: Optional[Dict[str, Any]] = None,
 ) -> None:
+    if context is None:
+        context = {}
+    if log is None:
+        log = []
     if skill is not None:
         damage = calculate_skill_damage(caster, target, skill)
         target.hp -= damage
-        print(f"{target.name} に {damage} のダメージ！ (残りHP: {max(0, target.hp)})")
+        log.append({'type': 'info', 'message': f"{target.name} took {damage} damage! (HP: {max(0, target.hp)})"})
         if target.hp <= 0:
             target.is_alive = False
-            print(f"{target.name} は倒れた！")
+            log.append({'type': 'info', 'message': f"{target.name} fainted!"})
+        else:
+            # Counter status check
+            if any(e["name"] == "counter_stance" for e in target.status_effects):
+                log.append({'type': 'info', 'message': f"{target.name} counters!"})
+                # For simplicity, fixed damage counterattack here
+                counter_damage = int(caster.total_attack() * 0.5) # Counterattack with half of caster's attack
+                caster.hp -= counter_damage
+                log.append({'type': 'info', 'message': f"{caster.name} took {counter_damage} damage! (HP: {max(0, caster.hp)})"})
+                if caster.hp <= 0:
+                    caster.is_alive = False
+                    log.append({'type': 'info', 'message': f"{caster.name} fainted!"})
+        context["last_damage_dealt"] = damage  # Store damage dealt
     else:
         amount = effect.get("amount", 0)
         if isinstance(amount, str) and context is not None:
             amount = int(context.get(amount, 0))
         else:
             amount = int(amount)
-        deal_damage(target, amount)
+        actual_damage = deal_damage(target, amount)
+        if target.hp <= 0:
+            target.is_alive = False
+            log.append({'type': 'info', 'message': f"{target.name} fainted!"})
+        else:
+            # Counter status check
+            if any(e["name"] == "counter_stance" for e in target.status_effects):
+                log.append({'type': 'info', 'message': f"{target.name} counters!"})
+                counter_damage = int(caster.total_attack() * 0.5) # Counterattack with half of caster's attack
+                caster.hp -= counter_damage
+                log.append({'type': 'info', 'message': f"{caster.name} took {counter_damage} damage! (HP: {max(0, caster.hp)})"})
+                if caster.hp <= 0:
+                    caster.is_alive = False
+                    log.append({'type': 'info', 'message': f"{caster.name} fainted!"})
+        context["last_damage_dealt"] = actual_damage  # Store damage dealt
+
+def _handle_heal_from_damage(
+    caster: Monster,
+    target: Monster,
+    effect: dict,
+    log: List[Dict[str, str]] | None,
+    skill: Optional[Skill] = None,
+    context: Optional[Dict[str, Any]] = None,
+) -> None:
+    if context is None:
+        context = {}
+    if log is None:
+        log = []
+    percent = float(effect.get("percent", 0))
+    last_damage_dealt = context.get("last_damage_dealt", 0)
+    heal_amount = int(last_damage_dealt * percent)
+    if heal_amount > 0:
+        caster.heal("hp", heal_amount)
+        log.append({'type': 'info', 'message': f"{caster.name} は {heal_amount} HPを吸収した！ (残りHP: {caster.hp})"})
+
 
 
 def _handle_heal(
     caster: Monster,
     target: Monster,
     effect: dict,
+    log: List[Dict[str, str]] | None,
     skill: Optional[Skill] = None,
-    context: Optional[dict[str, Any]] = None,
+    context: Optional[Dict[str, Any]] = None,
 ) -> None:
+    if log is None:
+        log = []
     stat = effect.get("stat", "hp")
     amount = effect.get("amount", 0)
     target.heal(stat, amount)
+    log.append({'type': 'info', 'message': f"{target.name} の{stat}が {amount} 回復した！"})
 
 
 def _handle_buff(
     caster: Monster,
     target: Monster,
     effect: dict,
+    log: List[Dict[str, str]] | None,
     skill: Optional[Skill] = None,
-    context: Optional[dict[str, Any]] = None,
+    context: Optional[Dict[str, Any]] = None,
 ) -> None:
+    if log is None:
+        log = []
     stat = effect.get("stat")
     amount = int(effect.get("amount", 0))
     duration = int(effect.get("duration", 0))
     if stat:
         target.apply_buff(stat, amount, duration)
+        log.append({'type': 'info', 'message': f"{target.name} の{stat}が {amount} 上がった！ ({duration}ターン)"})
 
 
 def _handle_buff_percent(
     caster: Monster,
     target: Monster,
     effect: dict,
+    log: List[Dict[str, str]] | None,
     skill: Optional[Skill] = None,
-    context: Optional[dict[str, Any]] = None,
+    context: Optional[Dict[str, Any]] = None,
 ) -> None:
+    if log is None:
+        log = []
     stat = effect.get("stat")
     amount = float(effect.get("amount", 0))
     duration = int(effect.get("duration", 0))
     if stat:
         target.apply_buff_percent(stat, amount, duration)
+        log.append({'type': 'info', 'message': f"{target.name} の{stat}が {amount*100:.0f}% 上がった！ ({duration}ターン)"})
 
 
 def _handle_status(
     caster: Monster,
     target: Monster,
     effect: dict,
+    log: List[Dict[str, str]] | None,
     skill: Optional[Skill] = None,
     context: Optional[dict[str, Any]] = None,
 ) -> None:
+    if log is None:
+        log = []
     status = effect.get("status")
     duration = effect.get("duration")
     chance = float(effect.get("chance", 1.0))
     if status:
         if random.random() < chance:
-            target.apply_status(status, duration)
+            target.apply_status(status, log, duration)
         else:
-            print(f"{target.name} は状態異常を受けなかった。")
+            log.append({'type': 'info', 'message': f"{target.name} resisted the status effect."})
+
 
 
 def _handle_revive(
     caster: Monster,
     target: Monster,
     effect: dict,
+    log: List[Dict[str, str]] | None,
     skill: Optional[Skill] = None,
-    context: Optional[dict[str, Any]] = None,
+    context: Optional[Dict[str, Any]] = None,
 ) -> None:
+    if log is None:
+        log = []
     if target.is_alive:
-        print(f"{target.name} はまだ倒れていない。")
+        log.append({'type': 'info', 'message': f"{target.name} はまだ倒れていない。"})
         return
     amount = effect.get("amount", "half")
     target.is_alive = True
@@ -154,32 +226,38 @@ def _handle_revive(
             target.hp = min(target.max_hp, int(amount))
         except (TypeError, ValueError):
             target.hp = target.max_hp // 2
-    print(f"{target.name} が復活した！ HP: {target.hp}")
+    log.append({'type': 'info', 'message': f"{target.name} が復活した！ HP: {target.hp}"})
 
 
 def _handle_cure_status(
     caster: Monster,
     target: Monster,
     effect: dict,
+    log: List[Dict[str, str]] | None,
     skill: Optional[Skill] = None,
-    context: Optional[dict[str, Any]] = None,
+    context: Optional[Dict[str, Any]] = None,
 ) -> None:
+    if log is None:
+        log = []
     status = effect.get("status")
     if status:
-        target.cure_status(status)
+        target.cure_status(status, log)
 
 
 def _handle_charge(
     caster: Monster,
     target: Monster,
     effect: dict,
+    log: List[Dict[str, str]] | None,
     skill: Optional[Skill] = None,
-    context: Optional[dict[str, Any]] = None,
+    context: Optional[Dict[str, Any]] = None,
 ) -> None:
+    if log is None:
+        log = []
     """Apply a charging state that will trigger another skill next turn."""
     release_id = effect.get("release_skill_id")
     duration = int(effect.get("duration", 2))
-    target.apply_status("charging", duration)
+    target.apply_status("charging", log, duration)
     if target.status_effects and target.status_effects[-1]["name"] == "charging":
         target.status_effects[-1]["release_skill_id"] = release_id
 
@@ -188,38 +266,61 @@ def _handle_hp_cost_percent(
     caster: Monster,
     target: Monster,
     effect: dict,
+    log: List[Dict[str, str]] | None,
     skill: Optional[Skill] = None,
-    context: Optional[dict[str, Any]] = None,
+    context: Optional[Dict[str, Any]] = None,
 ) -> None:
+    if log is None:
+        log = []
     """Reduce caster HP by a percentage of max HP."""
     percent = float(effect.get("percent", 0))
     amount = int(caster.max_hp * percent)
     caster.hp -= amount
     if context is not None:
         context["last_hp_cost"] = amount
-    print(f"{caster.name} はHPを {amount} 消費した (残りHP: {max(0, caster.hp)})")
+    log.append({'type': 'info', 'message': f"{caster.name} はHPを {amount} 消費した (残りHP: {max(0, caster.hp)})"})
     if caster.hp <= 0:
         caster.hp = 0
         caster.is_alive = False
-        print(f"{caster.name} は倒れた！")
+        log.append({'type': 'info', 'message': f"{caster.name} は倒れた！"})
 
 
 def _handle_self_ko(
     caster: Monster,
     target: Monster,
     effect: dict,
+    log: List[Dict[str, str]] | None,
     skill: Optional[Skill] = None,
-    context: Optional[dict[str, Any]] = None,
+    context: Optional[Dict[str, Any]] = None,
 ) -> None:
+    if log is None:
+        log = []
     """Knock the caster out immediately."""
     caster.hp = 0
     caster.is_alive = False
     if context is not None:
         context["self_ko"] = True
-    print(f"{caster.name} は自滅した！")
+    log.append({'type': 'info', 'message': f"{caster.name} は自滅した！"})
 
 
-HANDLERS: Dict[str, Callable[[Monster, Monster, dict, Optional[Skill], Optional[dict[str, Any]]], None]] = {
+def _handle_mp_drain(
+    caster: Monster,
+    target: Monster,
+    effect: dict,
+    log: List[Dict[str, str]] | None,
+    skill: Optional[Skill] = None,
+    context: Optional[Dict[str, Any]] = None,
+) -> None:
+    if log is None:
+        log = []
+    amount = int(effect.get("amount", 0))
+    target.mp = max(0, target.mp - amount)
+    caster.mp = min(caster.max_mp, caster.mp + amount) # Caster gains MP, capped at max_mp
+    log.append({'type': 'info', 'message': f"{target.name} のMPが {amount} 減少した！ (残りMP: {max(0, target.mp)})"})
+    log.append({'type': 'info', 'message': f"{caster.name} はMPを {amount} 吸収した！ (残りMP: {caster.mp})"})
+
+
+HANDLERS: Dict[str, Callable[[Monster, Monster, dict, List[Dict[str, str]], Optional[Skill], Optional[Dict[str, Any]]], None]] = {
     "damage": _handle_damage,
     "heal": _handle_heal,
     "buff": _handle_buff,
@@ -230,6 +331,8 @@ HANDLERS: Dict[str, Callable[[Monster, Monster, dict, Optional[Skill], Optional[
     "charge": _handle_charge,
     "hp_cost_percent": _handle_hp_cost_percent,
     "self_ko": _handle_self_ko,
+    "heal_from_damage": _handle_heal_from_damage,
+    "mp_drain": _handle_mp_drain,
 }
 
 
@@ -238,19 +341,27 @@ def apply_effects(
     target: Monster,
     effects: List[dict],
     skill: Optional[Skill] = None,
-    context: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
+    log: Optional[List[Dict[str, str]]] = None,
+    context: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
     """Apply effect dictionaries to a target."""
     if context is None:
         context = {}
+    if log is None:
+        log = []
+
     for eff in effects:
         handler = HANDLERS.get(eff.get("type"))
         if handler:
-            handler(caster, target, eff, skill, context)
+            # Pass log to handlers that accept it
+            if handler in [_handle_damage, _handle_heal, _handle_buff, _handle_buff_percent, _handle_status, _handle_revive, _handle_cure_status, _handle_charge, _handle_hp_cost_percent, _handle_self_ko, _handle_heal_from_damage, _handle_mp_drain]:
+                handler(caster, target, eff, log, skill, context)
+            else:
+                handler(caster, target, eff, skill, context)
         else:
             # fallback: status name shortcut
             name = eff.get("type")
             if name:
-                _handle_status(caster, target, {"status": name, "duration": eff.get("duration")}, skill, context)
+                _handle_status(caster, target, {"status": name, "duration": eff.get("duration")}, log, skill, context)
     return context
 

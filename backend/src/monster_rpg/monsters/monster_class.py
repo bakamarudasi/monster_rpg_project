@@ -1,5 +1,6 @@
 from ..skills.skills import ALL_SKILLS
 import copy  # deepcopyのためにインポート
+import uuid # uuidのためにインポート
 from .evolution_rules import EVOLUTION_RULES
 
 GROWTH_TYPE_AVERAGE = "平均型"
@@ -132,6 +133,8 @@ class Monster:
         ai_role="attacker",
         learnset=None,
         skill_sequence=None,
+        unit_id=None,
+        atb_gauge=0
     ):
         self.name = name
         self.hp = hp
@@ -174,6 +177,20 @@ class Monster:
         self.equipment_slots = ["weapon", "armor", "accessory"]
         self.learnset = learnset if learnset else {}
         self.skill_sequence = skill_sequence if skill_sequence else []
+        self.unit_id = unit_id if unit_id is not None else str(uuid.uuid4()) # Add unit_id attribute
+        self.atb_gauge = atb_gauge # ATBゲージの初期値
+
+    def update_atb_gauge(self, amount: int | None = None) -> None:
+        """ATBゲージを更新する。amountが指定されなければ素早さに応じて増加。"""
+        if amount is None:
+            self.atb_gauge += self.speed
+        else:
+            self.atb_gauge += amount
+        self.atb_gauge = min(100, self.atb_gauge) # ゲージは最大100
+
+    def reset_atb_gauge(self) -> None:
+        """ATBゲージをリセットする。"""
+        self.atb_gauge = 0
 
     # ------------------------------------------------------------------
     # Derived stat properties
@@ -218,31 +235,33 @@ class Monster:
     def magic(self, value: int) -> None:
         self.base_magic = value
 
-    def show_status(self):
-        print(f"名前: {self.name} (ID: {self.monster_id}, Lv.{self.level}, Rank: {self.rank})") 
+    def show_status(self, log: list[dict[str, str]] | None):
+        if log is None:
+            return
+        log.append({'type': 'info', 'message': f"名前: {self.name} (ID: {self.monster_id}, Lv.{self.level}, Rank: {self.rank})"})
         if self.element:
-            print(f"属性: {self.element}")
-        print(f"HP: {self.hp}/{self.max_hp}")
-        print(f"MP: {self.mp}/{self.max_mp}")
-        print(f"攻撃力: {self.attack}")
-        print(f"防御力: {self.defense}")
-        print(f"魔力: {self.magic}")
-        print(f"素早さ: {self.speed}") # 素早さを表示
+            log.append({'type': 'info', 'message': f"属性: {self.element}"})
+        log.append({'type': 'info', 'message': f"HP: {self.hp}/{self.max_hp}"})
+        log.append({'type': 'info', 'message': f"MP: {self.mp}/{self.max_mp}"})
+        log.append({'type': 'info', 'message': f"攻撃力: {self.attack}"})
+        log.append({'type': 'info', 'message': f"防御力: {self.defense}"})
+        log.append({'type': 'info', 'message': f"魔力: {self.magic}"})
+        log.append({'type': 'info', 'message': f"素早さ: {self.speed}"}) # 素早さを表示
         exp_needed = self.calculate_exp_to_next_level()
-        print(f"経験値: {self.exp}/{exp_needed if exp_needed is not None else 'N/A'}")
+        log.append({'type': 'info', 'message': f"経験値: {self.exp}/{exp_needed if exp_needed is not None else 'N/A'}"})
         if self.skills:
-            print("スキル:")
+            log.append({'type': 'info', 'message': "スキル:"})
             for skill_obj in self.skills:
                 if hasattr(skill_obj, 'describe') and callable(skill_obj.describe):
-                    print(f"  - {skill_obj.describe()}")
+                    log.append({'type': 'info', 'message': f"  - {skill_obj.describe()}"})
                 else:
-                    print(f"  - {skill_obj.name}")
+                    log.append({'type': 'info', 'message': f"  - {skill_obj.name}"})
         else:
-            print("  (スキルなし)")
+            log.append({'type': 'info', 'message': "  (スキルなし)"})
         if self.status_effects:
             effect_names = ", ".join(effect['name'] for effect in self.status_effects)
-            print(f"状態異常: {effect_names}")
-        print("-" * 20)
+            log.append({'type': 'info', 'message': f"状態異常: {effect_names}"})
+        log.append({'type': 'info', 'message': "-" * 20})
 
     def equip(self, equipment):
         """Equip an Equipment or EquipmentInstance to this monster."""
@@ -272,25 +291,29 @@ class Monster:
     # ------------------------------------------------------------------
     # Effect helper methods
     # ------------------------------------------------------------------
-    def heal(self, stat: str, amount):
+    def heal(self, stat: str, amount, log: list[dict[str, str]] | None):
+        if log is None:
+            log = []
         if stat == 'hp':
             if amount == 'full':
                 self.hp = self.max_hp
+                log.append({'type': 'info', 'message': f"{self.name} のHPが全回復した！"})
             else:
                 before = self.hp
                 self.hp = min(self.max_hp, self.hp + int(amount))
                 healed = self.hp - before
                 if healed:
-                    print(f"{self.name} のHPが {healed} 回復した！ (HP: {self.hp})")
+                    log.append({'type': 'info', 'message': f"{self.name} のHPが {healed} 回復した！ (HP: {self.hp})"})
         elif stat == 'mp':
             if amount == 'full':
                 self.mp = self.max_mp
+                log.append({'type': 'info', 'message': f"{self.name} のMPが全回復した！"})
             else:
                 before = self.mp
                 self.mp = min(self.max_mp, self.mp + int(amount))
                 restored = self.mp - before
                 if restored:
-                    print(f"{self.name} のMPが {restored} 回復した！ (MP: {self.mp})")
+                    log.append({'type': 'info', 'message': f"{self.name} のMPが {restored} 回復した！ (MP: {self.mp})"})
 
     def apply_buff(self, stat: str, amount: int, duration: int) -> None:
         if not stat:
@@ -323,15 +346,15 @@ class Monster:
                 'remove_func': revert,
             })
 
-    def apply_status(self, name: str, duration: int | None = None) -> None:
+    def apply_status(self, name: str, log: list[dict[str, str]], duration: int | None = None) -> None:
         from ..battle import apply_status
-        apply_status(self, name, duration)
+        apply_status(self, name, log, duration)
 
-    def cure_status(self, name: str) -> None:
+    def cure_status(self, name: str, log: list[dict[str, str]]) -> None:
         before = len(self.status_effects)
         self.status_effects = [e for e in self.status_effects if e['name'] != name]
         if len(self.status_effects) < before:
-            print(f"{self.name} の {name} が治った。")
+            log.append({'type': 'info', 'message': f"{self.name} の {name} が治った。"})
 
     @property
     def total_skills(self):
@@ -351,7 +374,7 @@ class Monster:
             })
         return details
 
-    def _try_evolution(self, verbose=True):
+    def _try_evolution(self, log: list[dict[str, str]] | None = None, verbose=True):
         """Check evolution rules and evolve if conditions are met."""
         rule = EVOLUTION_RULES.get(self.monster_id)
         if not rule:
@@ -372,10 +395,10 @@ class Monster:
         evolved.exp = self.exp
         evolved.equipment = getattr(self, 'equipment', {}).copy()
         self.__dict__.update(evolved.__dict__)
-        if verbose:
-            print(f"{template.name} に進化した！")
+        if verbose and log is not None:
+            log.append({'type': 'info', 'message': f"{template.name} に進化した！"})
 
-    def _learn_skills_for_level(self, verbose=True):
+    def _learn_skills_for_level(self, log: list[dict[str, str]] | None = None, verbose=True):
         if not isinstance(getattr(self, "learnset", None), dict):
             return
         skill_ids = self.learnset.get(self.level)
@@ -390,8 +413,8 @@ class Monster:
             if any(getattr(s, "name", None) == template.name for s in self.skills):
                 continue
             self.skills.append(copy.deepcopy(template))
-            if verbose:
-                print(f"{self.name} は {template.name} を覚えた！")
+            if verbose and log is not None:
+                log.append({'type': 'info', 'message': f"{self.name} は {template.name} を覚えた！"})
 
     def calculate_exp_to_next_level(self):
         if self.growth_type == GROWTH_TYPE_EARLY:
@@ -412,13 +435,13 @@ class Monster:
             exp_needed = calculate_exp_for_average(self.level)
         return exp_needed
 
-    def gain_exp(self, amount, verbose=True):
+    def gain_exp(self, amount, log: list[dict[str, str]] | None = None, verbose=True):
         if not self.is_alive:
             return
 
         self.exp += amount
-        if verbose:
-            print(f"{self.name} は {amount} の経験値を獲得した！ (現在EXP: {self.exp})")
+        if verbose and log is not None:
+            log.append({'type': 'info', 'message': f"{self.name} は {amount} の経験値を獲得した！ (現在EXP: {self.exp})"})
 
         exp_needed_for_next_level = self.calculate_exp_to_next_level()
         if exp_needed_for_next_level is None:
@@ -426,7 +449,7 @@ class Monster:
 
         while self.exp >= exp_needed_for_next_level and self.is_alive:
             self.exp -= exp_needed_for_next_level
-            self.level_up(verbose=verbose)
+            self.level_up(log=log, verbose=verbose)
 
             exp_needed_for_next_level = self.calculate_exp_to_next_level()
             if exp_needed_for_next_level is None:
@@ -435,10 +458,10 @@ class Monster:
         if self.exp < 0:
             self.exp = 0
 
-    def level_up(self, verbose=True):
+    def level_up(self, log: list[dict[str, str]] | None = None, verbose=True):
         self.level += 1
-        if verbose:
-            print(f"🎉🎉🎉 {self.name} は レベル {self.level} に上がった！ 🎉🎉")
+        if verbose and log is not None:
+            log.append({'type': 'info', 'message': f"🎉🎉🎉 {self.name} は レベル {self.level} に上がった！ 🎉🎉"})
 
         status_gains_dict = {}
         if self.growth_type == GROWTH_TYPE_EARLY:
@@ -456,7 +479,8 @@ class Monster:
         elif self.growth_type == GROWTH_TYPE_AVERAGE:
             status_gains_dict = get_status_gains_average(self.level)
         else:
-            print(f"警告: 未知の成長タイプ '{self.growth_type}'。平均型のステータス上昇を適用します。")
+            if verbose and log is not None:
+                log.append({'type': 'warning', 'message': f"警告: 未知の成長タイプ '{self.growth_type}' が指定されました。平均型として計算します。"})
             status_gains_dict = get_status_gains_average(self.level)
         
         if not isinstance(status_gains_dict, dict):
@@ -485,18 +509,56 @@ class Monster:
         self.mp = self.max_mp
         self.base_magic += magic_increase
 
-        if verbose:
-            print(
-                f"最大HPが {hp_increase}、最大MPが {mp_increase}、攻撃力が {attack_increase}、防御力が {defense_increase}、魔力が {magic_increase}、素早さが {speed_increase} 上昇した！"
-            )
+        if verbose and log is not None:
+            log.append({'type': 'info', 'message': f"最大HPが {hp_increase}、最大MPが {mp_increase}、攻撃力が {attack_increase}、防御力が {defense_increase}、魔力が {magic_increase}、素早さが {speed_increase} 上昇した！"})
 
-        self._try_evolution(verbose=verbose)
-        self._learn_skills_for_level(verbose=verbose)
+        self._try_evolution(log=log, verbose=verbose)
+        self._learn_skills_for_level(log=log, verbose=verbose)
 
     def advance_to_level(self, target_level, verbose=False):
         """Raise this monster's level until reaching target_level."""
         while self.level < target_level and self.is_alive:
             self.level_up(verbose=verbose)
+
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'monster_id': self.monster_id,
+            'level': self.level,
+            'hp': self.hp,
+            'max_hp': self.max_hp,
+            'mp': self.mp,
+            'max_mp': self.max_mp,
+            'attack': self.attack,
+            'defense': self.defense,
+            'speed': self.speed,
+            'atb_gauge': self.atb_gauge,
+            'alive': self.is_alive,
+            'image_filename': self.image_filename,
+            'statuses': [{'name': s['name'], 'remaining': s['remaining']} for s in self.status_effects],
+            'unit_id': self.unit_id
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        monster = cls(
+            name=data['name'],
+            hp=data['max_hp'], # Use max_hp to initialize current hp
+            attack=data['attack'],
+            defense=data['defense'],
+            mp=data['max_mp'], # Use max_mp to initialize current mp
+            level=data['level'],
+            monster_id=data['monster_id'],
+            image_filename=data['image_filename'],
+            speed=data['speed'],
+            unit_id=data['unit_id'],
+            atb_gauge=data['atb_gauge']
+        )
+        monster.hp = data['hp'] # Set current hp
+        monster.mp = data['mp'] # Set current mp
+        monster.is_alive = data['alive']
+        monster.status_effects = data['statuses']
+        return monster
 
     def copy(self):
         new_skills = [copy.deepcopy(skill) for skill in self.skills]
@@ -520,7 +582,9 @@ class Monster:
             drop_items=copy.deepcopy(self.drop_items),
             scout_rate=self.scout_rate,
             ai_role=self.ai_role,
-            learnset=copy.deepcopy(self.learnset)
+            learnset=copy.deepcopy(self.learnset),
+            unit_id=self.unit_id,
+            atb_gauge=self.atb_gauge
         )
         new_monster.max_hp = self.max_hp
         new_monster.hp = new_monster.max_hp

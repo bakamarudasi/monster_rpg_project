@@ -1,16 +1,16 @@
 {% extends "layout.html" %}
 
 {% block head_extra %}
-<link rel="stylesheet" href="{{ url_for('static', filename='battle_turn/battle_page.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='battle_turn/battle_turn.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='battle_turn/battle_styles.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='battle_turn/battle_result.css') }}">
 {% endblock %}
 
 {% block content %}
 <div class="battle-page">
   <div id="turn-order-bar" class="turn-order-bar"></div>
-  <div id="enemy-party-area" class="party-area"></div>
-  <div id="ally-party-area" class="party-area"></div>
+  <div id="enemy-party-area" class="enemy-area"></div>
+  <div class="divider"></div>
+  <div id="ally-party-area" class="ally-party-display"></div>
 
   <div class="command-window">
     <div class="turn-banner">Turn {{ init_data.turn }}</div>
@@ -69,4 +69,3 @@
 </script>
 <script src="{{ url_for('static', filename='battle_turn/battle_turn.js') }}"></script>
 {% endblock %}
-

@@ -20,6 +20,25 @@ class Item:
     def __repr__(self) -> str:  # pragma: no cover - simple debug helper
         return f"Item({self.item_id})"
 
+    def use(self, target: Any, log: List[Dict[str, str]] | None) -> bool:
+        """Use the item on a target, applying its effects."""
+        if log is None:
+            log = []
+        if not self.usable:
+            log.append({'type': 'info', 'message': f"{self.name} は使用できない。"})
+            return False
+
+        if not self.effects:
+            log.append({'type': 'info', 'message': f"{self.name} は効果がなかった。"})
+            return True
+
+        from ..skills.skill_actions import apply_effects  # Avoid circular import
+        # Item effects are applied by the item itself, not a caster monster
+        # So, caster is None or a dummy object if needed by apply_effects
+        apply_effects(None, target, self.effects, None, log)
+        log.append({'type': 'info', 'message': f"{self.name} を使用した。"})
+        return True
+
 
 def load_items(filepath: str | None = None) -> Dict[str, Item]:
     """Load item definitions from a JSON file."""

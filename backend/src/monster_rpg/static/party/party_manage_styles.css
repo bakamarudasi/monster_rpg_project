@@ -1,4 +1,6 @@
-/* Formation page styles */
+/* Combined styles for party_manage */
+
+/* From party/formation.css */
 body {
     /* wood desk texture background */
     background-color: #6f4f28;
@@ -105,7 +107,7 @@ header h1 {
     box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
     pointer-events: none;
 }
-.monster-item.dragging { opacity: 0.5; transform: scale(0.9); }
+.monster-item.dragging { opacity: 0.5; transform: scale(0.9) rotate(-5deg); }
 .drop-area.drag-over { background-color: #e0f7fa; border-color: #00bcd4; box-shadow: inset 0 0 15px rgba(0,188,212,0.5); }
 .monster-placeholder { width: 100%; height: 100%; display:flex; align-items:center; justify-content:center; font-style: italic; }
 footer {
@@ -135,3 +137,134 @@ footer {
     .main-grid { grid-template-columns: 1fr; }
     header h1 { font-size: 2.5em; }
 }
+
+/* From party/party.css */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(66, 45, 12, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.modal-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+.modal-card {
+    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    border: 2px solid #fff;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 380px;
+    max-height: 90vh;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 50px rgba(0,0,0,0.4), 0 0 0 5px #b68b4c;
+    transform: scale(0.9) rotateY(15deg);
+    transition: transform 0.4s cubic-bezier(.19,1,.22,1);
+    display: flex;
+    flex-direction: column;
+}
+.modal-backdrop.show .modal-card {
+    transform: scale(1) rotateY(0deg);
+}
+.modal-close-btn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: rgba(0,0,0,0.3);
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 1.5rem;
+    color: #fff;
+    cursor: pointer;
+    z-index: 10;
+    line-height: 30px;
+    text-align: center;
+}
+#modal-card-body {
+    overflow-y: auto;
+    font-family: 'Georgia', serif;
+}
+.card-image-area {
+    height: 200px;
+    background: #c3d4e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 4px solid #b68b4c;
+}
+.card-monster-img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+}
+.card-header {
+    padding: 16px;
+    text-align: center;
+    background: #f7f2e6;
+}
+.card-monster-name {
+    font-size: 1.7rem;
+    color: #865e2a;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+.card-monster-lvhp {
+    font-size: 1rem;
+    color: #7c653b;
+}
+.card-content {
+    padding: 16px;
+}
+.card-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+    margin-bottom: 16px;
+    font-size: 1.1rem;
+    color: #5d4b29;
+}
+.card-stats-grid span {
+    background: #ede6d8;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+.card-section h3 {
+    font-size: 1.3rem;
+    color: #865e2a;
+    border-bottom: 1px solid #b68b4c55;
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+}
+.card-skills-list ul {
+    list-style: none;
+    padding: 0;
+ }
+.card-skills-list li {
+    background: #ede6d8;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+ }
+ .card-description p {
+     line-height: 1.5;
+     font-size: 1rem;
+     color: #5d4b29;
+     padding: 8px;
+     background: #ede6d8;
+     border-radius: 6px;
+ }

@@ -470,5 +470,211 @@
     ],
     "description": "自らを犠牲に大ダメージを与える",
     "category": "物理"
+  },
+  "life_drain": {
+    "name": "ライフドレイン",
+    "power": 20,
+    "cost": 7,
+    "skill_type": "drain",
+    "effects": [
+      {"type": "damage", "amount": 20},
+      {"type": "heal_from_damage", "percent": 0.5}
+    ],
+    "description": "敵のHPを吸収し、与えたダメージの半分を自身のHPとして回復する",
+    "category": "魔法"
+  },
+  "mark_of_annihilation": {
+    "name": "終焉の刻印",
+    "power": 70,
+    "cost": 15,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage", "amount": 70},
+      {"type": "status", "status": "doom", "duration": 3}
+    ],
+    "description": "敵に大ダメージを与え、数ターン後に確定ダメージを与える終焉の刻印を付与する",
+    "category": "闇魔法"
+  },
+  "embrace_of_the_void": {
+    "name": "虚無の抱擁",
+    "power": 0,
+    "cost": 10,
+    "skill_type": "debuff",
+    "scope": "all",
+    "duration": 3,
+    "effects": [
+      {"type": "buff", "stat": "attack", "amount": -10, "duration": 3},
+      {"type": "buff", "stat": "defense", "amount": -10, "duration": 3},
+      {"type": "buff", "stat": "magic", "amount": -10, "duration": 3},
+      {"type": "buff", "stat": "speed", "amount": -10, "duration": 3}
+    ],
+    "description": "敵全体を虚無に引きずり込み、全能力を大幅に低下させる",
+    "category": "闇魔法"
+  },
+  "inferno_of_purgatory": {
+    "name": "煉獄の業火",
+    "power": 60,
+    "cost": 12,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage", "amount": 60},
+      {"type": "status", "status": "burn", "duration": 5}
+    ],
+    "description": "煉獄の炎で敵全体を焼き尽くし、強力な火傷状態にする",
+    "category": "炎魔法"
+  },
+  "abyss_of_despair": {
+    "name": "絶望の淵",
+    "power": 0,
+    "cost": 20,
+    "skill_type": "buff",
+    "target": "self",
+    "duration": 2,
+    "effects": [
+      {"type": "buff_percent", "stat": "attack", "amount": 1.0, "duration": 2},
+      {"type": "buff_percent", "stat": "magic", "amount": 1.0, "duration": 2},
+      {"type": "buff_percent", "stat": "defense", "amount": -0.5, "duration": 2}
+    ],
+    "description": "己の魂を代償に、一時的に絶大な力を得るが、防御力が大幅に低下する",
+    "category": "禁忌"
+  },
+  "scratch": {
+    "name": "ひっかく",
+    "power": 10,
+    "cost": 1,
+    "skill_type": "attack",
+    "effects": [{"type": "damage", "amount": 10}],
+    "description": "鋭い爪でひっかく",
+    "category": "物理"
+  },
+  "bite": {
+    "name": "かみつく",
+    "power": 15,
+    "cost": 2,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage", "amount": 15},
+      {"type": "status", "status": "poison", "chance": 0.2}
+    ],
+    "description": "鋭い牙でかみつき、稀に毒状態にする",
+    "category": "物理"
+  },
+  "cry": {
+    "name": "なきごえ",
+    "power": 0,
+    "cost": 2,
+    "skill_type": "debuff",
+    "effects": [{"type": "buff", "stat": "attack", "amount": -2, "duration": 2}],
+    "description": "情けない鳴き声で敵の攻撃力を少し下げる",
+    "category": "弱体"
+  },
+  "body_slam": {
+    "name": "たいあたり",
+    "power": 20,
+    "cost": 3,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage", "amount": 20},
+      {"type": "hp_cost_percent", "percent": 0.05}
+    ],
+    "description": "全体重をぶつけて攻撃するが、自分も少しダメージを受ける",
+    "category": "物理"
+  },
+  "bubble": {
+    "name": "あわ",
+    "power": 0,
+    "cost": 2,
+    "skill_type": "debuff",
+    "effects": [{"type": "buff", "stat": "speed", "amount": -3, "duration": 2}],
+    "description": "泡を吹きかけ、敵の素早さを少し下げる",
+    "category": "魔法"
+  },
+  "string_shot": {
+    "name": "いとをはく",
+    "power": 0,
+    "cost": 3,
+    "skill_type": "debuff",
+    "effects": [{"type": "buff", "stat": "speed", "amount": -5, "duration": 3}],
+    "description": "粘着性の糸を吐き出し、敵の素早さを大きく下げる",
+    "category": "物理"
+  },
+  "counter_attack": {
+    "name": "カウンターアタック",
+    "power": 0,
+    "cost": 5,
+    "skill_type": "buff",
+    "target": "self",
+    "duration": 1,
+    "effects": [{"type": "status", "status": "counter_stance", "duration": 1}],
+    "description": "攻撃を受け流し、反撃する構えをとる",
+    "category": "物理"
+  },
+  "stone_skin": {
+    "name": "ストーンスキン",
+    "power": 0,
+    "cost": 6,
+    "skill_type": "buff",
+    "target": "self",
+    "duration": 3,
+    "effects": [{"type": "buff_percent", "stat": "defense", "amount": 0.5, "duration": 3}],
+    "description": "自身の防御力を高める",
+    "category": "補助"
+  },
+  "poison_cloud": {
+    "name": "ポイズンクラウド",
+    "power": 0,
+    "cost": 8,
+    "skill_type": "status",
+    "scope": "all",
+    "effects": [{"type": "status", "status": "poison", "duration": 3}],
+    "description": "毒の霧を放ち、敵全体を毒状態にする",
+    "category": "魔法"
+  },
+  "life_steal_mid": {
+    "name": "ライフスティール",
+    "power": 25,
+    "cost": 10,
+    "skill_type": "drain",
+    "effects": [
+      {"type": "damage", "amount": 25},
+      {"type": "heal_from_damage", "percent": 0.75}
+    ],
+    "description": "敵からHPを吸収し、与えたダメージの75%を自身のHPとして回復する",
+    "category": "魔法"
+  },
+  "roar": {
+    "name": "雄叫び",
+    "power": 0,
+    "cost": 7,
+    "skill_type": "debuff",
+    "scope": "all",
+    "duration": 2,
+    "effects": [
+      {"type": "buff", "stat": "attack", "amount": -5, "duration": 2},
+      {"type": "buff", "stat": "defense", "amount": -5, "duration": 2}
+    ],
+    "description": "雄叫びをあげ、敵全体の攻撃力と防御力を下げる",
+    "category": "補助"
+  },
+  "teleport": {
+    "name": "テレポート",
+    "power": 0,
+    "cost": 10,
+    "skill_type": "buff",
+    "target": "self",
+    "duration": 1,
+    "effects": [{"type": "status", "status": "evade", "duration": 1}],
+    "description": "次の攻撃を回避する",
+    "category": "補助"
+  },
+  "mana_burn": {
+    "name": "マナバーン",
+    "power": 0,
+    "cost": 8,
+    "skill_type": "debuff",
+    "effects": [{"type": "mp_drain", "amount": 15}],
+    "description": "敵のMPを奪う",
+    "category": "魔法"
   }
 }

@@ -5,7 +5,8 @@ from ..player import Player
 from .. import save_manager
 from ..map_data import LOCATIONS
 from ..exploration import generate_enemy_party, get_monster_instance_copy
-from .battle import Battle, active_battles, serialize_monster, turn_order_ids
+from ..battle import start_atb_battle
+from .battle import active_battles, serialize_monster, turn_order_ids
 
 explore_bp = Blueprint('explore', __name__)
 
@@ -31,22 +32,23 @@ def explore(user_id):
             boss_mon = get_monster_instance_copy(boss_id)
             boss = [boss_mon] if boss_mon else []
             if boss:
-                battle_obj = Battle(player.party_monsters, boss, player)
+                battle_obj = start_atb_battle(player.party_monsters, boss, player)
                 battle_obj.log.append({'type': 'info', 'message': 'ボスが姿を現した！'})
-                active_battles[user_id] = battle_obj
-                while not battle_obj.finished and battle_obj.current_actor() not in battle_obj.player_party:
-                    battle_obj.step()
+                active_battles[user_id] = battle_obj.get_current_state()
+                while not battle_obj.finished and battle_obj.current_actor not in battle_obj.player_party:
+                    battle_obj.advance_turn()
                 save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
                 init_data = {
                     'ally_info': [serialize_monster(m, f'ally-{i}') for i, m in enumerate(battle_obj.player_party)],
                     'enemy_info': [serialize_monster(m, f'enemy-{i}') for i, m in enumerate(battle_obj.enemy_party)],
                     'items': [{'name': it.name} for it in (player.items if player else [])],
-                    'turn': battle_obj.turn,
+                    'turn': battle_obj.turn_count,
                     'log': battle_obj.log,
-                    'current_actor': None,
-                    'turn_order': turn_order_ids(battle_obj)
+                    'current_actor': serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None,
+                    'turn_order': turn_order_ids(battle_obj.turn_order)
                 }
-                current = battle_obj.current_actor()
+                print("DEBUG: init_data =", init_data)
+                current = battle_obj.current_actor
                 if current and current in battle_obj.player_party:
                     idx = battle_obj.player_party.index(current)
                     init_data['current_actor'] = {
@@ -65,24 +67,24 @@ def explore(user_id):
     if (loc.possible_enemies or getattr(loc, 'enemy_pool', None)) and random.random() < loc.encounter_rate:
         enemies = generate_enemy_party(loc, player)
         if enemies:
-            battle_obj = Battle(player.party_monsters, enemies, player)
+            battle_obj = start_atb_battle(player.party_monsters, enemies, player)
             battle_obj.log.append({'type': 'info', 'message': f'探索度 {before}% -> {after}%'})
             enemy_names = ', '.join(e.name for e in enemies)
             battle_obj.log.append({'type': 'info', 'message': f'{enemy_names} が現れた！'})
-            active_battles[user_id] = battle_obj
-            while not battle_obj.finished and battle_obj.current_actor() not in battle_obj.player_party:
-                battle_obj.step()
+            active_battles[user_id] = battle_obj.get_current_state()
+            while not battle_obj.finished and battle_obj.current_actor not in battle_obj.player_party:
+                battle_obj.advance_turn()
             save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
             init_data = {
                 'ally_info': [serialize_monster(m, f'ally-{i}') for i, m in enumerate(battle_obj.player_party)],
                 'enemy_info': [serialize_monster(m, f'enemy-{i}') for i, m in enumerate(battle_obj.enemy_party)],
                 'items': [{'name': it.name} for it in (player.items if player else [])],
-                'turn': battle_obj.turn,
+                'turn': battle_obj.turn_count,
                 'log': battle_obj.log,
                 'current_actor': None,
-                'turn_order': turn_order_ids(battle_obj)
+                'turn_order': turn_order_ids(battle_obj.turn_order)
             }
-            current = battle_obj.current_actor()
+            current = battle_obj.current_actor
             if current and current in battle_obj.player_party:
                 idx = battle_obj.player_party.index(current)
                 init_data['current_actor'] = {

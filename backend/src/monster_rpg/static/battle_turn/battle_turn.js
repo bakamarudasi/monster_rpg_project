@@ -50,8 +50,6 @@ function buildUnitElement(info, idx, side) {
     mpBar.appendChild(mpFill);
     infoBox.appendChild(mpBar);
 
-    unit.appendChild(infoBox);
-
     const hpText = document.createElement('div');
     hpText.className = 'hp-text';
     hpText.textContent = info.hp + '/' + info.max_hp;
@@ -395,9 +393,9 @@ function setupBattleUI() {
 }
 
 function updateUnitList(units, infoList) {
-    infoList.forEach((info, idx) => {
-        const unit = units[idx];
-        if (!unit) return;
+    units.forEach((unit, idx) => {
+        const info = infoList[idx];
+        if (!info) return;
         const prevHp = parseInt(unit.dataset.hp || '0');
         unit.dataset.hp = info.hp;
         unit.dataset.mp = info.mp;
@@ -469,7 +467,7 @@ function buildSkillUI(actor) {
         if (i !== 0) panel.classList.add('hidden');
         skills.forEach(sk => {
             const btn = document.createElement('button');
-            btn.className = 'skill-btn';
+            btn.type = 'button';
             btn.textContent = sk.name + (sk.cost ? ` (MP:${sk.cost})` : '');
             const unitEl = document.querySelector(`[data-unit-id="${actor.unit_id}"]`);
             const mp = unitEl ? parseInt(unitEl.dataset.mp || '0') : 0;

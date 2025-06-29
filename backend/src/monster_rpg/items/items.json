@@ -83,5 +83,21 @@
   "armor_fragment_rare": {
     "name": "上級・防具の欠片",
     "description": "高品質な防具強化素材。"
+  },
+  "steel_ingot": {
+    "name": "鋼のインゴット",
+    "description": "鋼の装備品を作るための素材。"
+  },
+  "fire_crystal": {
+    "name": "炎の結晶",
+    "description": "炎属性の装備品を作るための素材。"
+  },
+  "tough_leather": {
+    "name": "頑丈な革",
+    "description": "高品質な防具を作るための素材。"
+  },
+  "power_fragment": {
+    "name": "力の破片",
+    "description": "力のアクセサリーを作るための素材。"
   }
 }
