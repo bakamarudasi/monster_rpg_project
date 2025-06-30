@@ -22,7 +22,7 @@ def _ensure_default_user(cursor):
         )
 
 def initialize_database():
-    conn = sqlite3.connect(DATABASE_NAME)
+    conn = sqlite3.connect(DATABASE_NAME, check_same_thread=False)
     cursor = conn.cursor()
 
     def _add_column_if_missing(table: str, column: str, col_type: str) -> None:
@@ -176,7 +176,9 @@ def create_user(username: str, password: str) -> int:
     """Create a new user and return its ID."""
     # Use a context manager and provide a timeout to avoid locking issues when
     # multiple requests write to the database simultaneously.
-    with sqlite3.connect(DATABASE_NAME, timeout=5) as conn:
+    with sqlite3.connect(
+        DATABASE_NAME, timeout=5, check_same_thread=False
+    ) as conn:
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO users (username, password) VALUES (?, ?)",
@@ -191,7 +193,7 @@ def create_user(username: str, password: str) -> int:
 
 def get_user_id(username: str, password: str | None = None) -> int | None:
     """Return user id for given username. If password is provided, verify it."""
-    conn = sqlite3.connect(DATABASE_NAME)
+    conn = sqlite3.connect(DATABASE_NAME, check_same_thread=False)
     cursor = conn.cursor()
     if password is None:
         cursor.execute("SELECT id FROM users WHERE username=?", (username,))

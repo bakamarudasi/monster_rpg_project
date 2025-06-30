@@ -11,7 +11,9 @@ from .monsters.monster_class import Monster
 
 
 def _connect():
-    return sqlite3.connect(database_setup.DATABASE_NAME, timeout=5)
+    return sqlite3.connect(
+        database_setup.DATABASE_NAME, timeout=5, check_same_thread=False
+    )
 
 
 def list_item(player: Player, item_idx: int, price: int) -> bool:

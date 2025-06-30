@@ -9,6 +9,8 @@ This is a small text-based RPG prototype written in Python. It uses SQLite to st
 - Python 3.11
 - `Flask` is required to run the optional web server.
 - The standard library `sqlite3` module is used for save data.
+- SQLite connections are opened with `check_same_thread=False` so the
+  Flask server can safely access the database from multiple threads.
 
 ## Setup and Running the Game
 1. (Optional) Create and activate a virtual environment for Python 3.11.
