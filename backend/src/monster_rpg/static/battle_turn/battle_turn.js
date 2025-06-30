@@ -358,6 +358,7 @@
             form.addEventListener('submit', evt => {
                 evt.preventDefault();
                 const formData = new FormData(form);
+                const csrfToken = formData.get('csrf_token');
                 const postUrl = form.getAttribute('action');  // use the form's action URL
                 const submitBtn = form.querySelector('button[type="submit"]');
                 if (submitBtn) submitBtn.disabled = true;
@@ -365,7 +366,7 @@
                 const payload = Object.fromEntries(formData.entries());
                 fetch(postUrl, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
                     body: JSON.stringify(payload)
                 })
                     .then(resp => {

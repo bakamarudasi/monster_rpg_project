@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{{ title or "Monster RPG" }}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   {% block head_extra %}{% endblock %}
