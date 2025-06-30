@@ -48,7 +48,9 @@
         const mpPct = info.max_mp > 0 ? Math.round(info.mp / info.max_mp * 100) : 0;
         mpFill.style.width = mpPct + '%';
         mpBar.appendChild(mpFill);
+
         infoBox.appendChild(mpBar);
+        unit.appendChild(infoBox);
 
         const hpText = document.createElement('div');
         hpText.className = 'hp-text';
