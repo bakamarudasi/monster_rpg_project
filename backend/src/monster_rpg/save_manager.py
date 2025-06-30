@@ -178,7 +178,12 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
 
         if row:
             db_id, name, level, exp, gold, location_id, u_id = row
-            loaded_player = Player(name, player_level=level, gold=gold, user_id=u_id)
+            loaded_player = Player(
+                name,
+                player_level=level,
+                gold=gold,
+                user_id=u_id,
+            )
             loaded_player.exp = exp
             loaded_player.current_location_id = location_id
             loaded_player.db_id = db_id
@@ -281,6 +286,6 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
 
             print(f"{name} のデータがロードされました。")
             return loaded_player
-        else:
-            print("セーブデータが見つかりませんでした。")
-            return None
+
+        print("セーブデータが見つかりませんでした。")
+        return None
