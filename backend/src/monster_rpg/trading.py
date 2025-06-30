@@ -9,11 +9,9 @@ from .items.item_data import ALL_ITEMS
 from .monsters.monster_data import ALL_MONSTERS
 from .monsters.monster_class import Monster
 
-DATABASE = database_setup.DATABASE_NAME
-
 
 def _connect():
-    return sqlite3.connect(DATABASE, timeout=5)
+    return sqlite3.connect(database_setup.DATABASE_NAME, timeout=5)
 
 
 def list_item(player: Player, item_idx: int, price: int) -> bool:

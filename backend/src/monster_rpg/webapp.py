@@ -6,8 +6,6 @@ from .player import Player
 
 app = Flask(__name__)
 
-db_name = database_setup.DATABASE_NAME
-
 def get_or_create_user(username: str, password: str):
     """Return user id or an error tuple if the username already exists."""
     user_id = database_setup.get_user_id(username, password)
@@ -35,12 +33,12 @@ def new_game():
         return result
     user_id = result
     player = Player(username, user_id=user_id, gold=100)
-    player.save_game(db_name)
+    player.save_game(database_setup.DATABASE_NAME)
     return jsonify({'user_id': user_id, 'message': 'created'})
 
 @app.route('/load_game/<int:user_id>')
 def load_game(user_id):
-    player = Player.load_game(db_name, user_id=user_id)
+    player = Player.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if not player:
         return jsonify({'error': 'not found'}), 404
     return jsonify({'name': player.name, 'level': player.player_level, 'gold': player.gold})
