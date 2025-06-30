@@ -174,7 +174,10 @@
 
         const itemsPanel = document.getElementById('tab-items');
         const itemSel = document.querySelector('select[name="item_idx"]');
-        if (itemsPanel && itemSel && Array.isArray(data.items)) {
+        const itemsTabBtn = document.querySelector('.tab-buttons [data-panel="tab-items"]');
+        if (itemsPanel && itemSel && Array.isArray(data.items) && data.items.length > 0) {
+            if (itemsTabBtn) itemsTabBtn.style.display = '';
+            itemsPanel.classList.remove('hidden');
             itemsPanel.textContent = '';
             itemSel.textContent = '';
             data.items.forEach((it,i) => {
@@ -199,6 +202,9 @@
                 });
                 itemsPanel.appendChild(btn);
             });
+        } else {
+            if (itemsPanel) itemsPanel.classList.add('hidden');
+            if (itemsTabBtn) itemsTabBtn.style.display = 'none';
         }
     }
 
@@ -400,7 +406,11 @@
             unit.dataset.hp = info.hp;
             unit.dataset.mp = info.mp;
             unit.dataset.statuses = JSON.stringify(info.status_effects || []);
-            if (!info.alive) unit.classList.add('down');
+            if (!info.alive) {
+                unit.classList.add('down');
+            } else {
+                unit.classList.remove('down');
+            }
             const fill = unit.querySelector('.hp-fill');
             const pct = Math.round(info.hp / info.max_hp * 100);
             if (fill) {
@@ -439,12 +449,26 @@
         const actionSel = document.getElementById('action');
         if (!tabsContainer || !panelsContainer || !descArea || !hiddenInput) return;
 
+        const skillsTabBtn = document.querySelector('.tab-buttons [data-panel="tab-skills"]');
+        const skillsPanel = document.getElementById('tab-skills');
+
+        if (!actor || !Array.isArray(actor.skills) || actor.skills.length === 0) {
+            if (skillsTabBtn) skillsTabBtn.style.display = 'none';
+            if (skillsPanel) skillsPanel.classList.add('hidden');
+            tabsContainer.textContent = '';
+            panelsContainer.textContent = '';
+            descArea.textContent = '';
+            hiddenInput.value = '';
+            return;
+        } else {
+            if (skillsTabBtn) skillsTabBtn.style.display = '';
+            if (skillsPanel) skillsPanel.classList.remove('hidden');
+        }
+
         tabsContainer.textContent = '';
         panelsContainer.textContent = '';
         descArea.textContent = '';
         hiddenInput.value = '';
-
-        if (!actor || !Array.isArray(actor.skills)) return;
 
         const groups = {};
         actor.skills.forEach((sk, idx) => {
