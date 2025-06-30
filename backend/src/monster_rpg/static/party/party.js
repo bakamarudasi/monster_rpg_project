@@ -6,6 +6,8 @@
 
     let equipmentList = [];
     let equipUrl = '';
+    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+    const csrfToken = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
     const dataElem = document.getElementById('party-data');
     if (dataElem) {
       try {
@@ -184,7 +186,7 @@
           const idx = btn.dataset.idx;
           fetch(equipUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
             body: JSON.stringify({ equip_id: equipId, monster_idx: idx })
           })
           .then(res => res.json())
@@ -212,7 +214,7 @@
           const slot = btn.dataset.slot;
           fetch(equipUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
             body: JSON.stringify({ equip_id: null, monster_idx: idx, slot: slot })
           })
           .then(res => res.json())

@@ -4,6 +4,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
   let equipmentList = [];
   let equipUrl = '';
+  const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+  const csrfToken = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
   const dataElem = document.getElementById('party-data');
   if (dataElem) {
     try {
@@ -254,7 +256,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const idx = modal.currentMonsterData.index; // Use stored data
         fetch(equipUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
           body: JSON.stringify({ equip_id: equipId, monster_idx: idx })
         })
         .then(res => res.json())
@@ -291,7 +293,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const slot = btn.dataset.slot;
         fetch(equipUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
           body: JSON.stringify({ equip_id: null, monster_idx: idx, slot: slot })
         })
         .then(res => res.json())
