@@ -369,6 +369,9 @@
                 if (submitBtn) submitBtn.disabled = true;
 
                 const payload = Object.fromEntries(formData.entries());
+                if (payload.action === 'skill' && payload.selected_skill_id) {
+                    payload.action = 'skill' + payload.selected_skill_id;
+                }
                 fetch(postUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
