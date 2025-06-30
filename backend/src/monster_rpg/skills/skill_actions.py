@@ -3,15 +3,15 @@ from __future__ import annotations
 from typing import Callable, Dict, List, Optional, Any
 import random
 
+from .skills import Skill
+from ..monsters.monster_class import Monster
+
 # copied from battle to avoid circular import
 ELEMENTAL_MULTIPLIERS = {
     ("火", "風"): 1.5,
     ("風", "水"): 1.5,
     ("水", "火"): 1.5,
 }
-
-from .skills import Skill
-from ..monsters.monster_class import Monster
 
 
 def is_defending(monster: Monster) -> bool:
