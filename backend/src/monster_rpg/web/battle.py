@@ -1,4 +1,5 @@
 import random
+import copy
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 from ..battle import start_atb_battle, STATUS_DEFINITIONS, Battle
 from .. import database_setup
@@ -8,8 +9,22 @@ from ..items.equipment import Equipment, EquipmentInstance, create_titled_equipm
 from ..monsters.monster_class import Monster
 from ..map_data import LOCATIONS
 from ..exploration import generate_enemy_party
+from ..skills.skills import ALL_SKILLS
 
 def serialize_monster(m, unit_id):
+    skills = []
+    for sk in m.total_skills:
+        skill_id = next((sid for sid, obj in ALL_SKILLS.items() if obj.name == getattr(sk, 'name', None)), None)
+        skills.append({
+            'id': skill_id,
+            'name': getattr(sk, 'name', ''),
+            'cost': getattr(sk, 'cost', 0),
+            'skill_type': getattr(sk, 'skill_type', ''),
+            'target': getattr(sk, 'target', 'enemy'),
+            'scope': getattr(sk, 'scope', 'single'),
+            'description': getattr(sk, 'description', '')
+        })
+
     return {
         'unit_id': unit_id,
         'monster_id': m.monster_id,
@@ -33,6 +48,7 @@ def serialize_monster(m, unit_id):
             }
             for e in m.status_effects
         ],
+        'skills': skills,
     }
 
 def deserialize_monster(data):
@@ -42,6 +58,15 @@ def deserialize_monster(data):
     # For now, we'll just create a dummy monster with the provided stats.
     # This assumes monster_id is enough to reconstruct the base monster.
     # You might need to pass more context or have a monster factory.
+    skills = []
+    for sk in data.get('skills', []):
+        if isinstance(sk, dict):
+            sid = sk.get('id') or sk.get('name')
+        else:
+            sid = sk
+        if sid in ALL_SKILLS:
+            skills.append(copy.deepcopy(ALL_SKILLS[sid]))
+
     monster = Monster(
         monster_id=data['monster_id'],
         name=data['name'],
@@ -51,7 +76,8 @@ def deserialize_monster(data):
         attack=data['attack'],
         defense=data['defense'],
         speed=data['speed'],
-        image_filename=data.get('image').split('/')[-1] if data.get('image') else None # Extract filename from URL
+        skills=skills,
+        image_filename=data.get('image').split('/')[-1] if data.get('image') else None  # Extract filename from URL
     )
     monster.max_hp = data['max_hp']
     monster.max_mp = data['max_mp']

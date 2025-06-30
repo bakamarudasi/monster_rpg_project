@@ -39,6 +39,9 @@ class BattleGetJsonTests(unittest.TestCase):
         self.assertIn('status_effects', data['hp_values']['enemy'][0])
         self.assertIn('log', data)
         self.assertIn('finished', data)
+        self.assertIn('current_actor', data)
+        if data['current_actor']:
+            self.assertIn('skills', data['current_actor'])
 
     def test_get_returns_404_without_active_battle(self):
         active_battles.pop(self.user_id, None)
