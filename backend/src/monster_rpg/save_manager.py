@@ -27,7 +27,7 @@ if TYPE_CHECKING:  # pragma: no cover - for type hints only
 
 def save_game(player: "Player", db_name: str, user_id: Optional[int] = None) -> None:
     """Persist the player's state to ``db_name``."""
-    with sqlite3.connect(db_name) as conn:
+    with sqlite3.connect(db_name, check_same_thread=False) as conn:
         cursor = conn.cursor()
 
         if user_id is not None:
@@ -168,7 +168,7 @@ def save_game(player: "Player", db_name: str, user_id: Optional[int] = None) -> 
 def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
     """Load the most recent save for the given user id."""
     from .player import Player  # local import to avoid circular dependency
-    with sqlite3.connect(db_name) as conn:
+    with sqlite3.connect(db_name, check_same_thread=False) as conn:
         cursor = conn.cursor()
         cursor.execute(
             "SELECT id, name, player_level, exp, gold, current_location_id, user_id FROM player_data WHERE user_id=? ORDER BY id DESC LIMIT 1",
