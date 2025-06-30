@@ -291,7 +291,7 @@ class Monster:
     # ------------------------------------------------------------------
     # Effect helper methods
     # ------------------------------------------------------------------
-    def heal(self, stat: str, amount, log: list[dict[str, str]] | None):
+    def heal(self, stat: str, amount, log: list[dict[str, str]] | None = None):
         if log is None:
             log = []
         if stat == 'hp':
@@ -346,8 +346,23 @@ class Monster:
                 'remove_func': revert,
             })
 
-    def apply_status(self, name: str, log: list[dict[str, str]], duration: int | None = None) -> None:
+    def apply_status(self, name: str, log_or_duration=None, duration: int | None = None) -> None:
+        """Apply a status to this monster.
+
+        The second argument may be a log list for backwards compatibility or a
+        duration value when called with two positional arguments in tests.
+        """
         from ..battle import apply_status
+
+        log: list[dict[str, str]] | None
+        if isinstance(log_or_duration, list):
+            log = log_or_duration
+        elif isinstance(log_or_duration, int) and duration is None:
+            duration = log_or_duration
+            log = []
+        else:
+            log = log_or_duration
+
         apply_status(self, name, log, duration)
 
     def cure_status(self, name: str, log: list[dict[str, str]]) -> None:
@@ -413,8 +428,11 @@ class Monster:
             if any(getattr(s, "name", None) == template.name for s in self.skills):
                 continue
             self.skills.append(copy.deepcopy(template))
-            if verbose and log is not None:
-                log.append({'type': 'info', 'message': f"{self.name} は {template.name} を覚えた！"})
+            if verbose:
+                msg = f"{self.name} は {template.name} を覚えた！"
+                if log is not None:
+                    log.append({'type': 'info', 'message': msg})
+                print(msg)
 
     def calculate_exp_to_next_level(self):
         if self.growth_type == GROWTH_TYPE_EARLY:
@@ -440,8 +458,11 @@ class Monster:
             return
 
         self.exp += amount
-        if verbose and log is not None:
-            log.append({'type': 'info', 'message': f"{self.name} は {amount} の経験値を獲得した！ (現在EXP: {self.exp})"})
+        if verbose:
+            msg = f"{self.name} は {amount} の経験値を獲得した！ (現在EXP: {self.exp})"
+            if log is not None:
+                log.append({'type': 'info', 'message': msg})
+            print(msg)
 
         exp_needed_for_next_level = self.calculate_exp_to_next_level()
         if exp_needed_for_next_level is None:
@@ -460,8 +481,11 @@ class Monster:
 
     def level_up(self, log: list[dict[str, str]] | None = None, verbose=True):
         self.level += 1
-        if verbose and log is not None:
-            log.append({'type': 'info', 'message': f"🎉🎉🎉 {self.name} は レベル {self.level} に上がった！ 🎉🎉"})
+        if verbose:
+            msg = f"🎉🎉🎉 {self.name} は レベル {self.level} に上がった！ 🎉🎉"
+            if log is not None:
+                log.append({'type': 'info', 'message': msg})
+            print(msg)
 
         status_gains_dict = {}
         if self.growth_type == GROWTH_TYPE_EARLY:
@@ -509,8 +533,14 @@ class Monster:
         self.mp = self.max_mp
         self.base_magic += magic_increase
 
-        if verbose and log is not None:
-            log.append({'type': 'info', 'message': f"最大HPが {hp_increase}、最大MPが {mp_increase}、攻撃力が {attack_increase}、防御力が {defense_increase}、魔力が {magic_increase}、素早さが {speed_increase} 上昇した！"})
+        if verbose:
+            msg = (
+                f"最大HPが {hp_increase}、最大MPが {mp_increase}、攻撃力が {attack_increase}、"
+                f"防御力が {defense_increase}、魔力が {magic_increase}、素早さが {speed_increase} 上昇した！"
+            )
+            if log is not None:
+                log.append({'type': 'info', 'message': msg})
+            print(msg)
 
         self._try_evolution(log=log, verbose=verbose)
         self._learn_skills_for_level(log=log, verbose=verbose)

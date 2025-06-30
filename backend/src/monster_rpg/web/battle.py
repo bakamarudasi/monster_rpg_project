@@ -1,6 +1,6 @@
 import random
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
-from ..battle import start_atb_battle, STATUS_DEFINITIONS
+from ..battle import start_atb_battle, STATUS_DEFINITIONS, Battle
 from .. import database_setup
 from ..player import Player
 from .. import save_manager
@@ -106,17 +106,21 @@ def serialize_battle_state(player_party, enemy_party, log, current_actor_info, t
     }
 
 # Active battles keyed by user_id
-active_battles: dict[int, dict] = {} # Store serialized battle state
+from typing import Any
+
+active_battles: dict[int, Any] = {}
 
 battle_bp = Blueprint('battle', __name__)
 
 @battle_bp.route('/battle/<int:user_id>', methods=['GET', 'POST'], endpoint='battle')
 def battle(user_id):
+    battle_state = active_battles.get(user_id)
+
     player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    if not player and isinstance(battle_state, Battle):
+        player = battle_state.player
     if not player:
         return redirect(url_for('auth.index'))
-
-    battle_state = active_battles.get(user_id)
 
     if request.method == 'POST':
         data_src = request.get_json(silent=True)
@@ -127,18 +131,27 @@ def battle(user_id):
                 del active_battles[user_id]
             return redirect(url_for('explore.explore', user_id=user_id), code=307)
 
-        if not battle_state:
-            # This should ideally not happen if battle_state is properly managed
-            return jsonify({'error': 'no_active_battle'}), 404
+        if isinstance(battle_state, Battle):
+            battle_obj = battle_state
+            player_party = battle_obj.player_party
+            enemy_party = battle_obj.enemy_party
+            log = battle_obj.log
+            turn_order_monsters = battle_obj.turn_order
+            while not battle_obj.finished and (battle_obj.current_actor is None or battle_obj.current_actor not in battle_obj.player_party):
+                battle_obj.advance_turn()
+        else:
+            if not battle_state:
+                # This should ideally not happen if battle_state is properly managed
+                return jsonify({'error': 'no_active_battle'}), 404
 
-        # Deserialize monsters from the stored battle state
-        player_party = [deserialize_monster(m_data) for m_data in battle_state['player_party_data']]
-        enemy_party = [deserialize_monster(m_data) for m_data in battle_state['enemy_party_data']]
-        log = battle_state['log']
-        turn_order_monsters = [deserialize_monster(m_data) for m_data in battle_state['turn_order_monsters_data']]
+            # Deserialize monsters from the stored battle state
+            player_party = [deserialize_monster(m_data) for m_data in battle_state['player_party_data']]
+            enemy_party = [deserialize_monster(m_data) for m_data in battle_state['enemy_party_data']]
+            log = battle_state['log']
+            turn_order_monsters = [deserialize_monster(m_data) for m_data in battle_state['turn_order_monsters_data']]
 
-        # Reconstruct the battle object for processing the turn
-        battle_obj = start_atb_battle(player_party, enemy_party, player, log, turn_order_monsters)
+            # Reconstruct the battle object for processing the turn
+            battle_obj = start_atb_battle(player_party, enemy_party, player, log, turn_order_monsters)
 
         action = data_src.get('action', 'attack')
         if action == 'run':
@@ -191,17 +204,20 @@ def battle(user_id):
             battle_obj.process_ai_turn()
 
         # Update the stored battle state
-        active_battles[user_id] = {
-            'player_party': [serialize_monster(m, f'ally-{i}') for i, m in enumerate(battle_obj.player_party)],
-            'enemy_party': [serialize_monster(m, f'enemy-{i}') for i, m in enumerate(battle_obj.enemy_party)],
-            'log': battle_obj.log,
-            'turn_count': battle_obj.turn_count,
-            'finished': battle_obj.finished,
-            'outcome': battle_obj.outcome,
-            'current_actor': serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None,
-            'turn_order': [serialize_monster(m, m.unit_id) for m in battle_obj.turn_order]
-        }
-        save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
+        if isinstance(battle_state, Battle):
+            active_battles[user_id] = battle_obj
+        else:
+            active_battles[user_id] = {
+                'player_party': [serialize_monster(m, f'ally-{i}') for i, m in enumerate(battle_obj.player_party)],
+                'enemy_party': [serialize_monster(m, f'enemy-{i}') for i, m in enumerate(battle_obj.enemy_party)],
+                'log': battle_obj.log,
+                'turn_count': battle_obj.turn_count,
+                'finished': battle_obj.finished,
+                'outcome': battle_obj.outcome,
+                'current_actor': serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None,
+                'turn_order': [serialize_monster(m, m.unit_id) for m in battle_obj.turn_order]
+            }
+            save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
 
         if battle_obj.finished:
             outcome = battle_obj.outcome
@@ -240,10 +256,10 @@ def battle(user_id):
             del active_battles[user_id]
             save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
             html = render_template('battle.html', messages=msgs, user_id=user_id)
-            return jsonify({'hp_values': serialize_battle_state(player_party, enemy_party, log, battle_obj.current_actor, battle_obj.turn_order), 'log': msgs, 'finished': True, 'turn': battle_obj.turn_count, 'html': html, 'turn_order': turn_order_ids(battle_obj.turn_order)})
+            return jsonify({'hp_values': serialize_battle_state(player_party, enemy_party, log, serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None, battle_obj.turn_order), 'log': msgs, 'finished': True, 'turn': battle_obj.turn_count, 'html': html, 'turn_order': turn_order_ids(battle_obj.turn_order)})
         else:
             return jsonify({
-                'hp_values': serialize_battle_state(battle_obj.player_party, battle_obj.enemy_party, battle_obj.log, battle_obj.current_actor, battle_obj.turn_order),
+                'hp_values': serialize_battle_state(battle_obj.player_party, battle_obj.enemy_party, battle_obj.log, serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None, battle_obj.turn_order),
                 'log': battle_obj.log,
                 'finished': False,
                 'turn': battle_obj.turn_count,
@@ -277,6 +293,10 @@ def battle(user_id):
                 'turn_order_monsters_data': [serialize_monster(m, m.unit_id) for m in battle_obj.turn_order]
             }
             save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
+        elif isinstance(battle_state, Battle):
+            battle_obj = battle_state
+            while not battle_obj.finished and (battle_obj.current_actor is None or battle_obj.current_actor not in battle_obj.player_party):
+                battle_obj.advance_turn()
         else:
             # If battle state exists, reconstruct battle_obj for rendering
             player_party = [deserialize_monster(m_data) for m_data in battle_state['player_party_data']]
@@ -304,10 +324,19 @@ def battle_json(user_id):
     if not battle_state:
         return jsonify({'error': 'no_active_battle'}), 404
 
-    player_party = [deserialize_monster(m_data) for m_data in battle_state['player_party']]
-    enemy_party = [deserialize_monster(m_data) for m_data in battle_state['enemy_party']]
-    log = battle_state['log']
-    turn_order_monsters = [deserialize_monster(m_data) for m_data in battle_state['turn_order']]
+    if isinstance(battle_state, Battle):
+        battle_obj = battle_state
+        player_party = battle_obj.player_party
+        enemy_party = battle_obj.enemy_party
+        log = battle_obj.log
+        turn_order_monsters = battle_obj.turn_order
+        current_actor_obj = battle_obj.current_actor
+    else:
+        player_party = [deserialize_monster(m_data) for m_data in battle_state['player_party']]
+        enemy_party = [deserialize_monster(m_data) for m_data in battle_state['enemy_party']]
+        log = battle_state['log']
+        turn_order_monsters = [deserialize_monster(m_data) for m_data in battle_state['turn_order']]
+        current_actor_obj = deserialize_monster(battle_state['current_actor']) if battle_state['current_actor'] else None
 
     # Reconstruct a dummy battle_obj for serialization purposes only
     # This is a temporary object and its methods should not be called to advance the battle
@@ -322,14 +351,13 @@ def battle_json(user_id):
             self.current_actor = current_actor
             self.turn_order = turn_order
 
-    current_actor_obj = deserialize_monster(battle_state['current_actor']) if battle_state['current_actor'] else None
     dummy_battle_obj = DummyBattle(
         player_party,
         enemy_party,
         log,
-        battle_state['turn_count'],
-        battle_state['finished'],
-        battle_state['outcome'],
+        battle_state['turn_count'] if not isinstance(battle_state, Battle) else battle_obj.turn_count,
+        battle_state['finished'] if not isinstance(battle_state, Battle) else battle_obj.finished,
+        battle_state['outcome'] if not isinstance(battle_state, Battle) else battle_obj.outcome,
         current_actor_obj,
         turn_order_monsters
     )
@@ -337,7 +365,7 @@ def battle_json(user_id):
     if dummy_battle_obj.finished:
         html = render_template('battle.html', messages=dummy_battle_obj.log, user_id=user_id)
         return jsonify({
-            'hp_values': serialize_battle_state(dummy_battle_obj.player_party, dummy_battle_obj.enemy_party, dummy_battle_obj.log, dummy_battle_obj.current_actor, dummy_battle_obj.turn_order),
+            'hp_values': serialize_battle_state(dummy_battle_obj.player_party, dummy_battle_obj.enemy_party, dummy_battle_obj.log, serialize_monster(dummy_battle_obj.current_actor, dummy_battle_obj.current_actor.unit_id) if dummy_battle_obj.current_actor else None, dummy_battle_obj.turn_order),
             'log': dummy_battle_obj.log,
             'finished': True,
             'turn': dummy_battle_obj.turn_count,
@@ -346,7 +374,7 @@ def battle_json(user_id):
         })
     else:
         return jsonify({
-            'hp_values': serialize_battle_state(dummy_battle_obj.player_party, dummy_battle_obj.enemy_party, dummy_battle_obj.log, dummy_battle_obj.current_actor, dummy_battle_obj.turn_order),
+            'hp_values': serialize_battle_state(dummy_battle_obj.player_party, dummy_battle_obj.enemy_party, dummy_battle_obj.log, serialize_monster(dummy_battle_obj.current_actor, dummy_battle_obj.current_actor.unit_id) if dummy_battle_obj.current_actor else None, dummy_battle_obj.turn_order),
             'log': dummy_battle_obj.log,
             'finished': False,
             'turn': dummy_battle_obj.turn_count,
