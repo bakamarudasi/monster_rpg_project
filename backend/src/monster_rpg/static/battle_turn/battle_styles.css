@@ -228,3 +228,6 @@ button:hover { background: #004cd1; }
 .skill-btn.selected { background: #0066cc; }
 .skill-btn.disabled { opacity: 0.5; cursor: not-allowed; }
 .skill-desc { margin-top: .5rem; min-height: 1.5rem; font-size: .9rem; color: #fff; }
+
+/* Utility classes */
+.hidden { display: none; }

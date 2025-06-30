@@ -37,9 +37,9 @@
     <form id="command-form" action="{{ url_for('battle.battle', user_id=user_id) }}" method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <select name="action" id="action" hidden></select>
-      <select name="target_enemy" hidden></select>
-      <select name="target_ally" hidden></select>
-      <select name="item_idx" hidden></select>
+      <select name="target_enemy" class="hidden"></select>
+      <select name="target_ally" class="hidden"></select>
+      <select name="item_idx" class="hidden"></select>
       <button type="submit" id="submit-btn">行動決定</button>
     </form>
   </div>
