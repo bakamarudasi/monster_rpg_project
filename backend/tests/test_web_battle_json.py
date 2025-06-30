@@ -39,6 +39,9 @@ class BattleViewJsonTests(unittest.TestCase):
         self.assertIn('status_effects', data['hp_values']['enemy'][0])
         self.assertIn('log', data)
         self.assertIn('finished', data)
+        self.assertIn('current_actor', data)
+        if data['current_actor']:
+            self.assertIn('skills', data['current_actor'])
 
     def test_post_accepts_json_payload(self):
         resp = self.client.post(
@@ -53,6 +56,9 @@ class BattleViewJsonTests(unittest.TestCase):
         self.assertIn('status_effects', data['hp_values']['player'][0])
         self.assertIn('log', data)
         self.assertIn('finished', data)
+        self.assertIn('current_actor', data)
+        if data['current_actor']:
+            self.assertIn('skills', data['current_actor'])
 
 if __name__ == '__main__':
     unittest.main()
