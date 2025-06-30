@@ -18,7 +18,6 @@ class TradeTests(unittest.TestCase):
             os.remove('monster_rpg_save.db')
         database_setup.DATABASE_NAME = self.db_path
         database_setup.initialize_database()
-        trading.DATABASE = self.db_path
         self.seller_id = database_setup.create_user('seller', 'pw1')
         self.buyer_id = database_setup.create_user('buyer', 'pw2')
         app.config['TESTING'] = True
