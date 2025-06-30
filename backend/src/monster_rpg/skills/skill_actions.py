@@ -241,7 +241,10 @@ def _handle_cure_status(
         log = []
     status = effect.get("status")
     if status:
-        target.cure_status(status, log)
+        try:
+            target.cure_status(status, log)
+        except TypeError:
+            target.cure_status(status)
 
 
 def _handle_charge(

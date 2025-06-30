@@ -152,7 +152,7 @@ STATUS_DEFINITIONS = {
     },
 }
 
-def apply_status(target: Monster, status_name: str, log: List[Dict[str, str]] | None, duration: int | None = None) -> None:
+def apply_status(target: Monster, status_name: str, log: List[Dict[str, str]] | None = None, duration: int | None = None) -> None:
     if log is None:
         log = []
     data = STATUS_DEFINITIONS.get(status_name)
@@ -212,7 +212,7 @@ def apply_skill_effect(
     caster: Monster,
     targets: list[Monster],
     skill_obj: Skill,
-    log: List[Dict[str, str]] | None,
+    log: List[Dict[str, str]] | None = None,
     all_allies: list[Monster] | None = None,
     all_enemies: list[Monster] | None = None,
 ) -> None:
@@ -239,7 +239,7 @@ def apply_skill_effect(
         else:
             log.append({'type': 'info', 'message': f"スキル '{skill_obj.name}' は効果がなかった..."})
 
-def display_party_status(party: list[Monster], party_name: str, log: List[Dict[str, str]] | None):
+def display_party_status(party: list[Monster], party_name: str, log: List[Dict[str, str]] | None = None):
     if log is None:
         log = []
     log.append({'type': 'info', 'message': f"--- {party_name} ---"})
@@ -247,7 +247,7 @@ def display_party_status(party: list[Monster], party_name: str, log: List[Dict[s
         status_mark = "💀" if not monster.is_alive else "❤️"
         log.append({'type': 'info', 'message': f"  {i + 1}. {monster.name} (Lv.{monster.level}, HP: {monster.hp}/{monster.max_hp}, MP: {monster.mp}/{monster.max_mp}) {status_mark}"})
 
-def process_status_effects(monster: Monster, log: List[Dict[str, str]] | None) -> dict[str, bool]:
+def process_status_effects(monster: Monster, log: List[Dict[str, str]] | None = None) -> dict[str, bool]:
     if log is None:
         log = []
     expired = []
@@ -284,7 +284,7 @@ def process_status_effects(monster: Monster, log: List[Dict[str, str]] | None) -
         "cant_attack": "cant_attack" in active_names,
     }
 
-def process_charge_state(actor: Monster, allies: list[Monster], enemies: list[Monster], log: List[Dict[str, str]] | None) -> bool:
+def process_charge_state(actor: Monster, allies: list[Monster], enemies: list[Monster], log: List[Dict[str, str]] | None = None) -> bool:
     if log is None:
         log = []
     entry = next((e for e in actor.status_effects if e["name"] == "charging"), None)
@@ -616,7 +616,14 @@ def start_atb_battle(player_party: list[Monster], enemy_party: list[Monster], pl
     battle_instance = Battle(player_party, enemy_party, player, log, turn_order_monsters)
     return battle_instance
 
-def enemy_take_action(enemy_actor: Monster, active_player_party: list[Monster], active_enemy_party: list[Monster], log: List[Dict[str, str]]):
+def enemy_take_action(
+    enemy_actor: Monster,
+    active_player_party: list[Monster],
+    active_enemy_party: list[Monster],
+    log: List[Dict[str, str]] | None = None,
+) -> None:
+    if log is None:
+        log = []
     log.append({'type': 'info', 'message': f"{enemy_actor.name}'s action!"})
     alive_player_targets = [m for m in active_player_party if m.is_alive]
     if not alive_player_targets:
@@ -753,7 +760,7 @@ RANK_EXP_MULTIPLIERS = {
     "D": 1.0,
 }
 
-def award_experience(alive_party: list[Monster], defeated_enemies: list[Monster], player: Player | None, log: List[Dict[str, str]] | None):
+def award_experience(alive_party: list[Monster], defeated_enemies: list[Monster], player: Player | None, log: List[Dict[str, str]] | None = None):
     if log is None:
         log = []
     total_exp_reward = 0
@@ -790,7 +797,7 @@ def award_experience(alive_party: list[Monster], defeated_enemies: list[Monster]
     else:
         log.append({'type': 'info', 'message': "No experience gained."})
 
-def attempt_scout(player: Player | None, target: Monster, enemy_party: list[Monster], log: List[Dict[str, str]] | None) -> bool:
+def attempt_scout(player: Player | None, target: Monster, enemy_party: list[Monster], log: List[Dict[str, str]] | None = None) -> bool:
     if log is None:
         log = []
     if target is None or not target.is_alive:
