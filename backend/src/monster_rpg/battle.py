@@ -324,6 +324,11 @@ def process_charge_state(actor: Monster, allies: list[Monster], enemies: list[Mo
 def is_party_defeated(party: list[Monster]) -> bool:
     return all(not monster.is_alive for monster in party)
 
+
+def determine_turn_order(player_party: list[Monster], enemy_party: list[Monster]) -> list[Monster]:
+    """Return monsters sorted by speed in descending order."""
+    return sorted(player_party + enemy_party, key=lambda m: m.speed, reverse=True)
+
 class Battle:
     def __init__(self, player_party: list[Monster], enemy_party: list[Monster], player: Player, log: Optional[List[Dict[str, str]]] = None, turn_order_monsters: Optional[List[Monster]] = None):
         self.player_party = player_party
