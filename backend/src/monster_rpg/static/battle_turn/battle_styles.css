@@ -8,14 +8,18 @@ body {
     font-size: 18px;
 }
 .battle-page {
-    max-width: 960px; /* 横幅を少し広げる */
-    margin: 1rem auto;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 1000px;
+    margin: 0 auto;
     border: 2px solid #888;
     background: #001a33;
     box-shadow: inset 0 0 0 3px #001a33, 0 0 15px rgba(0, 128, 255, 0.4);
     border-radius: 8px;
     padding: 1rem;
 }
+
 
 /* === 上部：敵エリア (横並びレイアウトに変更) === */
 .enemy-area {
@@ -152,15 +156,14 @@ body {
 
 /* === コマンド入力フォーム === */
 .command-window {
-    margin-top: 1.5rem;
+    margin-top: auto; /* Push to bottom */
     padding: 1rem;
     border: 2px solid #666;
     border-radius: 6px;
     background: #112a44;
-    position: sticky;  /* new */
-    bottom: 0;         /* new */
-    z-index: 10;       /* new to keep above log */
+    z-index: 10;
 }
+
 .turn-banner { font-size: 1.5rem; font-weight: bold; text-align: center; margin-bottom: 1rem; color: #ffdd00; text-shadow: 1px 1px 2px #000; }
 .action-row { display: grid; grid-template-columns: 100px 1fr 1fr; gap: .75rem; align-items: center; margin-bottom: .75rem; }
 .action-row label { font-weight: bold; color: #fff; }
@@ -231,3 +234,37 @@ button:hover { background: #004cd1; }
 
 /* Utility classes */
 .hidden { display: none; }
+.command-tabs {
+    display: flex;
+    flex-direction: column;
+}
+
+.tab-buttons {
+    display: flex;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 0.5rem;
+    background: #333;
+    border: none;
+    color: #eee;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-btn.active {
+    background: #004cd1;
+    border-color: #88c0ff;
+}
+
+.tab-panel {
+    display: none;
+    padding: 1rem;
+    border: 1px solid #555;
+    border-top: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
