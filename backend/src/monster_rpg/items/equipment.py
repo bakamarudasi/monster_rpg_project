@@ -343,7 +343,7 @@ def _choose_amount(entry: Dict[str, Any]) -> int:
         tier_weighted = []
         for tier in entry["tiers"]:
             tier_weighted.extend([tier] * tier.get("weight", 1))
-        tier_choice = random.choice(tier_weighted);
+        tier_choice = random.choice(tier_weighted)
         if "amount" in tier_choice:
             return tier_choice["amount"]
         return random.randint(tier_choice.get("min", 1), tier_choice.get("max", 1))
