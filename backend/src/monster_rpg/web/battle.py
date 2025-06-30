@@ -1,7 +1,6 @@
 import random
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 from ..battle import start_atb_battle, STATUS_DEFINITIONS
-from ..skills.skill_actions import apply_effects
 from .. import database_setup
 from ..player import Player
 from .. import save_manager
