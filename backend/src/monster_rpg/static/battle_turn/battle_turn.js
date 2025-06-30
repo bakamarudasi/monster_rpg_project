@@ -467,6 +467,7 @@
             if (i !== 0) panel.classList.add('hidden');
             skills.forEach(sk => {
                 const btn = document.createElement('button');
+                btn.className = 'skill-btn';
                 btn.type = 'button';
                 btn.textContent = sk.name + (sk.cost ? ` (MP:${sk.cost})` : '');
                 const unitEl = document.querySelector(`[data-unit-id="${actor.unit_id}"]`);
