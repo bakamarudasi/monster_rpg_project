@@ -250,17 +250,20 @@
         if (skillUI) skillUI.style.display = actionVal === 'skill' ? '' : 'none';
 
         if (target === 'none' || scope === 'all') {
-            enemySel.style.display = 'none';
-            allySel.style.display = 'none';
-            if (itemSel) itemSel.style.display = 'none';
+            enemySel.classList.add('hidden');
+            allySel.classList.add('hidden');
+            if (itemSel) itemSel.classList.add('hidden');
         } else if (target === 'ally') {
-            enemySel.style.display = 'none';
-            allySel.style.display = '';
-            if (itemSel) itemSel.style.display = isItem ? '' : 'none';
+            enemySel.classList.add('hidden');
+            allySel.classList.remove('hidden');
+            if (itemSel) {
+                if (isItem) itemSel.classList.remove('hidden');
+                else itemSel.classList.add('hidden');
+            }
         } else {
-            enemySel.style.display = '';
-            allySel.style.display = 'none';
-            if (itemSel) itemSel.style.display = 'none';
+            enemySel.classList.remove('hidden');
+            allySel.classList.add('hidden');
+            if (itemSel) itemSel.classList.add('hidden');
         }
     }
 
