@@ -233,15 +233,16 @@ def battle(user_id):
         if isinstance(battle_state, Battle):
             active_battles[user_id] = battle_obj
         else:
+            # Keep key names consistent with the initial stored battle state
             active_battles[user_id] = {
-                'player_party': [serialize_monster(m, f'ally-{i}') for i, m in enumerate(battle_obj.player_party)],
-                'enemy_party': [serialize_monster(m, f'enemy-{i}') for i, m in enumerate(battle_obj.enemy_party)],
+                'player_party_data': [serialize_monster(m, f'ally-{i}') for i, m in enumerate(battle_obj.player_party)],
+                'enemy_party_data': [serialize_monster(m, f'enemy-{i}') for i, m in enumerate(battle_obj.enemy_party)],
                 'log': battle_obj.log,
-                'turn_count': battle_obj.turn_count,
+                'turn': battle_obj.turn_count,
                 'finished': battle_obj.finished,
                 'outcome': battle_obj.outcome,
-                'current_actor': serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None,
-                'turn_order': [serialize_monster(m, m.unit_id) for m in battle_obj.turn_order]
+                'current_actor_info': serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None,
+                'turn_order_monsters_data': [serialize_monster(m, m.unit_id) for m in battle_obj.turn_order]
             }
             save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
 
@@ -358,11 +359,25 @@ def battle_json(user_id):
         turn_order_monsters = battle_obj.turn_order
         current_actor_obj = battle_obj.current_actor
     else:
-        player_party = [deserialize_monster(m_data) for m_data in battle_state['player_party']]
-        enemy_party = [deserialize_monster(m_data) for m_data in battle_state['enemy_party']]
-        log = battle_state['log']
-        turn_order_monsters = [deserialize_monster(m_data) for m_data in battle_state['turn_order']]
-        current_actor_obj = deserialize_monster(battle_state['current_actor']) if battle_state['current_actor'] else None
+        # Support both legacy and new key names
+        if 'player_party' in battle_state:
+            player_party = [deserialize_monster(m_data) for m_data in battle_state['player_party']]
+            enemy_party = [deserialize_monster(m_data) for m_data in battle_state['enemy_party']]
+            log = battle_state['log']
+            turn_order_monsters = [deserialize_monster(m_data) for m_data in battle_state['turn_order']]
+            current_actor_obj = deserialize_monster(battle_state['current_actor']) if battle_state['current_actor'] else None
+            turn_count = battle_state['turn_count']
+            finished = battle_state['finished']
+            outcome = battle_state['outcome']
+        else:
+            player_party = [deserialize_monster(m_data) for m_data in battle_state['player_party_data']]
+            enemy_party = [deserialize_monster(m_data) for m_data in battle_state['enemy_party_data']]
+            log = battle_state['log']
+            turn_order_monsters = [deserialize_monster(m_data) for m_data in battle_state['turn_order_monsters_data']]
+            current_actor_obj = deserialize_monster(battle_state['current_actor_info']) if battle_state['current_actor_info'] else None
+            turn_count = battle_state['turn']
+            finished = battle_state['finished']
+            outcome = battle_state['outcome']
 
     # Reconstruct a dummy battle_obj for serialization purposes only
     # This is a temporary object and its methods should not be called to advance the battle
@@ -381,9 +396,9 @@ def battle_json(user_id):
         player_party,
         enemy_party,
         log,
-        battle_state['turn_count'] if not isinstance(battle_state, Battle) else battle_obj.turn_count,
-        battle_state['finished'] if not isinstance(battle_state, Battle) else battle_obj.finished,
-        battle_state['outcome'] if not isinstance(battle_state, Battle) else battle_obj.outcome,
+        turn_count if not isinstance(battle_state, Battle) else battle_obj.turn_count,
+        finished if not isinstance(battle_state, Battle) else battle_obj.finished,
+        outcome if not isinstance(battle_state, Battle) else battle_obj.outcome,
         current_actor_obj,
         turn_order_monsters
     )
