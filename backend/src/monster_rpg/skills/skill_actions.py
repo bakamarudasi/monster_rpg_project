@@ -92,7 +92,8 @@ def _handle_damage(
             amount = int(context.get(amount, 0))
         else:
             amount = int(amount)
-        actual_damage = deal_damage(target, amount)
+        # pass log so damage events are recorded and no error is raised
+        actual_damage = deal_damage(target, amount, log)
         if target.hp <= 0:
             target.is_alive = False
             log.append({'type': 'info', 'message': f"{target.name} fainted!"})
