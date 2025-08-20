@@ -36,3 +36,4 @@ http://127.0.0.1:5000/
 *   **モンスターデータ:** `backend/src/monster_rpg/monsters/monsters.json`
 *   **アイテムデータ:** `backend/src/monster_rpg/items/items.json`
 *   **装備データ:** `backend/src/monster_rpg/items/equipment.py`
+
