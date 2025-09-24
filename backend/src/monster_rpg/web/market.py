@@ -21,8 +21,11 @@ def list_item_route(user_id):
     if not request.is_json:
         return jsonify({'error': 'json required'}), 400
     data = request.get_json(silent=True) or {}
-    idx = int(data.get('item_idx', -1))
-    price = int(data.get('price', -1))
+    try:
+        idx = int(data.get('item_idx', -1))
+        price = int(data.get('price', -1))
+    except (TypeError, ValueError):
+        return jsonify({'error': 'invalid item_idx or price'}), 400
     success = list_item(player, idx, price)
     if success:
         save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
@@ -38,8 +41,11 @@ def list_monster_route(user_id):
     if not request.is_json:
         return jsonify({'error': 'json required'}), 400
     data = request.get_json(silent=True) or {}
-    idx = int(data.get('reserve_idx', -1))
-    price = int(data.get('price', -1))
+    try:
+        idx = int(data.get('reserve_idx', -1))
+        price = int(data.get('price', -1))
+    except (TypeError, ValueError):
+        return jsonify({'error': 'invalid reserve_idx or price'}), 400
     success = list_monster_from_reserve(player, idx, price)
     if success:
         save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
