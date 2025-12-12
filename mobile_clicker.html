@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>脱衣差分ガチャ付きクリッカー</title>
+  <style>
+    :root {
+      --bg: #0e0f1a;
+      --card: #181a2a;
+      --accent: #ff4f8b;
+      --accent-2: #3bc9db;
+      --text: #f8f9fa;
+      --muted: #ced4da;
+      --shadow: 0 10px 25px rgba(0,0,0,0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+      touch-action: manipulation;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 12px 14px;
+      background: linear-gradient(120deg, rgba(255,79,139,0.25), rgba(59,201,219,0.25));
+      backdrop-filter: blur(8px);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      box-shadow: var(--shadow);
+    }
+    h1 { margin: 0 0 4px; font-size: 20px; }
+    .stats { display: flex; gap: 10px; flex-wrap: wrap; font-size: 14px; }
+    .stat-chip {
+      background: var(--card);
+      padding: 8px 12px;
+      border-radius: 12px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+    main { flex: 1 1 auto; padding-bottom: 90px; }
+    .tab-content { display: none; padding: 12px; }
+    .tab-content.active { display: block; }
+    .enemy-zone {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .enemy-img {
+      width: 100%;
+      aspect-ratio: 1 / 0.8;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #2a2e45, #151824);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 18px;
+      user-select: none;
+    }
+    .enemy-img.hit { transform: scale(0.98); transition: transform 0.1s ease; }
+    .enemy-img img { width: 100%; height: 100%; object-fit: cover; }
+    .btn {
+      width: 100%;
+      padding: 14px 16px;
+      margin-top: 12px;
+      font-size: 18px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), #ff7ca3);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .panel {
+      background: var(--card);
+      padding: 14px;
+      border-radius: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+    }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; }
+    .progress-bar {
+      width: 100%; height: 10px; background: #11131f; border-radius: 999px; overflow: hidden; margin-top: 6px;
+    }
+    .progress-bar span { display: block; height: 100%; background: linear-gradient(135deg, var(--accent-2), #74c0fc); }
+    .tab-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: #0c0d16;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 -6px 20px rgba(0,0,0,0.45);
+      z-index: 10;
+    }
+    .tab-btn {
+      padding: 12px 6px 10px;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 14px;
+      border: none;
+      background: none;
+      cursor: pointer;
+    }
+    .tab-btn.active { color: var(--accent); }
+    .char-card { display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: center; }
+    .char-thumb { width: 100%; border-radius: 14px; overflow: hidden; background: #1f2234; aspect-ratio: 1/1; position: relative; }
+    .char-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .muted { color: var(--muted); font-size: 14px; }
+    .layer-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+    .layer-card { background: #1c1e2c; border-radius: 12px; padding: 8px; text-align: center; }
+    .layer-card img { width: 100%; border-radius: 10px; aspect-ratio: 1/1; object-fit: cover; }
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+      display: none; align-items: center; justify-content: center; padding: 16px; z-index: 20;
+    }
+    .overlay.active { display: flex; }
+    .overlay .content { background: var(--card); width: min(420px, 100%); border-radius: 16px; padding: 14px; max-height: 80vh; overflow-y: auto; box-shadow: var(--shadow); }
+    .close-btn { background: #2b2e44; color: var(--text); border: none; padding: 10px 12px; border-radius: 10px; width: 100%; font-weight: 700; margin-top: 10px; cursor: pointer; }
+    .log { font-size: 14px; color: var(--muted); margin-top: 8px; min-height: 20px; }
+    .dual-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .pill { padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,0.06); font-size: 12px; display: inline-block; }
+    @media (max-width: 480px) {
+      h1 { font-size: 18px; }
+      .char-card { grid-template-columns: 110px 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>脱衣差分ガチャ付きクリッカー</h1>
+    <div class="stats">
+      <div class="stat-chip">Gold: <span id="gold">0</span></div>
+      <div class="stat-chip">DPS: <span id="dps">0</span></div>
+      <div class="stat-chip">クリック: +<span id="click">10</span></div>
+    </div>
+  </header>
+  <main>
+    <section id="battle" class="tab-content active">
+      <div class="enemy-zone">
+        <div class="enemy-img" id="enemy">
+          <span>タップで攻撃</span>
+        </div>
+        <button id="attackBtn" class="btn">敵をタップ (+Gold)</button>
+        <div class="log" id="battleLog"></div>
+      </div>
+      <div class="panel" style="margin-top:12px;">
+        <div class="flex-between">
+          <div>
+            <div class="muted">オート攻撃</div>
+            <strong id="autoDpsLabel">毎秒 0 Gold</strong>
+          </div>
+          <div class="pill">レイヤーで上昇</div>
+        </div>
+        <div class="progress-bar"><span id="dpsBar" style="width:0%;"></span></div>
+      </div>
+    </section>
+
+    <section id="gacha" class="tab-content">
+      <div class="panel">
+        <div class="flex-between" style="gap:10px;">
+          <div>
+            <div class="muted">1回のコスト</div>
+            <strong><span id="gachaCost">500</span> Gold</strong>
+          </div>
+          <div class="pill" id="unlockStatus">未開放多数</div>
+        </div>
+        <button id="gachaBtn" class="btn">ガチャを引く</button>
+        <div class="log" id="gachaLog"></div>
+      </div>
+      <div class="panel">
+        <div class="muted">レイヤーを解放するとオート攻撃が強化され、コレクションに追加されます。</div>
+      </div>
+    </section>
+
+    <section id="collection" class="tab-content">
+      <div id="collectionList" class="collection"></div>
+    </section>
+  </main>
+
+  <nav class="tab-bar">
+    <button class="tab-btn active" data-tab="battle">バトル</button>
+    <button class="tab-btn" data-tab="gacha">ガチャ</button>
+    <button class="tab-btn" data-tab="collection">コレクション</button>
+  </nav>
+
+  <div class="overlay" id="layerOverlay">
+    <div class="content">
+      <h3 id="overlayTitle" style="margin:0 0 8px 0;">レイヤー一覧</h3>
+      <div id="overlayLayers" class="layer-list"></div>
+      <button class="close-btn" id="overlayClose">閉じる</button>
+    </div>
+  </div>
+
+  <script>
+    const gameConfig = {
+      gachaCost: 500,
+      enemyImages: ["enemy1.png", "enemy2.png"],
+      characters: [
+        {
+          id: "char1", name: "金髪エルフ", dpsBonusPerLayer: 10,
+          layers: [
+            "c1_layer1_normal.png",
+            "c1_layer2_torn.png",
+            "c1_layer3_underwear.png",
+            "c1_layer4_nude_wip.png",
+            "c1_layer5_h_reward.png"
+          ],
+          unlockedIndex: 0
+        },
+        {
+          id: "char2", name: "女騎士", dpsBonusPerLayer: 15,
+          layers: [
+            "c2_l1.png", "c2_l2.png", "c2_l3.png", "c2_l4.png", "c2_l5.png"
+          ],
+          unlockedIndex: 0
+        },
+        {
+          id: "char3", name: "猫耳魔導士", dpsBonusPerLayer: 8,
+          layers: [
+            "c3_l1.png", "c3_l2.png", "c3_l3.png", "c3_l4.png", "c3_l5.png"
+          ],
+          unlockedIndex: 0
+        }
+      ]
+    };
+
+    const state = {
+      gold: 0,
+      clickPower: 10,
+      dps: 0,
+      currentEnemyIdx: 0,
+      lastSave: null,
+    };
+
+    const goldEl = document.getElementById('gold');
+    const dpsEl = document.getElementById('dps');
+    const clickEl = document.getElementById('click');
+    const enemyEl = document.getElementById('enemy');
+    const battleLog = document.getElementById('battleLog');
+    const autoDpsLabel = document.getElementById('autoDpsLabel');
+    const dpsBar = document.getElementById('dpsBar');
+    const gachaCostEl = document.getElementById('gachaCost');
+    const gachaBtn = document.getElementById('gachaBtn');
+    const gachaLog = document.getElementById('gachaLog');
+    const unlockStatus = document.getElementById('unlockStatus');
+    const collectionList = document.getElementById('collectionList');
+    const overlay = document.getElementById('layerOverlay');
+    const overlayTitle = document.getElementById('overlayTitle');
+    const overlayLayers = document.getElementById('overlayLayers');
+
+    function unlockedCount(char) {
+      return char.unlockedLayers?.filter(Boolean).length || 0;
+    }
+
+    function latestUnlockedIndex(char) {
+      return Math.max(0, char.unlockedLayers?.lastIndexOf(true) ?? 0);
+    }
+
+    function hydrateCharacters() {
+      gameConfig.characters.forEach((char) => {
+        if (!char.unlockedLayers) {
+          const baseIndex = typeof char.unlockedIndex === 'number' ? char.unlockedIndex : 0;
+          char.unlockedLayers = char.layers.map((_, idx) => idx <= baseIndex);
+        }
+      });
+    }
+
+    function loadSave() {
+      const raw = localStorage.getItem('dress_clicker_save');
+      if (!raw) return;
+      try {
+        const parsed = JSON.parse(raw);
+        Object.assign(state, parsed.state || {});
+        if (parsed.characters) {
+          parsed.characters.forEach((v, idx) => {
+            const char = gameConfig.characters[idx];
+            if (!char) return;
+            if (v.unlockedLayers) {
+              char.unlockedLayers = char.layers.map((_, i) => !!v.unlockedLayers[i]);
+              char.unlockedIndex = Math.max(0, v.unlockedLayers.lastIndexOf(true));
+            } else if (typeof v.unlockedIndex === 'number') {
+              char.unlockedIndex = v.unlockedIndex;
+              char.unlockedLayers = char.layers.map((_, i) => i <= v.unlockedIndex);
+            }
+          });
+        }
+      } catch(e) {
+        console.warn('Save load failed', e);
+      }
+    }
+
+    function saveGame() {
+      state.lastSave = Date.now();
+      localStorage.setItem('dress_clicker_save', JSON.stringify({
+        state,
+        characters: gameConfig.characters.map(c => ({ unlockedLayers: c.unlockedLayers, unlockedIndex: c.unlockedIndex }))
+      }));
+    }
+
+    function format(num) {
+      if (num >= 1e6) return (num/1e6).toFixed(1) + 'M';
+      if (num >= 1e3) return (num/1e3).toFixed(1) + 'K';
+      return Math.floor(num).toLocaleString();
+    }
+
+    function updateStats() {
+      goldEl.textContent = format(state.gold);
+      dpsEl.textContent = format(state.dps);
+      clickEl.textContent = format(state.clickPower);
+      autoDpsLabel.textContent = `毎秒 ${format(state.dps)} Gold`;
+      const maxDps = gameConfig.characters.reduce((acc, c) => acc + c.layers.length * c.dpsBonusPerLayer, 0);
+      dpsBar.style.width = `${Math.min(100, (state.dps / maxDps) * 100)}%`;
+      gachaCostEl.textContent = gameConfig.gachaCost;
+      const remaining = lockedLayers().length;
+      const totalLayers = gameConfig.characters.reduce((acc, c) => acc + c.layers.length, 0);
+      unlockStatus.textContent = remaining === 0 ? '全開放済み' : `残り ${remaining} / ${totalLayers}`;
+      gachaBtn.disabled = state.gold < gameConfig.gachaCost || remaining === 0;
+    }
+
+    function setEnemyImage() {
+      const src = gameConfig.enemyImages[state.currentEnemyIdx % gameConfig.enemyImages.length];
+      enemyEl.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = '敵';
+      img.onerror = () => { img.onerror = null; img.src = `https://dummyimage.com/600x450/243/fff&text=${encodeURIComponent(src)}`; };
+      enemyEl.appendChild(img);
+    }
+
+    function lockedLayers() {
+      const pool = [];
+      gameConfig.characters.forEach((char, cIdx) => {
+        char.unlockedLayers.forEach((isUnlocked, i) => {
+          if (!isUnlocked) pool.push({ cIdx, layerIdx: i });
+        });
+      });
+      return pool;
+    }
+
+    function recalcDps() {
+      state.dps = gameConfig.characters.reduce((acc, c) => {
+        const unlockedCount = c.unlockedLayers?.filter(Boolean).length || 0;
+        return acc + unlockedCount * c.dpsBonusPerLayer;
+      }, 0);
+    }
+
+    function addGold(amount) {
+      state.gold += amount;
+      updateStats();
+    }
+
+    function attack() {
+      const gain = state.clickPower;
+      addGold(gain);
+      battleLog.textContent = `+${format(gain)} Gold！`;
+      enemyEl.classList.add('hit');
+      setTimeout(() => enemyEl.classList.remove('hit'), 120);
+      state.currentEnemyIdx++;
+      setEnemyImage();
+    }
+
+    function runAutoDamage() {
+      addGold(state.dps / 10);
+    }
+
+    function rollGacha() {
+      const pool = lockedLayers();
+      if (pool.length === 0) {
+        gachaLog.textContent = 'すべて解放済み！Goldは消費されません。';
+        return;
+      }
+      if (state.gold < gameConfig.gachaCost) {
+        gachaLog.textContent = 'Goldが足りません。';
+        return;
+      }
+      state.gold -= gameConfig.gachaCost;
+      const picked = pool[Math.floor(Math.random() * pool.length)];
+      const char = gameConfig.characters[picked.cIdx];
+      char.unlockedLayers[picked.layerIdx] = true;
+      char.unlockedIndex = Math.max(char.unlockedIndex || 0, picked.layerIdx);
+      recalcDps();
+      updateStats();
+      renderCollection();
+      gachaLog.textContent = `${char.name} のレイヤー${picked.layerIdx + 1}を解放！`;
+      saveGame();
+    }
+
+    function renderCollection() {
+      collectionList.innerHTML = '';
+      gameConfig.characters.forEach((char) => {
+        const card = document.createElement('div');
+        card.className = 'panel';
+        const inner = document.createElement('div');
+        inner.className = 'char-card';
+
+        const thumb = document.createElement('div');
+        thumb.className = 'char-thumb';
+        const img = document.createElement('img');
+        const latest = latestUnlockedIndex(char);
+        const imgSrc = char.layers[latest];
+        img.src = imgSrc;
+        img.alt = `${char.name} レイヤー${latest + 1}`;
+        img.onerror = () => { img.onerror = null; img.src = `https://dummyimage.com/300x300/343a40/ffffff&text=${encodeURIComponent(imgSrc)}`; };
+        thumb.appendChild(img);
+
+        const body = document.createElement('div');
+        const title = document.createElement('h3');
+        title.textContent = char.name;
+        title.style.margin = '0 0 4px 0';
+        const progress = document.createElement('div');
+        const opened = unlockedCount(char);
+        progress.textContent = `レイヤー ${opened} / ${char.layers.length} 解放済み`;
+        progress.className = 'muted';
+        const bar = document.createElement('div');
+        bar.className = 'progress-bar';
+        const barFill = document.createElement('span');
+        barFill.style.width = `${(opened / char.layers.length) * 100}%`;
+        bar.appendChild(barFill);
+        const viewBtn = document.createElement('button');
+        viewBtn.textContent = '解放済みレイヤーを見る';
+        viewBtn.className = 'btn';
+        viewBtn.style.marginTop = '10px';
+        viewBtn.onclick = () => openLayerOverlay(char);
+
+        body.append(title, progress, bar, viewBtn);
+        inner.append(thumb, body);
+        card.appendChild(inner);
+        collectionList.appendChild(card);
+      });
+    }
+
+    function openLayerOverlay(char) {
+      overlayTitle.textContent = `${char.name} のレイヤー`; 
+      overlayLayers.innerHTML = '';
+      char.unlockedLayers.forEach((isUnlocked, i) => {
+        if (!isUnlocked) return;
+        const card = document.createElement('div');
+        card.className = 'layer-card';
+        const img = document.createElement('img');
+        const src = char.layers[i];
+        img.src = src;
+        img.alt = `${char.name} レイヤー${i+1}`;
+        img.onerror = () => { img.onerror = null; img.src = `https://dummyimage.com/260x260/495057/ffffff&text=${encodeURIComponent(src)}`; };
+        const label = document.createElement('div');
+        label.textContent = `レイヤー ${i+1}`;
+        label.className = 'muted';
+        card.append(img, label);
+        overlayLayers.appendChild(card);
+      });
+      overlay.classList.add('active');
+    }
+
+    function closeOverlay() { overlay.classList.remove('active'); }
+
+    function setupTabs() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById(btn.dataset.tab).classList.add('active');
+        });
+      });
+    }
+
+    function init() {
+      hydrateCharacters();
+      loadSave();
+      hydrateCharacters();
+      recalcDps();
+      updateStats();
+      renderCollection();
+      setEnemyImage();
+      setupTabs();
+      enemyEl.addEventListener('click', attack);
+      document.getElementById('attackBtn').addEventListener('click', attack);
+      gachaBtn.addEventListener('click', rollGacha);
+      document.getElementById('overlayClose').addEventListener('click', closeOverlay);
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
+      setInterval(runAutoDamage, 100);
+      setInterval(saveGame, 5000);
+    }
+
+    init();
+  </script>
+</body>
+</html>
