@@ -1,130 +1,460 @@
-/* === 全体レイアウト & 基本スタイル === */
+/* ============================================
+   MONSTER RPG - Play / Exploration UI
+   Dark Fantasy RPG Window Theme - Premium Edition
+   ============================================ */
+
+/* === Global Layout & Base Styles === */
 body {
-    background: #1a1a1a; /* 暗い背景 */
-    color: #f0f0f0;
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 40%, #120a24 70%, #0a0a1a 100%);
+    color: #e8e8f0;
     font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
     font-size: 18px;
     line-height: 1.6;
+    min-height: 100vh;
+    position: relative;
 }
 
-/* === RPGのウィンドウ風コンテナ === */
+/* Ambient floating particles */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        radial-gradient(1px 1px at 15% 25%, rgba(255, 215, 0, 0.1), transparent),
+        radial-gradient(2px 2px at 35% 65%, rgba(155, 89, 182, 0.08), transparent),
+        radial-gradient(1px 1px at 55% 15%, rgba(52, 152, 219, 0.09), transparent),
+        radial-gradient(1px 1px at 75% 80%, rgba(255, 215, 0, 0.06), transparent),
+        radial-gradient(2px 2px at 90% 40%, rgba(155, 89, 182, 0.05), transparent),
+        radial-gradient(1.5px 1.5px at 50% 50%, rgba(46, 204, 113, 0.04), transparent),
+        radial-gradient(1px 1px at 25% 90%, rgba(231, 76, 60, 0.03), transparent);
+    background-size: 250px 250px, 350px 350px, 300px 300px, 400px 400px, 280px 280px, 420px 420px, 360px 360px;
+    animation: ambient-float 25s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+body > * {
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes ambient-float {
+    0%, 100% { transform: translateY(0) translateX(0); }
+    25% { transform: translateY(-5px) translateX(3px); }
+    50% { transform: translateY(-10px) translateX(6px); }
+    75% { transform: translateY(-3px) translateX(-2px); }
+}
+
+/* === RPG Window Container === */
 .field-container {
     max-width: 640px;
     margin: 2rem auto;
-    background: #001a33; /* 深い青色のウィンドウ背景 */
-    border: 3px solid #ccc;
-    outline: 3px solid #001a33;
-    border-radius: 4px;
-    box-shadow: 0 0 20px rgba(0, 128, 255, 0.2);
+    background: linear-gradient(180deg, #001a33 0%, #0d0d28 50%, #001a33 100%);
+    border: 2px solid #4a4a7a;
+    outline: 3px solid rgba(155, 89, 182, 0.2);
+    border-radius: 8px;
+    box-shadow:
+        0 0 30px rgba(155, 89, 182, 0.15),
+        0 0 60px rgba(0, 128, 255, 0.08),
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        inset 0 0 40px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
     padding: 8px;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.5s ease;
+    animation: container-entrance 0.6s ease-out;
 }
 
-/* === 上部: ヘッダーエリア === */
-.loc-header {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 1rem;
-    border-radius: 2px;
+@keyframes container-entrance {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.97);
+    }
+    60% {
+        opacity: 1;
+        transform: translateY(-2px) scale(1.005);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
+
+/* Animated border glow - enhanced sweep */
+.field-container::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 10px;
+    background: linear-gradient(45deg,
+        transparent 25%,
+        rgba(155, 89, 182, 0.18) 45%,
+        rgba(255, 215, 0, 0.08) 50%,
+        rgba(155, 89, 182, 0.18) 55%,
+        transparent 75%
+    );
+    background-size: 200% 200%;
+    animation: border-sweep 6s ease-in-out infinite;
+    z-index: -1;
+}
+
+/* Secondary inner glow */
+.field-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 6px;
+    box-shadow: inset 0 0 30px rgba(155, 89, 182, 0.04);
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes border-sweep {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.field-container:hover {
+    box-shadow:
+        0 0 45px rgba(155, 89, 182, 0.22),
+        0 0 90px rgba(0, 128, 255, 0.12),
+        0 10px 40px rgba(0, 0, 0, 0.7),
+        inset 0 0 40px rgba(0, 0, 0, 0.3);
+    border-color: #5a5a9a;
+}
+
+/* === Header Area === */
+.loc-header {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(20, 10, 40, 0.35) 100%);
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid rgba(74, 74, 122, 0.3);
+    position: relative;
+    transition: border-color 0.3s ease, background 0.3s ease;
+    z-index: 1;
+}
+
+.loc-header:hover {
+    border-color: rgba(74, 74, 122, 0.5);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.55) 0%, rgba(25, 12, 50, 0.4) 100%);
+}
+
 .header-top {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
     margin-bottom: 0.5rem;
 }
+
 .loc-header h2 {
-    color: #fff;
+    color: #ffd700;
     font-size: 1.5rem;
     margin: 0;
-    text-shadow: 1px 1px 2px #000;
-}
-.player-status {
-    color: #ffdd00; /* ゴールドの色 */
-    font-size: 1.1rem;
-}
-.player-status span {
-    margin-left: 1.5rem;
-}
-.loc-desc {
-    color: #ddd;
-    font-size: 1rem;
-    margin: 0;
-    padding-left: 0.5rem;
-    border-left: 3px solid #4a90e2; /* 説明文の左にアクセント */
+    text-shadow:
+        0 0 10px rgba(255, 215, 0, 0.35),
+        0 0 25px rgba(255, 215, 0, 0.1),
+        1px 1px 2px #000;
+    letter-spacing: 0.5px;
+    transition: text-shadow 0.4s ease;
 }
 
-/* === 区切り線 === */
+.loc-header h2:hover {
+    text-shadow:
+        0 0 15px rgba(255, 215, 0, 0.5),
+        0 0 35px rgba(255, 215, 0, 0.2),
+        1px 1px 2px #000;
+}
+
+.player-status {
+    color: #ffd700;
+    font-size: 1.1rem;
+    text-shadow: 0 0 6px rgba(255, 215, 0, 0.2);
+}
+
+.player-status span {
+    margin-left: 1.5rem;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.player-status span:hover {
+    text-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+    transform: scale(1.05);
+}
+
+.loc-desc {
+    color: #c8c8e0;
+    font-size: 1rem;
+    margin: 0;
+    padding-left: 0.75rem;
+    border-left: 3px solid #9b59b6;
+    transition: border-color 0.3s ease, padding-left 0.3s ease, color 0.3s ease;
+    line-height: 1.7;
+}
+
+.loc-desc:hover {
+    border-left-color: #c39bd3;
+    padding-left: 1rem;
+    color: #d8d8f0;
+}
+
+/* === Window Divider === */
 .window-divider {
     border: 0;
     height: 2px;
-    background: linear-gradient(to right, transparent, #556, transparent);
-    margin: 8px 0;
+    background: linear-gradient(to right,
+        transparent,
+        rgba(155, 89, 182, 0.35),
+        rgba(255, 215, 0, 0.25),
+        rgba(155, 89, 182, 0.35),
+        transparent
+    );
+    margin: 10px 0;
+    position: relative;
 }
 
-/* === 下部: コマンドエリア === */
+.window-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 215, 0, 0.25);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+    animation: divider-pulse 3s ease-in-out infinite;
+}
+
+@keyframes divider-pulse {
+    0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.3); }
+}
+
+.window-divider::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(to right,
+        transparent,
+        rgba(155, 89, 182, 0.12),
+        transparent
+    );
+    filter: blur(2px);
+}
+
+/* === Command Area === */
 .command-area {
     padding: 0.5rem;
+    z-index: 1;
+    position: relative;
 }
+
 .actions-group h3 {
-    color: #87cefa; /* ライトブルー */
+    color: #9b59b6;
     font-size: 1.1rem;
     margin-top: 0;
     margin-bottom: 0.75rem;
     padding-left: 0.5rem;
+    text-shadow: 0 0 8px rgba(155, 89, 182, 0.3);
+    letter-spacing: 0.5px;
+    position: relative;
+    transition: text-shadow 0.3s ease;
 }
 
-/* === ボタン共通スタイル === */
+.actions-group h3:hover {
+    text-shadow: 0 0 14px rgba(155, 89, 182, 0.5);
+}
+
+.actions-group h3::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    width: 40px;
+    height: 2px;
+    background: linear-gradient(to right, #9b59b6, transparent);
+    border-radius: 1px;
+    transition: width 0.4s ease;
+}
+
+.actions-group:hover h3::before {
+    width: 60px;
+}
+
+/* === Button Grid Layout === */
 .move-btn-list, .menu-group {
     display: grid;
     gap: 8px 16px;
 }
+
 .menu-group {
-    grid-template-columns: 1fr 1fr; /* 2列グリッド */
+    grid-template-columns: 1fr 1fr;
 }
+
 .move-btn-list {
-    grid-template-columns: 1fr; /* 移動は1列 */
+    grid-template-columns: 1fr;
 }
+
 form {
-    margin: 0; /* formによる余白をなくす */
+    margin: 0;
 }
+
+/* === Menu Button (RPG Cursor Style) === */
 .menu-btn {
     background: transparent;
-    color: #f0f0f0;
+    color: #e8e8f0;
     border: none;
-    border-radius: 0;
+    border-left: 2px solid transparent;
+    border-radius: 4px;
     font-size: 1.1rem;
-    padding: 4px 12px;
+    padding: 6px 12px;
     font-family: inherit;
     cursor: pointer;
-    transition: background .15s;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     width: 100%;
     text-align: left;
-    position: relative; /* 疑似要素の位置の基準 */
+    position: relative;
+    overflow: hidden;
+    box-shadow: none;
 }
 
-/* === ホバー時のカーソル表現 === */
-.menu-btn::before {
-    content: '▶';
+/* Subtle background glow on hover */
+.menu-btn::after {
+    content: '';
     position: absolute;
-    left: 0px;
-    top: 4px;
-    color: #fff;
-    opacity: 0; /* 通常は非表示 */
-    transition: opacity 0.15s;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+        rgba(155, 89, 182, 0.1),
+        rgba(155, 89, 182, 0.03),
+        transparent
+    );
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    border-radius: 4px;
 }
+
+/* RPG cursor arrow */
+.menu-btn::before {
+    content: '\25B6';
+    position: absolute;
+    left: 2px;
+    top: 6px;
+    color: #ffd700;
+    opacity: 0;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+    font-size: 0.8em;
+    transform: translateX(-4px);
+}
+
 .menu-btn span {
-    margin-left: 24px; /* カーソル分のスペースを確保 */
+    margin-left: 24px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .menu-btn:hover,
 .menu-btn:focus {
-    background: rgba(255, 255, 255, 0.15);
+    background: linear-gradient(90deg,
+        rgba(155, 89, 182, 0.18),
+        rgba(155, 89, 182, 0.06),
+        transparent
+    );
     outline: none;
-}
-.menu-btn:hover::before,
-.menu-btn:focus::before {
-    opacity: 1; /* ホバー/フォーカス時に表示 */
+    border-left: 2px solid rgba(255, 215, 0, 0.5);
+    box-shadow: 0 0 12px rgba(155, 89, 182, 0.1);
+    transform: translateX(2px);
 }
 
-/* === セーブボタンの特別スタイル（任意） === */
+.menu-btn:hover::before,
+.menu-btn:focus::before {
+    opacity: 1;
+    left: 4px;
+    transform: translateX(0);
+}
+
+.menu-btn:hover::after,
+.menu-btn:focus::after {
+    opacity: 1;
+}
+
+.menu-btn:hover span,
+.menu-btn:focus span {
+    color: #fff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.25);
+    transform: translateX(2px);
+}
+
+/* Active/click effect */
+.menu-btn:active {
+    background: rgba(155, 89, 182, 0.25);
+    transform: translateX(2px) scale(0.97);
+    transition: all 0.08s ease;
+}
+
+/* === Save Button Special Style === */
 .save-btn span {
-    color: #ffb3b3; /* セーブは少し赤っぽく */
+    color: #e88;
+    text-shadow: 0 0 4px rgba(238, 136, 136, 0.2);
+    transition: all 0.3s ease;
+}
+
+.save-btn:hover span {
+    color: #ff9999;
+    text-shadow: 0 0 10px rgba(255, 153, 153, 0.5);
+}
+
+/* === Encounter / Event Flash === */
+@keyframes encounter-flash {
+    0% { filter: brightness(1); }
+    15% { filter: brightness(2.5); }
+    30% { filter: brightness(0.3); }
+    50% { filter: brightness(2); }
+    70% { filter: brightness(0.7); }
+    85% { filter: brightness(1.3); }
+    100% { filter: brightness(1); }
+}
+
+.encounter-trigger {
+    animation: encounter-flash 0.5s ease-out;
+}
+
+/* === Action groups staggered entrance === */
+@media (prefers-reduced-motion: no-preference) {
+    .actions-group {
+        animation: fade-in-section 0.4s ease-out both;
+    }
+
+    .actions-group:nth-child(1) { animation-delay: 0.05s; }
+    .actions-group:nth-child(2) { animation-delay: 0.12s; }
+    .actions-group:nth-child(3) { animation-delay: 0.19s; }
+    .actions-group:nth-child(4) { animation-delay: 0.26s; }
+}
+
+@keyframes fade-in-section {
+    0% {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

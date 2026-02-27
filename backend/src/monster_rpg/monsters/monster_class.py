@@ -134,7 +134,8 @@ class Monster:
         learnset=None,
         skill_sequence=None,
         unit_id=None,
-        atb_gauge=0
+        atb_gauge=0,
+        trait=None,
     ):
         self.name = name
         self.hp = hp
@@ -179,6 +180,8 @@ class Monster:
         self.skill_sequence = skill_sequence if skill_sequence else []
         self.unit_id = unit_id if unit_id is not None else str(uuid.uuid4()) # Add unit_id attribute
         self.atb_gauge = atb_gauge # ATBゲージの初期値
+        self.trait = trait  # パッシブ特性ID
+        self._fatal_survive_triggered = False  # 不屈特性の発動フラグ
 
     def update_atb_gauge(self, amount: int | None = None) -> None:
         """ATBゲージを更新する。amountが指定されなければ素早さに応じて増加。"""
@@ -247,6 +250,11 @@ class Monster:
         log.append({'type': 'info', 'message': f"防御力: {self.defense}"})
         log.append({'type': 'info', 'message': f"魔力: {self.magic}"})
         log.append({'type': 'info', 'message': f"素早さ: {self.speed}"}) # 素早さを表示
+        if self.trait:
+            from .traits import get_trait
+            trait_data = get_trait(self.trait)
+            if trait_data:
+                log.append({'type': 'info', 'message': f"特性: {trait_data['name']} - {trait_data['description']}"})
         exp_needed = self.calculate_exp_to_next_level()
         log.append({'type': 'info', 'message': f"経験値: {self.exp}/{exp_needed if exp_needed is not None else 'N/A'}"})
         if self.skills:
@@ -566,7 +574,8 @@ class Monster:
             'alive': self.is_alive,
             'image_filename': self.image_filename,
             'statuses': [{'name': s['name'], 'remaining': s['remaining']} for s in self.status_effects],
-            'unit_id': self.unit_id
+            'unit_id': self.unit_id,
+            'trait': self.trait,
         }
 
     @classmethod
@@ -582,7 +591,8 @@ class Monster:
             image_filename=data['image_filename'],
             speed=data['speed'],
             unit_id=data['unit_id'],
-            atb_gauge=data['atb_gauge']
+            atb_gauge=data['atb_gauge'],
+            trait=data.get('trait'),
         )
         monster.hp = data['hp'] # Set current hp
         monster.mp = data['mp'] # Set current mp
@@ -614,7 +624,8 @@ class Monster:
             ai_role=self.ai_role,
             learnset=copy.deepcopy(self.learnset),
             unit_id=self.unit_id,
-            atb_gauge=self.atb_gauge
+            atb_gauge=self.atb_gauge,
+            trait=self.trait,
         )
         new_monster.max_hp = self.max_hp
         new_monster.hp = new_monster.max_hp

@@ -6,6 +6,7 @@
     "element": "水",
     "image_filename": "slime.png",
     "growth_type": "防御型",
+    "trait": "thick_hide",
     "stats": {
       "hp": 25,
       "mp": 10,
@@ -45,6 +46,7 @@
     "element": "無",
     "image_filename": "goblin.png",
     "growth_type": "パワー型",
+    "trait": "fierce",
     "stats": {
       "hp": 40,
       "mp": 15,
@@ -95,6 +97,7 @@
     "element": "風",
     "image_filename": "bat.png",
     "growth_type": "スピード型",
+    "trait": "swift",
     "stats": {
       "hp": 18,
       "mp": 10,
@@ -160,7 +163,8 @@
       "location_hint": "妖精の森の奥地や丘陵街道に出現",
       "synthesis_hint": "水に関連したモンスターと相性が良い。"
     },
-    "family": "beast"
+    "family": "beast",
+    "trait": "ambush"
   },
   "slime_goblin_hybrid": {
     "name": "スライムゴブリン",
@@ -193,7 +197,8 @@
       "location_hint": "湿り気帯びし洞窟の奥深く、静かに棲みつく。",
       "synthesis_hint": "斯くも稀なる組み合わせ、斯の魔物を生む。"
     },
-    "family": "slime"
+    "family": "slime",
+    "trait": "regenerator"
   },
   "dragon_pup": {
     "name": "ドラゴンのこども",
@@ -228,7 +233,8 @@
       "location_hint": "火山の麓、またはドラゴンの古巣にて目撃談あり。",
       "synthesis_hint": "成体ドラゴンと交われば、真なる力に目覚めるとも…"
     },
-    "family": "dragon"
+    "family": "dragon",
+    "trait": "fire_resist"
   },
   "phoenix_chick": {
     "name": "不死鳥のヒナ",
@@ -263,7 +269,8 @@
       "location_hint": "古代の遺跡、灼熱の大地にて稀に発見さる。",
       "synthesis_hint": "炎を纏いし魔物と交わる時、伝説の力を垣間見せる。"
     },
-    "family": "dragon"
+    "family": "dragon",
+    "trait": "regenerator"
   },
   "orc_warrior": {
     "name": "オークウォリアー",
@@ -302,7 +309,8 @@
       "location_hint": "峻険なる山岳、或いは荒野の野営地に集うと聞く。",
       "synthesis_hint": "毒や粘りを有する魔物との交わり、凶悪なる変化を遂ぐ。"
     },
-    "family": "beast"
+    "family": "beast",
+    "trait": "berserker"
   },
   "skeleton_archer": {
     "name": "スケルトンアーチャー",
@@ -337,7 +345,8 @@
       "location_hint": "忘却されし墓地、暗き洞穴にて佇む姿あり。",
       "synthesis_hint": "他の屍者と合せば、更なる死の軍勢となるやも。"
     },
-    "family": "undead"
+    "family": "undead",
+    "trait": "ambush"
   },
   "elf_mage": {
     "name": "エルフメイジ",
@@ -377,7 +386,8 @@
       "location_hint": "霊樹の森、あるいは神殿跡にて目撃さる。",
       "synthesis_hint": "水・氷を司る者と合成すれば、精霊の奇跡を得るとも。"
     },
-    "family": "humanoid"
+    "family": "humanoid",
+    "trait": "mana_flow"
   },
   "troll_brute": {
     "name": "トロールブルート",
@@ -416,7 +426,8 @@
       "location_hint": "山奥の洞窟、または古き遺跡にて棲息す。",
       "synthesis_hint": "頑強なる者と混ぜれば、更なる剛の者となる。"
     },
-    "family": "beast"
+    "family": "beast",
+    "trait": "regenerator"
   },
   "mermaid_siren": {
     "name": "マーメイドサイレン",
@@ -450,7 +461,8 @@
       "location_hint": "深き海の底、或いは静謐なる入り江に棲む。",
       "synthesis_hint": "水と魅惑の性を持つ者と合わさる時、新たなる美が生まれる。"
     },
-    "family": "aquatic"
+    "family": "aquatic",
+    "trait": "status_guard"
   },
   "thunder_eagle": {
     "name": "サンダーイーグル",
@@ -489,7 +501,8 @@
       "location_hint": "嵐吹き荒ぶ山頂、或いは雷雲の彼方に棲む。",
       "synthesis_hint": "岩や巨人と合成せし時、さらなる嵐を呼ぶものと成らん。"
     },
-    "family": "beast"
+    "family": "beast",
+    "trait": "swift"
   },
   "giant_golem": {
     "name": "ジャイアントゴーレム",
@@ -524,7 +537,8 @@
       "location_hint": "古の遺跡、岩山の影にて不動のまま眠る。",
       "synthesis_hint": "雷や機械の精と交わり、新たなる命が吹き込まれる。"
     },
-    "family": "construct"
+    "family": "construct",
+    "trait": "iron_wall"
   },
   "shadow_panther": {
     "name": "シャドウパンサー",
@@ -558,7 +572,8 @@
       "location_hint": "月夜の森、闇の谷間にて姿を消す。",
       "synthesis_hint": "光と闇の狭間にて、幻影と交わることで進化す。"
     },
-    "family": "beast"
+    "family": "beast",
+    "trait": "ambush"
   },
   "vampire_lord": {
     "name": "ヴァンパイアロード",
@@ -599,7 +614,8 @@
       "location_hint": "廃れし城館、夜の墓場にて徘徊す。",
       "synthesis_hint": "屍者や血を糧とする者との合成、強き呪いを生む。"
     },
-    "family": "undead"
+    "family": "undead",
+    "trait": "life_steal"
   },
   "celestial_dragon": {
     "name": "セレスティアルドラゴン",
@@ -641,7 +657,8 @@
       "location_hint": "雲海遥か上、神殿跡にて眠るという。",
       "synthesis_hint": "稀なる者と交われば、未知なる進化が訪れるやもしれぬ。"
     },
-    "family": "dragon"
+    "family": "dragon",
+    "trait": "last_stand"
   },
   "water_wolf": {
     "name": "ウォーターウルフ",
@@ -680,7 +697,8 @@
       "location_hint": "神秘の湖に出現",
       "synthesis_hint": "スライムとウルフを組み合わせると誕生するらしい。"
     },
-    "family": "beast"
+    "family": "beast",
+    "trait": "ice_resist"
   },
   "poison_orc": {
     "name": "ポイズンオーク",
@@ -721,7 +739,8 @@
       "location_hint": "瘴気漂う沼沢や、陰鬱なる洞穴に棲む。",
       "synthesis_hint": "毒や粘液、屍者との交わりで、なお強き変異を見せる。"
     },
-    "family": "beast"
+    "family": "beast",
+    "trait": "poison_body"
   },
   "frost_elf": {
     "name": "フロストエルフ",
@@ -762,7 +781,8 @@
       "location_hint": "雪深き森、氷の洞にて静かに息づく。",
       "synthesis_hint": "氷霊や精霊と合成し、新たな奇跡を起こす。"
     },
-    "family": "humanoid"
+    "family": "humanoid",
+    "trait": "ice_resist"
   },
   "undead_warrior": {
     "name": "アンデッドウォリアー",
@@ -803,7 +823,8 @@
       "location_hint": "古き戦場跡や闇の神殿にて彷徨う。",
       "synthesis_hint": "屍者や戦士の性を有する者と交わり、更なる戦鬼を生む。"
     },
-    "family": "undead"
+    "family": "undead",
+    "trait": "berserker"
   },
   "storm_golem": {
     "name": "ストームゴーレム",
@@ -844,7 +865,8 @@
       "location_hint": "雷鳴轟く峻嶺、嵐の只中に現る。",
       "synthesis_hint": "電気や大地の精と合成すれば、さらなる力を得る。"
     },
-    "family": "construct"
+    "family": "construct",
+    "trait": "thunder_resist"
   },
   "celestial_panther": {
     "name": "セレスティアルパンサー",
@@ -886,7 +908,8 @@
       "location_hint": "空の裂け目、星の海にて現る。",
       "synthesis_hint": "天空や幻獣の性を持つ者との合成にて生まれる稀有なる獣なり。"
     },
-    "family": "beast"
+    "family": "beast",
+    "trait": "swift"
   },
   "abyss_watcher": {
     "name": "アビスウォッチャー",
@@ -927,7 +950,8 @@
       "location_hint": "闇深き底、廃墟の片隅にて孤独に佇む。",
       "synthesis_hint": "闇や時空の理を司る者と合せば、さらなる神秘を得る。"
     },
-    "family": "undead"
+    "family": "undead",
+    "trait": "slow_starter"
   },
   "cinder_sentinel": {
     "name": "シンダーセンチネル",
@@ -968,7 +992,8 @@
       "location_hint": "火山や焦土の地、常に熱を発し続ける。",
       "synthesis_hint": "炎や石、守りを司る者と合せし時、新たなる壁とならん。"
     },
-    "family": "construct"
+    "family": "construct",
+    "trait": "fire_resist"
   },
   "ashen_drake": {
     "name": "アシェンドレイク",
@@ -1008,7 +1033,8 @@
       "location_hint": "火山帯、焼け野原の片隅にてその影を見る。",
       "synthesis_hint": "炎、風、竜の血を引く者と交われば真価を発揮す。"
     },
-    "family": "dragon"
+    "family": "dragon",
+    "trait": "flame_body"
   },
   "blighted_knight": {
     "name": "ブライテッドナイト",
@@ -1049,7 +1075,8 @@
       "location_hint": "呪われし城郭、死の大地にて佇む。",
       "synthesis_hint": "屍者や毒、騎士の名を持つ者との合成により進化せん。"
     },
-    "family": "undead"
+    "family": "undead",
+    "trait": "poison_body"
   },
   "gravetide_hollow": {
     "name": "グレイブタイドホロウ",
@@ -1085,7 +1112,8 @@
       "location_hint": "忘却されし墓地の最深部、誰も知らぬ静寂の底。",
       "synthesis_hint": "屍者、水、闇の力を持つ者と交わりて進化するという。"
     },
-    "family": "undead"
+    "family": "undead",
+    "trait": "mana_flow"
   },
   "nameless_kingling": {
     "name": "ネームレスキングリング",
@@ -1125,7 +1153,8 @@
       "location_hint": "古の王家の墓所、廃都の影にて発見されし。",
       "synthesis_hint": "王族や精霊、竜の血を引く者と交わればその真価を現す。"
     },
-    "family": "undead"
+    "family": "undead",
+    "trait": "last_stand"
   },
   "pontiff_shade": {
     "name": "ポンティフシェイド",
@@ -1165,7 +1194,8 @@
       "location_hint": "呪われし教会、闇の祭壇にて人知れず佇む。",
       "synthesis_hint": "闇や精霊、魔法を操る者と合成すれば新たな術を得る。"
     },
-    "family": "undead"
+    "family": "undead",
+    "trait": "status_guard"
   },
   "desert_scorpion": {
     "name": "デザートスコーピオン",
@@ -1205,7 +1235,8 @@
       "location_hint": "砂漠や蜃気楼の彼方、オアシス近辺に潜む。",
       "synthesis_hint": "毒や大地、昆虫の性を持つ者との合成が妙。"
     },
-    "family": "insect"
+    "family": "insect",
+    "trait": "poison_body"
   },
   "sand_wyrm": {
     "name": "サンドワーム",
@@ -1246,7 +1277,8 @@
       "location_hint": "砂漠の地底深く、静かなる闇の中。",
       "synthesis_hint": "大地や竜、虫の血を引く者と交わりて強化す。"
     },
-    "family": "dragon"
+    "family": "dragon",
+    "trait": "thick_hide"
   },
   "lava_elemental": {
     "name": "ラヴァエレメンタル",
@@ -1286,7 +1318,8 @@
       "location_hint": "活火山の噴火口、または溶岩の洞に宿る。",
       "synthesis_hint": "炎や石、精霊と合わさる時、真の力を発揮す。"
     },
-    "family": "elemental"
+    "family": "elemental",
+    "trait": "flame_body"
   },
   "crystal_drake": {
     "name": "クリスタルドレイク",
@@ -1327,7 +1360,8 @@
       "location_hint": "鉱山の奥底、または地下水晶宮殿にて目撃あり。",
       "synthesis_hint": "大地や竜、光を持つ者と交わりて新たな形を成す。"
     },
-    "family": "dragon"
+    "family": "dragon",
+    "trait": "iron_wall"
   },
   "kraken": {
     "name": "クラーケン",
@@ -1368,7 +1402,8 @@
       "location_hint": "大海原の只中、海底遺跡にて目撃談多し。",
       "synthesis_hint": "水や巨大、触手を持つ者との合成にてさらなる変異を遂げる。"
     },
-    "family": "aquatic"
+    "family": "aquatic",
+    "trait": "regenerator"
   },
   "sky_seraph": {
     "name": "スカイセラフ",
@@ -1409,7 +1444,8 @@
       "location_hint": "天空の神殿、あるいは雲の上に姿現す。",
       "synthesis_hint": "天使や光、飛翔を得意とする者と合成せよ。"
     },
-    "family": "spirit"
+    "family": "spirit",
+    "trait": "exp_boost"
   },
   "spectral_raven": {
     "name": "スペクトラルレイヴン",
@@ -1449,7 +1485,8 @@
       "location_hint": "薄闇の森、或いは廃墟の上空を舞う。",
       "synthesis_hint": "屍者や闇、飛行の性を持つ者と合成にて進化す。"
     },
-    "family": "spirit"
+    "family": "spirit",
+    "trait": "swift"
   },
   "mist_wraith": {
     "name": "ミストレイス",
@@ -1490,7 +1527,8 @@
       "location_hint": "霧深き湖畔、幽玄なる森にて漂う。",
       "synthesis_hint": "霊体や水、幻影の者と交わればその性質変わる。"
     },
-    "family": "spirit"
+    "family": "spirit",
+    "trait": "status_guard"
   },
   "coral_hydra": {
     "name": "コーラルハイドラ",
@@ -1531,7 +1569,8 @@
       "location_hint": "珊瑚礁の奥、浅瀬の洞にて見かけられる。",
       "synthesis_hint": "水、竜、再生の性を持つ者と合成にて強力となる。"
     },
-    "family": "aquatic"
+    "family": "aquatic",
+    "trait": "regenerator"
   },
   "iron_juggernaut": {
     "name": "アイアンジャガーノート",
@@ -1571,7 +1610,8 @@
       "location_hint": "古の工房、廃れた工場跡にて眠り続ける。",
       "synthesis_hint": "機械や鉄、巨人の性を持つ者と合成でさらに強固な体となる。"
     },
-    "family": "construct"
+    "family": "construct",
+    "trait": "iron_wall"
   },
   "blood_fiend": {
     "name": "ブラッドフィーンド",
@@ -1612,7 +1652,8 @@
       "location_hint": "夜の森、または吸血鬼の館近辺に出没す。",
       "synthesis_hint": "血や屍、吸収を得意とする者と合成すべし。"
     },
-    "family": "demon"
+    "family": "demon",
+    "trait": "life_steal"
   },
   "moonlit_dryad": {
     "name": "ムーンリットドリアード",
@@ -1653,7 +1694,8 @@
       "location_hint": "月夜の森、聖域の奥深くにて現れる。",
       "synthesis_hint": "精霊や木、光の性を持つ者と交わりて新たな命芽生えん。"
     },
-    "family": "plant"
+    "family": "plant",
+    "trait": "mana_flow"
   },
   "obsidian_titan": {
     "name": "オブシディアンタイタン",
@@ -1694,7 +1736,8 @@
       "location_hint": "火山帯の地下、炎の眠る深部にて鎮座す。",
       "synthesis_hint": "岩や炎、巨人の性を持つ者と合成し防御特化す。"
     },
-    "family": "construct"
+    "family": "construct",
+    "trait": "last_stand"
   },
   "electro_mantis": {
     "name": "エレクトロマンティス",
@@ -1735,7 +1778,8 @@
       "location_hint": "雷雨降りし森、或いは廃れし発電所に棲む。",
       "synthesis_hint": "虫や雷、速さを重んずる者と合成で特異な進化を遂ぐ。"
     },
-    "family": "insect"
+    "family": "insect",
+    "trait": "static"
   },
   "wild_rat": {
     "name": "ワイルドラット",
@@ -1775,7 +1819,8 @@
       "location_hint": "草原や街道、民家の近くなど、どこにでも現れる。",
       "synthesis_hint": "素早さの高い種族と配合すると、先手を取りやすいモンスターが生まれるかも。"
     },
-    "family": "beast"
+    "family": "beast",
+    "trait": "swift"
   },
   "walking_mushroom": {
     "name": "ウォーキングマッシュルーム",
@@ -1813,7 +1858,8 @@
       "location_hint": "村の近くの草原や、湿った森の入り口あたりで見かける。",
       "synthesis_hint": "植物系のモンスターは、他の種族と合成すると面白い特性を発揮することがある。"
     },
-    "family": "plant"
+    "family": "plant",
+    "trait": "poison_body"
   },
   "imp": {
     "name": "インプ",
@@ -1852,6 +1898,4043 @@
       "location_hint": "人の集まる場所の近くに現れることがある。村の周りでも目撃されている。",
       "synthesis_hint": "悪魔系のモンスターは、強力な魔法の素質を秘めている。"
     },
+    "family": "demon",
+    "trait": "mana_flow"
+  },
+  "flame_salamander": {
+    "name": "火サラマンダー",
+    "ai_role": "attacker",
+    "rank": "C",
+    "element": "火",
+    "image_filename": "flame_salamander.png",
+    "growth_type": "パワー型",
+    "trait": "flame_body",
+    "stats": {
+      "hp": 55,
+      "mp": 25,
+      "attack": 22,
+      "defense": 16,
+      "speed": 18
+    },
+    "skills": [
+      "fireball",
+      "bite",
+      "body_slam"
+    ],
+    "skill_sets": [
+      "warrior_set"
+    ],
+    "drop_items": [
+      [
+        "fire_crystal",
+        0.3
+      ],
+      [
+        "tough_leather",
+        0.4
+      ]
+    ],
+    "learnset": {
+      "3": [
+        "roar"
+      ],
+      "6": [
+        "dragon_breath"
+      ]
+    },
+    "book": {
+      "description": "灼熱の炎を纏うトカゲ型モンスター。体表は常に高温で、触れるものを焼き尽くす。",
+      "location_hint": "火山の麓や溶岩洞窟に生息",
+      "synthesis_hint": "火属性のモンスター同士を掛け合わせると生まれることがある。"
+    },
+    "family": "beast"
+  },
+  "ice_golem": {
+    "name": "アイスゴーレム",
+    "ai_role": "defender",
+    "rank": "B",
+    "element": "氷",
+    "image_filename": "ice_golem.png",
+    "growth_type": "防御型",
+    "trait": "ice_resist",
+    "stats": {
+      "hp": 95,
+      "mp": 30,
+      "attack": 28,
+      "defense": 38,
+      "speed": 10
+    },
+    "skills": [
+      "ice_spear",
+      "guard_up",
+      "stone_skin",
+      "body_slam"
+    ],
+    "skill_sets": [
+      "guardian_set"
+    ],
+    "drop_items": [
+      [
+        "frost_crystal",
+        0.4
+      ],
+      [
+        "steel_ingot",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "4": [
+        "counter_attack"
+      ],
+      "8": [
+        "earth_quake"
+      ]
+    },
+    "book": {
+      "description": "永久凍土から生まれた氷の巨人。圧倒的な防御力で仲間を守る盾役。",
+      "location_hint": "極北の氷原や氷の洞窟に出現",
+      "synthesis_hint": "構築型モンスターと氷属性素材で合成可能。"
+    },
+    "family": "construct"
+  },
+  "shadow_assassin": {
+    "name": "シャドウアサシン",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "闇",
+    "image_filename": "shadow_assassin.png",
+    "growth_type": "スピード型",
+    "trait": "ambush",
+    "stats": {
+      "hp": 95,
+      "mp": 50,
+      "attack": 42,
+      "defense": 22,
+      "speed": 48
+    },
+    "skills": [
+      "dark_pulse",
+      "blade_rush",
+      "stun_blow",
+      "speed_up"
+    ],
+    "skill_sets": [
+      "agile_set"
+    ],
+    "drop_items": [
+      [
+        "abyss_shard",
+        0.3
+      ],
+      [
+        "power_fragment",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "5": [
+        "silence"
+      ],
+      "9": [
+        "life_drain"
+      ],
+      "12": [
+        "demonize"
+      ]
+    },
+    "book": {
+      "description": "闇に溶け込む暗殺者。一撃必殺を得意とし、敵に気づかれる前に仕留める。",
+      "location_hint": "闇の迷宮や深い森の奥地に潜む",
+      "synthesis_hint": "人型モンスターに闇の素材を組み合わせると生まれる。"
+    },
+    "family": "humanoid"
+  },
+  "thunder_drake": {
+    "name": "サンダードレイク",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "雷",
+    "image_filename": "thunder_drake.png",
+    "growth_type": "パワー型",
+    "trait": "static",
+    "stats": {
+      "hp": 120,
+      "mp": 55,
+      "attack": 45,
+      "defense": 30,
+      "speed": 35
+    },
+    "skills": [
+      "thunder_bolt",
+      "dragon_breath",
+      "roar",
+      "blade_rush"
+    ],
+    "skill_sets": [
+      "warrior_set"
+    ],
+    "drop_items": [
+      [
+        "thunder_core",
+        0.35
+      ],
+      [
+        "dragon_scale",
+        0.25
+      ]
+    ],
+    "learnset": {
+      "6": [
+        "paralysis_shock"
+      ],
+      "10": [
+        "meteor_strike"
+      ]
+    },
+    "book": {
+      "description": "雷雲を従えて空を駆ける竜。その咆哮は雷鳴のように轟き、稲妻を自在に操る。",
+      "location_hint": "雷雲が渦巻く高山の頂きに棲む",
+      "synthesis_hint": "竜族と雷属性モンスターの配合で誕生することがある。"
+    },
+    "family": "dragon"
+  },
+  "holy_unicorn": {
+    "name": "ホーリーユニコーン",
+    "ai_role": "healer",
+    "rank": "S",
+    "element": "光",
+    "image_filename": "holy_unicorn.png",
+    "growth_type": "魔法型",
+    "trait": "regenerator",
+    "stats": {
+      "hp": 130,
+      "mp": 85,
+      "attack": 30,
+      "defense": 35,
+      "speed": 45
+    },
+    "skills": [
+      "holy_light",
+      "mass_heal",
+      "regen",
+      "revive",
+      "cure",
+      "brave_song"
+    ],
+    "skill_sets": [
+      "caster_set"
+    ],
+    "drop_items": [
+      [
+        "celestial_feather",
+        0.3
+      ],
+      [
+        "large_potion",
+        0.4
+      ]
+    ],
+    "learnset": {
+      "5": [
+        "speed_up"
+      ],
+      "10": [
+        "heal"
+      ],
+      "15": [
+        "last_wish"
+      ]
+    },
+    "book": {
+      "description": "神聖な光を纏う伝説のユニコーン。その角に触れた者はあらゆる傷が癒えるという。",
+      "location_hint": "聖なる森の最深部にのみ姿を現す",
+      "synthesis_hint": "光属性のSランク配合でのみ誕生する幻の存在。"
+    },
+    "family": "beast"
+  },
+  "toxic_spider": {
+    "name": "ポイズンスパイダー",
+    "ai_role": "debuffer",
+    "rank": "C",
+    "element": "毒",
+    "image_filename": "toxic_spider.png",
+    "growth_type": "スピード型",
+    "trait": "poison_body",
+    "stats": {
+      "hp": 48,
+      "mp": 22,
+      "attack": 18,
+      "defense": 12,
+      "speed": 25
+    },
+    "skills": [
+      "poison_dart",
+      "poison_spore",
+      "scratch",
+      "sleep_spell"
+    ],
+    "skill_sets": [
+      "minion_set"
+    ],
+    "drop_items": [
+      [
+        "antidote",
+        0.5
+      ],
+      [
+        "herb",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "3": [
+        "paralysis_shock"
+      ],
+      "6": [
+        "poison_cloud"
+      ]
+    },
+    "book": {
+      "description": "猛毒を持つ巨大蜘蛛。糸に触れただけで毒に侵される危険な虫型モンスター。",
+      "location_hint": "暗い洞窟や朽ちた森に巣を張る",
+      "synthesis_hint": "虫型モンスターに毒素材を加えると生まれる。"
+    },
+    "family": "insect"
+  },
+  "ancient_treant": {
+    "name": "エンシェントトレント",
+    "ai_role": "defender",
+    "rank": "A",
+    "element": "土",
+    "image_filename": "ancient_treant.png",
+    "growth_type": "大器晩成型",
+    "trait": "regenerator",
+    "stats": {
+      "hp": 140,
+      "mp": 45,
+      "attack": 35,
+      "defense": 45,
+      "speed": 12
+    },
+    "skills": [
+      "earth_quake",
+      "regen",
+      "guard_up",
+      "stone_skin",
+      "cure"
+    ],
+    "skill_sets": [
+      "guardian_set"
+    ],
+    "drop_items": [
+      [
+        "herb",
+        0.5
+      ],
+      [
+        "large_potion",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "7": [
+        "roar"
+      ],
+      "12": [
+        "mass_heal"
+      ]
+    },
+    "book": {
+      "description": "千年を生きる古代の大樹。大地の力で仲間を守り、傷を癒す森の守護者。",
+      "location_hint": "太古の森の中心、巨大な御神木の近くに佇む",
+      "synthesis_hint": "植物族の上位配合で生まれる。大器晩成型のため育成に根気が必要。"
+    },
+    "family": "plant"
+  },
+  "dark_necromancer": {
+    "name": "ダークネクロマンサー",
+    "ai_role": "attacker",
+    "rank": "S",
+    "element": "闇",
+    "image_filename": "dark_necromancer.png",
+    "growth_type": "魔法型",
+    "trait": "mana_flow",
+    "stats": {
+      "hp": 115,
+      "mp": 95,
+      "attack": 25,
+      "defense": 28,
+      "speed": 38
+    },
+    "skills": [
+      "dark_pulse",
+      "curse",
+      "life_drain",
+      "revive",
+      "silence",
+      "demonize"
+    ],
+    "skill_sets": [
+      "caster_set"
+    ],
+    "drop_items": [
+      [
+        "abyss_shard",
+        0.35
+      ],
+      [
+        "magic_stone",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "6": [
+        "mana_burn"
+      ],
+      "10": [
+        "meteor_strike"
+      ],
+      "15": [
+        "last_wish"
+      ]
+    },
+    "book": {
+      "description": "死霊を操る闇の魔術師。禁忌の魔法を極め、生と死の境界を自在に操る。",
+      "location_hint": "呪われた墓地や暗黒の塔の最上階に出現",
+      "synthesis_hint": "人型と不死族のSランク配合で降臨する禁断の存在。"
+    },
+    "family": "humanoid"
+  },
+  "crystal_fairy": {
+    "name": "クリスタルフェアリー",
+    "ai_role": "healer",
+    "rank": "B",
+    "element": "光",
+    "image_filename": "crystal_fairy.png",
+    "growth_type": "魔法型",
+    "trait": "mana_flow",
+    "stats": {
+      "hp": 62,
+      "mp": 55,
+      "attack": 15,
+      "defense": 20,
+      "speed": 35
+    },
+    "skills": [
+      "heal",
+      "cure",
+      "holy_light",
+      "magic_boost"
+    ],
+    "skill_sets": [
+      "caster_set"
+    ],
+    "drop_items": [
+      [
+        "magic_stone",
+        0.4
+      ],
+      [
+        "celestial_feather",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "4": [
+        "regen"
+      ],
+      "8": [
+        "mass_heal"
+      ]
+    },
+    "book": {
+      "description": "水晶のように透き通った羽を持つ妖精。癒しの光で仲間を包み込む。",
+      "location_hint": "水晶の洞窟や清らかな泉の近くに現れる",
+      "synthesis_hint": "精霊族と光属性素材の配合で生まれる。"
+    },
+    "family": "spirit"
+  },
+  "magma_wyrm": {
+    "name": "マグマワーム",
+    "ai_role": "attacker",
+    "rank": "B",
+    "element": "火",
+    "image_filename": "magma_wyrm.png",
+    "growth_type": "パワー型",
+    "trait": "fire_resist",
+    "stats": {
+      "hp": 85,
+      "mp": 35,
+      "attack": 38,
+      "defense": 30,
+      "speed": 20
+    },
+    "skills": [
+      "fireball",
+      "dragon_breath",
+      "body_slam",
+      "roar"
+    ],
+    "skill_sets": [
+      "warrior_set"
+    ],
+    "drop_items": [
+      [
+        "fire_crystal",
+        0.35
+      ],
+      [
+        "dragon_scale",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "5": [
+        "meteor_strike"
+      ],
+      "9": [
+        "earth_quake"
+      ]
+    },
+    "book": {
+      "description": "溶岩の中を泳ぐ灼熱の竜蛇。体内にマグマを蓄え、灼熱のブレスを吐く。",
+      "location_hint": "活火山の火口付近や地下溶岩流に棲む",
+      "synthesis_hint": "竜族と火属性モンスターの配合で生まれることがある。"
+    },
+    "family": "dragon"
+  },
+  "frost_phoenix": {
+    "name": "フロストフェニックス",
+    "ai_role": "attacker",
+    "rank": "S",
+    "element": "氷",
+    "image_filename": "frost_phoenix.png",
+    "growth_type": "大器晩成型",
+    "trait": "last_stand",
+    "stats": {
+      "hp": 125,
+      "mp": 75,
+      "attack": 48,
+      "defense": 30,
+      "speed": 42
+    },
+    "skills": [
+      "ice_spear",
+      "wind_slash",
+      "revive",
+      "regen",
+      "holy_light"
+    ],
+    "skill_sets": [
+      "caster_set"
+    ],
+    "drop_items": [
+      [
+        "frost_crystal",
+        0.35
+      ],
+      [
+        "celestial_feather",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "8": [
+        "mass_heal"
+      ],
+      "12": [
+        "meteor_strike"
+      ],
+      "16": [
+        "last_wish"
+      ]
+    },
+    "book": {
+      "description": "氷の炎で蘇る不死鳥。倒されても凍てつく炎の中から何度でも蘇る伝説の存在。",
+      "location_hint": "永久凍土の果てにある氷の神殿に棲む",
+      "synthesis_hint": "精霊族のSランク配合で生まれる極めて稀な存在。"
+    },
+    "family": "spirit"
+  },
+  "storm_serpent": {
+    "name": "ストームサーペント",
+    "ai_role": "attacker",
+    "rank": "B",
+    "element": "雷",
+    "image_filename": "storm_serpent.png",
+    "growth_type": "スピード型",
+    "trait": "swift",
+    "stats": {
+      "hp": 72,
+      "mp": 40,
+      "attack": 32,
+      "defense": 22,
+      "speed": 38
+    },
+    "skills": [
+      "thunder_bolt",
+      "bite",
+      "paralysis_shock",
+      "speed_up"
+    ],
+    "skill_sets": [
+      "agile_set"
+    ],
+    "drop_items": [
+      [
+        "thunder_core",
+        0.3
+      ],
+      [
+        "tough_leather",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "4": [
+        "wind_slash"
+      ],
+      "8": [
+        "dragon_breath"
+      ]
+    },
+    "book": {
+      "description": "嵐の海を支配する雷蛇。水中から稲妻を放ち、船を沈める恐るべきモンスター。",
+      "location_hint": "嵐が頻発する海域や雷雨の湖に出現",
+      "synthesis_hint": "水棲族と雷属性モンスターの配合で生まれる。"
+    },
+    "family": "aquatic"
+  },
+  "earth_titan": {
+    "name": "アースタイタン",
+    "ai_role": "defender",
+    "rank": "S",
+    "element": "土",
+    "image_filename": "earth_titan.png",
+    "growth_type": "防御型",
+    "trait": "iron_wall",
+    "stats": {
+      "hp": 170,
+      "mp": 40,
+      "attack": 45,
+      "defense": 60,
+      "speed": 10
+    },
+    "skills": [
+      "earth_quake",
+      "stone_skin",
+      "guard_up",
+      "counter_attack",
+      "roar",
+      "body_slam"
+    ],
+    "skill_sets": [
+      "guardian_set"
+    ],
+    "drop_items": [
+      [
+        "steel_ingot",
+        0.4
+      ],
+      [
+        "power_fragment",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "8": [
+        "brave_song"
+      ],
+      "14": [
+        "meteor_strike"
+      ]
+    },
+    "book": {
+      "description": "大地そのものが意思を持った超巨大ゴーレム。その防御力は全モンスター中最高峰。",
+      "location_hint": "古代遺跡の最深部や大地の裂け目に佇む",
+      "synthesis_hint": "構築型のSランク配合で生まれる究極の守護者。"
+    },
+    "family": "construct"
+  },
+  "void_reaper": {
+    "name": "ヴォイドリーパー",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "闇",
+    "image_filename": "void_reaper.png",
+    "growth_type": "大器晩成型",
+    "trait": "slow_starter",
+    "stats": {
+      "hp": 105,
+      "mp": 55,
+      "attack": 48,
+      "defense": 25,
+      "speed": 30
+    },
+    "skills": [
+      "dark_pulse",
+      "life_drain",
+      "curse",
+      "blade_rush"
+    ],
+    "skill_sets": [
+      "warrior_set"
+    ],
+    "drop_items": [
+      [
+        "abyss_shard",
+        0.35
+      ],
+      [
+        "magic_stone",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "6": [
+        "silence"
+      ],
+      "10": [
+        "demonize"
+      ],
+      "14": [
+        "meteor_strike"
+      ]
+    },
+    "book": {
+      "description": "虚無の力を振るう死神。その大鎌は魂すら刈り取り、触れた者を虚空へ引きずり込む。",
+      "location_hint": "次元の狭間や虚無の神殿に出現",
+      "synthesis_hint": "不死族の上位配合で生まれる。大器晩成型のため真価を発揮するまで時間がかかる。"
+    },
+    "family": "undead"
+  },
+  "leaf_sprite": {
+    "name": "リーフスプライト",
+    "ai_role": "healer",
+    "rank": "D",
+    "element": "風",
+    "image_filename": "leaf_sprite.png",
+    "growth_type": "早熟型",
+    "trait": "regenerator",
+    "stats": {
+      "hp": 30,
+      "mp": 20,
+      "attack": 8,
+      "defense": 8,
+      "speed": 15
+    },
+    "skills": [
+      "heal",
+      "wind_slash"
+    ],
+    "skill_sets": [
+      "minion_set"
+    ],
+    "drop_items": [
+      [
+        "herb",
+        0.5
+      ],
+      [
+        "small_potion",
+        0.4
+      ]
+    ],
+    "learnset": {
+      "2": [
+        "cure"
+      ],
+      "4": [
+        "regen"
+      ]
+    },
+    "book": {
+      "description": "木の葉に宿る小さな精霊。戦闘力は低いが、癒しの力で仲間を支える。",
+      "location_hint": "緑豊かな森や花畑に出現",
+      "synthesis_hint": "植物族の基本的な配合で生まれやすい。"
+    },
+    "family": "plant"
+  },
+  "fire_djinn": {
+    "name": "ファイアジン",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "火",
+    "image_filename": "fire_djinn.png",
+    "growth_type": "魔法型",
+    "trait": "fierce",
+    "stats": {
+      "hp": 100,
+      "mp": 65,
+      "attack": 45,
+      "defense": 25,
+      "speed": 38
+    },
+    "skills": [
+      "fireball",
+      "meteor_strike",
+      "magic_boost",
+      "roar",
+      "demonize"
+    ],
+    "skill_sets": [
+      "caster_set"
+    ],
+    "drop_items": [
+      [
+        "fire_crystal",
+        0.35
+      ],
+      [
+        "magic_stone",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "5": [
+        "dragon_breath"
+      ],
+      "10": [
+        "mana_burn"
+      ]
+    },
+    "book": {
+      "description": "炎の精霊王。灼熱の魔法を自在に操り、全てを焼き尽くす破壊の化身。",
+      "location_hint": "灼熱の砂漠や炎の神殿に出現",
+      "synthesis_hint": "精霊族と火属性の上位配合で生まれる。"
+    },
+    "family": "elemental"
+  },
+  "aqua_serpent": {
+    "name": "アクアサーペント",
+    "ai_role": "defender",
+    "rank": "C",
+    "element": "水",
+    "image_filename": "aqua_serpent.png",
+    "growth_type": "防御型",
+    "trait": "thick_hide",
+    "stats": {
+      "hp": 60,
+      "mp": 25,
+      "attack": 18,
+      "defense": 22,
+      "speed": 16
+    },
+    "skills": [
+      "bite",
+      "guard_up",
+      "ice_spear",
+      "tackle"
+    ],
+    "skill_sets": [
+      "guardian_set"
+    ],
+    "drop_items": [
+      [
+        "medium_potion",
+        0.3
+      ],
+      [
+        "tough_leather",
+        0.4
+      ]
+    ],
+    "learnset": {
+      "3": [
+        "stone_skin"
+      ],
+      "6": [
+        "counter_attack"
+      ]
+    },
+    "book": {
+      "description": "水中を悠然と泳ぐ大蛇。硬い鱗で覆われた体は物理攻撃をよく弾く。",
+      "location_hint": "河川や湖、水中洞窟に生息",
+      "synthesis_hint": "水棲族の基本的な配合で生まれる。"
+    },
+    "family": "aquatic"
+  },
+  "thunder_wolf": {
+    "name": "サンダーウルフ",
+    "ai_role": "attacker",
+    "rank": "B",
+    "element": "雷",
+    "image_filename": "thunder_wolf.png",
+    "growth_type": "スピード型",
+    "trait": "static",
+    "stats": {
+      "hp": 75,
+      "mp": 35,
+      "attack": 35,
+      "defense": 20,
+      "speed": 40
+    },
+    "skills": [
+      "thunder_bolt",
+      "bite",
+      "blade_rush",
+      "speed_up"
+    ],
+    "skill_sets": [
+      "agile_set"
+    ],
+    "drop_items": [
+      [
+        "thunder_core",
+        0.3
+      ],
+      [
+        "tough_leather",
+        0.35
+      ]
+    ],
+    "learnset": {
+      "4": [
+        "paralysis_shock"
+      ],
+      "7": [
+        "roar"
+      ]
+    },
+    "book": {
+      "description": "雷を纏って疾走する狼。その速さは稲妻に匹敵し、鋭い牙で獲物を仕留める。",
+      "location_hint": "雷の平原や嵐の夜に出没",
+      "synthesis_hint": "獣族と雷属性モンスターの配合で生まれる。"
+    },
+    "family": "beast"
+  },
+  "iron_beetle": {
+    "name": "アイアンビートル",
+    "ai_role": "defender",
+    "rank": "C",
+    "element": "土",
+    "image_filename": "iron_beetle.png",
+    "growth_type": "防御型",
+    "trait": "iron_wall",
+    "stats": {
+      "hp": 55,
+      "mp": 15,
+      "attack": 20,
+      "defense": 28,
+      "speed": 10
+    },
+    "skills": [
+      "tackle",
+      "guard_up",
+      "stone_skin",
+      "body_slam"
+    ],
+    "skill_sets": [
+      "guardian_set"
+    ],
+    "drop_items": [
+      [
+        "steel_ingot",
+        0.4
+      ],
+      [
+        "tough_leather",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "3": [
+        "counter_attack"
+      ],
+      "6": [
+        "earth_quake"
+      ]
+    },
+    "book": {
+      "description": "鉄のように硬い甲殻を持つ巨大甲虫。防御に特化した堅牢なモンスター。",
+      "location_hint": "鉱山や岩場の多い洞窟に生息",
+      "synthesis_hint": "虫型モンスターと鉱石素材の配合で生まれる。"
+    },
+    "family": "insect"
+  },
+  "phantom_knight": {
+    "name": "ファントムナイト",
+    "ai_role": "attacker",
+    "rank": "B",
+    "element": "闇",
+    "image_filename": "phantom_knight.png",
+    "growth_type": "パワー型",
+    "trait": "berserker",
+    "stats": {
+      "hp": 80,
+      "mp": 30,
+      "attack": 38,
+      "defense": 28,
+      "speed": 22
+    },
+    "skills": [
+      "blade_rush",
+      "dark_pulse",
+      "stun_blow",
+      "power_up"
+    ],
+    "skill_sets": [
+      "warrior_set"
+    ],
+    "drop_items": [
+      [
+        "abyss_shard",
+        0.25
+      ],
+      [
+        "bronze_sword",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "4": [
+        "curse"
+      ],
+      "8": [
+        "life_drain"
+      ]
+    },
+    "book": {
+      "description": "亡霊と化した古の騎士。生前の剣技を振るい、狂戦士のごとく敵を斬り伏せる。",
+      "location_hint": "古城の廃墟や呪われた戦場跡に出現",
+      "synthesis_hint": "不死族と人型モンスターの配合で生まれる。"
+    },
+    "family": "undead"
+  },
+  "solar_hawk": {
+    "name": "ソーラーホーク",
+    "ai_role": "attacker",
+    "rank": "B",
+    "element": "光",
+    "image_filename": "solar_hawk.png",
+    "growth_type": "スピード型",
+    "trait": "swift",
+    "stats": {
+      "hp": 68,
+      "mp": 35,
+      "attack": 32,
+      "defense": 18,
+      "speed": 42
+    },
+    "skills": [
+      "holy_light",
+      "wind_slash",
+      "speed_up",
+      "blade_rush"
+    ],
+    "skill_sets": [
+      "agile_set"
+    ],
+    "drop_items": [
+      [
+        "celestial_feather",
+        0.35
+      ],
+      [
+        "small_potion",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "4": [
+        "brave_song"
+      ],
+      "8": [
+        "meteor_strike"
+      ]
+    },
+    "book": {
+      "description": "太陽の光を翼に宿す神鷹。目にも留まらぬ速さで急降下し、光の刃で敵を切り裂く。",
+      "location_hint": "高山の頂きや陽光降り注ぐ聖地に出現",
+      "synthesis_hint": "獣族と光属性素材の配合で生まれる。"
+    },
+    "family": "beast"
+  },
+  "venom_hydra": {
+    "name": "ヴェノムハイドラ",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "毒",
+    "image_filename": "venom_hydra.png",
+    "growth_type": "パワー型",
+    "trait": "poison_body",
+    "stats": {
+      "hp": 130,
+      "mp": 45,
+      "attack": 42,
+      "defense": 32,
+      "speed": 22
+    },
+    "skills": [
+      "poison_cloud",
+      "poison_dart",
+      "bite",
+      "dragon_breath",
+      "body_slam"
+    ],
+    "skill_sets": [
+      "warrior_set"
+    ],
+    "drop_items": [
+      [
+        "antidote",
+        0.3
+      ],
+      [
+        "dragon_scale",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "6": [
+        "paralysis_shock"
+      ],
+      "10": [
+        "life_drain"
+      ]
+    },
+    "book": {
+      "description": "猛毒の息を吐く多頭の海蛇。首を切っても再生し、毒の沼を広げて獲物を追い詰める。",
+      "location_hint": "毒の沼地や汚染された深海に棲む",
+      "synthesis_hint": "水棲族と毒属性の上位配合で生まれる強力なモンスター。"
+    },
+    "family": "aquatic"
+  },
+  "chaos_demon": {
+    "name": "カオスデーモン",
+    "ai_role": "attacker",
+    "rank": "S",
+    "element": "闇",
+    "image_filename": "chaos_demon.png",
+    "growth_type": "パワー型",
+    "trait": "berserker",
+    "stats": {
+      "hp": 150,
+      "mp": 60,
+      "attack": 58,
+      "defense": 35,
+      "speed": 32
+    },
+    "skills": [
+      "dark_pulse",
+      "demonize",
+      "meteor_strike",
+      "life_drain",
+      "roar",
+      "blood_saber"
+    ],
+    "skill_sets": [
+      "demon_lord_set"
+    ],
+    "drop_items": [
+      [
+        "abyss_shard",
+        0.4
+      ],
+      [
+        "power_fragment",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "8": [
+        "curse"
+      ],
+      "12": [
+        "mana_burn"
+      ],
+      "16": [
+        "last_wish"
+      ]
+    },
+    "book": {
+      "description": "混沌を司る最上位の悪魔。破壊と狂気を撒き散らし、あらゆるものを混沌に陥れる。",
+      "location_hint": "魔界の深淵や次元の裂け目に降臨する",
+      "synthesis_hint": "魔族のSランク配合で生まれる究極の破壊者。闇の素材が大量に必要。"
+    },
     "family": "demon"
+  },
+  "wind_dancer": {
+    "name": "ウインドダンサー",
+    "ai_role": "debuffer",
+    "rank": "C",
+    "element": "風",
+    "image_filename": "wind_dancer.png",
+    "growth_type": "スピード型",
+    "trait": "swift",
+    "stats": {
+      "hp": 48,
+      "mp": 30,
+      "attack": 16,
+      "defense": 14,
+      "speed": 28
+    },
+    "skills": [
+      "wind_slash",
+      "speed_up",
+      "slow",
+      "confusion_gas"
+    ],
+    "skill_sets": [
+      "agile_set"
+    ],
+    "drop_items": [
+      [
+        "herb",
+        0.4
+      ],
+      [
+        "small_potion",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "3": [
+        "sleep_spell"
+      ],
+      "5": [
+        "silence"
+      ]
+    },
+    "book": {
+      "description": "風と共に舞う踊り子。軽やかなステップで敵を翻弄し、状態異常を付与する。",
+      "location_hint": "風の強い草原や丘陵地帯に出現",
+      "synthesis_hint": "人型モンスターと風属性素材の配合で生まれる。"
+    },
+    "family": "humanoid"
+  },
+  "stone_guardian": {
+    "name": "ストーンガーディアン",
+    "ai_role": "defender",
+    "rank": "B",
+    "element": "土",
+    "image_filename": "stone_guardian.png",
+    "growth_type": "防御型",
+    "trait": "thick_hide",
+    "stats": {
+      "hp": 90,
+      "mp": 25,
+      "attack": 25,
+      "defense": 40,
+      "speed": 12
+    },
+    "skills": [
+      "stone_skin",
+      "guard_up",
+      "earth_quake",
+      "counter_attack"
+    ],
+    "skill_sets": [
+      "guardian_set"
+    ],
+    "drop_items": [
+      [
+        "steel_ingot",
+        0.35
+      ],
+      [
+        "tough_leather",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "5": [
+        "roar"
+      ],
+      "9": [
+        "brave_song"
+      ]
+    },
+    "book": {
+      "description": "古代遺跡を守護する石の巨兵。主の命令に忠実に従い、侵入者を排除する。",
+      "location_hint": "古代遺跡や神殿の入り口を守っている",
+      "synthesis_hint": "構築型モンスターと土属性素材の配合で生まれる。"
+    },
+    "family": "construct"
+  },
+  "soul_reaver": {
+    "name": "ソウルリーバー",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "闇",
+    "image_filename": "soul_reaver.png",
+    "growth_type": "パワー型",
+    "trait": "life_steal",
+    "stats": {
+      "hp": 110,
+      "mp": 50,
+      "attack": 46,
+      "defense": 26,
+      "speed": 32
+    },
+    "skills": [
+      "life_drain",
+      "dark_pulse",
+      "curse",
+      "life_steal_mid",
+      "blood_saber"
+    ],
+    "skill_sets": [
+      "warrior_set"
+    ],
+    "drop_items": [
+      [
+        "abyss_shard",
+        0.3
+      ],
+      [
+        "power_fragment",
+        0.25
+      ]
+    ],
+    "learnset": {
+      "5": [
+        "demonize"
+      ],
+      "9": [
+        "mana_burn"
+      ],
+      "13": [
+        "meteor_strike"
+      ]
+    },
+    "book": {
+      "description": "魂を喰らう上位悪魔。倒した敵の生命力を吸収し、自身の力に変える恐ろしき存在。",
+      "location_hint": "魔界の門付近や呪われた大地に出現",
+      "synthesis_hint": "魔族の上位配合で生まれる。生命吸収で戦闘を有利に進められる。"
+    },
+    "family": "demon"
+  },
+  "celestial_phoenix": {
+    "name": "セレスティアルフェニックス",
+    "ai_role": "healer",
+    "rank": "S",
+    "element": "光",
+    "image_filename": "celestial_phoenix.png",
+    "growth_type": "大器晩成型",
+    "trait": "last_stand",
+    "stats": {
+      "hp": 135,
+      "mp": 80,
+      "attack": 40,
+      "defense": 32,
+      "speed": 40
+    },
+    "skills": [
+      "holy_light",
+      "revive",
+      "mass_heal",
+      "regen",
+      "meteor_strike",
+      "last_wish"
+    ],
+    "skill_sets": [
+      "caster_set"
+    ],
+    "drop_items": [
+      [
+        "celestial_feather",
+        0.4
+      ],
+      [
+        "large_potion",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "8": [
+        "brave_song"
+      ],
+      "12": [
+        "cure"
+      ],
+      "16": [
+        "teleport"
+      ]
+    },
+    "book": {
+      "description": "天界より舞い降りた神聖なる不死鳥。その輝く翼は倒れた仲間すら蘇らせる奇跡の力を持つ。",
+      "location_hint": "天界への門や聖なる山頂にのみ現れる",
+      "synthesis_hint": "精霊族のSランク配合に天界の素材が必要な、最上位の聖なる存在。"
+    },
+    "family": "spirit"
+  },
+  "metal_slime": {
+    "name": "メタルスライム",
+    "ai_role": "defender",
+    "rank": "B",
+    "element": "無",
+    "image_filename": "metal_slime.png",
+    "growth_type": "防御型",
+    "trait": "iron_wall",
+    "stats": {
+      "hp": 15,
+      "mp": 30,
+      "attack": 12,
+      "defense": 50,
+      "speed": 40
+    },
+    "skills": [
+      "guard_up",
+      "counter_attack"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "gold_nugget",
+        0.05
+      ]
+    ],
+    "learnset": {
+      "5": [
+        "stone_skin"
+      ]
+    },
+    "book": {
+      "description": "メタルの体を持つ希少なスライム。防御力が非常に高く、素早い。",
+      "location_hint": "稀に草原や洞窟で出現",
+      "synthesis_hint": "スライムと鉱石を使って..."
+    },
+    "family": "slime"
+  },
+  "king_slime": {
+    "name": "キングスライム",
+    "ai_role": "balanced",
+    "rank": "A",
+    "element": "水",
+    "image_filename": "king_slime.png",
+    "growth_type": "大器晩成型",
+    "trait": "regenerator",
+    "stats": {
+      "hp": 120,
+      "mp": 60,
+      "attack": 45,
+      "defense": 40,
+      "speed": 20
+    },
+    "skills": [
+      "heal",
+      "body_slam",
+      "guard_up"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "crown_shard",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "10": [
+        "mass_heal"
+      ],
+      "20": [
+        "regen"
+      ]
+    },
+    "book": {
+      "description": "スライムたちの王。巨大な体と回復能力を持つ。",
+      "location_hint": "スライム系モンスターの群れの中に稀に出現",
+      "synthesis_hint": "スライム同士の合成で生まれることがある。"
+    },
+    "family": "slime"
+  },
+  "dark_slime": {
+    "name": "ダークスライム",
+    "ai_role": "attacker",
+    "rank": "C",
+    "element": "闇",
+    "image_filename": "dark_slime.png",
+    "growth_type": "魔法型",
+    "trait": "poison_body",
+    "stats": {
+      "hp": 30,
+      "mp": 35,
+      "attack": 15,
+      "defense": 10,
+      "speed": 18
+    },
+    "skills": [
+      "dark_pulse",
+      "poison_dart"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "dark_crystal",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "8": [
+        "curse"
+      ],
+      "15": [
+        "life_drain"
+      ]
+    },
+    "book": {
+      "description": "闇のエネルギーに染まったスライム。毒と闇魔法を操る。",
+      "location_hint": "暗い洞窟の深部に出現",
+      "synthesis_hint": "スライムと闇属性モンスターの合成で生まれる。"
+    },
+    "family": "slime"
+  },
+  "heal_slime": {
+    "name": "ホイミスライム",
+    "ai_role": "healer",
+    "rank": "C",
+    "element": "光",
+    "image_filename": "heal_slime.png",
+    "growth_type": "魔法型",
+    "trait": "mana_flow",
+    "stats": {
+      "hp": 28,
+      "mp": 50,
+      "attack": 8,
+      "defense": 8,
+      "speed": 15
+    },
+    "skills": [
+      "heal",
+      "cure"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "small_potion",
+        0.6
+      ]
+    ],
+    "learnset": {
+      "5": [
+        "regen"
+      ],
+      "12": [
+        "mass_heal"
+      ],
+      "20": [
+        "revive"
+      ]
+    },
+    "book": {
+      "description": "回復魔法に特化したスライム。仲間を癒す心優しいモンスター。",
+      "location_hint": "聖なる泉の近くに出現",
+      "synthesis_hint": "スライムと光属性モンスターの合成で生まれる。"
+    },
+    "family": "slime"
+  },
+  "fire_dragon": {
+    "name": "ファイアドラゴン",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "火",
+    "image_filename": "fire_dragon.png",
+    "growth_type": "パワー型",
+    "trait": "flame_body",
+    "stats": {
+      "hp": 150,
+      "mp": 40,
+      "attack": 70,
+      "defense": 45,
+      "speed": 35
+    },
+    "skills": [
+      "fireball",
+      "dragon_breath",
+      "roar"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "dragon_scale",
+        0.3
+      ],
+      [
+        "fire_crystal",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "15": [
+        "meteor_strike"
+      ]
+    },
+    "book": {
+      "description": "炎を纏う巨大なドラゴン。その灼熱のブレスは全てを焼き尽くす。",
+      "location_hint": "火山の頂上付近に出現",
+      "synthesis_hint": "ドラゴンパピーを育てると..."
+    },
+    "family": "dragon"
+  },
+  "ice_dragon": {
+    "name": "アイスドラゴン",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "氷",
+    "image_filename": "ice_dragon.png",
+    "growth_type": "パワー型",
+    "trait": "ice_resist",
+    "stats": {
+      "hp": 140,
+      "mp": 45,
+      "attack": 65,
+      "defense": 50,
+      "speed": 30
+    },
+    "skills": [
+      "ice_spear",
+      "dragon_breath",
+      "guard_up"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "dragon_scale",
+        0.3
+      ],
+      [
+        "ice_crystal",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "15": [
+        "blizzard"
+      ]
+    },
+    "book": {
+      "description": "氷の息吹を持つドラゴン。極寒の地を支配する存在。",
+      "location_hint": "氷の洞窟の最深部に出現",
+      "synthesis_hint": "ドラゴンパピーと氷属性素材の合成で..."
+    },
+    "family": "dragon"
+  },
+  "thunder_dragon": {
+    "name": "サンダードラゴン",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "雷",
+    "image_filename": "thunder_dragon.png",
+    "growth_type": "スピード型",
+    "trait": "static",
+    "stats": {
+      "hp": 130,
+      "mp": 50,
+      "attack": 60,
+      "defense": 40,
+      "speed": 50
+    },
+    "skills": [
+      "thunder_bolt",
+      "dragon_breath",
+      "speed_up"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "dragon_scale",
+        0.3
+      ],
+      [
+        "thunder_crystal",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "15": [
+        "paralysis_shock"
+      ]
+    },
+    "book": {
+      "description": "雷光を身に纏うドラゴン。稲妻の速さで敵を翻弄する。",
+      "location_hint": "嵐の塔の頂上に出現",
+      "synthesis_hint": "ドラゴンパピーと雷属性モンスターの合成で..."
+    },
+    "family": "dragon"
+  },
+  "dragon_zombie": {
+    "name": "ドラゴンゾンビ",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "闇",
+    "image_filename": "dragon_zombie.png",
+    "growth_type": "パワー型",
+    "trait": "berserker",
+    "stats": {
+      "hp": 180,
+      "mp": 20,
+      "attack": 75,
+      "defense": 55,
+      "speed": 15
+    },
+    "skills": [
+      "dragon_breath",
+      "dark_pulse",
+      "curse"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "cursed_bone",
+        0.4
+      ],
+      [
+        "dragon_scale",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "10": [
+        "life_drain"
+      ],
+      "20": [
+        "demonize"
+      ]
+    },
+    "book": {
+      "description": "死んでなお動き続けるドラゴンの亡骸。圧倒的な力を持つ。",
+      "location_hint": "古代遺跡の最深部に出現",
+      "synthesis_hint": "ドラゴンとアンデッド系の合成で..."
+    },
+    "family": "dragon"
+  },
+  "holy_dragon": {
+    "name": "ホーリードラゴン",
+    "ai_role": "balanced",
+    "rank": "S",
+    "element": "光",
+    "image_filename": "holy_dragon.png",
+    "growth_type": "大器晩成型",
+    "trait": "last_stand",
+    "stats": {
+      "hp": 200,
+      "mp": 80,
+      "attack": 80,
+      "defense": 60,
+      "speed": 40
+    },
+    "skills": [
+      "holy_light",
+      "dragon_breath",
+      "heal",
+      "revive"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "holy_crystal",
+        0.1
+      ]
+    ],
+    "learnset": {
+      "20": [
+        "mass_heal"
+      ],
+      "30": [
+        "meteor_strike"
+      ]
+    },
+    "book": {
+      "description": "聖なる光を纏う伝説のドラゴン。全てを守護する力を持つ。",
+      "location_hint": "聖域の最奥に出現",
+      "synthesis_hint": "ファイアドラゴンとアイスドラゴンの合成で..."
+    },
+    "family": "dragon"
+  },
+  "dire_wolf": {
+    "name": "ダイアウルフ",
+    "ai_role": "attacker",
+    "rank": "C",
+    "element": "無",
+    "image_filename": "dire_wolf.png",
+    "growth_type": "スピード型",
+    "trait": "ambush",
+    "stats": {
+      "hp": 55,
+      "mp": 15,
+      "attack": 35,
+      "defense": 18,
+      "speed": 35
+    },
+    "skills": [
+      "bite",
+      "blade_rush"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "beast_fang",
+        0.4
+      ]
+    ],
+    "learnset": {
+      "8": [
+        "roar"
+      ],
+      "15": [
+        "counter_attack"
+      ]
+    },
+    "book": {
+      "description": "ウルフの上位種。群れで行動し、獲物を追い詰める。",
+      "location_hint": "深い森の奥に出現",
+      "synthesis_hint": "ウルフ同士の合成で生まれる。"
+    },
+    "family": "beast"
+  },
+  "silver_fenrir": {
+    "name": "シルバーフェンリル",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "氷",
+    "image_filename": "silver_fenrir.png",
+    "growth_type": "スピード型",
+    "trait": "swift",
+    "stats": {
+      "hp": 120,
+      "mp": 30,
+      "attack": 65,
+      "defense": 35,
+      "speed": 55
+    },
+    "skills": [
+      "ice_spear",
+      "blade_rush",
+      "roar"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "beast_fang",
+        0.4
+      ],
+      [
+        "ice_crystal",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "15": [
+        "speed_up"
+      ],
+      "25": [
+        "counter_attack"
+      ]
+    },
+    "book": {
+      "description": "銀色の毛並みを持つ伝説の巨狼。氷の力を操る。",
+      "location_hint": "雪山の頂上付近に出現",
+      "synthesis_hint": "ダイアウルフと氷属性モンスターの合成で..."
+    },
+    "family": "beast"
+  },
+  "flame_lion": {
+    "name": "フレイムライオン",
+    "ai_role": "attacker",
+    "rank": "B",
+    "element": "火",
+    "image_filename": "flame_lion.png",
+    "growth_type": "パワー型",
+    "trait": "flame_body",
+    "stats": {
+      "hp": 80,
+      "mp": 20,
+      "attack": 50,
+      "defense": 25,
+      "speed": 30
+    },
+    "skills": [
+      "fireball",
+      "bite",
+      "roar"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "beast_fang",
+        0.3
+      ],
+      [
+        "fire_crystal",
+        0.15
+      ]
+    ],
+    "learnset": {
+      "10": [
+        "brave_song"
+      ]
+    },
+    "book": {
+      "description": "炎の鬣を持つ猛獣。その咆哮は味方を鼓舞する。",
+      "location_hint": "灼熱の荒野に出現",
+      "synthesis_hint": "獣系と火属性モンスターの合成で..."
+    },
+    "family": "beast"
+  },
+  "thunder_tiger": {
+    "name": "サンダータイガー",
+    "ai_role": "attacker",
+    "rank": "B",
+    "element": "雷",
+    "image_filename": "thunder_tiger.png",
+    "growth_type": "スピード型",
+    "trait": "static",
+    "stats": {
+      "hp": 75,
+      "mp": 25,
+      "attack": 48,
+      "defense": 22,
+      "speed": 38
+    },
+    "skills": [
+      "thunder_bolt",
+      "bite",
+      "speed_up"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "beast_fang",
+        0.3
+      ],
+      [
+        "thunder_crystal",
+        0.15
+      ]
+    ],
+    "learnset": {
+      "10": [
+        "paralysis_shock"
+      ]
+    },
+    "book": {
+      "description": "雷を纏う虎。稲妻のように素早く、一撃で敵を仕留める。",
+      "location_hint": "雷鳴の平原に出現",
+      "synthesis_hint": "獣系と雷属性モンスターの合成で..."
+    },
+    "family": "beast"
+  },
+  "golden_bahamut": {
+    "name": "ゴールデンバハムート",
+    "ai_role": "balanced",
+    "rank": "S",
+    "element": "光",
+    "image_filename": "golden_bahamut.png",
+    "growth_type": "大器晩成型",
+    "trait": "berserker",
+    "stats": {
+      "hp": 180,
+      "mp": 60,
+      "attack": 85,
+      "defense": 50,
+      "speed": 45
+    },
+    "skills": [
+      "holy_light",
+      "dragon_breath",
+      "brave_song",
+      "meteor_strike"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "holy_crystal",
+        0.1
+      ],
+      [
+        "gold_nugget",
+        0.3
+      ]
+    ],
+    "learnset": {},
+    "book": {
+      "description": "黄金の獣王。神話に語り継がれる究極の存在。",
+      "location_hint": "特殊合成でのみ入手可能",
+      "synthesis_hint": "シルバーフェンリルとフレイムライオンの合成で..."
+    },
+    "family": "beast"
+  },
+  "lesser_demon": {
+    "name": "レッサーデーモン",
+    "ai_role": "attacker",
+    "rank": "C",
+    "element": "闇",
+    "image_filename": "lesser_demon.png",
+    "growth_type": "パワー型",
+    "trait": "fierce",
+    "stats": {
+      "hp": 50,
+      "mp": 25,
+      "attack": 32,
+      "defense": 15,
+      "speed": 22
+    },
+    "skills": [
+      "dark_pulse",
+      "scratch"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "dark_crystal",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "8": [
+        "curse"
+      ],
+      "15": [
+        "demonize"
+      ]
+    },
+    "book": {
+      "description": "下級の悪魔。だが油断は禁物。",
+      "location_hint": "闇の森に出現",
+      "synthesis_hint": "インプが成長すると..."
+    },
+    "family": "demon"
+  },
+  "arch_demon": {
+    "name": "アークデーモン",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "闇",
+    "image_filename": "arch_demon.png",
+    "growth_type": "パワー型",
+    "trait": "life_steal",
+    "stats": {
+      "hp": 140,
+      "mp": 50,
+      "attack": 72,
+      "defense": 40,
+      "speed": 35
+    },
+    "skills": [
+      "dark_pulse",
+      "demonize",
+      "life_drain",
+      "meteor_strike"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "dark_crystal",
+        0.4
+      ],
+      [
+        "cursed_bone",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "20": [
+        "mana_burn"
+      ]
+    },
+    "book": {
+      "description": "悪魔の上位種。圧倒的な闇の力で敵を蹂躙する。",
+      "location_hint": "魔王城の深部に出現",
+      "synthesis_hint": "レッサーデーモンとヴァンパイアロードの合成で..."
+    },
+    "family": "demon"
+  },
+  "succubus": {
+    "name": "サキュバス",
+    "ai_role": "debuffer",
+    "rank": "B",
+    "element": "闇",
+    "image_filename": "succubus.png",
+    "growth_type": "魔法型",
+    "trait": "life_steal",
+    "stats": {
+      "hp": 60,
+      "mp": 50,
+      "attack": 30,
+      "defense": 20,
+      "speed": 35
+    },
+    "skills": [
+      "dark_pulse",
+      "sleep_spell",
+      "life_drain"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "dark_crystal",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "10": [
+        "confusion_gas"
+      ],
+      "18": [
+        "curse"
+      ]
+    },
+    "book": {
+      "description": "魅了の魔眼を持つ悪魔。精神を支配する。",
+      "location_hint": "夜の城に出現",
+      "synthesis_hint": "悪魔系と魔法系の合成で..."
+    },
+    "family": "demon"
+  },
+  "demon_king": {
+    "name": "魔王",
+    "ai_role": "attacker",
+    "rank": "S",
+    "element": "闇",
+    "image_filename": "demon_king.png",
+    "growth_type": "大器晩成型",
+    "trait": "last_stand",
+    "stats": {
+      "hp": 250,
+      "mp": 100,
+      "attack": 90,
+      "defense": 70,
+      "speed": 40
+    },
+    "skills": [
+      "dark_pulse",
+      "meteor_strike",
+      "demonize",
+      "life_drain",
+      "curse"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "dark_crystal",
+        0.5
+      ],
+      [
+        "cursed_bone",
+        0.5
+      ]
+    ],
+    "learnset": {},
+    "book": {
+      "description": "全ての悪魔の頂点に立つ存在。その力は世界を滅ぼし得る。",
+      "location_hint": "特殊合成でのみ入手可能",
+      "synthesis_hint": "アークデーモンとホーリードラゴンの合成で..."
+    },
+    "family": "demon"
+  },
+  "zombie": {
+    "name": "ゾンビ",
+    "ai_role": "attacker",
+    "rank": "D",
+    "element": "闇",
+    "image_filename": "zombie.png",
+    "growth_type": "パワー型",
+    "trait": "poison_body",
+    "stats": {
+      "hp": 35,
+      "mp": 5,
+      "attack": 15,
+      "defense": 8,
+      "speed": 5
+    },
+    "skills": [
+      "scratch",
+      "poison_dart"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "cursed_bone",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "5": [
+        "curse"
+      ]
+    },
+    "book": {
+      "description": "動く死体。動きは遅いが、毒を撒き散らす。",
+      "location_hint": "墓地や廃墟に出現",
+      "synthesis_hint": ""
+    },
+    "family": "undead"
+  },
+  "wraith": {
+    "name": "レイス",
+    "ai_role": "debuffer",
+    "rank": "C",
+    "element": "闇",
+    "image_filename": "wraith.png",
+    "growth_type": "魔法型",
+    "trait": "status_guard",
+    "stats": {
+      "hp": 40,
+      "mp": 40,
+      "attack": 20,
+      "defense": 12,
+      "speed": 28
+    },
+    "skills": [
+      "dark_pulse",
+      "curse",
+      "sleep_spell"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "dark_crystal",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "10": [
+        "life_drain"
+      ],
+      "15": [
+        "silence"
+      ]
+    },
+    "book": {
+      "description": "実体を持たない亡霊。物理攻撃が効きにくい。",
+      "location_hint": "古い墓地や廃城に出現",
+      "synthesis_hint": "ゾンビと魔法素材の合成で..."
+    },
+    "family": "undead"
+  },
+  "lich": {
+    "name": "リッチ",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "闇",
+    "image_filename": "lich.png",
+    "growth_type": "魔法型",
+    "trait": "mana_flow",
+    "stats": {
+      "hp": 100,
+      "mp": 90,
+      "attack": 30,
+      "defense": 35,
+      "speed": 25
+    },
+    "skills": [
+      "dark_pulse",
+      "meteor_strike",
+      "curse",
+      "life_drain"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "dark_crystal",
+        0.4
+      ],
+      [
+        "cursed_bone",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "20": [
+        "silence"
+      ],
+      "30": [
+        "mana_burn"
+      ]
+    },
+    "book": {
+      "description": "死を超越した魔術師。強大な闇魔法を操る。",
+      "location_hint": "古代の魔術師の塔に出現",
+      "synthesis_hint": "レイスとエルフ魔導士の合成で..."
+    },
+    "family": "undead"
+  },
+  "death_knight": {
+    "name": "デスナイト",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "闇",
+    "image_filename": "death_knight.png",
+    "growth_type": "パワー型",
+    "trait": "berserker",
+    "stats": {
+      "hp": 150,
+      "mp": 30,
+      "attack": 70,
+      "defense": 55,
+      "speed": 25
+    },
+    "skills": [
+      "blade_rush",
+      "dark_pulse",
+      "counter_attack"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "cursed_bone",
+        0.4
+      ],
+      [
+        "steel_ingot",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "15": [
+        "roar"
+      ],
+      "25": [
+        "demonize"
+      ]
+    },
+    "book": {
+      "description": "死の騎士。生前の剣技と死後の闇の力を兼ね備える。",
+      "location_hint": "呪われた城砦に出現",
+      "synthesis_hint": "アンデッドウォーリアと闇の結晶の合成で..."
+    },
+    "family": "undead"
+  },
+  "mandragora": {
+    "name": "マンドラゴラ",
+    "ai_role": "debuffer",
+    "rank": "D",
+    "element": "土",
+    "image_filename": "mandragora.png",
+    "growth_type": "平均型",
+    "trait": "poison_body",
+    "stats": {
+      "hp": 25,
+      "mp": 20,
+      "attack": 10,
+      "defense": 8,
+      "speed": 10
+    },
+    "skills": [
+      "poison_spore",
+      "confusion_gas"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "herb",
+        0.5
+      ]
+    ],
+    "learnset": {
+      "5": [
+        "sleep_spell"
+      ]
+    },
+    "book": {
+      "description": "叫び声で敵を混乱させる植物モンスター。",
+      "location_hint": "森の中に出現",
+      "synthesis_hint": ""
+    },
+    "family": "plant"
+  },
+  "treant": {
+    "name": "トレント",
+    "ai_role": "defender",
+    "rank": "B",
+    "element": "土",
+    "image_filename": "treant.png",
+    "growth_type": "防御型",
+    "trait": "regenerator",
+    "stats": {
+      "hp": 120,
+      "mp": 30,
+      "attack": 35,
+      "defense": 45,
+      "speed": 8
+    },
+    "skills": [
+      "earth_quake",
+      "guard_up",
+      "regen"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "herb",
+        0.4
+      ],
+      [
+        "ancient_wood",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "10": [
+        "stone_skin"
+      ],
+      "20": [
+        "heal"
+      ]
+    },
+    "book": {
+      "description": "古い大木が命を宿したモンスター。森の守護者。",
+      "location_hint": "古い森の深部に出現",
+      "synthesis_hint": "ウォーキングマッシュルームを育てると..."
+    },
+    "family": "plant"
+  },
+  "venus_trap": {
+    "name": "ビーナストラップ",
+    "ai_role": "attacker",
+    "rank": "C",
+    "element": "毒",
+    "image_filename": "venus_trap.png",
+    "growth_type": "パワー型",
+    "trait": "poison_body",
+    "stats": {
+      "hp": 50,
+      "mp": 15,
+      "attack": 30,
+      "defense": 15,
+      "speed": 12
+    },
+    "skills": [
+      "bite",
+      "poison_dart",
+      "poison_cloud"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "herb",
+        0.3
+      ],
+      [
+        "poison_fang",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "8": [
+        "poison_spore"
+      ]
+    },
+    "book": {
+      "description": "獲物を捕らえる食虫植物。強力な毒を持つ。",
+      "location_hint": "毒沼の周辺に出現",
+      "synthesis_hint": "マンドラゴラと毒属性モンスターの合成で..."
+    },
+    "family": "plant"
+  },
+  "world_tree": {
+    "name": "世界樹",
+    "ai_role": "healer",
+    "rank": "S",
+    "element": "光",
+    "image_filename": "world_tree.png",
+    "growth_type": "大器晩成型",
+    "trait": "regenerator",
+    "stats": {
+      "hp": 300,
+      "mp": 100,
+      "attack": 30,
+      "defense": 80,
+      "speed": 5
+    },
+    "skills": [
+      "mass_heal",
+      "revive",
+      "regen",
+      "earth_quake",
+      "holy_light"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "world_tree_leaf",
+        0.05
+      ]
+    ],
+    "learnset": {},
+    "book": {
+      "description": "世界を支える神聖な大樹。全てを癒す力を持つ。",
+      "location_hint": "特殊合成でのみ入手可能",
+      "synthesis_hint": "トレントとホーリードラゴンの合成で..."
+    },
+    "family": "plant"
+  },
+  "harpy": {
+    "name": "ハーピー",
+    "ai_role": "debuffer",
+    "rank": "C",
+    "element": "風",
+    "image_filename": "harpy.png",
+    "growth_type": "スピード型",
+    "trait": "swift",
+    "stats": {
+      "hp": 40,
+      "mp": 30,
+      "attack": 25,
+      "defense": 12,
+      "speed": 35
+    },
+    "skills": [
+      "wind_slash",
+      "confusion_gas",
+      "speed_up"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "wind_feather",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "10": [
+        "sleep_spell"
+      ]
+    },
+    "book": {
+      "description": "風を操る鳥人。素早い動きで敵を翻弄する。",
+      "location_hint": "山岳地帯に出現",
+      "synthesis_hint": ""
+    },
+    "family": "bird"
+  },
+  "griffin": {
+    "name": "グリフォン",
+    "ai_role": "attacker",
+    "rank": "B",
+    "element": "風",
+    "image_filename": "griffin.png",
+    "growth_type": "パワー型",
+    "trait": "fierce",
+    "stats": {
+      "hp": 90,
+      "mp": 25,
+      "attack": 50,
+      "defense": 30,
+      "speed": 40
+    },
+    "skills": [
+      "wind_slash",
+      "blade_rush",
+      "roar"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "wind_feather",
+        0.3
+      ],
+      [
+        "beast_fang",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "12": [
+        "brave_song"
+      ]
+    },
+    "book": {
+      "description": "鷲の頭と獅子の体を持つ伝説の獣。風を切って空を駆ける。",
+      "location_hint": "高山の巣に出現",
+      "synthesis_hint": "サンダーイーグルと獣系の合成で..."
+    },
+    "family": "bird"
+  },
+  "phoenix": {
+    "name": "フェニックス",
+    "ai_role": "balanced",
+    "rank": "S",
+    "element": "火",
+    "image_filename": "phoenix.png",
+    "growth_type": "大器晩成型",
+    "trait": "last_stand",
+    "stats": {
+      "hp": 160,
+      "mp": 80,
+      "attack": 70,
+      "defense": 45,
+      "speed": 50
+    },
+    "skills": [
+      "fireball",
+      "revive",
+      "mass_heal",
+      "meteor_strike"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "fire_crystal",
+        0.3
+      ],
+      [
+        "phoenix_feather",
+        0.05
+      ]
+    ],
+    "learnset": {},
+    "book": {
+      "description": "不死鳥。炎の中から蘇る伝説の鳥。",
+      "location_hint": "特殊合成でのみ入手可能",
+      "synthesis_hint": "フェニックスチックを究極まで育てると..."
+    },
+    "family": "bird"
+  },
+  "storm_roc": {
+    "name": "ストームロック",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "雷",
+    "image_filename": "storm_roc.png",
+    "growth_type": "スピード型",
+    "trait": "static",
+    "stats": {
+      "hp": 110,
+      "mp": 40,
+      "attack": 60,
+      "defense": 30,
+      "speed": 55
+    },
+    "skills": [
+      "thunder_bolt",
+      "wind_slash",
+      "speed_up"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "thunder_crystal",
+        0.3
+      ],
+      [
+        "wind_feather",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "15": [
+        "paralysis_shock"
+      ]
+    },
+    "book": {
+      "description": "嵐を呼ぶ巨鳥。翼を広げれば雷雲が生まれる。",
+      "location_hint": "嵐の塔付近に出現",
+      "synthesis_hint": "サンダーイーグルとグリフォンの合成で..."
+    },
+    "family": "bird"
+  },
+  "sea_serpent": {
+    "name": "シーサーペント",
+    "ai_role": "attacker",
+    "rank": "B",
+    "element": "水",
+    "image_filename": "sea_serpent.png",
+    "growth_type": "パワー型",
+    "trait": "thick_hide",
+    "stats": {
+      "hp": 85,
+      "mp": 30,
+      "attack": 45,
+      "defense": 35,
+      "speed": 25
+    },
+    "skills": [
+      "body_slam",
+      "ice_spear"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "fish_scale",
+        0.4
+      ]
+    ],
+    "learnset": {
+      "10": [
+        "earth_quake"
+      ]
+    },
+    "book": {
+      "description": "海の大蛇。巨体で敵を圧倒する。",
+      "location_hint": "海岸や湖に出現",
+      "synthesis_hint": "水属性モンスター同士の合成で..."
+    },
+    "family": "aquatic"
+  },
+  "leviathan": {
+    "name": "リヴァイアサン",
+    "ai_role": "attacker",
+    "rank": "S",
+    "element": "水",
+    "image_filename": "leviathan.png",
+    "growth_type": "大器晩成型",
+    "trait": "iron_wall",
+    "stats": {
+      "hp": 280,
+      "mp": 60,
+      "attack": 85,
+      "defense": 75,
+      "speed": 20
+    },
+    "skills": [
+      "earth_quake",
+      "ice_spear",
+      "body_slam",
+      "roar"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "ice_crystal",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "30": [
+        "meteor_strike"
+      ]
+    },
+    "book": {
+      "description": "海を支配する巨大な海竜。その巨体は小島ほどもある。",
+      "location_hint": "特殊合成でのみ入手可能",
+      "synthesis_hint": "シーサーペントとクラーケンの合成で..."
+    },
+    "family": "aquatic"
+  },
+  "water_sprite": {
+    "name": "ウンディーネ",
+    "ai_role": "healer",
+    "rank": "B",
+    "element": "水",
+    "image_filename": "water_sprite.png",
+    "growth_type": "魔法型",
+    "trait": "mana_flow",
+    "stats": {
+      "hp": 55,
+      "mp": 60,
+      "attack": 18,
+      "defense": 20,
+      "speed": 28
+    },
+    "skills": [
+      "heal",
+      "ice_spear",
+      "cure"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "ice_crystal",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "8": [
+        "regen"
+      ],
+      "15": [
+        "mass_heal"
+      ]
+    },
+    "book": {
+      "description": "水の精霊。癒しの力に長けた美しい存在。",
+      "location_hint": "清らかな泉に出現",
+      "synthesis_hint": "マーメイドセイレーンと水属性素材の合成で..."
+    },
+    "family": "aquatic"
+  },
+  "clockwork_soldier": {
+    "name": "クロックワークソルジャー",
+    "ai_role": "defender",
+    "rank": "C",
+    "element": "無",
+    "image_filename": "clockwork_soldier.png",
+    "growth_type": "防御型",
+    "trait": "iron_wall",
+    "stats": {
+      "hp": 60,
+      "mp": 10,
+      "attack": 28,
+      "defense": 35,
+      "speed": 12
+    },
+    "skills": [
+      "counter_attack",
+      "guard_up"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "steel_ingot",
+        0.4
+      ]
+    ],
+    "learnset": {
+      "8": [
+        "stone_skin"
+      ]
+    },
+    "book": {
+      "description": "古代文明が生み出した機械兵士。忠実に命令を実行する。",
+      "location_hint": "古代遺跡に出現",
+      "synthesis_hint": ""
+    },
+    "family": "machine"
+  },
+  "war_machine": {
+    "name": "ウォーマシン",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "無",
+    "image_filename": "war_machine.png",
+    "growth_type": "パワー型",
+    "trait": "slow_starter",
+    "stats": {
+      "hp": 180,
+      "mp": 20,
+      "attack": 75,
+      "defense": 65,
+      "speed": 10
+    },
+    "skills": [
+      "body_slam",
+      "counter_attack",
+      "stone_skin"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "steel_ingot",
+        0.5
+      ],
+      [
+        "ancient_gear",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "15": [
+        "earth_quake"
+      ],
+      "25": [
+        "meteor_strike"
+      ]
+    },
+    "book": {
+      "description": "古代の超兵器。起動すると止められない。",
+      "location_hint": "古代遺跡の最深部に出現",
+      "synthesis_hint": "クロックワークソルジャーとアイアンジャガーノートの合成で..."
+    },
+    "family": "machine"
+  },
+  "mecha_dragon": {
+    "name": "メカドラゴン",
+    "ai_role": "attacker",
+    "rank": "S",
+    "element": "雷",
+    "image_filename": "mecha_dragon.png",
+    "growth_type": "大器晩成型",
+    "trait": "thunder_resist",
+    "stats": {
+      "hp": 220,
+      "mp": 50,
+      "attack": 90,
+      "defense": 70,
+      "speed": 30
+    },
+    "skills": [
+      "thunder_bolt",
+      "dragon_breath",
+      "meteor_strike",
+      "counter_attack"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "thunder_crystal",
+        0.3
+      ],
+      [
+        "ancient_gear",
+        0.3
+      ]
+    ],
+    "learnset": {},
+    "book": {
+      "description": "機械と竜が融合した究極兵器。雷と鋼の力を持つ。",
+      "location_hint": "特殊合成でのみ入手可能",
+      "synthesis_hint": "ウォーマシンとサンダードラゴンの合成で..."
+    },
+    "family": "machine"
+  },
+  "pixie": {
+    "name": "ピクシー",
+    "ai_role": "healer",
+    "rank": "D",
+    "element": "光",
+    "image_filename": "pixie.png",
+    "growth_type": "魔法型",
+    "trait": "mana_flow",
+    "stats": {
+      "hp": 20,
+      "mp": 35,
+      "attack": 8,
+      "defense": 5,
+      "speed": 25
+    },
+    "skills": [
+      "heal",
+      "cure"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "fairy_dust",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "5": [
+        "regen"
+      ],
+      "10": [
+        "mass_heal"
+      ]
+    },
+    "book": {
+      "description": "小さな妖精。癒しの魔法を使う。",
+      "location_hint": "花畑や泉に出現",
+      "synthesis_hint": ""
+    },
+    "family": "fairy"
+  },
+  "titania": {
+    "name": "ティターニア",
+    "ai_role": "healer",
+    "rank": "A",
+    "element": "光",
+    "image_filename": "titania.png",
+    "growth_type": "魔法型",
+    "trait": "regenerator",
+    "stats": {
+      "hp": 90,
+      "mp": 100,
+      "attack": 35,
+      "defense": 35,
+      "speed": 40
+    },
+    "skills": [
+      "mass_heal",
+      "revive",
+      "regen",
+      "holy_light"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "fairy_dust",
+        0.4
+      ],
+      [
+        "holy_crystal",
+        0.1
+      ]
+    ],
+    "learnset": {
+      "20": [
+        "cure"
+      ]
+    },
+    "book": {
+      "description": "妖精の女王。圧倒的な回復魔法と光の力を持つ。",
+      "location_hint": "妖精の森の奥に出現",
+      "synthesis_hint": "ピクシーとムーンリットドライアドの合成で..."
+    },
+    "family": "fairy"
+  },
+  "oberon": {
+    "name": "オベロン",
+    "ai_role": "balanced",
+    "rank": "A",
+    "element": "風",
+    "image_filename": "oberon.png",
+    "growth_type": "平均型",
+    "trait": "swift",
+    "stats": {
+      "hp": 100,
+      "mp": 80,
+      "attack": 50,
+      "defense": 40,
+      "speed": 50
+    },
+    "skills": [
+      "wind_slash",
+      "holy_light",
+      "speed_up",
+      "brave_song"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "fairy_dust",
+        0.3
+      ],
+      [
+        "wind_feather",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "15": [
+        "magic_boost"
+      ]
+    },
+    "book": {
+      "description": "妖精の王。風と光を操る高貴な存在。",
+      "location_hint": "妖精の森の奥に出現",
+      "synthesis_hint": "ピクシーとグリフォンの合成で..."
+    },
+    "family": "fairy"
+  },
+  "rock_golem": {
+    "name": "ロックゴーレム",
+    "ai_role": "defender",
+    "rank": "C",
+    "element": "土",
+    "image_filename": "rock_golem.png",
+    "growth_type": "防御型",
+    "trait": "thick_hide",
+    "stats": {
+      "hp": 70,
+      "mp": 5,
+      "attack": 30,
+      "defense": 40,
+      "speed": 5
+    },
+    "skills": [
+      "body_slam",
+      "stone_skin"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "steel_ingot",
+        0.4
+      ]
+    ],
+    "learnset": {
+      "8": [
+        "earth_quake"
+      ]
+    },
+    "book": {
+      "description": "岩石でできたゴーレム。防御力は高いが動きは遅い。",
+      "location_hint": "山岳地帯に出現",
+      "synthesis_hint": ""
+    },
+    "family": "mineral"
+  },
+  "crystal_golem": {
+    "name": "クリスタルゴーレム",
+    "ai_role": "defender",
+    "rank": "B",
+    "element": "光",
+    "image_filename": "crystal_golem.png",
+    "growth_type": "防御型",
+    "trait": "iron_wall",
+    "stats": {
+      "hp": 100,
+      "mp": 20,
+      "attack": 40,
+      "defense": 55,
+      "speed": 8
+    },
+    "skills": [
+      "body_slam",
+      "stone_skin",
+      "holy_light"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "holy_crystal",
+        0.15
+      ]
+    ],
+    "learnset": {
+      "12": [
+        "guard_up"
+      ],
+      "20": [
+        "counter_attack"
+      ]
+    },
+    "book": {
+      "description": "美しい結晶でできたゴーレム。光を屈折させて攻撃する。",
+      "location_hint": "結晶の洞窟に出現",
+      "synthesis_hint": "ロックゴーレムと光の結晶の合成で..."
+    },
+    "family": "mineral"
+  },
+  "diamond_titan": {
+    "name": "ダイヤモンドタイタン",
+    "ai_role": "defender",
+    "rank": "S",
+    "element": "光",
+    "image_filename": "diamond_titan.png",
+    "growth_type": "防御型",
+    "trait": "iron_wall",
+    "stats": {
+      "hp": 350,
+      "mp": 30,
+      "attack": 60,
+      "defense": 100,
+      "speed": 5
+    },
+    "skills": [
+      "body_slam",
+      "stone_skin",
+      "earth_quake",
+      "counter_attack",
+      "holy_light"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "holy_crystal",
+        0.2
+      ]
+    ],
+    "learnset": {},
+    "book": {
+      "description": "ダイヤモンドの体を持つ究極のゴーレム。あらゆる攻撃を弾く。",
+      "location_hint": "特殊合成でのみ入手可能",
+      "synthesis_hint": "クリスタルゴーレムとオブシディアンタイタンの合成で..."
+    },
+    "family": "mineral"
+  },
+  "elemental_fire": {
+    "name": "ファイアエレメンタル",
+    "ai_role": "attacker",
+    "rank": "C",
+    "element": "火",
+    "image_filename": "elemental_fire.png",
+    "growth_type": "魔法型",
+    "trait": "flame_body",
+    "stats": {
+      "hp": 40,
+      "mp": 40,
+      "attack": 35,
+      "defense": 10,
+      "speed": 20
+    },
+    "skills": [
+      "fireball"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "fire_crystal",
+        0.4
+      ]
+    ],
+    "learnset": {
+      "8": [
+        "meteor_strike"
+      ]
+    },
+    "book": {
+      "description": "炎が凝縮して生まれた精霊。触れるもの全てを焼く。",
+      "location_hint": "火山地帯に出現",
+      "synthesis_hint": ""
+    },
+    "family": "magic"
+  },
+  "elemental_ice": {
+    "name": "アイスエレメンタル",
+    "ai_role": "attacker",
+    "rank": "C",
+    "element": "氷",
+    "image_filename": "elemental_ice.png",
+    "growth_type": "魔法型",
+    "trait": "ice_resist",
+    "stats": {
+      "hp": 40,
+      "mp": 40,
+      "attack": 35,
+      "defense": 10,
+      "speed": 20
+    },
+    "skills": [
+      "ice_spear"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "ice_crystal",
+        0.4
+      ]
+    ],
+    "learnset": {
+      "8": [
+        "slow"
+      ]
+    },
+    "book": {
+      "description": "氷が凝縮して生まれた精霊。周囲を凍てつかせる。",
+      "location_hint": "雪原に出現",
+      "synthesis_hint": ""
+    },
+    "family": "magic"
+  },
+  "elemental_thunder": {
+    "name": "サンダーエレメンタル",
+    "ai_role": "attacker",
+    "rank": "C",
+    "element": "雷",
+    "image_filename": "elemental_thunder.png",
+    "growth_type": "魔法型",
+    "trait": "static",
+    "stats": {
+      "hp": 35,
+      "mp": 45,
+      "attack": 38,
+      "defense": 8,
+      "speed": 28
+    },
+    "skills": [
+      "thunder_bolt"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "thunder_crystal",
+        0.4
+      ]
+    ],
+    "learnset": {
+      "8": [
+        "paralysis_shock"
+      ]
+    },
+    "book": {
+      "description": "雷が凝縮して生まれた精霊。放電で敵を麻痺させる。",
+      "location_hint": "雷の平原に出現",
+      "synthesis_hint": ""
+    },
+    "family": "magic"
+  },
+  "grand_wizard": {
+    "name": "大魔導士",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "無",
+    "image_filename": "grand_wizard.png",
+    "growth_type": "魔法型",
+    "trait": "mana_flow",
+    "stats": {
+      "hp": 80,
+      "mp": 120,
+      "attack": 20,
+      "defense": 25,
+      "speed": 30
+    },
+    "skills": [
+      "fireball",
+      "ice_spear",
+      "thunder_bolt",
+      "meteor_strike"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "magic_stone",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "20": [
+        "magic_boost"
+      ],
+      "30": [
+        "mana_burn"
+      ]
+    },
+    "book": {
+      "description": "全属性の魔法を極めた大魔導士。あらゆる魔法を操る。",
+      "location_hint": "魔導士の塔の最上階に出現",
+      "synthesis_hint": "エルフ魔導士と各属性エレメンタルの合成で..."
+    },
+    "family": "magic"
+  },
+  "giant_spider": {
+    "name": "ジャイアントスパイダー",
+    "ai_role": "debuffer",
+    "rank": "C",
+    "element": "毒",
+    "image_filename": "giant_spider.png",
+    "growth_type": "スピード型",
+    "trait": "poison_body",
+    "stats": {
+      "hp": 45,
+      "mp": 20,
+      "attack": 28,
+      "defense": 15,
+      "speed": 30
+    },
+    "skills": [
+      "poison_dart",
+      "bite"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "poison_fang",
+        0.4
+      ]
+    ],
+    "learnset": {
+      "8": [
+        "sleep_spell"
+      ],
+      "12": [
+        "poison_cloud"
+      ]
+    },
+    "book": {
+      "description": "巨大な蜘蛛。糸で獲物を絡め取り、毒で仕留める。",
+      "location_hint": "洞窟や暗い森に出現",
+      "synthesis_hint": ""
+    },
+    "family": "insect"
+  },
+  "queen_bee": {
+    "name": "クイーンビー",
+    "ai_role": "balanced",
+    "rank": "B",
+    "element": "風",
+    "image_filename": "queen_bee.png",
+    "growth_type": "平均型",
+    "trait": "swift",
+    "stats": {
+      "hp": 65,
+      "mp": 35,
+      "attack": 35,
+      "defense": 20,
+      "speed": 38
+    },
+    "skills": [
+      "wind_slash",
+      "poison_dart",
+      "heal"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "honey",
+        0.4
+      ]
+    ],
+    "learnset": {
+      "10": [
+        "brave_song"
+      ]
+    },
+    "book": {
+      "description": "蜂の女王。風の刃と毒針で敵を攻撃し、仲間を鼓舞する。",
+      "location_hint": "花畑の大きな巣に出現",
+      "synthesis_hint": "エレクトロマンティスと風属性モンスターの合成で..."
+    },
+    "family": "insect"
+  },
+  "doom_scorpion": {
+    "name": "ドゥームスコーピオン",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "毒",
+    "image_filename": "doom_scorpion.png",
+    "growth_type": "パワー型",
+    "trait": "berserker",
+    "stats": {
+      "hp": 130,
+      "mp": 20,
+      "attack": 68,
+      "defense": 50,
+      "speed": 25
+    },
+    "skills": [
+      "poison_dart",
+      "bite",
+      "poison_cloud",
+      "counter_attack"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "poison_fang",
+        0.4
+      ],
+      [
+        "beast_fang",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "15": [
+        "stun_blow"
+      ]
+    },
+    "book": {
+      "description": "巨大な毒蠍。一撃で致命的な毒を注入する。",
+      "location_hint": "砂漠の遺跡に出現",
+      "synthesis_hint": "デザートスコーピオンとジャイアントスパイダーの合成で..."
+    },
+    "family": "insect"
+  },
+  "ninja": {
+    "name": "忍者",
+    "ai_role": "attacker",
+    "rank": "C",
+    "element": "風",
+    "image_filename": "ninja.png",
+    "growth_type": "スピード型",
+    "trait": "ambush",
+    "stats": {
+      "hp": 45,
+      "mp": 25,
+      "attack": 30,
+      "defense": 15,
+      "speed": 40
+    },
+    "skills": [
+      "blade_rush",
+      "speed_up",
+      "teleport"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "smoke_bomb",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "10": [
+        "stun_blow"
+      ],
+      "15": [
+        "poison_dart"
+      ]
+    },
+    "book": {
+      "description": "影に潜む暗殺者。素早い動きで先手を取る。",
+      "location_hint": "山岳地帯や忍びの里に出現",
+      "synthesis_hint": ""
+    },
+    "family": "humanoid"
+  },
+  "samurai": {
+    "name": "侍",
+    "ai_role": "attacker",
+    "rank": "B",
+    "element": "無",
+    "image_filename": "samurai.png",
+    "growth_type": "パワー型",
+    "trait": "fierce",
+    "stats": {
+      "hp": 80,
+      "mp": 20,
+      "attack": 50,
+      "defense": 30,
+      "speed": 28
+    },
+    "skills": [
+      "blade_rush",
+      "counter_attack",
+      "brave_song"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "steel_ingot",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "12": [
+        "power_up"
+      ],
+      "20": [
+        "roar"
+      ]
+    },
+    "book": {
+      "description": "武士道を極めた剣士。一撃の重さは比類ない。",
+      "location_hint": "武道場や古城に出現",
+      "synthesis_hint": "忍者とオークウォーリアの合成で..."
+    },
+    "family": "humanoid"
+  },
+  "dark_knight": {
+    "name": "暗黒騎士",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "闇",
+    "image_filename": "dark_knight.png",
+    "growth_type": "パワー型",
+    "trait": "life_steal",
+    "stats": {
+      "hp": 130,
+      "mp": 35,
+      "attack": 68,
+      "defense": 45,
+      "speed": 22
+    },
+    "skills": [
+      "blade_rush",
+      "dark_pulse",
+      "life_drain"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "dark_crystal",
+        0.3
+      ],
+      [
+        "steel_ingot",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "15": [
+        "demonize"
+      ],
+      "25": [
+        "counter_attack"
+      ]
+    },
+    "book": {
+      "description": "闇に堕ちた騎士。強大な力と引き換えに闇に魂を売った。",
+      "location_hint": "呪われた城に出現",
+      "synthesis_hint": "侍とレッサーデーモンの合成で..."
+    },
+    "family": "humanoid"
+  },
+  "hero": {
+    "name": "勇者",
+    "ai_role": "balanced",
+    "rank": "S",
+    "element": "光",
+    "image_filename": "hero.png",
+    "growth_type": "大器晩成型",
+    "trait": "last_stand",
+    "stats": {
+      "hp": 200,
+      "mp": 80,
+      "attack": 80,
+      "defense": 60,
+      "speed": 45
+    },
+    "skills": [
+      "blade_rush",
+      "holy_light",
+      "heal",
+      "brave_song",
+      "meteor_strike"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "holy_crystal",
+        0.2
+      ]
+    ],
+    "learnset": {},
+    "book": {
+      "description": "伝説の勇者。光と剣で全ての悪を打ち砕く。",
+      "location_hint": "特殊合成でのみ入手可能",
+      "synthesis_hint": "侍とティターニアの合成で..."
+    },
+    "family": "humanoid"
+  },
+  "mud_golem": {
+    "name": "マッドゴーレム",
+    "ai_role": "defender",
+    "rank": "D",
+    "element": "土",
+    "image_filename": "mud_golem.png",
+    "growth_type": "防御型",
+    "trait": "thick_hide",
+    "stats": {
+      "hp": 40,
+      "mp": 5,
+      "attack": 12,
+      "defense": 18,
+      "speed": 3
+    },
+    "skills": [
+      "body_slam"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "steel_ingot",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "3": [
+        "guard_up"
+      ]
+    },
+    "book": {
+      "description": "泥からできた簡素なゴーレム。攻撃力は低いが頑丈。",
+      "location_hint": "沼地に出現",
+      "synthesis_hint": ""
+    },
+    "family": "mineral"
+  },
+  "fire_wisp": {
+    "name": "ファイアウィスプ",
+    "ai_role": "attacker",
+    "rank": "D",
+    "element": "火",
+    "image_filename": "fire_wisp.png",
+    "growth_type": "魔法型",
+    "trait": "flame_body",
+    "stats": {
+      "hp": 18,
+      "mp": 25,
+      "attack": 15,
+      "defense": 5,
+      "speed": 22
+    },
+    "skills": [
+      "fireball"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "fire_crystal",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "5": [
+        "cure"
+      ]
+    },
+    "book": {
+      "description": "ふわふわ浮かぶ炎の精霊。小さいが火力は高い。",
+      "location_hint": "火山の麓に出現",
+      "synthesis_hint": ""
+    },
+    "family": "magic"
+  },
+  "ice_wisp": {
+    "name": "アイスウィスプ",
+    "ai_role": "attacker",
+    "rank": "D",
+    "element": "氷",
+    "image_filename": "ice_wisp.png",
+    "growth_type": "魔法型",
+    "trait": "ice_resist",
+    "stats": {
+      "hp": 18,
+      "mp": 25,
+      "attack": 15,
+      "defense": 5,
+      "speed": 22
+    },
+    "skills": [
+      "ice_spear"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "ice_crystal",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "5": [
+        "slow"
+      ]
+    },
+    "book": {
+      "description": "冷気を纏う小さな精霊。触れると凍える。",
+      "location_hint": "雪原に出現",
+      "synthesis_hint": ""
+    },
+    "family": "magic"
+  },
+  "kobold": {
+    "name": "コボルド",
+    "ai_role": "attacker",
+    "rank": "D",
+    "element": "無",
+    "image_filename": "kobold.png",
+    "growth_type": "平均型",
+    "trait": "scout_charm",
+    "stats": {
+      "hp": 22,
+      "mp": 10,
+      "attack": 12,
+      "defense": 8,
+      "speed": 15
+    },
+    "skills": [
+      "scratch",
+      "tackle"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "small_potion",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "3": [
+        "bite"
+      ]
+    },
+    "book": {
+      "description": "小さな犬頭の亜人。集団で行動する。",
+      "location_hint": "洞窟や鉱山に出現",
+      "synthesis_hint": ""
+    },
+    "family": "humanoid"
+  },
+  "ghost": {
+    "name": "ゴースト",
+    "ai_role": "debuffer",
+    "rank": "D",
+    "element": "闇",
+    "image_filename": "ghost.png",
+    "growth_type": "魔法型",
+    "trait": "status_guard",
+    "stats": {
+      "hp": 20,
+      "mp": 20,
+      "attack": 10,
+      "defense": 5,
+      "speed": 20
+    },
+    "skills": [
+      "curse",
+      "dark_pulse"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "dark_crystal",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "5": [
+        "sleep_spell"
+      ]
+    },
+    "book": {
+      "description": "さまよう魂。実体がないため物理攻撃が効きにくい。",
+      "location_hint": "墓地や廃墟に出現",
+      "synthesis_hint": ""
+    },
+    "family": "undead"
+  },
+  "cactus_warrior": {
+    "name": "サボテンウォーリア",
+    "ai_role": "defender",
+    "rank": "C",
+    "element": "土",
+    "image_filename": "cactus_warrior.png",
+    "growth_type": "防御型",
+    "trait": "poison_body",
+    "stats": {
+      "hp": 55,
+      "mp": 15,
+      "attack": 22,
+      "defense": 30,
+      "speed": 10
+    },
+    "skills": [
+      "counter_attack",
+      "poison_dart"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "herb",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "8": [
+        "stone_skin"
+      ]
+    },
+    "book": {
+      "description": "砂漠に立つ戦うサボテン。触れた者は棘で傷つく。",
+      "location_hint": "砂漠に出現",
+      "synthesis_hint": ""
+    },
+    "family": "plant"
+  },
+  "gargoyle": {
+    "name": "ガーゴイル",
+    "ai_role": "defender",
+    "rank": "B",
+    "element": "風",
+    "image_filename": "gargoyle.png",
+    "growth_type": "防御型",
+    "trait": "iron_wall",
+    "stats": {
+      "hp": 85,
+      "mp": 20,
+      "attack": 38,
+      "defense": 42,
+      "speed": 22
+    },
+    "skills": [
+      "wind_slash",
+      "stone_skin",
+      "counter_attack"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "steel_ingot",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "12": [
+        "guard_up"
+      ]
+    },
+    "book": {
+      "description": "石像に命が宿ったモンスター。夜になると動き出す。",
+      "location_hint": "古い城の外壁に出現",
+      "synthesis_hint": "ロックゴーレムとハーピーの合成で..."
+    },
+    "family": "mineral"
+  },
+  "dark_elf": {
+    "name": "ダークエルフ",
+    "ai_role": "attacker",
+    "rank": "B",
+    "element": "闇",
+    "image_filename": "dark_elf.png",
+    "growth_type": "魔法型",
+    "trait": "ambush",
+    "stats": {
+      "hp": 60,
+      "mp": 50,
+      "attack": 35,
+      "defense": 20,
+      "speed": 32
+    },
+    "skills": [
+      "dark_pulse",
+      "blade_rush",
+      "silence"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "dark_crystal",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "10": [
+        "curse"
+      ],
+      "15": [
+        "life_drain"
+      ]
+    },
+    "book": {
+      "description": "闇に堕ちたエルフ。魔法と暗殺術を使いこなす。",
+      "location_hint": "闇の森に出現",
+      "synthesis_hint": "エルフ魔導士と闇属性モンスターの合成で..."
+    },
+    "family": "humanoid"
+  },
+  "mimic": {
+    "name": "ミミック",
+    "ai_role": "attacker",
+    "rank": "C",
+    "element": "無",
+    "image_filename": "mimic.png",
+    "growth_type": "パワー型",
+    "trait": "ambush",
+    "stats": {
+      "hp": 50,
+      "mp": 10,
+      "attack": 35,
+      "defense": 25,
+      "speed": 15
+    },
+    "skills": [
+      "bite",
+      "stun_blow"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "gold_nugget",
+        0.5
+      ],
+      [
+        "small_potion",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "8": [
+        "counter_attack"
+      ]
+    },
+    "book": {
+      "description": "宝箱に擬態するモンスター。油断した冒険者を襲う。",
+      "location_hint": "ダンジョンの宝箱に出現",
+      "synthesis_hint": ""
+    },
+    "family": "magic"
+  },
+  "cerberus": {
+    "name": "ケルベロス",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "火",
+    "image_filename": "cerberus.png",
+    "growth_type": "パワー型",
+    "trait": "fierce",
+    "stats": {
+      "hp": 140,
+      "mp": 30,
+      "attack": 72,
+      "defense": 40,
+      "speed": 35
+    },
+    "skills": [
+      "fireball",
+      "bite",
+      "roar",
+      "dragon_breath"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "fire_crystal",
+        0.3
+      ],
+      [
+        "beast_fang",
+        0.3
+      ]
+    ],
+    "learnset": {
+      "20": [
+        "meteor_strike"
+      ]
+    },
+    "book": {
+      "description": "三つの首を持つ地獄の番犬。その炎は全てを焼き尽くす。",
+      "location_hint": "地獄の門に出現",
+      "synthesis_hint": "フレイムライオンとダイアウルフの合成で..."
+    },
+    "family": "beast"
+  },
+  "angel": {
+    "name": "エンジェル",
+    "ai_role": "healer",
+    "rank": "A",
+    "element": "光",
+    "image_filename": "angel.png",
+    "growth_type": "魔法型",
+    "trait": "regenerator",
+    "stats": {
+      "hp": 100,
+      "mp": 90,
+      "attack": 40,
+      "defense": 40,
+      "speed": 35
+    },
+    "skills": [
+      "holy_light",
+      "mass_heal",
+      "revive",
+      "cure"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "holy_crystal",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "15": [
+        "regen"
+      ]
+    },
+    "book": {
+      "description": "天界から降りた天使。聖なる光で全てを癒す。",
+      "location_hint": "聖域に出現",
+      "synthesis_hint": "スカイセラフと光属性モンスターの合成で..."
+    },
+    "family": "fairy"
+  },
+  "chimera": {
+    "name": "キマイラ",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "無",
+    "image_filename": "chimera.png",
+    "growth_type": "パワー型",
+    "trait": "berserker",
+    "stats": {
+      "hp": 150,
+      "mp": 35,
+      "attack": 70,
+      "defense": 45,
+      "speed": 30
+    },
+    "skills": [
+      "fireball",
+      "ice_spear",
+      "bite",
+      "dragon_breath"
+    ],
+    "skill_sets": [],
+    "drop_items": [
+      [
+        "beast_fang",
+        0.3
+      ],
+      [
+        "fire_crystal",
+        0.2
+      ]
+    ],
+    "learnset": {
+      "15": [
+        "roar"
+      ]
+    },
+    "book": {
+      "description": "獅子、山羊、蛇の合成獣。複数の属性攻撃を持つ。",
+      "location_hint": "古代遺跡に出現",
+      "synthesis_hint": "フレイムライオンとシーサーペントの合成で..."
+    },
+    "family": "beast"
   }
 }

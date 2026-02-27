@@ -5,6 +5,20 @@ from .monsters import Monster
 from .items.equipment import Equipment, EquipmentInstance, create_titled_equipment
 from .skills.skills import Skill, ALL_SKILLS
 from .skills.skill_actions import apply_effects
+from .weather import BattleWeather
+from .combo_system import ComboTracker, apply_combo_effect
+from .monsters.traits import (
+    apply_attack_trait,
+    apply_defense_trait,
+    check_on_hit_trait,
+    check_fatal_survive,
+    get_drain_percent,
+    get_regen_amount,
+    get_mp_regen,
+    get_status_resist,
+    get_exp_multiplier,
+    get_scout_bonus,
+)
 
 # Attribute compatibility multiplier definition
 ELEMENTAL_MULTIPLIERS = {
@@ -179,7 +193,13 @@ def defend(monster: Monster, log: List[Dict[str, str]]) -> None:
     apply_status(monster, "defending", log, 1)
     log.append({'type': 'info', 'message': f"{monster.name} は身を守っている！"})
 
-def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, str]] | None = None) -> int:
+def calculate_damage(
+    attacker: Monster,
+    defender: Monster,
+    log: List[Dict[str, str]] | None = None,
+    weather: BattleWeather | None = None,
+    turn_count: int = 0,
+) -> int:
     if log is None:
         log = []
     base = attacker.total_attack() - defender.total_defense()
@@ -195,6 +215,15 @@ def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, s
 
     damage = int(damage * multiplier)
 
+    # Weather damage modifier
+    if weather:
+        weather_mult = weather.get_damage_modifier(attacker.element)
+        damage = int(damage * weather_mult)
+        # Weather accuracy penalty
+        if weather.get_accuracy_penalty() > 0 and random.random() < weather.get_accuracy_penalty():
+            log.append({'type': 'info', 'message': f"天候の影響で {attacker.name} の攻撃が外れた！"})
+            return 0
+
     if random.random() < CRITICAL_HIT_CHANCE:
         damage = int(damage * CRITICAL_HIT_MULTIPLIER)
         log.append({'type': 'info', 'message': "クリティカルヒット！"})
@@ -205,6 +234,23 @@ def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, s
     if any(e["name"] == "evade" for e in defender.status_effects):
         log.append({'type': 'info', 'message': f"{defender.name} は攻撃を回避した！"})
         return 0
+
+    # Apply trait modifiers
+    attacker_trait = getattr(attacker, 'trait', None)
+    hp_ratio = attacker.hp / attacker.max_hp if attacker.max_hp > 0 else 1.0
+    damage = apply_attack_trait(
+        attacker_trait, damage,
+        turn_count=turn_count,
+        attacker_hp_ratio=hp_ratio,
+        is_first_strike=(turn_count <= 1),
+    )
+
+    defender_trait = getattr(defender, 'trait', None)
+    damage = apply_defense_trait(
+        defender_trait, damage,
+        attacker_element=attacker.element,
+        is_physical=True,
+    )
 
     return max(1, damage)
 
@@ -341,7 +387,16 @@ class Battle:
         self.current_actor: Optional[Monster] = None
         self.turn_order: List[Monster] = []
 
+        # New systems
+        self.weather = BattleWeather()
+        self.combo_tracker = ComboTracker()
+        self.initial_hp: Dict[str, int] = {}  # Track initial HP for no-damage achievement
+
         all_monsters = self.player_party + self.enemy_party
+
+        # Record initial HP for each player monster
+        for m in self.player_party:
+            self.initial_hp[m.unit_id] = m.hp
 
         if turn_order_monsters:
             self.turn_order = turn_order_monsters
@@ -416,16 +471,41 @@ class Battle:
                     return
 
             self.log.append({'type': 'info', 'message': f"{actor.name} attacks {target.name}!"})
-            damage = calculate_damage(actor, target, self.log)
+            damage = calculate_damage(actor, target, self.log, self.weather, self.turn_count)
             target.hp -= damage
             self.log.append({'type': 'info', 'message': f"{target.name} took {damage} damage! (HP: {max(0, target.hp)})"})
+
+            # Trait: life steal
+            drain_pct = get_drain_percent(getattr(actor, 'trait', None))
+            if drain_pct > 0 and damage > 0:
+                heal_amt = max(1, int(damage * drain_pct))
+                actor.hp = min(actor.max_hp, actor.hp + heal_amt)
+                self.log.append({'type': 'info', 'message': f"{actor.name} は {heal_amt} HP吸収した！"})
+
+            # Trait: fatal survive check
             if target.hp <= 0:
-                target.is_alive = False
-                self.log.append({'type': 'info', 'message': f"{target.name} fainted!"})
+                defender_trait = getattr(target, 'trait', None)
+                already = getattr(target, '_fatal_survive_triggered', False)
+                if check_fatal_survive(defender_trait, already):
+                    target.hp = 1
+                    target._fatal_survive_triggered = True
+                    self.log.append({'type': 'info', 'message': f"{target.name} の特性「不屈」が発動！ HP1で耐えた！"})
+                else:
+                    target.is_alive = False
+                    self.log.append({'type': 'info', 'message': f"{target.name} fainted!"})
             else:
+                # Trait: on-hit status (poison body, static, etc.)
+                on_hit = check_on_hit_trait(getattr(target, 'trait', None))
+                if on_hit and random.random() < on_hit[1]:
+                    from .monsters.traits import get_trait
+                    trait_data = get_trait(getattr(target, 'trait', None))
+                    trait_name = trait_data['name'] if trait_data else ''
+                    self.log.append({'type': 'info', 'message': f"{target.name} の特性「{trait_name}」が発動！"})
+                    apply_status(actor, on_hit[0], self.log)
+
                 if any(e["name"] == "counter_stance" for e in target.status_effects):
                     self.log.append({'type': 'info', 'message': f"{target.name} counters!"})
-                    counter_damage = calculate_damage(target, actor, self.log)
+                    counter_damage = calculate_damage(target, actor, self.log, self.weather, self.turn_count)
                     actor.hp -= counter_damage
                     self.log.append({'type': 'info', 'message': f"{actor.name} took {counter_damage} damage! (HP: {max(0, actor.hp)})"})
                     if actor.hp <= 0:
@@ -486,6 +566,17 @@ class Battle:
 
             if targets:
                 apply_skill_effect(actor, targets, skill_obj, self.log, self.player_party, self.enemy_party)
+                # Track combo
+                skill_id = getattr(skill_obj, 'skill_id', None) or getattr(skill_obj, 'name', '')
+                # Try to find skill_id from ALL_SKILLS
+                for sid, sobj in ALL_SKILLS.items():
+                    if sobj is skill_obj or getattr(sobj, 'name', '') == getattr(skill_obj, 'name', ''):
+                        skill_id = sid
+                        break
+                self.combo_tracker.record_skill(skill_id)
+                combo = self.combo_tracker.check_combo()
+                if combo:
+                    apply_combo_effect(combo, self.player_party, self.enemy_party, self.log)
             else:
                 self.log.append({'type': 'info', 'message': "No valid targets for skill."})
 
@@ -573,6 +664,14 @@ class Battle:
             self.finished = True
             self.outcome = "win"
             self.log.append({'type': 'info', 'message': "Enemy party defeated! Victory!"})
+
+            # Check if no damage was taken
+            no_damage = all(
+                m.hp >= self.initial_hp.get(m.unit_id, 0)
+                for m in self.player_party if m.is_alive
+            )
+            self.no_damage_win = no_damage
+
             award_experience(self.player_party, self.enemy_party, self.player, self.log)
 
     def get_current_state(self):
@@ -584,7 +683,9 @@ class Battle:
             'finished': self.finished,
             'outcome': self.outcome,
             'current_actor': self.current_actor.to_dict() if self.current_actor else None,
-            'turn_order': [m.to_dict() for m in self.turn_order]
+            'turn_order': [m.to_dict() for m in self.turn_order],
+            'weather': self.weather.to_dict(),
+            'combo_history': self.combo_tracker.to_dict(),
         }
 
     def advance_turn(self):
@@ -594,10 +695,45 @@ class Battle:
         self.turn_count += 1
         self.log.append({'type': 'info', 'message': f"--- Turn {self.turn_count} ---"})
 
+        # Process weather
+        self.weather.advance_turn(self.log)
+
         all_monsters = self.player_party + self.enemy_party
         for monster in all_monsters:
             if monster.is_alive:
                 monster.update_atb_gauge()
+
+                # Trait: HP regen
+                trait = getattr(monster, 'trait', None)
+                regen = get_regen_amount(trait, monster.max_hp)
+                if regen > 0:
+                    before = monster.hp
+                    monster.hp = min(monster.max_hp, monster.hp + regen)
+                    healed = monster.hp - before
+                    if healed > 0:
+                        self.log.append({'type': 'info', 'message': f"{monster.name} の特性で {healed} HP回復！"})
+
+                # Trait: MP regen
+                mp_regen = get_mp_regen(trait)
+                if mp_regen > 0:
+                    before_mp = monster.mp
+                    monster.mp = min(monster.max_mp, monster.mp + mp_regen)
+                    restored = monster.mp - before_mp
+                    if restored > 0:
+                        self.log.append({'type': 'info', 'message': f"{monster.name} の特性で MP{restored} 回復！"})
+
+                # Weather DOT damage
+                dot = self.weather.get_dot_damage(monster.max_hp, monster.element)
+                if dot > 0:
+                    monster.hp -= dot
+                    self.log.append({'type': 'info', 'message': f"天候のダメージで {monster.name} に {dot} ダメージ！"})
+                    if monster.hp <= 0:
+                        monster.is_alive = False
+                        self.log.append({'type': 'info', 'message': f"{monster.name} は倒れた！"})
+
+        self._check_battle_end()
+        if self.finished:
+            return
 
         self._update_turn_order()
 
@@ -792,6 +928,9 @@ def award_experience(alive_party: list[Monster], defeated_enemies: list[Monster]
         log.append({'type': 'info', 'message': "--- Experience Gained ---"})
         for idx, monster in enumerate(alive_monsters):
             share = base_share + (1 if idx < remainder else 0)
+            # Trait: EXP boost
+            exp_mult = get_exp_multiplier(getattr(monster, 'trait', None))
+            share = int(share * exp_mult)
             if share > 0:
                 monster.gain_exp(share)
     else:
@@ -805,6 +944,10 @@ def attempt_scout(player: Player | None, target: Monster, enemy_party: list[Mons
         return False
 
     rate = getattr(target, "scout_rate", 0.25)
+    # Apply scout charm trait bonus from any ally in the party
+    if player is not None:
+        for pm in getattr(player, 'party_monsters', []):
+            rate += get_scout_bonus(getattr(pm, 'trait', None))
     log.append({'type': 'info', 'message': f"Attempting to scout {target.name}..."})
 
     if random.random() < rate:

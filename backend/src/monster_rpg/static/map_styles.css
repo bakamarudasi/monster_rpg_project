@@ -1,167 +1,503 @@
+/* ============================================
+   MONSTER RPG - Map / Exploration Progress UI
+   Dark Fantasy Map Theme - Premium Edition
+   ============================================ */
+
 body {
-    background: linear-gradient(120deg, #d2ffe9 0%, #c3c9ff 100%);
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 40%, #120a24 70%, #0a0a1a 100%);
     font-family: 'Segoe UI', 'Arial', sans-serif;
-  }
-  .map-container {
+    color: #e8e8f0;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* Ambient particles */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        radial-gradient(1px 1px at 20% 35%, rgba(255, 215, 0, 0.08), transparent),
+        radial-gradient(1.5px 1.5px at 60% 70%, rgba(155, 89, 182, 0.06), transparent),
+        radial-gradient(1px 1px at 80% 25%, rgba(52, 152, 219, 0.05), transparent),
+        radial-gradient(1px 1px at 40% 85%, rgba(46, 204, 113, 0.04), transparent);
+    background-size: 280px 280px, 350px 350px, 320px 320px, 400px 400px;
+    animation: map-particles 30s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+body > * {
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes map-particles {
+    0%, 100% { transform: translateY(0) translateX(0); }
+    50% { transform: translateY(-12px) translateX(6px); }
+}
+
+/* === Map Container === */
+.map-container {
     max-width: 520px;
     margin: 40px auto;
-    background: rgba(255,255,255,0.95);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(50,70,160,0.13);
+    background: linear-gradient(180deg, #12122a 0%, #0d0d28 50%, #12122a 100%);
+    border-radius: 12px;
+    border: 2px solid rgba(74, 74, 122, 0.4);
+    box-shadow:
+        0 8px 40px rgba(0, 0, 0, 0.6),
+        0 0 30px rgba(155, 89, 182, 0.1),
+        0 0 60px rgba(0, 128, 255, 0.05),
+        inset 0 0 30px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
     padding: 24px 22px 32px 22px;
     text-align: center;
-  }
-  h2, h3 {
-    color: #2d355e;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.5s ease, border-color 0.5s ease;
+    animation: map-container-enter 0.5s ease-out;
+}
+
+@keyframes map-container-enter {
+    0% {
+        opacity: 0;
+        transform: translateY(16px) scale(0.97);
+    }
+    60% {
+        opacity: 1;
+        transform: translateY(-2px) scale(1.005);
+    }
+    100% {
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Animated border sweep */
+.map-container::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 14px;
+    background: linear-gradient(45deg,
+        transparent 25%,
+        rgba(155, 89, 182, 0.12) 45%,
+        rgba(255, 215, 0, 0.06) 50%,
+        rgba(155, 89, 182, 0.12) 55%,
+        transparent 75%
+    );
+    background-size: 200% 200%;
+    animation: map-border-sweep 7s ease-in-out infinite;
+    z-index: -1;
+}
+
+@keyframes map-border-sweep {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.map-container:hover {
+    box-shadow:
+        0 10px 50px rgba(0, 0, 0, 0.7),
+        0 0 40px rgba(155, 89, 182, 0.15),
+        0 0 80px rgba(0, 128, 255, 0.08),
+        inset 0 0 30px rgba(0, 0, 0, 0.2);
+    border-color: rgba(100, 100, 160, 0.5);
+}
+
+/* === Headings === */
+h2, h3 {
+    color: #ffd700;
     letter-spacing: 1px;
     margin-bottom: 12px;
-  }
-  /* CSS Grid for map */
-  .map-grid {
+    text-shadow:
+        0 0 10px rgba(255, 215, 0, 0.3),
+        0 0 25px rgba(255, 215, 0, 0.1),
+        1px 1px 3px #000;
+    transition: text-shadow 0.3s ease;
+}
+
+h2:hover, h3:hover {
+    text-shadow:
+        0 0 15px rgba(255, 215, 0, 0.45),
+        0 0 35px rgba(255, 215, 0, 0.18),
+        1px 1px 3px #000;
+}
+
+/* === CSS Grid for Map === */
+.map-grid {
     display: grid;
     grid-gap: 4px;
     margin: 0 auto 24px auto;
     width: 100%;
-  }
-  .map-cell {
-    background: #e9eefa;
-    border: 1px solid #cbd2ff;
+}
+
+/* === Map Cell === */
+.map-cell {
+    background: linear-gradient(135deg, #1a1a35 0%, #15152d 100%);
+    border: 1px solid rgba(74, 74, 122, 0.3);
     border-radius: 4px;
     font-size: 0.9rem;
-    color: #2d355e;
+    color: #c0c0d8;
     padding: 8px 4px;
     text-align: center;
     cursor: pointer;
     opacity: 0;
     transform: scale(0.8);
-    transition: background 0.2s ease, transform 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-  }
-  .map-cell.empty {
+}
+
+/* Subtle inner glow on cells */
+.map-cell::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 3px;
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+    transition: box-shadow 0.3s ease;
+}
+
+.map-cell.empty {
     background: transparent;
     border: none;
     cursor: default;
-  }
-  .map-cell.current {
-    background: #ffe8b6;
-    font-weight: bold;
-    border-color: #f4c242;
-  }
-  .map-cell.visited {
-    background: #d7ffd9;
-    border-color: #9be29c;
-  }
-  .map-cell:hover:not(.empty) {
-    background: #cce4f6;
-    transform: scale(1.05);
-  }
+    box-shadow: none;
+}
 
-  .legend {
+.map-cell.empty::before {
+    display: none;
+}
+
+/* Current location - golden glow */
+.map-cell.current {
+    background: linear-gradient(135deg, #2e2400 0%, #3a2e00 50%, #2e2400 100%);
+    font-weight: bold;
+    border-color: rgba(255, 215, 0, 0.5);
+    color: #ffd700;
+    text-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
+    box-shadow:
+        0 0 10px rgba(255, 215, 0, 0.15),
+        inset 0 0 12px rgba(255, 215, 0, 0.05);
+    animation: current-cell-pulse 3s ease-in-out infinite;
+}
+
+@keyframes current-cell-pulse {
+    0%, 100% {
+        box-shadow: 0 0 8px rgba(255, 215, 0, 0.12), inset 0 0 10px rgba(255, 215, 0, 0.04);
+        border-color: rgba(255, 215, 0, 0.45);
+    }
+    50% {
+        box-shadow: 0 0 16px rgba(255, 215, 0, 0.25), inset 0 0 15px rgba(255, 215, 0, 0.08);
+        border-color: rgba(255, 215, 0, 0.65);
+    }
+}
+
+/* Visited location - soft purple/green */
+.map-cell.visited {
+    background: linear-gradient(135deg, #0d1a20 0%, #0f2018 100%);
+    border-color: rgba(46, 204, 113, 0.25);
+    color: #a8d8b8;
+}
+
+.map-cell.visited::before {
+    box-shadow: inset 0 0 6px rgba(46, 204, 113, 0.05);
+}
+
+/* Hover effect */
+.map-cell:hover:not(.empty) {
+    background: linear-gradient(135deg, #1e1e40 0%, #252548 100%);
+    transform: scale(1.06);
+    border-color: rgba(155, 89, 182, 0.5);
+    box-shadow: 0 0 12px rgba(155, 89, 182, 0.15);
+    color: #e0e0f0;
+    z-index: 2;
+}
+
+.map-cell:hover:not(.empty)::before {
+    box-shadow: inset 0 0 10px rgba(155, 89, 182, 0.08);
+}
+
+.map-cell.current:hover {
+    background: linear-gradient(135deg, #3a3000 0%, #443800 50%, #3a3000 100%);
+    box-shadow: 0 0 18px rgba(255, 215, 0, 0.25);
+    border-color: rgba(255, 215, 0, 0.7);
+}
+
+/* === Legend === */
+.legend {
     margin-bottom: 12px;
     font-size: 0.85rem;
-    color: #2d355e;
+    color: #a0a0c0;
     text-align: left;
-  }
-  .legend .box {
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    border: 1px solid rgba(74, 74, 122, 0.15);
+}
+
+.legend .box {
     display: inline-block;
     width: 14px;
     height: 14px;
     margin-right: 4px;
     border-radius: 3px;
-    border: 1px solid #cbd2ff;
+    border: 1px solid rgba(74, 74, 122, 0.3);
     vertical-align: middle;
-  }
-  .legend .box.visited {
-    background: #d7ffd9;
-    border-color: #9be29c;
-  }
-  .legend .box.current {
-    background: #ffe8b6;
-    border-color: #f4c242;
-  }
+    transition: all 0.2s ease;
+}
 
-  /* Tooltip */
-  .map-cell.tooltip:hover::after {
+.legend .box.visited {
+    background: linear-gradient(135deg, #0d1a20 0%, #0f2018 100%);
+    border-color: rgba(46, 204, 113, 0.3);
+    box-shadow: 0 0 4px rgba(46, 204, 113, 0.15);
+}
+
+.legend .box.current {
+    background: linear-gradient(135deg, #2e2400 0%, #3a2e00 100%);
+    border-color: rgba(255, 215, 0, 0.4);
+    box-shadow: 0 0 4px rgba(255, 215, 0, 0.15);
+}
+
+/* === Tooltip === */
+.map-cell.tooltip:hover::after {
     content: attr(data-tooltip);
     position: absolute;
     bottom: 110%;
     left: 50%;
-    transform: translateX(-50%);
-    background: rgba(45,53,94,0.9);
-    color: #fff;
-    padding: 4px 8px;
-    border-radius: 4px;
+    transform: translateX(-50%) translateY(0);
+    background: linear-gradient(180deg, rgba(20, 10, 40, 0.96) 0%, rgba(10, 10, 30, 0.96) 100%);
+    color: #e8e8f0;
+    padding: 6px 10px;
+    border-radius: 5px;
     font-size: 0.8rem;
     white-space: nowrap;
     pointer-events: none;
     z-index: 10;
-  }
+    border: 1px solid rgba(155, 89, 182, 0.3);
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.5),
+        0 0 8px rgba(155, 89, 182, 0.1);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    animation: tooltip-appear 0.2s ease-out;
+}
 
-  /* Exploration list */
-  .progress-list {
+@keyframes tooltip-appear {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(4px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* === Exploration Progress List === */
+.progress-list {
     list-style: none;
     padding: 0;
     margin: 0 0 28px 0;
-  }
-  .progress-item {
+}
+
+.progress-item {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 16px;
-    background: #f2f5fc;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, rgba(20, 20, 40, 0.8) 0%, rgba(15, 15, 35, 0.8) 100%);
     border-radius: 8px;
-    padding: 8px 12px;
-    box-shadow: 0 1px 6px #b5b3e626;
-  }
-  .loc-name {
+    padding: 10px 14px;
+    border: 1px solid rgba(74, 74, 122, 0.2);
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-item:hover {
+    background: linear-gradient(135deg, rgba(25, 25, 50, 0.9) 0%, rgba(20, 20, 45, 0.9) 100%);
+    border-color: rgba(155, 89, 182, 0.25);
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        0 0 8px rgba(155, 89, 182, 0.08);
+    transform: translateX(3px);
+}
+
+/* === Location Name === */
+.loc-name {
     flex: 0 0 100px;
     font-weight: bold;
-    color: #52518f;
-    letter-spacing: .5px;
+    color: #c39bd3;
+    letter-spacing: 0.5px;
     text-align: left;
     font-size: 0.95rem;
-  }
-  .progress-bar {
+    text-shadow: 0 0 4px rgba(155, 89, 182, 0.2);
+    transition: color 0.3s ease;
+}
+
+.progress-item:hover .loc-name {
+    color: #d7b8e6;
+    text-shadow: 0 0 8px rgba(155, 89, 182, 0.3);
+}
+
+/* === Progress Bar === */
+.progress-bar {
     flex: 1 1 auto;
-    background: #dde5fb;
+    background: linear-gradient(180deg, #1a1a35 0%, #15152d 100%);
     border-radius: 7px;
     height: 18px;
     margin: 0 8px;
     overflow: hidden;
-    box-shadow: 0 1px 3px #b5b3e615;
+    box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.4),
+        0 1px 0 rgba(255, 255, 255, 0.02);
     position: relative;
-  }
-  .progress-fill {
-    background: linear-gradient(90deg, #5fffc2, #5e92fa 70%);
+    border: 1px solid rgba(74, 74, 122, 0.2);
+}
+
+.progress-fill {
+    background: linear-gradient(90deg, #9b59b6 0%, #3498db 50%, #2ecc71 100%);
     height: 100%;
-    border-radius: 7px 0 0 7px;
+    border-radius: 6px 0 0 6px;
     width: 0%;
-    transition: width 1s ease-in-out;
-  }
-  .progress-percent {
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    box-shadow: 0 0 8px rgba(155, 89, 182, 0.3);
+}
+
+/* Shimmer on progress fill */
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.15), transparent);
+    border-radius: 6px 0 0 0;
+}
+
+/* Animated glow at the leading edge */
+.progress-fill::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -2px;
+    width: 6px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 0 3px 3px 0;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+    filter: blur(1px);
+}
+
+/* === Progress Percentage === */
+.progress-percent {
     flex: 0 0 50px;
-    color: #377e6a;
-    font-weight: 500;
+    color: #2ecc71;
+    font-weight: 600;
     text-align: right;
     font-variant-numeric: tabular-nums;
     font-size: 0.9rem;
-  }
-  .back-btn {
+    text-shadow: 0 0 4px rgba(46, 204, 113, 0.2);
+    transition: color 0.3s ease;
+}
+
+.progress-item:hover .progress-percent {
+    color: #58d68d;
+    text-shadow: 0 0 8px rgba(46, 204, 113, 0.3);
+}
+
+/* === Back Button === */
+.back-btn {
     display: inline-block;
     margin-top: 10px;
     padding: 10px 38px;
-    background: linear-gradient(90deg,#42e695,#5e92fa 60%);
-    color: #fff;
-    border: none;
+    background: linear-gradient(135deg, #2d1b4e 0%, #1a1a2e 50%, #0d2238 100%);
+    color: #e8e8f0;
+    border: 1px solid rgba(155, 89, 182, 0.4);
     border-radius: 8px;
     font-weight: bold;
     font-size: 1rem;
     letter-spacing: 1px;
-    box-shadow: 0 2px 8px rgba(66,150,225,0.11);
+    box-shadow:
+        0 2px 12px rgba(0, 0, 0, 0.4),
+        0 0 10px rgba(155, 89, 182, 0.1);
     text-decoration: none;
-    transition: background .22s, box-shadow .22s;
-  }
-  .back-btn:hover {
-    background: linear-gradient(90deg,#5e92fa,#42e695 60%);
-    box-shadow: 0 4px 16px rgba(66,150,225,0.19);
-  }
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+/* Shimmer sweep */
+.back-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(155, 89, 182, 0.12), transparent);
+    transition: left 0.5s ease;
+}
+
+.back-btn:hover {
+    background: linear-gradient(135deg, #3d2b5e 0%, #2a2a4e 50%, #1a3050 100%);
+    border-color: rgba(155, 89, 182, 0.6);
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.5),
+        0 0 18px rgba(155, 89, 182, 0.2);
+    transform: translateY(-2px) scale(1.02);
+    color: #fff;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.15);
+}
+
+.back-btn:hover::before {
+    left: 100%;
+}
+
+.back-btn:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+    transition: all 0.08s ease;
+}
+
+/* === Staggered entrance for progress items === */
+@media (prefers-reduced-motion: no-preference) {
+    .progress-item {
+        animation: progress-item-enter 0.4s ease-out both;
+    }
+
+    .progress-item:nth-child(1) { animation-delay: 0.05s; }
+    .progress-item:nth-child(2) { animation-delay: 0.1s; }
+    .progress-item:nth-child(3) { animation-delay: 0.15s; }
+    .progress-item:nth-child(4) { animation-delay: 0.2s; }
+    .progress-item:nth-child(5) { animation-delay: 0.25s; }
+    .progress-item:nth-child(6) { animation-delay: 0.3s; }
+    .progress-item:nth-child(7) { animation-delay: 0.35s; }
+    .progress-item:nth-child(8) { animation-delay: 0.4s; }
+    .progress-item:nth-child(9) { animation-delay: 0.45s; }
+    .progress-item:nth-child(10) { animation-delay: 0.5s; }
+}
+
+@keyframes progress-item-enter {
+    0% {
+        opacity: 0;
+        transform: translateX(-12px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}

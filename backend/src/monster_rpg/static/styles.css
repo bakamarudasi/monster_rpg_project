@@ -1,44 +1,718 @@
+/* ============================================
+   MONSTER RPG - Global Styles
+   Dark Fantasy Theme - Premium Edition
+   ============================================ */
+
+/* --- CSS Custom Properties --- */
+:root {
+    --bg-dark: #0a0a1a;
+    --bg-panel: #1a1a2e;
+    --bg-deep: #0d0d20;
+    --gold: #ffd700;
+    --gold-dim: #f0c040;
+    --gold-bright: #ffe44d;
+    --magic-purple: #9b59b6;
+    --magic-purple-light: #c39bd3;
+    --fire-red: #e74c3c;
+    --fire-red-bright: #ff5252;
+    --ice-blue: #3498db;
+    --ice-blue-bright: #5dade2;
+    --heal-green: #2ecc71;
+    --heal-green-bright: #58d68d;
+    --text-primary: #e8e8f0;
+    --text-secondary: #a0a0c0;
+    --border-glow: rgba(155, 89, 182, 0.4);
+    --shadow-purple: rgba(155, 89, 182, 0.3);
+    --shadow-gold: rgba(255, 215, 0, 0.3);
+    --shadow-blue: rgba(52, 152, 219, 0.3);
+    --shadow-red: rgba(231, 76, 60, 0.3);
+    --shadow-green: rgba(46, 204, 113, 0.3);
+    --transition-fast: 0.2s ease;
+    --transition-med: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Global Reset & Base --- */
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Arial, sans-serif;
     margin: 0;
     padding: 1rem;
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 40%, #0d0d20 100%);
+    color: var(--text-primary);
+    min-height: 100vh;
 }
+
+/* Subtle animated background particles */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        radial-gradient(2px 2px at 20% 30%, rgba(155, 89, 182, 0.18), transparent),
+        radial-gradient(2px 2px at 40% 70%, rgba(52, 152, 219, 0.14), transparent),
+        radial-gradient(1px 1px at 60% 20%, rgba(255, 215, 0, 0.12), transparent),
+        radial-gradient(2px 2px at 80% 50%, rgba(155, 89, 182, 0.12), transparent),
+        radial-gradient(1px 1px at 10% 80%, rgba(52, 152, 219, 0.1), transparent),
+        radial-gradient(1px 1px at 70% 90%, rgba(255, 215, 0, 0.1), transparent),
+        radial-gradient(1.5px 1.5px at 50% 50%, rgba(155, 89, 182, 0.08), transparent),
+        radial-gradient(1px 1px at 85% 15%, rgba(231, 76, 60, 0.06), transparent);
+    background-size: 300px 300px, 400px 400px, 350px 350px, 250px 250px, 450px 450px, 320px 320px, 500px 500px, 380px 380px;
+    animation: particle-drift 30s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Secondary particle layer for depth */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        radial-gradient(1px 1px at 30% 40%, rgba(255, 215, 0, 0.06), transparent),
+        radial-gradient(1.5px 1.5px at 60% 80%, rgba(155, 89, 182, 0.05), transparent),
+        radial-gradient(1px 1px at 80% 20%, rgba(52, 152, 219, 0.04), transparent);
+    background-size: 600px 600px, 500px 500px, 700px 700px;
+    animation: particle-drift-slow 50s linear infinite reverse;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.7;
+}
+
+body > * {
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes particle-drift {
+    0% { transform: translateY(0) translateX(0); }
+    25% { transform: translateY(-12px) translateX(6px); }
+    50% { transform: translateY(-20px) translateX(10px); }
+    75% { transform: translateY(-8px) translateX(4px); }
+    100% { transform: translateY(0) translateX(0); }
+}
+
+@keyframes particle-drift-slow {
+    0% { transform: translateY(0) translateX(0) rotate(0deg); }
+    50% { transform: translateY(-15px) translateX(-8px) rotate(0.5deg); }
+    100% { transform: translateY(0) translateX(0) rotate(0deg); }
+}
+
+/* --- Header --- */
 header {
-    background-color: #444;
+    background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 50%, #1a1a2e 100%);
     color: white;
-    padding: 1rem;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    border: 1px solid rgba(155, 89, 182, 0.3);
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.5),
+        0 0 15px var(--shadow-purple),
+        0 0 40px rgba(155, 89, 182, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow var(--transition-med), border-color var(--transition-med);
 }
+
+header:hover {
+    box-shadow:
+        0 6px 28px rgba(0, 0, 0, 0.6),
+        0 0 25px var(--shadow-purple),
+        0 0 60px rgba(155, 89, 182, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    border-color: rgba(155, 89, 182, 0.5);
+}
+
+header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(155, 89, 182, 0.06), rgba(255, 215, 0, 0.03), transparent);
+    animation: header-shimmer 8s ease-in-out infinite;
+}
+
+@keyframes header-shimmer {
+    0%, 100% { transform: translateX(-50%); }
+    50% { transform: translateX(50%); }
+}
+
+header h1, header h2, header h3 {
+    text-shadow:
+        0 0 10px var(--shadow-gold),
+        0 0 20px rgba(255, 215, 0, 0.15),
+        0 0 40px rgba(255, 215, 0, 0.06);
+    color: var(--gold);
+    letter-spacing: 0.5px;
+}
+
+/* --- Main Content --- */
 main {
     margin-top: 1rem;
 }
+
+/* --- Buttons (Global) --- */
 button {
     margin-top: 0.5rem;
+    background: linear-gradient(135deg, #2d1b4e 0%, #1a1a2e 100%);
+    color: var(--text-primary);
+    border: 1px solid rgba(155, 89, 182, 0.4);
+    border-radius: 6px;
+    padding: 0.5rem 1.2rem;
+    font-family: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all var(--transition-med);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    letter-spacing: 0.3px;
 }
 
-/* Battle log styles */
+button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(155, 89, 182, 0.15), transparent);
+    transition: left 0.5s ease;
+}
+
+button:hover {
+    transform: translateY(-2px) scale(1.02);
+    border-color: var(--magic-purple);
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.4),
+        0 0 15px var(--shadow-purple),
+        0 0 30px rgba(155, 89, 182, 0.1);
+    background: linear-gradient(135deg, #3d2b5e 0%, #2a2a4e 100%);
+    color: #fff;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.15);
+}
+
+button:hover::before {
+    left: 100%;
+}
+
+button:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    transition: all 0.1s ease;
+}
+
+button:focus-visible {
+    outline: 2px solid var(--magic-purple);
+    outline-offset: 2px;
+}
+
+/* --- Links --- */
+a {
+    color: var(--ice-blue);
+    text-decoration: none;
+    transition: all var(--transition-med);
+    position: relative;
+}
+
+a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--ice-blue), var(--ice-blue-bright));
+    transition: width var(--transition-med);
+}
+
+a:hover {
+    color: var(--ice-blue-bright);
+    text-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
+}
+
+a:hover::after {
+    width: 100%;
+}
+
+/* --- Headings --- */
+h1, h2, h3, h4 {
+    color: var(--gold);
+    text-shadow:
+        0 0 8px rgba(255, 215, 0, 0.2),
+        0 2px 4px rgba(0, 0, 0, 0.5);
+    transition: text-shadow var(--transition-med);
+    letter-spacing: 0.5px;
+}
+
+h1:hover, h2:hover, h3:hover, h4:hover {
+    text-shadow:
+        0 0 12px rgba(255, 215, 0, 0.35),
+        0 0 25px rgba(255, 215, 0, 0.12),
+        0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* --- Cards/Panels (Generic) --- */
+.card, .panel, [class*="container"] {
+    transition: all var(--transition-med);
+}
+
+/* ============================================
+   Battle Log Styles
+   ============================================ */
 .battle-log p,
 ul.log li {
     margin: 5px 0;
     transition: all 0.3s ease;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border-left: 3px solid transparent;
+}
+
+.battle-log p:hover,
+ul.log li:hover {
+    background: rgba(255, 255, 255, 0.03);
 }
 
 .log-message-player_damage {
-    color: #ff4d4d;
+    color: var(--fire-red);
     font-weight: bold;
     font-size: 1.1em;
     animation: damage-flash 0.6s ease-out;
+    text-shadow: 0 0 6px rgba(231, 76, 60, 0.4);
+    border-left-color: var(--fire-red);
+}
+
+.log-message-enemy_damage {
+    color: #ff6b6b;
+    font-weight: bold;
+    animation: damage-flash 0.6s ease-out;
+    text-shadow: 0 0 6px rgba(255, 107, 107, 0.3);
+    border-left-color: #ff6b6b;
 }
 
 .log-message-player_attack {
     color: #ffffff;
+    text-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
+    border-left-color: rgba(255, 255, 255, 0.3);
+}
+
+.log-message-heal {
+    color: var(--heal-green);
+    font-weight: bold;
+    animation: heal-glow 0.8s ease-out;
+    text-shadow: 0 0 8px rgba(46, 204, 113, 0.4);
+    border-left-color: var(--heal-green);
 }
 
 .log-message-info {
-    color: #a0a0a0;
+    color: var(--text-secondary);
+    border-left-color: rgba(160, 160, 192, 0.2);
 }
 
+.log-message-critical {
+    color: var(--gold);
+    font-weight: bold;
+    font-size: 1.15em;
+    animation: critical-hit 0.8s ease-out;
+    text-shadow: 0 0 10px var(--shadow-gold);
+    border-left-color: var(--gold);
+}
+
+.log-message-level_up {
+    color: var(--gold);
+    font-weight: bold;
+    font-size: 1.2em;
+    animation: level-up-celebration 1.2s ease-out;
+    text-shadow: 0 0 15px var(--shadow-gold), 0 0 30px rgba(255, 215, 0, 0.2);
+    border-left-color: var(--gold);
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.06), transparent) !important;
+}
+
+.log-message-combo {
+    color: var(--magic-purple);
+    font-weight: bold;
+    font-size: 1.15em;
+    animation: combo-flash 0.6s ease-out;
+    text-shadow: 0 0 10px var(--shadow-purple);
+    border-left-color: var(--magic-purple);
+    background: linear-gradient(90deg, rgba(155, 89, 182, 0.06), transparent) !important;
+}
+
+/* ============================================
+   Keyframe Animations
+   ============================================ */
+
+/* Damage flash - red burst with shake */
 @keyframes damage-flash {
+    0% {
+        transform: scale(1) translateX(0);
+        background-color: transparent;
+    }
+    10% {
+        transform: scale(1.08) translateX(-4px);
+    }
+    20% {
+        transform: scale(1.06) translateX(4px);
+        background-color: rgba(231, 76, 60, 0.18);
+    }
+    30% {
+        transform: scale(1.06) translateX(-2px);
+    }
+    50% {
+        transform: scale(1.05);
+        text-shadow: 0 0 15px rgba(255, 60, 60, 0.9), 0 0 30px rgba(255, 60, 60, 0.4);
+    }
+    70% {
+        background-color: rgba(231, 76, 60, 0.06);
+    }
+    100% {
+        transform: scale(1);
+        background-color: transparent;
+    }
+}
+
+/* Heal glow - green pulse with rising particles feel */
+@keyframes heal-glow {
+    0% {
+        transform: scale(1);
+        background-color: transparent;
+    }
+    20% {
+        background-color: rgba(46, 204, 113, 0.12);
+    }
+    40% {
+        background-color: rgba(46, 204, 113, 0.18);
+        text-shadow: 0 0 15px rgba(46, 204, 113, 0.7);
+    }
+    60% {
+        transform: scale(1.03);
+        text-shadow: 0 0 25px rgba(46, 204, 113, 0.9), 0 0 40px rgba(46, 204, 113, 0.3);
+    }
+    80% {
+        background-color: rgba(46, 204, 113, 0.06);
+    }
+    100% {
+        transform: scale(1);
+        background-color: transparent;
+    }
+}
+
+/* Level up celebration - golden burst with starburst */
+@keyframes level-up-celebration {
+    0% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+    10% {
+        transform: scale(1.05);
+    }
+    20% {
+        transform: scale(1.18);
+        filter: brightness(1.6);
+        text-shadow: 0 0 25px rgba(255, 215, 0, 1), 0 0 50px rgba(255, 215, 0, 0.5);
+    }
+    35% {
+        transform: scale(1.1);
+        background-color: rgba(255, 215, 0, 0.12);
+    }
+    50% {
+        transform: scale(1.14);
+        filter: brightness(1.4);
+    }
+    65% {
+        transform: scale(1.08);
+        background-color: rgba(255, 215, 0, 0.06);
+    }
+    80% {
+        transform: scale(1.04);
+        filter: brightness(1.15);
+    }
+    100% {
+        transform: scale(1);
+        filter: brightness(1);
+        background-color: transparent;
+    }
+}
+
+/* Combo trigger flash - purple burst with energy wave */
+@keyframes combo-flash {
+    0% {
+        transform: scale(1);
+        background-color: transparent;
+    }
+    15% {
+        transform: scale(1.08);
+        background-color: rgba(155, 89, 182, 0.15);
+    }
+    30% {
+        transform: scale(1.12);
+        background-color: rgba(155, 89, 182, 0.25);
+        text-shadow: 0 0 20px rgba(155, 89, 182, 0.9), 0 0 40px rgba(155, 89, 182, 0.4);
+    }
+    50% {
+        transform: scale(1.06);
+        filter: brightness(1.4);
+    }
+    75% {
+        background-color: rgba(155, 89, 182, 0.05);
+    }
+    100% {
+        transform: scale(1);
+        background-color: transparent;
+        filter: brightness(1);
+    }
+}
+
+/* Critical hit - golden shake with impact */
+@keyframes critical-hit {
     0% { transform: scale(1); }
-    50% { transform: scale(1.05); text-shadow: 0 0 8px rgba(255,255,255,0.8); }
+    8% { transform: scale(1.18) rotate(-3deg); }
+    16% { transform: scale(1.15) rotate(3deg); }
+    24% { transform: scale(1.12) rotate(-2deg); }
+    32% { transform: scale(1.1) rotate(1deg); }
+    50% {
+        transform: scale(1.08);
+        text-shadow: 0 0 20px rgba(255, 215, 0, 1), 0 0 40px rgba(255, 215, 0, 0.5);
+    }
     100% { transform: scale(1); }
+}
+
+/* Weather indicator animations */
+@keyframes weather-rain {
+    0% { background-position: 0 0; }
+    100% { background-position: -20px 40px; }
+}
+
+@keyframes weather-snow {
+    0% { background-position: 0 0; }
+    100% { background-position: -10px 30px; }
+}
+
+@keyframes weather-storm {
+    0%, 88%, 100% { opacity: 1; filter: brightness(1); }
+    90% { opacity: 0.3; filter: brightness(2); }
+    92% { opacity: 1; filter: brightness(1); }
+    94% { opacity: 0.4; filter: brightness(1.8); }
+    96% { opacity: 1; filter: brightness(1); }
+}
+
+@keyframes weather-fog {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.8; }
+}
+
+.weather-rain {
+    position: relative;
+}
+.weather-rain::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        transparent,
+        transparent 10px,
+        rgba(52, 152, 219, 0.04) 10px,
+        rgba(52, 152, 219, 0.04) 11px
+    );
+    animation: weather-rain 0.5s linear infinite;
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+.weather-storm {
+    animation: weather-storm 4s ease-in-out infinite;
+}
+
+.weather-snow {
+    position: relative;
+}
+.weather-snow::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        radial-gradient(1.5px 1.5px at 25% 25%, rgba(255,255,255,0.18), transparent),
+        radial-gradient(1px 1px at 75% 60%, rgba(255,255,255,0.12), transparent),
+        radial-gradient(1.5px 1.5px at 50% 80%, rgba(255,255,255,0.14), transparent),
+        radial-gradient(1px 1px at 15% 70%, rgba(200,220,255,0.1), transparent);
+    background-size: 50px 50px, 60px 60px, 45px 45px, 55px 55px;
+    animation: weather-snow 2s linear infinite;
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+/* Generic pulse animation utility */
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 5px rgba(155, 89, 182, 0.3); }
+    50% { box-shadow: 0 0 20px rgba(155, 89, 182, 0.6), 0 0 40px rgba(155, 89, 182, 0.2); }
+}
+
+/* Breathing glow utility */
+@keyframes breathe-glow {
+    0%, 100% {
+        box-shadow: 0 0 8px rgba(155, 89, 182, 0.2), 0 0 16px rgba(155, 89, 182, 0.05);
+    }
+    50% {
+        box-shadow: 0 0 16px rgba(155, 89, 182, 0.4), 0 0 32px rgba(155, 89, 182, 0.15);
+    }
+}
+
+/* Shimmer utility for gold text */
+@keyframes gold-shimmer {
+    0%, 100% {
+        text-shadow: 0 0 8px rgba(255, 215, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    50% {
+        text-shadow: 0 0 16px rgba(255, 215, 0, 0.45), 0 0 30px rgba(255, 215, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* Float animation utility */
+@keyframes gentle-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+/* Border rotation for animated borders */
+@keyframes border-rotate {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Fade in animation */
+@keyframes fade-in-up {
+    0% {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Entrance animation for cards */
+@keyframes card-entrance {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    60% {
+        opacity: 1;
+        transform: translateY(-3px) scale(1.01);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Energy crackling for intense moments */
+@keyframes energy-crackle {
+    0%, 100% {
+        box-shadow: 0 0 5px var(--shadow-purple);
+        border-color: rgba(155, 89, 182, 0.3);
+    }
+    25% {
+        box-shadow: 0 0 15px var(--shadow-purple), 0 0 30px rgba(52, 152, 219, 0.15);
+        border-color: rgba(155, 89, 182, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 8px var(--shadow-gold);
+        border-color: rgba(255, 215, 0, 0.3);
+    }
+    75% {
+        box-shadow: 0 0 12px var(--shadow-blue), 0 0 25px rgba(155, 89, 182, 0.1);
+        border-color: rgba(52, 152, 219, 0.4);
+    }
+}
+
+/* Scrollbar styling for dark theme */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--magic-purple), #6c3483);
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #a569bd, var(--magic-purple));
+    box-shadow: 0 0 6px rgba(155, 89, 182, 0.3);
+}
+
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--magic-purple) var(--bg-dark);
+}
+
+/* Selection highlight */
+::selection {
+    background: rgba(155, 89, 182, 0.4);
+    color: #fff;
+    text-shadow: none;
+}
+
+/* --- Focus ring for accessibility --- */
+:focus-visible {
+    outline: 2px solid var(--magic-purple);
+    outline-offset: 2px;
+}
+
+/* --- Smooth page transition --- */
+@media (prefers-reduced-motion: no-preference) {
+    body {
+        animation: fade-in-up 0.4s ease-out;
+    }
+}
+
+/* --- Utility classes for JS-triggered effects --- */
+.glow-gold {
+    animation: gold-shimmer 2s ease-in-out infinite;
+}
+
+.glow-pulse {
+    animation: pulse-glow 2.5s ease-in-out infinite;
+}
+
+.glow-breathe {
+    animation: breathe-glow 3s ease-in-out infinite;
+}
+
+.float-gentle {
+    animation: gentle-float 3s ease-in-out infinite;
+}
+
+.animate-entrance {
+    animation: card-entrance 0.5s ease-out both;
+}
+
+.energy-active {
+    animation: energy-crackle 3s ease-in-out infinite;
 }
