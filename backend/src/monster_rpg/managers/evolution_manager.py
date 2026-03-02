@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .monsters.monster_class import Monster
+from ..monsters.monster_class import Monster
 
 
 def try_evolution(monster: Monster, verbose: bool = True) -> None:

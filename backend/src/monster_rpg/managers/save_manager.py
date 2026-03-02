@@ -7,22 +7,22 @@ import json
 import uuid
 from typing import Optional
 
-from .map_data import STARTING_LOCATION_ID
-from .monsters.monster_class import Monster
-from .monsters.monster_data import ALL_MONSTERS
-from .items.item_data import ALL_ITEMS
-from .items.equipment import (
+from ..map_data import STARTING_LOCATION_ID
+from ..monsters.monster_class import Monster
+from ..monsters.monster_data import ALL_MONSTERS
+from ..items.item_data import ALL_ITEMS
+from ..items.equipment import (
     create_titled_equipment,
     EquipmentInstance,
     Equipment,
     ALL_EQUIPMENT,
 )
-from .items.titles import ALL_TITLES
-from .monster_book import MonsterBook
+from ..items.titles import ALL_TITLES
+from ..monster_book import MonsterBook
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover - for type hints only
-    from .player import Player
+    from ..player import Player
 
 
 def save_game(player: "Player", db_name: str, user_id: Optional[int] = None) -> None:
@@ -167,7 +167,7 @@ def save_game(player: "Player", db_name: str, user_id: Optional[int] = None) -> 
 
 def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
     """Load the most recent save for the given user id."""
-    from .player import Player  # local import to avoid circular dependency
+    from ..player import Player  # local import to avoid circular dependency
     with sqlite3.connect(db_name, check_same_thread=False) as conn:
         cursor = conn.cursor()
         cursor.execute(

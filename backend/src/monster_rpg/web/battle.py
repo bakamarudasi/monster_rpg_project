@@ -2,9 +2,9 @@ import random
 import copy
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 from ..battle import start_atb_battle, STATUS_DEFINITIONS, Battle
-from .. import database_setup
+from ..managers import database_setup
 from ..player import Player
-from .. import save_manager
+from ..managers import save_manager
 from ..items.equipment import Equipment, EquipmentInstance, create_titled_equipment
 from ..monsters.monster_class import Monster
 from ..map_data import LOCATIONS

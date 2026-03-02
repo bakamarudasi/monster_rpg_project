@@ -5,21 +5,21 @@ from __future__ import annotations
 import copy
 from typing import Optional
 
-from .monsters.monster_class import Monster
-from .monsters.monster_data import ALL_MONSTERS
-from .items.item_data import ALL_ITEMS
-from .items.equipment import (
+from ..monsters.monster_class import Monster
+from ..monsters.monster_data import ALL_MONSTERS
+from ..items.item_data import ALL_ITEMS
+from ..items.equipment import (
     CRAFTING_RECIPES,
     create_titled_equipment,
     EquipmentInstance,
     Equipment,
     _generate_random_sub_stat,
 )
-from .items.equipment_synthesis import EQUIPMENT_SYNTHESIS_RULES
+from ..items.equipment_synthesis import EQUIPMENT_SYNTHESIS_RULES
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover
-    from .player import Player
+    from ..player import Player
 
 
 def add_monster_to_party(player: "Player", monster_id_or_object) -> Optional[Monster]:
@@ -125,7 +125,7 @@ def use_item(player: "Player", item_idx: int, target_monster: Monster) -> bool:
         return False
 
     item = player.items[item_idx]
-    from .items import apply_item_effect
+    from ..items import apply_item_effect
 
     success = apply_item_effect(item, target_monster)
     if success:

@@ -1,10 +1,10 @@
 import os
 import unittest
 
-from monster_rpg import database_setup
+from monster_rpg.managers import database_setup
 from monster_rpg.web_main import app
 from monster_rpg.player import Player
-from monster_rpg import save_manager
+from monster_rpg.managers import save_manager
 from monster_rpg.items.item_data import ALL_ITEMS
 
 

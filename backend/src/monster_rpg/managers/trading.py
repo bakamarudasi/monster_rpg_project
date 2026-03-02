@@ -4,10 +4,10 @@ import sqlite3
 from typing import List, Dict, Any
 
 from . import database_setup
-from .player import Player
-from .items.item_data import ALL_ITEMS
-from .monsters.monster_data import ALL_MONSTERS
-from .monsters.monster_class import Monster
+from ..player import Player
+from ..items.item_data import ALL_ITEMS
+from ..monsters.monster_data import ALL_MONSTERS
+from ..monsters.monster_class import Monster
 
 
 def _connect():

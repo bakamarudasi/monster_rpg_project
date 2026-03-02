@@ -7,7 +7,7 @@ from .map_data import STARTING_LOCATION_ID
 from .monsters.monster_class import Monster
 from .monster_book import MonsterBook
 
-from . import save_manager, party_manager, synthesis_manager
+from .managers import save_manager, party_manager, synthesis_manager
 
 logger = logging.getLogger(__name__)
 

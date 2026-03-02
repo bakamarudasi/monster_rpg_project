@@ -1,7 +1,7 @@
 import os
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
-from .. import database_setup
+from ..managers import database_setup
 from ..map_data import load_locations
 
 

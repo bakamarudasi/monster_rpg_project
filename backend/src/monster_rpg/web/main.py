@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request
-from .. import database_setup
+from ..managers import database_setup
 from ..player import Player
-from .. import save_manager
+from ..managers import save_manager
 from ..map_data import LOCATIONS, get_map_overview, get_map_grid
 from ..monsters.monster_data import ALL_MONSTERS, MONSTER_BOOK_DATA
 

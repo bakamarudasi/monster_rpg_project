@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 import json
-from .. import database_setup
+from ..managers import database_setup
 from ..player import Player
-from .. import save_manager
+from ..managers import save_manager
 from ..monsters.monster_data import MONSTER_BOOK_DATA
 from ..items.equipment import EquipmentInstance
 

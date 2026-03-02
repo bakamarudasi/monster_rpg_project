@@ -1,9 +1,9 @@
 from flask import Blueprint, request, redirect, url_for, render_template, session
 import sqlite3
-from .. import database_setup
+from ..managers import database_setup
 from ..player import Player
 from ..monsters.monster_data import ALL_MONSTERS
-from .. import save_manager
+from ..managers import save_manager
 
 auth_bp = Blueprint('auth', __name__)
 

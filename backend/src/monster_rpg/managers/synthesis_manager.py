@@ -6,17 +6,17 @@ import copy
 import random
 from typing import Tuple, Optional
 
-from .monsters.monster_class import Monster
-from .monsters.monster_data import ALL_MONSTERS
-from .monsters.synthesis_rules import (
+from ..monsters.monster_class import Monster
+from ..monsters.monster_data import ALL_MONSTERS
+from ..monsters.synthesis_rules import (
     SYNTHESIS_RECIPES,
     SYNTHESIS_ITEMS_REQUIRED,
     MONSTER_ITEM_RECIPES,
     ITEM_ITEM_RECIPES,
     find_family_synthesis_result,
 )
-from .items.item_data import ALL_ITEMS
-from .items.equipment import (
+from ..items.item_data import ALL_ITEMS
+from ..items.equipment import (
     create_titled_equipment,
     EquipmentInstance,
     Equipment,
@@ -25,7 +25,7 @@ from .items.equipment import (
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover
-    from .player import Player
+    from ..player import Player
 
 DEBUG_MODE = False
 
