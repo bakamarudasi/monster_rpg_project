@@ -3,7 +3,7 @@ import sqlite3
 from .. import database_setup
 from ..player import Player
 from ..monsters.monster_data import ALL_MONSTERS
-from .. import save_manager
+from .utils import load_player, save_player
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -26,7 +26,7 @@ def start_game():
     for mid in ('slime', 'goblin', 'wolf'):
         if mid in ALL_MONSTERS:
             player.add_monster_to_party(mid)
-    save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
+    save_player(player, user_id)
     session['user_id'] = user_id
     return redirect(url_for('main.play', user_id=user_id))
 
@@ -38,7 +38,7 @@ def load_existing():
         u_id = int(user_id)
     except (ValueError, TypeError):
         return 'invalid user id', 400
-    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=u_id)
+    player = load_player(u_id)
     if not player:
         return 'save not found', 404
     session['user_id'] = u_id
@@ -62,7 +62,7 @@ def login():
             message='ユーザー名またはパスワードが違います',
             user_id=None,
         )
-    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = load_player(user_id)
     if not player:
         return render_template(
             'result.html',

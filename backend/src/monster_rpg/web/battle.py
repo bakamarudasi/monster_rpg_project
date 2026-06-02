@@ -2,9 +2,8 @@ import random
 import copy
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 from ..battle import start_atb_battle, STATUS_DEFINITIONS, Battle
-from .. import database_setup
 from ..player import Player
-from .. import save_manager
+from .utils import load_player, save_player
 from ..items.equipment import Equipment, EquipmentInstance, create_titled_equipment
 from ..monsters.monster_class import Monster
 from ..map_data import LOCATIONS
@@ -144,7 +143,7 @@ battle_bp = Blueprint('battle', __name__)
 def battle(user_id):
     battle_state = active_battles.get(user_id)
 
-    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = load_player(user_id)
     if not player and isinstance(battle_state, Battle):
         player = battle_state.player
     if not player:
@@ -246,7 +245,7 @@ def battle(user_id):
                 'current_actor_info': serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None,
                 'turn_order_monsters_data': [serialize_monster(m, m.unit_id) for m in battle_obj.turn_order]
             }
-            save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
+            save_player(player, user_id)
 
         if battle_obj.finished:
             outcome = battle_obj.outcome
@@ -283,7 +282,7 @@ def battle(user_id):
                 msgs.append({'type': 'info', 'message': '敗北してしまった...'})
             player.last_battle_log = msgs
             del active_battles[user_id]
-            save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
+            save_player(player, user_id)
             html = render_template('battle.html', messages=msgs, user_id=user_id)
             return jsonify({'hp_values': serialize_battle_state(player_party, enemy_party, log, serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None, battle_obj.turn_order), 'log': msgs, 'finished': True, 'turn': battle_obj.turn_count, 'html': html, 'turn_order': turn_order_ids(battle_obj.turn_order)})
         else:
@@ -321,7 +320,7 @@ def battle(user_id):
                 'current_actor_info': serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None,
                 'turn_order_monsters_data': [serialize_monster(m, m.unit_id) for m in battle_obj.turn_order]
             }
-            save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
+            save_player(player, user_id)
         elif isinstance(battle_state, Battle):
             battle_obj = battle_state
             while not battle_obj.finished and (battle_obj.current_actor is None or battle_obj.current_actor not in battle_obj.player_party):
