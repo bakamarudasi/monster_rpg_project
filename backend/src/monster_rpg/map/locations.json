@@ -71,6 +71,7 @@
     "encounter_rate": 1.0,
     "enemy_pool": { "dragon_pup": 100 },
     "party_size": [1, 1],
+    "boss_enemy_id": "crimson_hood",
     "avg_enemy_level": 5,
     "x": 0, "y": 1
   },
@@ -150,6 +151,7 @@
     "encounter_rate": 1.0,
     "enemy_pool": { "shadow_panther": 30, "abyss_watcher": 30, "blighted_knight": 20, "blood_fiend": 20 },
     "party_size": [3, 4],
+    "boss_enemy_id": "beheader_alice",
     "avg_enemy_level": 9,
     "x": 2, "y": 2
   },
@@ -205,6 +207,7 @@
     },
     "party_size": [2, 4],
     "treasure_items": ["frost_crystal"],
+    "boss_enemy_id": "sleeping_maiden",
     "avg_enemy_level": 7,
     "x": 1, "y": 3
   },
@@ -215,6 +218,7 @@
     "encounter_rate": 0.95,
     "enemy_pool": { "kraken": 20, "blighted_knight": 20, "abyss_watcher": 20, "mist_wraith": 20, "gravetide_hollow": 20 },
     "party_size": [3, 4],
+    "boss_enemy_id": "poison_queen",
     "avg_enemy_level": 8,
     "x": 2, "y": 3
   },
@@ -232,6 +236,7 @@
     "party_size": [2, 3],
     "rare_enemies": ["cinder_sentinel"],
     "treasure_items": ["dragon_scale"],
+    "boss_enemy_id": "match_ember",
     "avg_enemy_level": 9,
     "x": 3, "y": 3
   },
