@@ -12,7 +12,24 @@ SYNTHESIS_RECIPES = {
     ("orc_warrior", "skeleton_archer"): "undead_warrior",
     ("giant_golem", "thunder_eagle"): "storm_golem",
     ("celestial_dragon", "shadow_panther"): "celestial_panther",
+    # --- 特殊配合: ダーク童話の住人（隠しレシピ） ---
+    ("blighted_knight", "elf_mage"): "poison_queen",        # 白雪の毒后
+    ("shadow_panther", "vampire_lord"): "beheader_alice",   # 断頭のアリシア
+    ("shadow_panther", "wolf"): "crimson_hood",             # 紅ずきんの牙
+    ("abyss_watcher", "pontiff_shade"): "sleeping_maiden",  # 硝子棺の眠り姫
+    ("lava_elemental", "sky_seraph"): "match_ember",        # マッチ売りの焔
 }
+
+# ジャックポット（大当たり）配合の抽選プール。家系配合などの非レシピ配合時に
+# ごく稀に出現するダーク童話の住人たち。tale_devourer は最高レアでこの枠のみ。
+SPECIAL_MONSTER_POOL = [
+    "poison_queen",
+    "beheader_alice",
+    "crimson_hood",
+    "sleeping_maiden",
+    "match_ember",
+    "tale_devourer",
+]
 
 # 合成に必要なアイテムの定義
 # キーは SYNTHESIS_RECIPES と同じタプル、値は必要なアイテムID

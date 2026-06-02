@@ -156,6 +156,8 @@ class Monster:
         self.permanent_bonuses = {"attack": 0, "defense": 0, "speed": 0, "magic": 0}
         # 配合の世代（＋値）。配合を重ねるほど増え、ステータスに加算される
         self.plus_value = 0
+        # レア個体（★）フラグ。配合のレア抽選で生まれた個体は能力が底上げされる
+        self.is_rare = False
 
         self.level = level
         self.exp = exp
@@ -657,6 +659,7 @@ class Monster:
         new_monster.base_magic = self.base_magic
         new_monster.permanent_bonuses = dict(self.permanent_bonuses)
         new_monster.plus_value = self.plus_value
+        new_monster.is_rare = self.is_rare
         new_monster.is_alive = True
         new_monster.skill_sequence = self.skill_sequence[:]
         new_monster.equipment = copy.deepcopy(self.equipment)

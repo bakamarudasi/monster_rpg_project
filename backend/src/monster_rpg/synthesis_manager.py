@@ -13,6 +13,8 @@ from .monsters.synthesis_rules import (
     SYNTHESIS_ITEMS_REQUIRED,
     MONSTER_ITEM_RECIPES,
     ITEM_ITEM_RECIPES,
+    SPECIAL_MONSTER_POOL,
+    RANK_VALUES,
     find_family_synthesis_result,
 )
 from .items.item_data import ALL_ITEMS
@@ -32,6 +34,54 @@ DEBUG_MODE = False
 
 # 配合で継承できるスキルの最大数
 MAX_INHERIT_SKILLS = 3
+
+# レア個体（★）の出現基礎確率
+RARE_INDIVIDUAL_BASE_CHANCE = 0.07
+# ジャックポット（特殊配合・大当たり）の基礎確率
+JACKPOT_BASE_CHANCE = 0.03
+
+
+def _rank_value(monster: Monster) -> int:
+    return RANK_VALUES.get(str(getattr(monster, "rank", "")).upper(), 0)
+
+
+def _jackpot_chance(parent1: Monster, parent2: Monster) -> float:
+    """親のランクと＋値が高いほど大当たり確率が上がる（最大30%）。"""
+    rank_sum = _rank_value(parent1) + _rank_value(parent2)          # 0〜10
+    plus_sum = getattr(parent1, "plus_value", 0) + getattr(parent2, "plus_value", 0)
+    chance = JACKPOT_BASE_CHANCE + rank_sum * 0.015 + min(plus_sum, 20) * 0.005
+    return min(0.30, chance)
+
+
+def _rare_individual_chance(parent1: Monster, parent2: Monster) -> float:
+    """＋値が高いほどレア個体が出やすい（最大25%）。"""
+    plus_sum = getattr(parent1, "plus_value", 0) + getattr(parent2, "plus_value", 0)
+    return min(0.25, RARE_INDIVIDUAL_BASE_CHANCE + min(plus_sum, 20) * 0.006)
+
+
+def _roll_jackpot_result(parent1: Monster, parent2: Monster) -> Optional[str]:
+    """非レシピ配合時のジャックポット抽選。当たればダーク童話の住人IDを返す。"""
+    if random.random() >= _jackpot_chance(parent1, parent2):
+        return None
+    pool = [m for m in SPECIAL_MONSTER_POOL if m in ALL_MONSTERS]
+    rank_sum = _rank_value(parent1) + _rank_value(parent2)
+    # 最高レア（終焉の語り部）は十分に強い親同士でのみ抽選対象
+    if rank_sum < 7:
+        pool = [m for m in pool if m != "tale_devourer"]
+    return random.choice(pool) if pool else None
+
+
+def _apply_rare_individual(monster: Monster) -> None:
+    """レア個体（★）化：基礎能力の約30%を恒久ボーナスとして上乗せ。"""
+    monster.is_rare = True
+    for stat in ("attack", "defense", "speed", "magic"):
+        base = getattr(monster, f"base_{stat}", 0)
+        monster.permanent_bonuses[stat] = monster.permanent_bonuses.get(stat, 0) + max(1, round(base * 0.3))
+    monster.max_hp += max(5, round(monster.max_hp * 0.3))
+    monster.max_mp += max(2, round(monster.max_mp * 0.3))
+    monster.hp = monster.max_hp
+    monster.mp = monster.max_mp
+    monster.add_plus_value(2)
 
 
 def resolve_synthesis_result(parent1: Monster, parent2: Monster):
@@ -189,7 +239,19 @@ def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, i
                 return False, f"合成には {item_name} が必要だ。", None
             player.items.pop(item_index)
 
+    # 大当たり抽選（家系配合など、特定レシピ以外でのみ発生）
+    is_jackpot = False
+    if recipe_key is None:
+        jackpot_id = _roll_jackpot_result(parent1, parent2)
+        if jackpot_id:
+            result_monster_id = jackpot_id
+            is_jackpot = True
+
     new_monster = _build_child(parent1, parent2, result_monster_id, inherit_skill_ids=inherit_skill_ids)
+
+    # レア個体（★）抽選
+    if random.random() < _rare_individual_chance(parent1, parent2):
+        _apply_rare_individual(new_monster)
 
     indices_to_remove = sorted([monster1_idx, monster2_idx], reverse=True)
     removed_monster_names = []
@@ -197,8 +259,16 @@ def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, i
         removed_monster_names.append(player.party_monsters.pop(idx).name)
     player.party_monsters.append(new_monster)
     player.monster_book.record_captured(new_monster.monster_id)
+
+    star = "★" if new_monster.is_rare else ""
     plus_txt = f"（+{new_monster.plus_value}）" if new_monster.plus_value else ""
-    return True, f"{removed_monster_names[1]} と {removed_monster_names[0]} を合成して {new_monster.name}{plus_txt} が誕生した！", new_monster
+    if is_jackpot:
+        prefix = "✨大当たり！✨ "
+    elif new_monster.is_rare:
+        prefix = "✨レア個体出現！✨ "
+    else:
+        prefix = ""
+    return True, f"{prefix}{removed_monster_names[1]} と {removed_monster_names[0]} を合成して {star}{new_monster.name}{plus_txt} が誕生した！", new_monster
 
 
 def synthesize_monster_with_item(player: "Player", monster_idx: int, item_id: str) -> Tuple[bool, str, Optional[Monster]]:

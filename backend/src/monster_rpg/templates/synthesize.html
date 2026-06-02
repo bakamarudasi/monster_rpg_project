@@ -316,6 +316,14 @@
     .skill-chip input { accent-color: #854d0e; }
     .skill-chip input:disabled + span { opacity: 0.4; }
     .preview-fail { color: #b91c1c; font-weight: 600; margin-top: 6px; }
+    .preview-hint { margin-top: 8px; font-size: 0.78rem; color: #8a6d2f; font-style: italic; }
+    .result-message.jackpot {
+        color: #d4a017;
+        font-weight: 800;
+        text-shadow: 0 0 10px rgba(212,160,23,0.6);
+        animation: jackpot-pulse 0.5s ease-in-out 3;
+    }
+    @keyframes jackpot-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
 </style>
 {% endblock %}
 
@@ -449,6 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             ${skillsHtml}
             ${itemWarn}
+            <div class="preview-hint">✨ ごく稀に「特別な存在」や★レア個体が生まれることがある…</div>
         `;
         previewBox.querySelectorAll('input.skill-pick').forEach(c => c.addEventListener('change', enforceInheritLimit));
     }
@@ -613,12 +622,19 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                const msg = data.result_type === 'monster' 
+                const msg = data.message || (data.result_type === 'monster'
                     ? `合成成功！ ${data.name} が誕生しました！`
-                    : `合成成功！ ${data.name} を入手しました！`;
+                    : `合成成功！ ${data.name} を入手しました！`);
                 resultMsg.textContent = msg;
                 resultMsg.classList.add('success');
-                setTimeout(() => window.location.reload(), 2000);
+                // 大当たり・レア個体はトーストで祝福し、余韻を長めに
+                let delay = 2000;
+                if (typeof window.showToast === 'function') {
+                    if (data.jackpot) { window.showToast(`✨大当たり！ ${data.name} ✨`, 'level', { duration: 5000 }); delay = 3200; }
+                    else if (data.rare) { window.showToast(`★レア個体！ ${data.name}`, 'item', { duration: 4500 }); delay = 3000; }
+                }
+                if (data.jackpot || data.rare) { resultMsg.classList.add('jackpot'); }
+                setTimeout(() => window.location.reload(), delay);
             } else {
                 resultMsg.textContent = `合成失敗： ${data.error || '原因不明のエラー'}`;
                 resultMsg.classList.add('error');

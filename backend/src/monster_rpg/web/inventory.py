@@ -122,7 +122,15 @@ def synthesize_action(user_id):
         if isinstance(result, (Equipment, EquipmentInstance)):
             resp.update({'result_type': 'equipment', 'name': result.name})
         elif isinstance(result, Monster):
-            resp.update({'result_type': 'monster', 'name': result.name})
+            from ..monsters.synthesis_rules import SPECIAL_MONSTER_POOL
+            resp.update({
+                'result_type': 'monster',
+                'name': result.name,
+                'message': msg,
+                'rare': bool(getattr(result, 'is_rare', False)),
+                'jackpot': result.monster_id in SPECIAL_MONSTER_POOL,
+                'plus_value': getattr(result, 'plus_value', 0),
+            })
         else:
             resp.update({'result_type': 'item', 'name': getattr(result, 'name', '')})
         return jsonify(resp)

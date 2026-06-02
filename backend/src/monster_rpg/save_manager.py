@@ -95,13 +95,14 @@ def save_game(player: "Player", db_name: str, user_id: Optional[int] = None) -> 
                 int(pb.get("speed", 0)),
                 int(pb.get("magic", 0)),
                 int(getattr(monster, "plus_value", 0)),
+                int(bool(getattr(monster, "is_rare", False))),
                 json.dumps(_skill_ids(monster)),
             )
 
         _monster_cols = (
             "(player_id, monster_id, level, exp, hp, max_hp, mp, max_mp, "
-            "bonus_attack, bonus_defense, bonus_speed, bonus_magic, plus_value, skills) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            "bonus_attack, bonus_defense, bonus_speed, bonus_magic, plus_value, is_rare, skills) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         )
 
         cursor.execute("DELETE FROM party_monsters WHERE player_id=?", (player.db_id,))
@@ -202,7 +203,7 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
 
             def _build_saved_monster(row):
                 (monster_id, m_level, m_exp, hp, max_hp, mp, max_mp,
-                 b_atk, b_def, b_spd, b_mag, plus_value, skills_json) = row
+                 b_atk, b_def, b_spd, b_mag, plus_value, is_rare, skills_json) = row
                 if monster_id not in ALL_MONSTERS:
                     return None
                 monster = ALL_MONSTERS[monster_id].copy()
@@ -225,6 +226,7 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
                     "magic": b_mag or 0,
                 }
                 monster.plus_value = plus_value or 0
+                monster.is_rare = bool(is_rare)
                 # 習得スキル（配合の継承など）を復元
                 if skills_json:
                     try:
@@ -242,7 +244,7 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
                 return monster
 
             _saved_cols = ("monster_id, level, exp, hp, max_hp, mp, max_mp, "
-                           "bonus_attack, bonus_defense, bonus_speed, bonus_magic, plus_value, skills")
+                           "bonus_attack, bonus_defense, bonus_speed, bonus_magic, plus_value, is_rare, skills")
 
             cursor.execute(
                 f"SELECT {_saved_cols} FROM party_monsters WHERE player_id=?",
