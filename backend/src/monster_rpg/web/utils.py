@@ -28,7 +28,10 @@ def process_synthesis_payload(player: Player, data: dict):
             return False, "invalid material id", None
 
     if base_type == "monster" and material_type == "monster":
-        return player.synthesize_monster(base_idx, mat_idx)
+        inherit = data.get("inherit_skills")
+        if inherit is not None and not isinstance(inherit, list):
+            inherit = None
+        return player.synthesize_monster(base_idx, mat_idx, inherit_skill_ids=inherit)
     if base_type == "monster" and material_type == "item":
         return player.synthesize_monster_with_item(base_idx, material_id)
     if base_type == "item" and material_type == "monster":

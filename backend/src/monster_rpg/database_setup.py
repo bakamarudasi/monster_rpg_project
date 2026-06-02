@@ -154,6 +154,8 @@ def initialize_database():
         _add_column_if_missing(table, "bonus_speed", "INTEGER DEFAULT 0")
         _add_column_if_missing(table, "bonus_magic", "INTEGER DEFAULT 0")
         _add_column_if_missing(table, "plus_value", "INTEGER DEFAULT 0")
+        # 習得スキル（配合の継承などを保存）。スキルIDのJSON配列
+        _add_column_if_missing(table, "skills", "TEXT")
     _add_column_if_missing("player_equipment", "random_bonuses", "TEXT")
     _add_column_if_missing("player_equipment", "synthesis_rank", "INTEGER")
     _add_column_if_missing("player_equipment", "stat_multiplier", "REAL")

@@ -10,6 +10,7 @@ from typing import Optional
 from .map_data import STARTING_LOCATION_ID
 from .monsters.monster_class import Monster
 from .monsters.monster_data import ALL_MONSTERS
+from .skills.skills import ALL_SKILLS
 from .items.item_data import ALL_ITEMS
 from .items.equipment import (
     create_titled_equipment,
@@ -69,6 +70,15 @@ def save_game(player: "Player", db_name: str, user_id: Optional[int] = None) -> 
             )
             player.db_id = cursor.lastrowid
 
+        def _skill_ids(monster):
+            ids = []
+            for sk in (getattr(monster, "skills", None) or []):
+                nm = getattr(sk, "name", None)
+                sid = next((k for k, obj in ALL_SKILLS.items() if getattr(obj, "name", None) == nm), None)
+                if sid is not None:
+                    ids.append(sid)
+            return ids
+
         def _monster_row(monster):
             pb = getattr(monster, "permanent_bonuses", {}) or {}
             return (
@@ -85,12 +95,13 @@ def save_game(player: "Player", db_name: str, user_id: Optional[int] = None) -> 
                 int(pb.get("speed", 0)),
                 int(pb.get("magic", 0)),
                 int(getattr(monster, "plus_value", 0)),
+                json.dumps(_skill_ids(monster)),
             )
 
         _monster_cols = (
             "(player_id, monster_id, level, exp, hp, max_hp, mp, max_mp, "
-            "bonus_attack, bonus_defense, bonus_speed, bonus_magic, plus_value) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            "bonus_attack, bonus_defense, bonus_speed, bonus_magic, plus_value, skills) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         )
 
         cursor.execute("DELETE FROM party_monsters WHERE player_id=?", (player.db_id,))
@@ -191,7 +202,7 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
 
             def _build_saved_monster(row):
                 (monster_id, m_level, m_exp, hp, max_hp, mp, max_mp,
-                 b_atk, b_def, b_spd, b_mag, plus_value) = row
+                 b_atk, b_def, b_spd, b_mag, plus_value, skills_json) = row
                 if monster_id not in ALL_MONSTERS:
                     return None
                 monster = ALL_MONSTERS[monster_id].copy()
@@ -214,10 +225,24 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
                     "magic": b_mag or 0,
                 }
                 monster.plus_value = plus_value or 0
+                # 習得スキル（配合の継承など）を復元
+                if skills_json:
+                    try:
+                        skill_ids = json.loads(skills_json)
+                    except (ValueError, TypeError):
+                        skill_ids = []
+                    if skill_ids:
+                        import copy as _copy
+                        restored = [
+                            _copy.deepcopy(ALL_SKILLS[sid])
+                            for sid in skill_ids if sid in ALL_SKILLS
+                        ]
+                        if restored:
+                            monster.skills = restored
                 return monster
 
             _saved_cols = ("monster_id, level, exp, hp, max_hp, mp, max_mp, "
-                           "bonus_attack, bonus_defense, bonus_speed, bonus_magic, plus_value")
+                           "bonus_attack, bonus_defense, bonus_speed, bonus_magic, plus_value, skills")
 
             cursor.execute(
                 f"SELECT {_saved_cols} FROM party_monsters WHERE player_id=?",

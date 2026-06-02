@@ -128,6 +128,23 @@ def synthesize_action(user_id):
         return jsonify(resp)
     return jsonify({'success': False, 'error': msg})
 
+@inventory_bp.route('/synthesize_preview/<int:user_id>', methods=['POST'], endpoint='synthesize_preview')
+def synthesize_preview(user_id):
+    """モンスター同士の配合結果を確定せず予測して返す。"""
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    if not player:
+        return jsonify({'ok': False, 'message': 'player not found'}), 404
+    if not request.is_json:
+        return jsonify({'ok': False, 'message': 'json required'}), 400
+    data = request.get_json(silent=True) or {}
+    try:
+        base_idx = int(data.get('base_id'))
+        mat_idx = int(data.get('material_id'))
+    except (TypeError, ValueError):
+        return jsonify({'ok': False, 'message': 'invalid index'}), 400
+    preview = player.preview_synthesis(base_idx, mat_idx)
+    return jsonify(preview)
+
 @inventory_bp.route('/shop/<int:user_id>', methods=['GET', 'POST'], endpoint='shop')
 def shop(user_id):
     player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)

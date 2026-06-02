@@ -109,8 +109,11 @@ class Player:
         return party_manager.limit_break_equipment(self, equip_id)
 
     # --- Synthesis -------------------------------------------------------
-    def synthesize_monster(self, monster1_idx: int, monster2_idx: int, item_id: str | None = None):
-        return synthesis_manager.synthesize_monster(self, monster1_idx, monster2_idx, item_id)
+    def synthesize_monster(self, monster1_idx: int, monster2_idx: int, item_id: str | None = None, inherit_skill_ids=None):
+        return synthesis_manager.synthesize_monster(self, monster1_idx, monster2_idx, item_id, inherit_skill_ids)
+
+    def preview_synthesis(self, monster1_idx: int, monster2_idx: int, item_id: str | None = None):
+        return synthesis_manager.preview_synthesis(self, monster1_idx, monster2_idx, item_id)
 
     def synthesize_monster_with_item(self, monster_idx: int, item_id: str):
         return synthesis_manager.synthesize_monster_with_item(self, monster_idx, item_id)
