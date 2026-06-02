@@ -37,7 +37,7 @@
   "mystic_lake": {
     "name": "神秘の湖",
     "description": "森の奥にひっそりと佇む美しい湖。水面が青く光っている。",
-    "connections": { "西": "forest_entrance" },
+    "connections": { "西": "forest_entrance", "霧の水路へ": "sunken_temple" },
     "encounter_rate": 0.8,
     "enemy_pool": { "water_wolf": 40, "mermaid_siren": 40, "mist_wraith": 20 },
     "party_size": [1, 2],
@@ -99,7 +99,7 @@
   "thunder_peak": {
     "name": "雷鳴峰",
     "description": "雲間を貫く尖塔のような山頂。常に雷が轟く。",
-    "connections": { "南": "mountain_foothills" },
+    "connections": { "南": "mountain_foothills", "嵐の空へ": "sky_isle" },
     "encounter_rate": 0.85,
     "enemy_pool": { "thunder_eagle": 40, "electro_mantis": 30, "spectral_raven": 20, "storm_golem": 10 },
     "party_size": [1, 3],
@@ -147,7 +147,7 @@
   "abyssal_chasm": {
     "name": "深淵の裂け目",
     "description": "底知れぬ闇が広がる亀裂。闇の鼓動が聞こえる。",
-    "connections": { "地上へ": "catacombs_deep", "光の塔へ": "celestial_tower" },
+    "connections": { "地上へ": "catacombs_deep", "光の塔へ": "celestial_tower", "物語の狭間へ": "torn_pages_rift" },
     "encounter_rate": 1.0,
     "enemy_pool": { "shadow_panther": 30, "abyss_watcher": 30, "blighted_knight": 20, "blood_fiend": 20 },
     "party_size": [3, 4],
@@ -158,7 +158,7 @@
   "celestial_tower": {
     "name": "天啓の塔",
     "description": "蒼穹へと伸びる光輝の塔。最上階には試練が待つ。",
-    "connections": { "深淵へ戻る": "abyssal_chasm" },
+    "connections": { "深淵へ戻る": "abyssal_chasm", "物語の狭間へ": "torn_pages_rift" },
     "encounter_rate": 0.85,
     "enemy_pool": { "celestial_panther": 35, "cinder_sentinel": 25, "sky_seraph": 25, "ashen_drake": 15 },
     "party_size": [2, 3],
@@ -266,7 +266,7 @@
     "name": "浮遊島・内なる聖域",
     "description": "静謐な光が満ちる最奥部。翼を持つ守護者が待ち構えている。",
       "required_item": "celestial_feather",
-    "connections": { "外縁へ戻る": "sky_isle" },
+    "connections": { "外縁へ戻る": "sky_isle", "終焉へ": "torn_pages_rift" },
     "encounter_rate": 1.0,
     "enemy_pool": { "sky_seraph": 100 },
     "party_size": [1, 1],
@@ -274,5 +274,70 @@
     "treasure_items": ["celestial_feather", "elixir"],
     "avg_enemy_level": 12,
     "x": 1, "y": 4
+  },
+  "torn_pages_rift": {
+    "name": "裂けた頁の狭間",
+    "description": "世界の継ぎ目が綻び、無数の頁が虚空を舞う。ここから先は、物語の外側だ。",
+    "region": "終焉の物語世界",
+    "connections": { "光の塔へ": "celestial_tower", "深淵へ": "abyssal_chasm", "久遠の書庫へ": "eternal_library", "児話の区画へ": "forgotten_nursery" },
+    "encounter_rate": 0.9,
+    "enemy_pool": { "mist_wraith": 30, "spectral_raven": 25, "shadow_panther": 20, "abyss_watcher": 15, "pontiff_shade": 10 },
+    "party_size": [2, 4],
+    "avg_enemy_level": 13,
+    "x": 2, "y": 5
+  },
+  "eternal_library": {
+    "name": "久遠の書庫",
+    "description": "天井も果ても見えぬ無限の書架。読み手なき物語だけが、静かに頁を繰っている。",
+    "region": "終焉の物語世界",
+    "connections": { "狭間へ戻る": "torn_pages_rift", "物語の墓標へ": "graveyard_of_tales" },
+    "encounter_rate": 0.5,
+    "enemy_pool": { "pontiff_shade": 50, "mist_wraith": 50 },
+    "party_size": [1, 2],
+    "has_inn": true, "inn_cost": 60,
+    "has_shop": true,
+    "shop_items": { "elixir": 300, "power_seed": 300, "guard_seed": 300, "speed_seed": 300, "life_seed": 400, "mind_seed": 250, "weapon_core_rare": 400, "armor_fragment_rare": 400, "abyss_shard": 200, "celestial_feather": 500 },
+    "avg_enemy_level": 14,
+    "x": 1, "y": 5
+  },
+  "forgotten_nursery": {
+    "name": "忘却の児話区画",
+    "description": "破り捨てられた童話たちが息づく区画。残酷なヒロインたちの嗤い声が反響する。",
+    "region": "終焉の物語世界",
+    "connections": { "狭間へ": "torn_pages_rift", "物語の墓標へ": "graveyard_of_tales", "終章の間へ": "final_chapter_hall" },
+    "encounter_rate": 0.95,
+    "enemy_pool": { "vampire_lord": 25, "blood_fiend": 25, "gravetide_hollow": 25, "pontiff_shade": 25 },
+    "party_size": [3, 4],
+    "rare_enemies": ["beheader_alice", "poison_queen", "crimson_hood"],
+    "treasure_items": ["abyss_shard"],
+    "avg_enemy_level": 15,
+    "x": 3, "y": 5
+  },
+  "graveyard_of_tales": {
+    "name": "物語の墓標",
+    "description": "読み終えられた物語の墓標が累々と並ぶ。亡き王が、最後の読者を待っている。",
+    "region": "終焉の物語世界",
+    "connections": { "書庫へ": "eternal_library", "児話の区画へ": "forgotten_nursery", "終章の間へ": "final_chapter_hall" },
+    "encounter_rate": 1.0,
+    "enemy_pool": { "abyss_watcher": 30, "blighted_knight": 25, "obsidian_titan": 20, "vampire_lord": 25 },
+    "party_size": [2, 4],
+    "boss_enemy_id": "nameless_kingling",
+    "rare_enemies": ["sleeping_maiden", "nameless_kingling"],
+    "treasure_items": ["abyss_shard", "elixir"],
+    "avg_enemy_level": 16,
+    "x": 2, "y": 6
+  },
+  "final_chapter_hall": {
+    "name": "終章の間",
+    "description": "全ての頁が尽きる場所。そこに座すのは、物語そのものを喰らい綴じる、終焉の影。",
+    "region": "終焉の物語世界",
+    "connections": { "墓標へ戻る": "graveyard_of_tales", "区画へ戻る": "forgotten_nursery" },
+    "encounter_rate": 1.0,
+    "enemy_pool": { "vampire_lord": 100 },
+    "party_size": [1, 1],
+    "boss_enemy_id": "tale_devourer",
+    "treasure_items": ["elixir", "celestial_feather"],
+    "avg_enemy_level": 18,
+    "x": 3, "y": 6
   }
 }
