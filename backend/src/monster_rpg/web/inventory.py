@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, jsonify
+from flask import Blueprint, render_template, redirect, url_for, request, jsonify, flash
 from .. import database_setup
 from ..player import Player
 from .. import save_manager
@@ -8,8 +8,48 @@ from ..items.item_data import ALL_ITEMS
 from ..monsters.monster_data import ALL_MONSTERS, MONSTER_BOOK_DATA
 from ..map_data import LOCATIONS
 from .utils import process_synthesis_payload
+from ..enhancement import (
+    enhance_equipment,
+    enhance_cost,
+    required_material_names,
+    ENHANCE_MAX,
+)
 
 inventory_bp = Blueprint('inventory', __name__)
+
+
+@inventory_bp.route('/enhance/<int:user_id>', methods=['GET', 'POST'], endpoint='enhance')
+def enhance(user_id):
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    if not player:
+        return redirect(url_for('auth.index'))
+    if request.method == 'POST':
+        instance_id = request.form.get('instance_id', '')
+        success, msg = enhance_equipment(player, instance_id)
+        save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
+        flash(msg, 'success' if success else 'warn')
+        return redirect(url_for('inventory.enhance', user_id=user_id))
+
+    # インベントリの装備一覧（強化情報つき）
+    entries = []
+    for eq in player.equipment_inventory:
+        level = getattr(eq, 'enhance_level', 0)
+        entries.append({
+            'instance_id': getattr(eq, 'instance_id', ''),
+            'name': eq.name,
+            'slot': eq.slot,
+            'attack': eq.total_attack,
+            'defense': eq.total_defense,
+            'speed': eq.total_speed,
+            'level': level,
+            'maxed': level >= ENHANCE_MAX,
+            'cost': enhance_cost(level),
+            'material': required_material_names(eq.slot),
+        })
+    return render_template(
+        'enhance.html', player=player, user_id=user_id,
+        entries=entries, enhance_max=ENHANCE_MAX,
+    )
 
 @inventory_bp.route('/items/<int:user_id>', methods=['GET', 'POST'], endpoint='items')
 def items(user_id):

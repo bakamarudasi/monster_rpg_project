@@ -275,12 +275,14 @@ class EquipmentInstance:
     synthesis_rank: int = 0
     stat_multiplier: float = 1.0
     sub_stat_slots: int = 0
+    enhance_level: int = 0
 
     @property
     def name(self) -> str:
-        if self.title:
-            return f"{self.title.name} {self.base_item.name}"
-        return self.base_item.name
+        base = f"{self.title.name} {self.base_item.name}" if self.title else self.base_item.name
+        if self.enhance_level > 0:
+            base += f"+{self.enhance_level}"
+        return base
 
     @property
     def slot(self) -> str:
@@ -290,6 +292,7 @@ class EquipmentInstance:
     def total_attack(self) -> int:
         bonus = self.title.stat_bonuses.get("attack", 0) if self.title else 0
         bonus += self._bonus_for("attack")
+        bonus += self._enhance_bonus("attack")
         base = int(self.base_item.attack * self.stat_multiplier)
         return base + bonus
 
@@ -297,6 +300,7 @@ class EquipmentInstance:
     def total_defense(self) -> int:
         bonus = self.title.stat_bonuses.get("defense", 0) if self.title else 0
         bonus += self._bonus_for("defense")
+        bonus += self._enhance_bonus("defense")
         base = int(self.base_item.defense * self.stat_multiplier)
         return base + bonus
 
@@ -304,6 +308,7 @@ class EquipmentInstance:
     def total_speed(self) -> int:
         bonus = self.title.stat_bonuses.get("speed", 0) if self.title else 0
         bonus += self._bonus_for("speed")
+        bonus += self._enhance_bonus("speed")
         base = int(self.base_item.speed * self.stat_multiplier) # Use base_item.speed
         return base + bonus
 
@@ -321,10 +326,21 @@ class EquipmentInstance:
     def total_magic(self) -> int:
         bonus = self.title.stat_bonuses.get("magic", 0) if self.title else 0
         bonus += self._bonus_for("magic")
+        bonus += self._enhance_bonus("magic")
         base = int(self.base_item.magic * self.stat_multiplier) # Use base_item.magic
         return base + bonus
 
     # ------------------------------------------------------------------
+    def _enhance_bonus(self, stat: str) -> int:
+        """強化レベル(+N)による上昇。基礎値の約10%/レベル（最低+1/レベル）。"""
+        if self.enhance_level <= 0:
+            return 0
+        base = getattr(self.base_item, stat, 0) or 0
+        if base <= 0:
+            return 0
+        per_level = max(1, round(base * 0.1))
+        return per_level * self.enhance_level
+
     def _bonus_for(self, stat: str) -> int:
         total = 0
         if self.random_bonuses:

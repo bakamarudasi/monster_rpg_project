@@ -124,7 +124,7 @@ def save_game(player: "Player", db_name: str, user_id: Optional[int] = None) -> 
                 instance_id = None
                 bonuses = None
             cursor.execute(
-                "INSERT INTO player_equipment (player_id, equip_id, title_id, instance_id, random_bonuses, synthesis_rank, stat_multiplier, sub_stat_slots) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO player_equipment (player_id, equip_id, title_id, instance_id, random_bonuses, synthesis_rank, stat_multiplier, sub_stat_slots, enhance_level) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     player.db_id,
                     equip_id,
@@ -134,6 +134,7 @@ def save_game(player: "Player", db_name: str, user_id: Optional[int] = None) -> 
                     getattr(equip, "synthesis_rank", 0),
                     getattr(equip, "stat_multiplier", 1.0),
                     getattr(equip, "sub_stat_slots", 0),
+                    getattr(equip, "enhance_level", 0),
                 ),
             )
 
@@ -245,10 +246,10 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
                     loaded_player.items.append(ALL_ITEMS[item_id])
 
             cursor.execute(
-                "SELECT equip_id, title_id, instance_id, random_bonuses, synthesis_rank, stat_multiplier, sub_stat_slots FROM player_equipment WHERE player_id=?",
+                "SELECT equip_id, title_id, instance_id, random_bonuses, synthesis_rank, stat_multiplier, sub_stat_slots, enhance_level FROM player_equipment WHERE player_id=?",
                 (db_id,),
             )
-            for equip_id, title_id, instance_id, bonuses_json, rank, mult, slots in cursor.fetchall():
+            for equip_id, title_id, instance_id, bonuses_json, rank, mult, slots, enhance_level in cursor.fetchall():
                 if equip_id in ALL_EQUIPMENT:
                     base = ALL_EQUIPMENT[equip_id]
                     if title_id and title_id in ALL_TITLES:
@@ -262,6 +263,7 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
                             synthesis_rank=rank or 0,
                             stat_multiplier=mult or 1.0,
                             sub_stat_slots=slots or 0,
+                            enhance_level=enhance_level or 0,
                         )
                     else:
                         equip = EquipmentInstance(
@@ -272,6 +274,7 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
                             synthesis_rank=rank or 0,
                             stat_multiplier=mult or 1.0,
                             sub_stat_slots=slots or 0,
+                            enhance_level=enhance_level or 0,
                         )
                     loaded_player.equipment_inventory.append(equip)
 
