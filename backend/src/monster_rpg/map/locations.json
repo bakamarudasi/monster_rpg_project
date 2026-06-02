@@ -187,7 +187,7 @@
     "party_size": [1, 2],
     "has_inn": true, "inn_cost": 20,
     "has_shop": true,
-    "shop_items": { "medium_potion": 40, "antidote": 25 },
+    "shop_items": { "medium_potion": 40, "antidote": 25, "power_seed": 300, "guard_seed": 300, "speed_seed": 300, "life_seed": 400, "mind_seed": 250 },
     "avg_enemy_level": 3,
     "x": 0, "y": 3
   },

@@ -152,6 +152,10 @@ class Monster:
         # 一時的な補正値と倍率
         self._stat_bonuses = {"attack": 0, "defense": 0, "speed": 0, "magic": 0}
         self._stat_multipliers = {"attack": 1.0, "defense": 1.0, "speed": 1.0, "magic": 1.0}
+        # 永続的な強化（種アイテム・配合の累代＋値などで恒久的に加算される）
+        self.permanent_bonuses = {"attack": 0, "defense": 0, "speed": 0, "magic": 0}
+        # 配合の世代（＋値）。配合を重ねるほど増え、ステータスに加算される
+        self.plus_value = 0
 
         self.level = level
         self.exp = exp
@@ -197,7 +201,7 @@ class Monster:
     # ------------------------------------------------------------------
     @property
     def attack(self) -> int:
-        base = self.base_attack + self._stat_bonuses.get("attack", 0)
+        base = self.base_attack + self._stat_bonuses.get("attack", 0) + self.permanent_bonuses.get("attack", 0)
         total = base + self._equipment_bonus("attack")
         return int(total * self._stat_multipliers.get("attack", 1.0))
 
@@ -207,7 +211,7 @@ class Monster:
 
     @property
     def defense(self) -> int:
-        base = self.base_defense + self._stat_bonuses.get("defense", 0)
+        base = self.base_defense + self._stat_bonuses.get("defense", 0) + self.permanent_bonuses.get("defense", 0)
         total = base + self._equipment_bonus("defense")
         return int(total * self._stat_multipliers.get("defense", 1.0))
 
@@ -217,7 +221,7 @@ class Monster:
 
     @property
     def speed(self) -> int:
-        base = self.base_speed + self._stat_bonuses.get("speed", 0)
+        base = self.base_speed + self._stat_bonuses.get("speed", 0) + self.permanent_bonuses.get("speed", 0)
         total = base + self._equipment_bonus("speed")
         return int(total * self._stat_multipliers.get("speed", 1.0))
 
@@ -227,13 +231,43 @@ class Monster:
 
     @property
     def magic(self) -> int:
-        base = self.base_magic + self._stat_bonuses.get("magic", 0)
+        base = self.base_magic + self._stat_bonuses.get("magic", 0) + self.permanent_bonuses.get("magic", 0)
         total = base + self._equipment_bonus("magic")
         return int(total * self._stat_multipliers.get("magic", 1.0))
 
     @magic.setter
     def magic(self, value: int) -> None:
         self.base_magic = value
+
+    def add_permanent_stat(self, stat: str, amount: int) -> int:
+        """種アイテム等で恒久的にステータスを上げる。HP/MPは最大値に直接加算する。"""
+        amount = int(amount)
+        if stat in ("hp", "max_hp"):
+            self.max_hp += amount
+            self.hp = min(self.max_hp, self.hp + amount)
+            return amount
+        if stat in ("mp", "max_mp"):
+            self.max_mp += amount
+            self.mp = min(self.max_mp, self.mp + amount)
+            return amount
+        if stat in self.permanent_bonuses:
+            self.permanent_bonuses[stat] += amount
+            return amount
+        return 0
+
+    def add_plus_value(self, amount: int = 1) -> None:
+        """配合の世代（＋値）を加算し、相応のステータス補正を恒久付与する。"""
+        amount = max(0, int(amount))
+        if amount <= 0:
+            return
+        self.plus_value += amount
+        self.permanent_bonuses["attack"] += amount
+        self.permanent_bonuses["defense"] += amount
+        self.permanent_bonuses["speed"] += amount
+        self.max_hp += 2 * amount
+        self.max_mp += amount
+        self.hp = min(self.max_hp, self.hp)
+        self.mp = min(self.max_mp, self.mp)
 
     def show_status(self, log: list[dict[str, str]] | None):
         if log is None:
@@ -621,6 +655,8 @@ class Monster:
         new_monster.max_mp = self.max_mp
         new_monster.mp = new_monster.max_mp
         new_monster.base_magic = self.base_magic
+        new_monster.permanent_bonuses = dict(self.permanent_bonuses)
+        new_monster.plus_value = self.plus_value
         new_monster.is_alive = True
         new_monster.skill_sequence = self.skill_sequence[:]
         new_monster.equipment = copy.deepcopy(self.equipment)

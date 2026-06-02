@@ -99,5 +99,35 @@
   "power_fragment": {
     "name": "力の破片",
     "description": "力のアクセサリーを作るための素材。"
+  },
+  "power_seed": {
+    "name": "ちからの種",
+    "description": "モンスター1体のこうげきを永続的に+3する不思議な種。",
+    "usable": true,
+    "effects": [{"type": "permanent_stat", "stat": "attack", "amount": 3}]
+  },
+  "guard_seed": {
+    "name": "まもりの種",
+    "description": "モンスター1体のしゅびを永続的に+3する不思議な種。",
+    "usable": true,
+    "effects": [{"type": "permanent_stat", "stat": "defense", "amount": 3}]
+  },
+  "speed_seed": {
+    "name": "すばやさの種",
+    "description": "モンスター1体のすばやさを永続的に+3する不思議な種。",
+    "usable": true,
+    "effects": [{"type": "permanent_stat", "stat": "speed", "amount": 3}]
+  },
+  "life_seed": {
+    "name": "いのちの種",
+    "description": "モンスター1体のさいだいHPを永続的に+20する不思議な種。",
+    "usable": true,
+    "effects": [{"type": "permanent_stat", "stat": "max_hp", "amount": 20}]
+  },
+  "mind_seed": {
+    "name": "マインドの種",
+    "description": "モンスター1体のさいだいMPを永続的に+10する不思議な種。",
+    "usable": true,
+    "effects": [{"type": "permanent_stat", "stat": "max_mp", "amount": 10}]
   }
 }

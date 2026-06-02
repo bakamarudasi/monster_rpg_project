@@ -69,37 +69,37 @@ def save_game(player: "Player", db_name: str, user_id: Optional[int] = None) -> 
             )
             player.db_id = cursor.lastrowid
 
+        def _monster_row(monster):
+            pb = getattr(monster, "permanent_bonuses", {}) or {}
+            return (
+                player.db_id,
+                monster.monster_id,
+                monster.level,
+                monster.exp,
+                monster.hp,
+                monster.max_hp,
+                monster.mp,
+                monster.max_mp,
+                int(pb.get("attack", 0)),
+                int(pb.get("defense", 0)),
+                int(pb.get("speed", 0)),
+                int(pb.get("magic", 0)),
+                int(getattr(monster, "plus_value", 0)),
+            )
+
+        _monster_cols = (
+            "(player_id, monster_id, level, exp, hp, max_hp, mp, max_mp, "
+            "bonus_attack, bonus_defense, bonus_speed, bonus_magic, plus_value) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        )
+
         cursor.execute("DELETE FROM party_monsters WHERE player_id=?", (player.db_id,))
         for monster in player.party_monsters:
-            cursor.execute(
-                "INSERT INTO party_monsters (player_id, monster_id, level, exp, hp, max_hp, mp, max_mp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                (
-                    player.db_id,
-                    monster.monster_id,
-                    monster.level,
-                    monster.exp,
-                    monster.hp,
-                    monster.max_hp,
-                    monster.mp,
-                    monster.max_mp,
-                ),
-            )
+            cursor.execute("INSERT INTO party_monsters " + _monster_cols, _monster_row(monster))
 
         cursor.execute("DELETE FROM storage_monsters WHERE player_id=?", (player.db_id,))
         for monster in player.reserve_monsters:
-            cursor.execute(
-                "INSERT INTO storage_monsters (player_id, monster_id, level, exp, hp, max_hp, mp, max_mp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                (
-                    player.db_id,
-                    monster.monster_id,
-                    monster.level,
-                    monster.exp,
-                    monster.hp,
-                    monster.max_hp,
-                    monster.mp,
-                    monster.max_mp,
-                ),
-            )
+            cursor.execute("INSERT INTO storage_monsters " + _monster_cols, _monster_row(monster))
 
         cursor.execute("DELETE FROM player_items WHERE player_id=?", (player.db_id,))
         for item in player.items:
@@ -188,44 +188,52 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
             loaded_player.current_location_id = location_id
             loaded_player.db_id = db_id
 
+            def _build_saved_monster(row):
+                (monster_id, m_level, m_exp, hp, max_hp, mp, max_mp,
+                 b_atk, b_def, b_spd, b_mag, plus_value) = row
+                if monster_id not in ALL_MONSTERS:
+                    return None
+                monster = ALL_MONSTERS[monster_id].copy()
+                if monster.level < m_level:
+                    monster.advance_to_level(m_level, verbose=False)
+                monster.exp = m_exp
+                if max_hp is not None:
+                    monster.max_hp = max_hp
+                if hp is not None:
+                    monster.hp = hp
+                if max_mp is not None:
+                    monster.max_mp = max_mp
+                if mp is not None:
+                    monster.mp = mp
+                # 永続強化（種・配合の＋値）を復元
+                monster.permanent_bonuses = {
+                    "attack": b_atk or 0,
+                    "defense": b_def or 0,
+                    "speed": b_spd or 0,
+                    "magic": b_mag or 0,
+                }
+                monster.plus_value = plus_value or 0
+                return monster
+
+            _saved_cols = ("monster_id, level, exp, hp, max_hp, mp, max_mp, "
+                           "bonus_attack, bonus_defense, bonus_speed, bonus_magic, plus_value")
+
             cursor.execute(
-                "SELECT monster_id, level, exp, hp, max_hp, mp, max_mp FROM party_monsters WHERE player_id=?",
+                f"SELECT {_saved_cols} FROM party_monsters WHERE player_id=?",
                 (db_id,),
             )
-            for monster_id, m_level, m_exp, hp, max_hp, mp, max_mp in cursor.fetchall():
-                if monster_id in ALL_MONSTERS:
-                    monster = ALL_MONSTERS[monster_id].copy()
-                    if monster.level < m_level:
-                        monster.advance_to_level(m_level, verbose=False)
-                    monster.exp = m_exp
-                    if max_hp is not None:
-                        monster.max_hp = max_hp
-                    if hp is not None:
-                        monster.hp = hp
-                    if max_mp is not None:
-                        monster.max_mp = max_mp
-                    if mp is not None:
-                        monster.mp = mp
+            for row in cursor.fetchall():
+                monster = _build_saved_monster(row)
+                if monster is not None:
                     loaded_player.party_monsters.append(monster)
 
             cursor.execute(
-                "SELECT monster_id, level, exp, hp, max_hp, mp, max_mp FROM storage_monsters WHERE player_id=?",
+                f"SELECT {_saved_cols} FROM storage_monsters WHERE player_id=?",
                 (db_id,),
             )
-            for monster_id, m_level, m_exp, hp, max_hp, mp, max_mp in cursor.fetchall():
-                if monster_id in ALL_MONSTERS:
-                    monster = ALL_MONSTERS[monster_id].copy()
-                    if monster.level < m_level:
-                        monster.advance_to_level(m_level, verbose=False)
-                    monster.exp = m_exp
-                    if max_hp is not None:
-                        monster.max_hp = max_hp
-                    if hp is not None:
-                        monster.hp = hp
-                    if max_mp is not None:
-                        monster.max_mp = max_mp
-                    if mp is not None:
-                        monster.mp = mp
+            for row in cursor.fetchall():
+                monster = _build_saved_monster(row)
+                if monster is not None:
                     loaded_player.reserve_monsters.append(monster)
 
             cursor.execute(
