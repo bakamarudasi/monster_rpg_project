@@ -1855,7 +1855,7 @@
     "family": "demon"
   },
   "poison_queen": {
-    "name": "白雪の毒后",
+    "name": "腐毒の女王 ニーヴェ=ブランシュ",
     "ai_role": "attacker",
     "rank": "S",
     "element": "闇",
@@ -1867,14 +1867,14 @@
     "drop_items": [["guard_seed", 0.3], ["abyss_shard", 0.5]],
     "learnset": {"20": ["abyss_of_despair"]},
     "book": {
-      "description": "毒の林檎を配り続ける狂気の女王。鏡だけが、爛れた真実の貌を映し出す。",
-      "location_hint": "どこにも棲まない。配合の闇からのみ現れる稀なる存在。",
-      "synthesis_hint": "腐敗を纏う騎士と、魔を操る者を掛け合わせよ。"
+      "description": "純白を騙りし腐敗の戴冠者。紅き唇が紡ぐ毒の福音は、口づけた者の魂さえも腐り堕とす。——『鏡よ、もう誰も、わたくしを愛さない』",
+      "location_hint": "地上に座する玉座はもう無い。禁忌の配合の闇よりのみ、其の女王は再臨する。",
+      "synthesis_hint": "腐敗を纏いし騎士と、深淵の魔導を識る者。二つの呪いを重ね、戴冠させよ。"
     },
     "family": "demon"
   },
   "beheader_alice": {
-    "name": "断頭のアリシア",
+    "name": "断罪遊戯の処刑姫 アリシエル",
     "ai_role": "attacker",
     "rank": "S",
     "element": "闇",
@@ -1886,14 +1886,14 @@
     "drop_items": [["speed_seed", 0.3], ["abyss_shard", 0.4]],
     "learnset": {"25": ["mark_of_annihilation"]},
     "book": {
-      "description": "「あなたの首を、おはなししてくださる？」不思議の国で微笑む、小さな処刑人。",
-      "location_hint": "決まった棲み処はない。配合の偶然がもたらす幻の少女。",
-      "synthesis_hint": "血を吸う王と、影の獣。その狭間に彼女は笑う。"
+      "description": "終わらぬ茶会の底で微笑む、断頭台の幼き王。『さあ、貴方の首で——とびきり愉しい遊戯をいたしましょう？』振り下ろす刃に、慈悲という名の手札は存在しない。",
+      "location_hint": "歪んだ夢幻郷のどこにも、そしてどこにでも。配合の偶然だけが、彼女を招き寄せる。",
+      "synthesis_hint": "血を啜る夜の王と、音もなく忍ぶ影の獣。其の狭間で、少女は嗤う。"
     },
     "family": "humanoid"
   },
   "crimson_hood": {
-    "name": "紅ずきんの牙",
+    "name": "飢餓の緋き獣 ルガルゥ",
     "ai_role": "attacker",
     "rank": "S",
     "element": "闇",
@@ -1905,14 +1905,14 @@
     "drop_items": [["power_seed", 0.3], ["tough_leather", 0.5]],
     "learnset": {"22": ["life_steal_mid"]},
     "book": {
-      "description": "祖母も狼も喰らい尽くした少女。今や森でもっとも飢えた獣となった。",
-      "location_hint": "獣の影が差す配合からのみ生まれ落ちる。",
-      "synthesis_hint": "影の獣に、もう一匹の獣性を重ねよ。"
+      "description": "祖母を、狼を、そして己が人の貌すらも喰らい尽くした、飢餓そのものの化身。緋き頭巾は零れ落ちた獲物の血で永遠に濡れ、満たされぬ腹が今宵も森を啼かせる。",
+      "location_hint": "獣の影が深く落ちる配合の淵より、牙を剥いて顕現する。",
+      "synthesis_hint": "影を纏いし獣に、さらなる獣性を喰らわせよ。飢えは、飢えを呼ぶ。"
     },
     "family": "beast"
   },
   "sleeping_maiden": {
-    "name": "硝子棺の眠り姫",
+    "name": "終わらぬ微睡みの姫 ソムニア",
     "ai_role": "attacker",
     "rank": "S",
     "element": "闇",
@@ -1924,14 +1924,14 @@
     "drop_items": [["life_seed", 0.3], ["celestial_feather", 0.3]],
     "learnset": {"28": ["abyss_of_despair"]},
     "book": {
-      "description": "永遠に目覚めぬ姫君。その眠りに触れた者もまた、二度と覚めることはない。",
-      "location_hint": "時の止まった配合の隙間に、硝子の棺は安置されている。",
-      "synthesis_hint": "凍てつく聖職者と、深淵を見張る者を。"
+      "description": "永遠の微睡みに囚われし、硝子の棺の住人。その安らかな寝顔を覗き込んだ者は、二度と現世へ帰れぬ夢の檻へと囚われる。——眠れ。もう、目覚めなくていい。",
+      "location_hint": "時の凍てついた配合の隙間に、其の棺は静かに安置されている。",
+      "synthesis_hint": "凍える谷の聖職者と、深淵を見張り続ける者。静寂を司る二者を捧げよ。"
     },
     "family": "undead"
   },
   "match_ember": {
-    "name": "マッチ売りの焔",
+    "name": "煉獄を彷徨う燐火 イグニス",
     "ai_role": "attacker",
     "rank": "S",
     "element": "火",
@@ -1943,14 +1943,14 @@
     "drop_items": [["mind_seed", 0.3], ["fire_crystal", 0.5]],
     "learnset": {"24": ["meteor_strike"]},
     "book": {
-      "description": "凍えて死んだ少女が遺した最後の願い。今は煉獄の焔となり、永遠に温もりを探している。",
-      "location_hint": "燃え尽きた灯りの跡、配合の残り火から立ちのぼる。",
-      "synthesis_hint": "溶岩の精と、天翔ける光の魂を交えよ。"
+      "description": "凍てつく夜に掻き消えた、最後の願い。それは煉獄の焔と化し、永遠に温もりを求めて彷徨う亡霊となった。擦るたび視える幻の灯り——其れを灰に変え尽くす、その日まで。",
+      "location_hint": "燃え尽きた灯火の跡、配合の残り火の中からゆらりと立ちのぼる。",
+      "synthesis_hint": "燃え盛る溶岩の化身と、天翔ける光の魂。相反する二つの焔を交えよ。"
     },
     "family": "spirit"
   },
   "tale_devourer": {
-    "name": "終焉の語り部",
+    "name": "全てを綴じる終焉の影 グリム=エンディア",
     "ai_role": "attacker",
     "rank": "S",
     "element": "闇",
@@ -1962,9 +1962,9 @@
     "drop_items": [["elixir", 0.5], ["abyss_shard", 0.6]],
     "learnset": {},
     "book": {
-      "description": "全ての童話の最後のページに棲まう影。物語を読み終えた者の魂を、栞のかわりに挟んでいく。",
-      "location_hint": "誰も辿り着けぬ物語の終端。ごく稀な配合の奇跡のみが、その扉を開く。",
-      "synthesis_hint": "数多の強き魂を重ね続けた者の前にのみ、最後の頁は現れる。"
+      "description": "あらゆる物語の最終頁に巣食う、終焉そのものの具現。読み終えられた魂を栞として挟み込み、世界という名の長き物語が閉じる瞬間を、静かに待ち続ける。其の真名を口にした者から順に、頁は閉じてゆく。",
+      "location_hint": "誰も辿り着けぬ物語の終端。幾度もの奇跡を重ねた配合のみが、最後の頁を開く。",
+      "synthesis_hint": "数多の強き魂を喰らい、累代を極めし者の前にのみ。終焉は、その頁を捲る。"
     },
     "family": "demon"
   }
