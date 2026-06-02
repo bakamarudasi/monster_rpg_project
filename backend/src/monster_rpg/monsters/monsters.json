@@ -1967,5 +1967,119 @@
       "synthesis_hint": "数多の強き魂を喰らい、累代を極めし者の前にのみ。終焉は、その頁を捲る。"
     },
     "family": "demon"
+  },
+  "data_wraith": {
+    "name": "電書の徘徊者 グリッチ",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "雷",
+    "image_filename": "iron_juggernaut.png",
+    "growth_type": "魔法型",
+    "stats": {"hp": 130, "mp": 70, "attack": 42, "defense": 38, "speed": 30},
+    "skills": ["lightning", "thunder_bolt", "paralysis_shock", "mana_burn"],
+    "skill_sequence": ["lightning", "paralysis_shock", "thunder_bolt"],
+    "drop_items": [["thunder_core", 0.4], ["mind_seed", 0.2]],
+    "learnset": {},
+    "book": {
+      "description": "電子の書架に巣食う、文字化けした亡霊。失われたSFの結末を、無限に再演し続ける壊れたプログラム。",
+      "location_hint": "終焉の物語世界、データの海を漂う。",
+      "synthesis_hint": "機械仕掛けの魂は、雷の素質を宿す。"
+    },
+    "family": "construct"
+  },
+  "midnight_horror": {
+    "name": "真夜中の怪談 ヨミ",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "闇",
+    "image_filename": "spectral_raven.png",
+    "growth_type": "スピード型",
+    "stats": {"hp": 120, "mp": 60, "attack": 44, "defense": 28, "speed": 34},
+    "skills": ["curse", "confusion_gas", "dark_pulse", "sleep_spell"],
+    "skill_sequence": ["curse", "confusion_gas", "dark_pulse"],
+    "drop_items": [["abyss_shard", 0.4], ["speed_seed", 0.2]],
+    "learnset": {},
+    "book": {
+      "description": "読み手を呪い殺すと噂される、語ってはならぬ怪談の化身。最後まで聞いた者の背後に、必ず立っている。",
+      "location_hint": "終焉の物語世界、丑三つ時の頁の隙間。",
+      "synthesis_hint": "恐怖の物語は、闇の眷属を呼ぶ。"
+    },
+    "family": "spirit"
+  },
+  "phantom_thief": {
+    "name": "完全犯罪の怪盗 ファントム",
+    "ai_role": "attacker",
+    "rank": "A",
+    "element": "無",
+    "image_filename": "imp.png",
+    "growth_type": "スピード型",
+    "stats": {"hp": 115, "mp": 55, "attack": 46, "defense": 30, "speed": 40},
+    "skills": ["blade_rush", "sand_attack", "mana_burn", "poison_dart"],
+    "skill_sequence": ["sand_attack", "blade_rush", "mana_burn"],
+    "drop_items": [["speed_seed", 0.3], ["abyss_shard", 0.2]],
+    "learnset": {},
+    "book": {
+      "description": "決して顔を見せぬ、推理小説から抜け出した神出鬼没の怪盗。盗むのは宝石か、それとも物語の結末そのものか。",
+      "location_hint": "終焉の物語世界、解かれぬ謎の章に潜む。",
+      "synthesis_hint": "属性を持たぬ無の魂は、変幻自在の素質を持つ。"
+    },
+    "family": "humanoid"
+  },
+  "fallen_deity": {
+    "name": "墜ちた神 アステリオス",
+    "ai_role": "attacker",
+    "rank": "S",
+    "element": "光",
+    "image_filename": "obsidian_titan.png",
+    "growth_type": "パワー型",
+    "stats": {"hp": 190, "mp": 80, "attack": 56, "defense": 44, "speed": 16},
+    "skills": ["holy_light", "meteor_strike", "brave_song", "mass_heal"],
+    "skill_sequence": ["meteor_strike", "holy_light", "brave_song"],
+    "drop_items": [["celestial_feather", 0.4], ["power_seed", 0.2]],
+    "learnset": {"30": ["revive"]},
+    "book": {
+      "description": "神話の頁から墜落した、かつての全能者。信仰を失い、今は終焉の物語世界で己が神殿の瓦礫を抱いて座す。",
+      "location_hint": "終焉の物語世界、忘れられた神話の墓標。",
+      "synthesis_hint": "神話の魂は、光の威光を継ぐ。"
+    },
+    "family": "spirit"
+  },
+  "ronin_spirit": {
+    "name": "無宿の刃 浪人",
+    "ai_role": "attacker",
+    "rank": "S",
+    "element": "無",
+    "image_filename": "blighted_knight.png",
+    "growth_type": "スピード型",
+    "stats": {"hp": 165, "mp": 40, "attack": 58, "defense": 36, "speed": 38},
+    "skills": ["blade_rush", "counter_attack", "wind_slash", "power_up"],
+    "skill_sequence": ["power_up", "blade_rush", "counter_attack"],
+    "drop_items": [["power_seed", 0.3], ["speed_seed", 0.2]],
+    "learnset": {"28": ["blade_rush"]},
+    "book": {
+      "description": "果たし合いの果てに物語を抜けた、主を持たぬ剣鬼。抜けば必ず斬る——その一刀に、迷いという名の鞘は無い。",
+      "location_hint": "終焉の物語世界、時代劇の散り際の章。",
+      "synthesis_hint": "研ぎ澄まされた無心の刃は、無属性を極める。"
+    },
+    "family": "humanoid"
+  },
+  "eldritch_tome": {
+    "name": "禁書の触手 ネクロノム",
+    "ai_role": "attacker",
+    "rank": "S",
+    "element": "闇",
+    "image_filename": "kraken.png",
+    "growth_type": "魔法型",
+    "stats": {"hp": 200, "mp": 95, "attack": 50, "defense": 42, "speed": 18},
+    "skills": ["embrace_of_the_void", "abyss_of_despair", "life_drain", "mana_burn"],
+    "skill_sequence": ["embrace_of_the_void", "life_drain", "abyss_of_despair"],
+    "drop_items": [["abyss_shard", 0.5], ["mind_seed", 0.3]],
+    "learnset": {},
+    "book": {
+      "description": "開いてはならぬ禁書から這い出した、無数の触手と眼球の集合体。記された一行を読むだけで、正気は静かに頁から零れ落ちる。",
+      "location_hint": "終焉の物語世界、久遠の書庫の最奥、鎖に繋がれた書架。",
+      "synthesis_hint": "理を超えた古き恐怖は、深淵の闇を纏う。"
+    },
+    "family": "demon"
   }
 }
