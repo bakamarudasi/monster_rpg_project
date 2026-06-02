@@ -59,10 +59,13 @@ def world_map(user_id):
         return redirect(url_for('auth.index'))
     overview = get_map_overview()
     map_grid = get_map_grid()
+    discovered = set(player.exploration_progress.keys())
+    discovered.add(player.current_location_id)
     return render_template(
         'map.html', overview=overview, progress=player.exploration_progress,
         locations=LOCATIONS, user_id=user_id, map_grid=map_grid,
-        current_loc_id=player.current_location_id
+        current_loc_id=player.current_location_id,
+        discovered=discovered
     )
 
 @main_bp.route('/battle_log/<int:user_id>', endpoint='battle_log')
@@ -85,8 +88,34 @@ def move(user_id):
         if req and not any(it.item_id == req for it in player.items):
             msg = f"{loc.name} に入るには {req} が必要だ。"
             return render_template('result.html', message=msg, user_id=user_id)
+        # 出発地・到着地を「発見済み」として記録（ファストトラベル候補になる）
+        player.exploration_progress.setdefault(player.current_location_id, 0)
         player.current_location_id = dest
+        player.exploration_progress.setdefault(dest, 0)
         save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
+    return redirect(url_for('main.play', user_id=user_id))
+
+@main_bp.route('/fast_travel/<int:user_id>', methods=['POST'], endpoint='fast_travel')
+def fast_travel(user_id):
+    """発見済みの拠点へ地図から一気に移動する（ファストトラベル）。"""
+    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    if not player:
+        return redirect(url_for('auth.index'))
+    dest = request.form.get('dest')
+    if dest in LOCATIONS:
+        discovered = set(player.exploration_progress.keys())
+        discovered.add(player.current_location_id)
+        if dest in discovered:
+            loc = LOCATIONS[dest]
+            req = getattr(loc, 'required_item', None)
+            if req and not any(it.item_id == req for it in player.items):
+                flash(f"{loc.name} に入るには {req} が必要だ。", 'warn')
+                return redirect(url_for('main.world_map', user_id=user_id))
+            player.exploration_progress.setdefault(player.current_location_id, 0)
+            player.current_location_id = dest
+            player.exploration_progress.setdefault(dest, 0)
+            save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
+            flash(f"{loc.name} へ転送した。", 'success')
     return redirect(url_for('main.play', user_id=user_id))
 
 @main_bp.route('/save/<int:user_id>', methods=['POST'], endpoint='save')

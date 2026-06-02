@@ -7,6 +7,46 @@ from typing import Optional
 from .monsters import Monster, ALL_MONSTERS
 
 
+# ロケーションが属する「地方」。ワールドマップで地方ごとに色分け・グループ表示する。
+# locations.json に "region" があればそちらを優先し、無ければこの表を使う。
+REGION_BY_LOCATION: dict[str, str] = {
+    # アリアル地方（はじまりの大地）
+    "village_square": "アリアル地方",
+    "field_near_village": "アリアル地方",
+    "hill_road": "アリアル地方",
+    # 妖精の森
+    "forest_entrance": "妖精の森",
+    "mystic_lake": "妖精の森",
+    "deep_forest": "妖精の森",
+    "forest_boss_room": "妖精の森",
+    # 山岳地帯
+    "mountain_foothills": "山岳地帯",
+    "thunder_peak": "山岳地帯",
+    "ancient_ruins": "山岳地帯",
+    # 深淵
+    "catacombs_entrance": "深淵",
+    "catacombs_deep": "深淵",
+    "abyssal_chasm": "深淵",
+    # 灼熱と水郷
+    "desert_outskirts": "灼熱と水郷",
+    "desert_oasis": "灼熱と水郷",
+    "sunken_temple": "灼熱と水郷",
+    "abyssal_marsh": "灼熱と水郷",
+    "volcanic_ridge": "灼熱と水郷",
+    "lava_core": "灼熱と水郷",
+    # 天空
+    "celestial_tower": "天空",
+    "sky_isle": "天空",
+    "sky_isle_inner_sanctum": "天空",
+    # 終焉の物語世界（新領域）
+    "torn_pages_rift": "終焉の物語世界",
+    "eternal_library": "終焉の物語世界",
+    "forgotten_nursery": "終焉の物語世界",
+    "graveyard_of_tales": "終焉の物語世界",
+    "final_chapter_hall": "終焉の物語世界",
+}
+
+
 class Location:
     def __init__(
         self,
@@ -33,6 +73,7 @@ class Location:
         enemy_weights: dict[str, float] | None = None,
         x: int = 0,
         y: int = 0,
+        region: str | None = None,
     ):
         """
         場所の情報を保持するクラス。
@@ -72,6 +113,7 @@ class Location:
         self.x = x
         self.y = y
         self.enemy_weights = enemy_weights
+        self.region = region or REGION_BY_LOCATION.get(location_id)
 
     def get_random_enemy_id(self):
         """この場所で出現する可能性のあるモンスターIDをランダムに1つ返す。"""
@@ -162,6 +204,7 @@ def load_locations(filepath: str | None = None) -> None:
             enemy_weights=attrs.get("enemy_weights"),
             x=attrs.get("x", 0),
             y=attrs.get("y", 0),
+            region=attrs.get("region"),
         )
         loaded[loc_id] = loc
 
