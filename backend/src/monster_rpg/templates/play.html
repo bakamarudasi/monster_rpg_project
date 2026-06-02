@@ -97,6 +97,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="{{ url_for('static', filename='map_common.js') }}"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const mm = document.querySelector('.minimap');
@@ -104,11 +105,6 @@
     const cols = parseInt(mm.getAttribute('data-cols')) || 1;
     mm.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 
-    function regionHue(name) {
-      let h = 0;
-      for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) % 360;
-      return h;
-    }
     const form = document.getElementById('mm-ft-form');
     const dest = document.getElementById('mm-ft-dest');
     mm.querySelectorAll('.mm-cell').forEach(cell => {

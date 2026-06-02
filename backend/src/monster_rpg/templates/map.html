@@ -64,18 +64,12 @@
   <input type="hidden" name="dest" id="ft-dest">
 </form>
 
+<script src="{{ url_for('static', filename='map_common.js') }}"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const grid = document.querySelector('.map-grid');
     const cols = parseInt(grid.getAttribute('data-cols')) || 1;
     grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-
-    // 地方名 -> 色相 のハッシュ（地方ごとに自動で色分け）
-    function regionHue(name) {
-      let h = 0;
-      for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) % 360;
-      return h;
-    }
 
     const cells = document.querySelectorAll('.map-cell');
     const regionsSeen = new Map();
