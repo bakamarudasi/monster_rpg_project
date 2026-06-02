@@ -63,99 +63,93 @@
 </div>
 
 <style>
-  body {
-    background: #f9eee0;
-    min-height: 100vh;
-    font-family: 'Georgia', 'Times New Roman', serif;
-  }
   .book-bg {
     display: flex;
     justify-content: center;
     align-items: flex-start;
     min-height: 100vh;
-    padding: 48px 0;
+    padding: 32px 0;
   }
   .book-page {
-    background: #f7f2e6;
-    border: 4px solid #b68b4c;
-    border-radius: 18px;
-    max-width: 550px;
-    width: 98%;
-    box-shadow:
-      0 4px 32px #7b51120a,
-      0 0 0 10px #e6d3b6;
-    padding: 32px 28px 38px 28px;
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    max-width: 560px;
+    width: 96%;
+    box-shadow: var(--shadow), 0 0 0 1px rgba(255, 210, 74, 0.12) inset;
+    padding: 30px 26px 34px;
   }
   .book-title {
     text-align: center;
-    font-size: 2.1rem;
-    margin-bottom: 1.2em;
-    color: #895c1a;
-    letter-spacing: 2.5px;
-    text-shadow: 0 2px 1px #f4e3bd, 0 0 6px #f4e3bd99;
-    border-bottom: 2px solid #b68b4c55;
-    padding-bottom: .2em;
+    font-family: var(--font-display);
+    font-size: 1.9rem;
+    margin: 0 0 1.1em;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-shadow: 0 0 14px rgba(255, 210, 74, 0.3);
+    border-bottom: 2px solid var(--border-soft);
+    padding-bottom: .35em;
   }
 
   /* ログボックスのスタイル */
   .log-box {
-    background: #ede6d8;
-    border-radius: 8px;
+    background: rgba(8, 14, 24, 0.45);
+    border-radius: var(--radius-sm);
     padding: 16px;
-    margin-bottom: 24px;
-    border: 1px solid #d1c6b2;
+    margin-bottom: 22px;
+    border: 1px solid var(--border-soft);
+  }
+  .log-box h3,
+  .party-status-box h3,
+  .progress-section h3 {
+    margin: 0 0 12px 0;
+    color: var(--accent);
+    font-size: 1.1rem;
   }
   .log-box h3 {
-    margin: 0 0 12px 0;
-    color: #865e2a;
-    font-size: 1.2rem;
-    border-bottom: 1px solid #c9b383;
+    border-bottom: 1px solid var(--border-soft);
     padding-bottom: 8px;
   }
   .log-box ul {
-    list-style-type: '✧  ';
+    list-style-type: '✦  ';
     padding-left: 20px;
     margin: 0;
-    color: #5d4b29;
+    color: var(--text);
   }
-  .log-box li {
-      margin-bottom: 6px;
-  }
+  .log-box li { margin-bottom: 6px; }
 
   /* パーティ状況のスタイル */
-  .party-status-box h3 {
-    margin: 0 0 12px 0;
-    color: #865e2a;
-    font-size: 1.2rem;
-  }
   .party-preview {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 12px;
-    margin-bottom: 24px;
+    margin-bottom: 22px;
     padding: 12px;
-    background: #ede6d8;
-    border-radius: 8px;
-    border: 1px solid #d1c6b2;
+    background: rgba(8, 14, 24, 0.45);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-soft);
   }
   .monster-card {
-    background: #f6e9d1;
+    background: linear-gradient(180deg, var(--surface-raised), var(--surface-2));
     border-radius: 10px;
-    box-shadow: 0 1px 5px #b5b5b533;
+    box-shadow: var(--shadow-sm);
     padding: 10px;
     text-align: center;
-    border: 2px solid #d1c6b2;
+    border: 1px solid var(--border);
+    transition: transform .15s, border-color .15s;
   }
+  .monster-card:hover { transform: translateY(-3px); border-color: var(--accent); }
   .monster-img {
     width: 64px;
     height: 64px;
     object-fit: contain;
     margin-bottom: 6px;
+    filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.5));
   }
   .monster-name {
     font-weight: bold;
     margin-bottom: 6px;
-    color: #5d4b29;
+    color: var(--text);
     font-size: 0.9rem;
   }
   .hp-container {
@@ -163,60 +157,57 @@
     align-items: center;
     gap: 4px;
     font-size: 0.85rem;
-    color: #333;
+    color: var(--text-dim);
   }
   .hp-bar {
     flex: 1;
     height: 10px;
-    background: #5d4b29;
+    background: #0a1422;
     border-radius: 5px;
-    border: 1px solid #c9b383;
+    border: 1px solid var(--border-soft);
     overflow: hidden;
   }
   .hp-fill {
     height: 100%;
-    background: #28a745;
+    background: var(--success);
+    transition: width .6s cubic-bezier(.25, 1, .5, 1);
   }
-  .hp-fill.low { background: #ffc107; }
-  .hp-fill.critical { background: #dc3545; }
-  .hp-text { font-variant-numeric: tabular-nums; font-weight: bold; }
+  .hp-fill.low { background: var(--warn); }
+  .hp-fill.critical { background: var(--danger); }
+  .hp-text { font-variant-numeric: tabular-nums; font-weight: bold; color: var(--text); }
 
   /* 探索率のスタイル */
-  .progress-section h3 {
-     margin: 0 0 12px 0;
-     color: #865e2a;
-     font-size: 1.2rem;
-  }
   .progress-container {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 24px;
-    background: #ede6d8;
+    margin-bottom: 22px;
+    background: rgba(8, 14, 24, 0.45);
     padding: 8px;
-    border-radius: 12px;
-    border: 1px solid #d1c6b2;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-soft);
   }
   .progress-bar {
     flex-grow: 1;
     height: 20px;
-    background: #d1c6b2;
+    background: #0a1422;
     border-radius: 10px;
     overflow: hidden;
-    border: 2px solid #f7f2e6;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    border: 1px solid var(--border);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
   }
   .progress-fill {
-    background: linear-gradient(90deg, #d3b173, #a17c4b);
+    background: linear-gradient(90deg, var(--gold-deep), var(--gold));
     height: 100%;
-    box-shadow: inset 0 -2px 4px rgba(255,255,255,0.3);
+    box-shadow: 0 0 10px rgba(255, 210, 74, 0.5);
+    transition: width .8s cubic-bezier(.25, 1, .5, 1);
   }
   .progress-percent {
     width: 50px;
     text-align: right;
     font-weight: bold;
     font-size: 1.2rem;
-    color: #865e2a;
+    color: var(--gold);
   }
 
   /* ボタン・リンクのスタイル */
@@ -226,36 +217,32 @@
     align-items: center;
     gap: 24px;
     margin-top: 16px;
-    border-top: 2px solid #b68b4c55;
+    border-top: 2px solid var(--border-soft);
     padding-top: 24px;
   }
   .book-btn {
     padding: 11px 32px;
-    background: linear-gradient(90deg,#a17c4b 30%,#d3b173 100%);
-    color: #fffbe6;
-    border: none;
-    border-radius: 9px;
-    font-size: 1.12rem;
-    font-family: 'Georgia', serif;
+    background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+    color: #fff;
+    border: 1px solid #6aa6ee;
+    border-radius: var(--radius-sm);
+    font-size: 1.1rem;
     letter-spacing: 1px;
     font-weight: bold;
-    box-shadow: 0 2px 9px #8c6d3b33;
+    box-shadow: 0 3px 0 #0a3f7d, var(--shadow-sm);
     cursor: pointer;
-    transition: background .18s, box-shadow .17s;
-    border-bottom: 3px solid #c9b383;
+    transition: filter .15s, box-shadow .15s, transform .08s;
   }
-  .book-btn:hover {
-    background: linear-gradient(90deg,#d3b173 0%,#a17c4b 100%);
-    box-shadow: 0 4px 13px #a17c4b44;
-  }
+  .book-btn:hover { filter: brightness(1.1); box-shadow: 0 3px 0 #0a3f7d, var(--shadow-glow); }
+  .book-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a3f7d; }
   .book-link {
-    color: #9c7228;
+    color: var(--text-dim);
     font-size: 1.05em;
-    text-decoration: underline wavy #b68b4c66;
+    text-decoration: underline;
+    text-decoration-color: var(--border);
+    transition: color .15s;
   }
-  .book-link:hover {
-    color: #ad8236;
-  }
+  .book-link:hover { color: var(--accent); }
 
   .fade-in { opacity: 0; transform: translateY(32px) scale(.98); transition: .9s cubic-bezier(.19,1,.22,1); }
   .fade-in.show { opacity: 1; transform: none; }

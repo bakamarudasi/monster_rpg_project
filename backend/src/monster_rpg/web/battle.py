@@ -37,6 +37,7 @@ def serialize_monster(m, unit_id):
         'attack': m.attack,
         'defense': m.defense,
         'speed': m.speed,
+        'element': m.element,
         'atb_gauge': m.atb_gauge,
         'alive': m.is_alive,
         'image': url_for('static', filename='images/' + m.image_filename) if m.image_filename else None,
@@ -76,6 +77,7 @@ def deserialize_monster(data):
         attack=data['attack'],
         defense=data['defense'],
         speed=data['speed'],
+        element=data.get('element'),
         skills=skills,
         image_filename=data.get('image').split('/')[-1] if data.get('image') else None  # Extract filename from URL
     )

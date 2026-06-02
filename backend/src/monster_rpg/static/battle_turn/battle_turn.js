@@ -1,4 +1,7 @@
 (() => {
+    /* 属性相性: その属性が「弱い」相手（弱点を突かれる側） */
+    const ELEMENT_WEAKNESS = { '火': '水', '風': '火', '水': '風' };
+
     function buildUnitElement(info, idx, side) {
         const unit = document.createElement('div');
         unit.className = `battle-unit ${side}`;
@@ -13,6 +16,7 @@
         unit.dataset.attack = info.attack;
         unit.dataset.defense = info.defense;
         unit.dataset.speed = info.speed;
+        if (info.element) unit.dataset.element = info.element;
         unit.dataset.statuses = JSON.stringify(info.statuses || []);
 
         if (info.image) {
@@ -331,6 +335,7 @@
         const fields = {
             name: document.getElementById('detail-name'),
             level: document.getElementById('detail-level'),
+            element: document.getElementById('detail-element'),
             hp: document.getElementById('detail-hp'),
             maxHp: document.getElementById('detail-max-hp'),
             mp: document.getElementById('detail-mp'),
@@ -351,6 +356,14 @@
                     fields.statuses.textContent = list.map(s => `${s.display}(${s.remaining})`).join('、');
                 } catch (e) {
                     fields.statuses.textContent = '';
+                }
+                /* 属性と弱点を表示 */
+                const elem = el.dataset.element || '';
+                if (fields.element) fields.element.textContent = elem || '—';
+                const weakEl = document.getElementById('detail-weakness');
+                if (weakEl) {
+                    const weak = ELEMENT_WEAKNESS[elem];
+                    weakEl.textContent = weak ? weak + '属性' : '—';
                 }
                 detailPanel.classList.add('open');
             });
@@ -407,7 +420,18 @@
         // if (cmdWindow) cmdWindow.scrollIntoView({behavior: 'smooth'});
     }
 
-    function updateUnitList(units, infoList) {
+    function triggerShake(hard) {
+        const page = document.querySelector('.battle-page');
+        if (!page) return;
+        const cls = hard ? 'shake-hard' : 'shake';
+        page.classList.remove('shake', 'shake-hard');
+        void page.offsetWidth; /* reflowでアニメを確実に再生 */
+        page.classList.add(cls);
+        setTimeout(() => page.classList.remove(cls), hard ? 520 : 370);
+    }
+
+    function updateUnitList(units, infoList, opts = {}) {
+        let damaged = false;
         units.forEach((unit, idx) => {
             const info = infoList[idx];
             if (!info) return;
@@ -443,11 +467,15 @@
             if (mpText) mpText.textContent = info.mp + '/' + info.max_mp;
 
             if (!isNaN(prevHp) && info.hp < prevHp) {
-                showPopupIndicator(unit, '-' + (prevHp - info.hp), 'damage-indicator');
+                damaged = true;
+                unit.classList.add('hit-flash');
+                setTimeout(() => unit.classList.remove('hit-flash'), 470);
+                showPopupIndicator(unit, '-' + (prevHp - info.hp), 'damage-indicator' + (opts.crit ? ' crit' : ''));
             } else if (!isNaN(prevHp) && info.hp > prevHp) {
                 showPopupIndicator(unit, '+' + (info.hp - prevHp), 'heal-indicator');
             }
         });
+        return damaged;
     }
 
     function buildSkillUI(actor) {
@@ -540,12 +568,17 @@
     function applyBattleData(data) {
         const detailPanel = document.getElementById('enemy-detail');
         if (detailPanel) detailPanel.classList.remove('open');
+        const hasCrit = Array.isArray(data.log) && data.log.some(e => e.type === 'critical');
+        const hasEffective = Array.isArray(data.log) && data.log.some(e => e.type === 'effective');
+
         const allyUnits = document.querySelectorAll('#ally-party-area .battle-unit');
         allyUnits.forEach(el => el.classList.remove('active-turn'));
-        updateUnitList(allyUnits, data.hp_values.player);
+        const allyDamaged = updateUnitList(allyUnits, data.hp_values.player, { crit: hasCrit });
 
         const enemyUnits = document.querySelectorAll('#enemy-party-area .battle-unit');
-        updateUnitList(enemyUnits, data.hp_values.enemy);
+        const enemyDamaged = updateUnitList(enemyUnits, data.hp_values.enemy, { crit: hasCrit });
+
+        if (allyDamaged || enemyDamaged) triggerShake(hasCrit || hasEffective);
 
         if (Array.isArray(data.turn_order)) {
             updateTurnOrder(data.turn_order);

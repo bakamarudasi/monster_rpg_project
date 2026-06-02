@@ -268,3 +268,80 @@ button:hover { background: #004cd1; }
 .tab-panel.active {
     display: block;
 }
+
+/* =====================================================================
+   戦闘の手触り（juice）: 画面シェイク・被弾フラッシュ・属性/クリティカル演出
+   ===================================================================== */
+
+/* 画面シェイク */
+@keyframes screen-shake {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(-6px, 3px); }
+    40% { transform: translate(6px, -3px); }
+    60% { transform: translate(-4px, -2px); }
+    80% { transform: translate(4px, 2px); }
+}
+@keyframes screen-shake-hard {
+    0%, 100% { transform: translate(0, 0) rotate(0); }
+    15% { transform: translate(-11px, 5px) rotate(-0.6deg); }
+    30% { transform: translate(11px, -6px) rotate(0.6deg); }
+    45% { transform: translate(-9px, -4px) rotate(-0.4deg); }
+    60% { transform: translate(9px, 5px) rotate(0.4deg); }
+    80% { transform: translate(-5px, 3px); }
+}
+.battle-page.shake { animation: screen-shake 0.35s ease; }
+.battle-page.shake-hard { animation: screen-shake-hard 0.5s ease; }
+
+/* 被弾フラッシュ（ダメージを受けたユニット） */
+@keyframes hit-flash-anim {
+    0% { filter: brightness(2.2) drop-shadow(0 0 10px #ff5252); transform: translateX(0); }
+    20% { transform: translateX(-7px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(3px); }
+    100% { filter: none; transform: translateX(0); }
+}
+.battle-unit.hit-flash .unit-img { animation: hit-flash-anim 0.45s ease; }
+
+/* 行動者の前進（攻撃モーション） */
+@keyframes lunge-enemy { 0% { transform: translateY(0); } 40% { transform: translateY(22px) scale(1.04); } 100% { transform: translateY(0); } }
+@keyframes lunge-ally { 0% { transform: translateY(0); } 40% { transform: translateY(-22px) scale(1.04); } 100% { transform: translateY(0); } }
+.battle-unit.enemy.attacking { animation: lunge-enemy 0.4s ease; }
+.battle-unit.ally.attacking { animation: lunge-ally 0.4s ease; }
+
+/* ダメージ数字を大きく・見やすく */
+.damage-indicator {
+    font-size: 1.6rem;
+    text-shadow: 0 2px 4px #000, 0 0 8px rgba(255, 60, 60, 0.6);
+}
+.heal-indicator {
+    font-size: 1.5rem;
+    text-shadow: 0 2px 4px #000, 0 0 8px rgba(50, 205, 50, 0.6);
+}
+/* クリティカル時のダメージ数字 */
+.damage-indicator.crit {
+    color: #ffc23c;
+    font-size: 2.2rem;
+    text-shadow: 0 2px 5px #000, 0 0 14px rgba(255, 180, 40, 0.9);
+}
+
+/* ログ内のメッセージ発色（battle画面用の上書き） */
+.log .log-message-effective { color: #ffd24a; font-weight: bold; text-shadow: 0 0 8px rgba(255, 210, 74, 0.6); }
+.log .log-message-resist { color: #9bb0cc; font-style: italic; }
+.log .log-message-critical { color: #ff8a3c; font-weight: 800; letter-spacing: 1px; }
+.log .log-message-item_drop { color: var(--gold); font-weight: bold; }
+
+/* 敵詳細パネルの属性・弱点 */
+.enemy-detail-panel .detail-element { color: #9cd3ff; font-weight: bold; }
+.enemy-detail-panel .detail-weakness-row { color: #ffd24a; }
+.enemy-detail-panel .detail-weakness {
+    font-weight: bold;
+    color: #ffd24a;
+    text-shadow: 0 0 8px rgba(255, 210, 74, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .battle-page.shake, .battle-page.shake-hard,
+    .battle-unit.hit-flash .unit-img,
+    .battle-unit.attacking { animation: none; }
+}
