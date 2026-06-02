@@ -18,9 +18,14 @@ def play(user_id):
         for cmd, dest in loc.connections.items():
             dest_name = LOCATIONS.get(dest).name if dest in LOCATIONS else dest
             connections.append((cmd, dest, dest_name))
+    map_grid = get_map_grid()
+    discovered = set(player.exploration_progress.keys())
+    discovered.add(player.current_location_id)
     return render_template(
         'play.html', player=player, loc=loc,
-        connections=connections, user_id=user_id
+        connections=connections, user_id=user_id,
+        map_grid=map_grid, discovered=discovered,
+        current_loc_id=player.current_location_id
     )
 
 @main_bp.route('/status/<int:user_id>', endpoint='status')

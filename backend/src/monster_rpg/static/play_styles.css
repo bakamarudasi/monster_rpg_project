@@ -121,3 +121,57 @@ form { margin: 0; }
 /* === セーブボタンの特別スタイル === */
 .save-btn span { color: #ffd0a0; }
 .save-btn::before { color: var(--gold); }
+
+/* === 周辺ミニマップ === */
+.minimap-panel {
+    margin: 8px 4px 0;
+    padding: 8px 10px 10px;
+    background: rgba(8, 14, 24, 0.4);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+}
+.minimap-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+}
+.minimap-link { color: var(--accent); font-size: 0.78rem; text-decoration: none; }
+.minimap-link:hover { text-decoration: underline; }
+.minimap {
+    display: grid;
+    gap: 3px;
+    width: 100%;
+}
+.mm-cell {
+    --region-hue: 210;
+    aspect-ratio: 1 / 1;
+    border-radius: 3px;
+    background: hsl(var(--region-hue), 28%, 18%);
+    border: 1px solid hsl(var(--region-hue), 30%, 34%);
+    transition: transform 0.12s, box-shadow 0.12s;
+}
+.mm-cell.empty { background: transparent; border: none; }
+.mm-cell.fog { background: #0c1320; border-color: #1c2940; }
+.mm-cell.disc { cursor: pointer; }
+.mm-cell.disc:hover {
+    transform: scale(1.25);
+    box-shadow: 0 0 0 2px hsl(var(--region-hue), 70%, 60%);
+    z-index: 2;
+    position: relative;
+}
+.mm-cell.cur {
+    background: var(--gold);
+    border-color: #fff3c4;
+    box-shadow: 0 0 8px rgba(255, 210, 74, 0.7);
+}
+.mm-cell.boss::after {
+    content: '';
+    display: block;
+    width: 4px; height: 4px;
+    margin: 1px auto 0;
+    border-radius: 50%;
+    background: #ff6b6b;
+}
