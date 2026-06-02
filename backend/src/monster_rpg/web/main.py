@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request
+from flask import Blueprint, render_template, redirect, url_for, request, flash
 from .. import database_setup
 from ..player import Player
 from .. import save_manager
@@ -94,4 +94,5 @@ def save(user_id):
     player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
     if player:
         save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
+        flash('セーブしました', 'save')
     return redirect(url_for('main.play', user_id=user_id))

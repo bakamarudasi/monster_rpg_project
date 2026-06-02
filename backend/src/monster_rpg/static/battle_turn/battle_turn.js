@@ -2,6 +2,25 @@
     /* 属性相性: その属性が「弱い」相手（弱点を突かれる側） */
     const ELEMENT_WEAKNESS = { '火': '水', '風': '火', '水': '風' };
 
+    /* 戦闘ログの新規分からトーストを出す（重複防止に長さを記録） */
+    let lastLogLen = -1;
+    function toastFromLog(log) {
+        if (!Array.isArray(log) || typeof window.showToast !== 'function') return;
+        if (lastLogLen < 0) { lastLogLen = log.length; return; } /* 初回は履歴を出さない */
+        const fresh = log.slice(lastLogLen);
+        lastLogLen = log.length;
+        fresh.forEach(e => {
+            const m = e.message || '';
+            if (e.type === 'item_drop') {
+                window.showToast(m, 'item');
+            } else if (m.indexOf('上がった') !== -1 && m.indexOf('レベル') !== -1) {
+                window.showToast(m.replace(/🎉/g, '').trim(), 'level');
+            } else if (m.indexOf('join your party') !== -1) {
+                window.showToast('仲間が増えた！', 'success');
+            }
+        });
+    }
+
     function buildUnitElement(info, idx, side) {
         const unit = document.createElement('div');
         unit.className = `battle-unit ${side}`;
@@ -594,6 +613,7 @@
                 logEl.appendChild(li);
             });
         }
+        toastFromLog(data.log);
 
         const banner = document.querySelector('.turn-banner');
         if (banner) banner.textContent = 'Turn ' + data.turn;
