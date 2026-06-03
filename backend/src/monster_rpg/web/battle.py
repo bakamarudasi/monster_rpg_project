@@ -1,13 +1,9 @@
-import random
 import copy
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 from ..battle import start_atb_battle, STATUS_DEFINITIONS, Battle
-from ..player import Player
 from .utils import load_player, save_player
-from ..items.equipment import Equipment, EquipmentInstance, create_titled_equipment
 from ..monsters.monster_class import Monster
-from ..map_data import LOCATIONS
-from ..exploration import generate_enemy_party
+from ..services import battle_service
 from ..skills.skills import ALL_SKILLS
 
 def serialize_monster(m, unit_id):
@@ -180,51 +176,7 @@ def battle(user_id):
             # Reconstruct the battle object for processing the turn
             battle_obj = start_atb_battle(player_party, enemy_party, player, log, turn_order_monsters)
 
-        action = data_src.get('action', 'attack')
-        if action == 'run':
-            battle_obj.process_player_action({'type': 'run'})
-        elif action.startswith('skill'):
-            try:
-                s_idx = int(action[5:])
-            except ValueError:
-                s_idx = 0
-            tgt_e = data_src.get('target_enemy', '-1')
-            tgt_a = data_src.get('target_ally', '0')
-            try:
-                tgt_e = int(tgt_e)
-            except ValueError:
-                tgt_e = -1
-            try:
-                tgt_a = int(tgt_a)
-            except ValueError:
-                tgt_a = 0
-            battle_obj.process_player_action({'type': 'skill', 'skill': s_idx, 'target_enemy': tgt_e, 'target_ally': tgt_a})
-        elif action == 'item':
-            idx_val = data_src.get('item_idx', '-1')
-            tgt_a = data_src.get('target_ally', '0')
-            try:
-                idx_val = int(idx_val)
-            except ValueError:
-                idx_val = -1
-            try:
-                tgt_a = int(tgt_a)
-            except ValueError:
-                tgt_a = 0
-            battle_obj.process_player_action({'type': 'item', 'item_idx': idx_val, 'target_ally': tgt_a})
-        elif action == 'scout':
-            tgt = data_src.get('target_enemy', '-1')
-            try:
-                tgt = int(tgt)
-            except ValueError:
-                tgt = -1
-            battle_obj.process_player_action({'type': 'scout', 'target_enemy': tgt})
-        else: # Default to attack
-            tgt = data_src.get('target_enemy', '-1')
-            try:
-                tgt = int(tgt)
-            except ValueError:
-                tgt = -1
-            battle_obj.process_player_action({'type': 'attack', 'target_enemy': tgt})
+        battle_obj.process_player_action(battle_service.build_player_action(data_src))
 
         # Process AI turns until player's turn or battle ends
         while not battle_obj.finished and battle_obj.current_actor and battle_obj.current_actor not in battle_obj.player_party:
@@ -248,38 +200,9 @@ def battle(user_id):
             save_player(player, user_id)
 
         if battle_obj.finished:
-            outcome = battle_obj.outcome
-            msgs = battle_obj.log[:]
-            if outcome == 'win':
-                total_exp = sum(e.level * 10 for e in enemy_party)
-                gold_gain = sum(e.level * 5 for e in enemy_party)
-                alive_members = [m for m in player_party if m.is_alive]
-                if alive_members and total_exp:
-                    share = total_exp // len(alive_members)
-                    for m in alive_members:
-                        m.gain_exp(share)
-                player.gold += gold_gain
-                for enemy in enemy_party:
-                    for item_obj, rate in getattr(enemy, 'drop_items', []):
-                        if random.random() < rate:
-                            if isinstance(item_obj, Equipment):
-                                new_equip = create_titled_equipment(item_obj.equip_id)
-                                if new_equip:
-                                    player.equipment_inventory.append(new_equip)
-                                    msgs.append({'type': 'item_drop', 'message': f'{new_equip.name} を手に入れた！', 'item_name': new_equip.name})
-                                else:
-                                    msgs.append({'type': 'info', 'message': f'{item_obj.name} を手に入れ損ねた...'})
-                            elif isinstance(item_obj, EquipmentInstance):
-                                player.equipment_inventory.append(item_obj)
-                                msgs.append({'type': 'item_drop', 'message': f'{item_obj.name} を手に入れた！', 'item_name': item_obj.name})
-                            else:
-                                player.items.append(item_obj)
-                                msgs.append({'type': 'item_drop', 'message': f'{item_obj.name} を手に入れた！', 'item_name': item_obj.name})
-                msgs.append({'type': 'info', 'message': f'勝利した！ {gold_gain}G を得た。'})
-            elif outcome == 'fled':
-                msgs.append({'type': 'info', 'message': 'うまく逃げ切れた！'})
-            else:
-                msgs.append({'type': 'info', 'message': '敗北してしまった...'})
+            msgs = battle_service.apply_battle_rewards(
+                player, battle_obj.outcome, player_party, enemy_party, battle_obj.log
+            )
             player.last_battle_log = msgs
             del active_battles[user_id]
             save_player(player, user_id)
@@ -296,18 +219,11 @@ def battle(user_id):
             })
     else: # GET request or initial battle setup
         if not battle_state:
-            loc = LOCATIONS.get(player.current_location_id)
-            if not loc:
+            battle_obj, error = battle_service.start_new_battle(player)
+            if error == 'no_location':
                 return redirect(url_for('main.play', user_id=user_id))
-            enemies = generate_enemy_party(loc, player)
-            if not enemies:
-                msg = 'モンスターは現れなかった。'
-                return render_template('result.html', message=msg, user_id=user_id)
-
-            # Start a new battle using the ATB system
-            battle_obj = start_atb_battle(player.party_monsters, enemies, player)
-            enemy_names = ', '.join(e.name for e in enemies)
-            battle_obj.log.append({'type': 'info', 'message': f'{enemy_names} が現れた！'})
+            if error == 'no_enemies':
+                return render_template('result.html', message='モンスターは現れなかった。', user_id=user_id)
 
             # Store the initial battle state
             active_battles[user_id] = {

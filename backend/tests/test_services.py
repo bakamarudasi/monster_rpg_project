@@ -10,7 +10,13 @@ import unittest
 from monster_rpg.player import Player
 from monster_rpg.items.equipment import EquipmentInstance, BRONZE_SWORD
 from monster_rpg.items.item_data import ALL_ITEMS
-from monster_rpg.services import shop_service, equipment_service, synthesis_service
+from monster_rpg.monsters.monster_data import ALL_MONSTERS
+from monster_rpg.services import (
+    shop_service,
+    equipment_service,
+    synthesis_service,
+    battle_service,
+)
 
 
 def _loc(**kw):
@@ -141,6 +147,73 @@ class SynthesisServiceTests(unittest.TestCase):
         preview, err = synthesis_service.preview_synthesis(p, {'base_id': 'a', 'material_id': 'b'})
         self.assertEqual(err, 'invalid index')
         self.assertIsNone(preview)
+
+
+class BattleServiceActionTests(unittest.TestCase):
+    def test_default_is_attack(self):
+        self.assertEqual(battle_service.build_player_action({}),
+                         {'type': 'attack', 'target_enemy': -1})
+
+    def test_attack_with_target(self):
+        self.assertEqual(battle_service.build_player_action({'action': 'attack', 'target_enemy': '2'}),
+                         {'type': 'attack', 'target_enemy': 2})
+
+    def test_run(self):
+        self.assertEqual(battle_service.build_player_action({'action': 'run'}), {'type': 'run'})
+
+    def test_skill_parses_index_and_targets(self):
+        self.assertEqual(
+            battle_service.build_player_action({'action': 'skill3', 'target_enemy': '1', 'target_ally': '2'}),
+            {'type': 'skill', 'skill': 3, 'target_enemy': 1, 'target_ally': 2},
+        )
+
+    def test_skill_bad_index_defaults_zero(self):
+        action = battle_service.build_player_action({'action': 'skill'})
+        self.assertEqual(action['type'], 'skill')
+        self.assertEqual(action['skill'], 0)
+
+    def test_item_and_scout(self):
+        self.assertEqual(battle_service.build_player_action({'action': 'item', 'item_idx': '4'}),
+                         {'type': 'item', 'item_idx': 4, 'target_ally': 0})
+        self.assertEqual(battle_service.build_player_action({'action': 'scout', 'target_enemy': '5'}),
+                         {'type': 'scout', 'target_enemy': 5})
+
+    def test_non_numeric_target_falls_back(self):
+        self.assertEqual(battle_service.build_player_action({'action': 'attack', 'target_enemy': 'xyz'}),
+                         {'type': 'attack', 'target_enemy': -1})
+
+
+class BattleServiceRewardTests(unittest.TestCase):
+    def _mon(self, level=2):
+        m = ALL_MONSTERS['slime'].copy()
+        m.level = level
+        m.is_alive = True
+        m.drop_items = []
+        return m
+
+    def test_win_grants_gold_exp_and_message(self):
+        p = Player('B'); p.gold = 0
+        ally, enemy = self._mon(), self._mon(level=3)
+        msgs = battle_service.apply_battle_rewards(p, 'win', [ally], [enemy], [])
+        self.assertEqual(p.gold, 15)                       # level3 * 5
+        self.assertIn('勝利', msgs[-1]['message'])
+
+    def test_win_applies_guaranteed_drop(self):
+        p = Player('B'); p.gold = 0
+        enemy = self._mon()
+        enemy.drop_items = [(ALL_ITEMS['elixir'], 1.0)]    # 確定ドロップ
+        msgs = battle_service.apply_battle_rewards(p, 'win', [self._mon()], [enemy], [])
+        self.assertTrue(any(getattr(it, 'item_id', '') == 'elixir' for it in p.items))
+        self.assertTrue(any(m.get('type') == 'item_drop' for m in msgs))
+
+    def test_fled_and_lose_messages_keep_gold(self):
+        p = Player('B'); p.gold = 50
+        enemy = self._mon()
+        fled = battle_service.apply_battle_rewards(p, 'fled', [self._mon()], [enemy], [])
+        self.assertEqual(fled[-1]['message'], 'うまく逃げ切れた！')
+        lose = battle_service.apply_battle_rewards(p, 'lose', [self._mon()], [enemy], [])
+        self.assertEqual(lose[-1]['message'], '敗北してしまった...')
+        self.assertEqual(p.gold, 50)                       # 勝利以外は増えない
 
 
 if __name__ == '__main__':
