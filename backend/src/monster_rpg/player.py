@@ -7,7 +7,7 @@ from .map_data import STARTING_LOCATION_ID
 from .monsters.monster_class import Monster
 from .monster_book import MonsterBook
 
-from . import save_manager, party_manager, synthesis_manager, equipment_manager
+from . import save_manager, party_manager, synthesis_manager, equipment_manager, shop
 
 logger = logging.getLogger(__name__)
 
@@ -88,13 +88,13 @@ class Player:
         return party_manager.use_item(self, item_idx, target_monster)
 
     def rest_at_inn(self, cost: int) -> bool:
-        return party_manager.rest_at_inn(self, cost)
+        return shop.rest_at_inn(self, cost)
 
     def buy_item(self, item_id: str, price: int) -> bool:
-        return party_manager.buy_item(self, item_id, price)
+        return shop.buy_item(self, item_id, price)
 
     def buy_monster(self, monster_id: str, price: int) -> bool:
-        return party_manager.buy_monster(self, monster_id, price)
+        return shop.buy_monster(self, monster_id, price)
 
     def craft_equipment(self, equip_id: str):
         return equipment_manager.craft_equipment(self, equip_id)
