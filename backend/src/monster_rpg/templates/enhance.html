@@ -34,6 +34,20 @@
               </button>
             </form>
           {% endif %}
+          {% if e.instance_id %}
+          <div class="equip-extra">
+            <form action="{{ url_for('inventory.limit_break', user_id=user_id) }}" method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="instance_id" value="{{ e.instance_id }}">
+              <button type="submit" class="sub-btn lb-btn" title="合成素材で装備のランクを上げる">限界突破{% if e.rank %} <small>R{{ e.rank }}</small>{% endif %}</button>
+            </form>
+            <form action="{{ url_for('inventory.disassemble', user_id=user_id) }}" method="post" onsubmit="return confirm('{{ e.name }} を分解して素材にしますか？');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="instance_id" value="{{ e.instance_id }}">
+              <button type="submit" class="sub-btn dis-btn" title="装備を素材に変える">分解</button>
+            </form>
+          </div>
+          {% endif %}
         </div>
       </li>
       {% endfor %}
@@ -93,6 +107,25 @@
   .enhance-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #7e5e16; }
   .enhance-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
   .maxed { color: var(--gold); font-weight: 800; letter-spacing: 1px; }
+  .equip-action { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
+  .equip-extra { display: flex; gap: 6px; }
+  .sub-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 5px 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: filter .15s, transform .08s;
+  }
+  .sub-btn small { font-weight: 600; opacity: 0.85; }
+  .sub-btn:hover { filter: brightness(1.18); }
+  .sub-btn:active { transform: translateY(1px); }
+  .lb-btn { border-color: #b066e0; color: #e9c9ff; background: rgba(176,102,224,0.16); }
+  .dis-btn { border-color: #c0654a; color: #ffd0bf; background: rgba(192,101,74,0.16); }
   .empty { color: var(--text-dim); text-align: center; padding: 24px 0; }
   .back-link { display: inline-block; margin-top: 20px; color: var(--accent); }
   @media (max-width: 520px) {

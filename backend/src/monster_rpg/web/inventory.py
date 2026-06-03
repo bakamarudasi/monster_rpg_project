@@ -4,12 +4,8 @@ from ..monsters.monster_data import ALL_MONSTERS, MONSTER_BOOK_DATA
 from ..map_data import LOCATIONS
 from .utils import load_player, save_player
 from ..services.synthesis_service import perform_synthesis, preview_synthesis
-from ..enhancement import (
-    enhance_equipment,
-    enhance_cost,
-    required_material_names,
-    ENHANCE_MAX,
-)
+from ..services import equipment_service, shop_service
+from ..enhancement import ENHANCE_MAX
 
 inventory_bp = Blueprint('inventory', __name__)
 
@@ -20,32 +16,35 @@ def enhance(user_id):
     if not player:
         return redirect(url_for('auth.index'))
     if request.method == 'POST':
-        instance_id = request.form.get('instance_id', '')
-        success, msg = enhance_equipment(player, instance_id)
+        success, msg = equipment_service.enhance(player, request.form.get('instance_id', ''))
         save_player(player, user_id)
         flash(msg, 'success' if success else 'warn')
         return redirect(url_for('inventory.enhance', user_id=user_id))
 
-    # インベントリの装備一覧（強化情報つき）
-    entries = []
-    for eq in player.equipment_inventory:
-        level = getattr(eq, 'enhance_level', 0)
-        entries.append({
-            'instance_id': getattr(eq, 'instance_id', ''),
-            'name': eq.name,
-            'slot': eq.slot,
-            'attack': eq.total_attack,
-            'defense': eq.total_defense,
-            'speed': eq.total_speed,
-            'level': level,
-            'maxed': level >= ENHANCE_MAX,
-            'cost': enhance_cost(level),
-            'material': required_material_names(eq.slot),
-        })
     return render_template(
         'enhance.html', player=player, user_id=user_id,
-        entries=entries, enhance_max=ENHANCE_MAX,
+        entries=equipment_service.enhance_entries(player), enhance_max=ENHANCE_MAX,
     )
+
+@inventory_bp.route('/disassemble/<int:user_id>', methods=['POST'], endpoint='disassemble')
+def disassemble(user_id):
+    player = load_player(user_id)
+    if not player:
+        return redirect(url_for('auth.index'))
+    success, msg = equipment_service.disassemble(player, request.form.get('instance_id', ''))
+    save_player(player, user_id)
+    flash(msg, 'success' if success else 'warn')
+    return redirect(url_for('inventory.enhance', user_id=user_id))
+
+@inventory_bp.route('/limit_break/<int:user_id>', methods=['POST'], endpoint='limit_break')
+def limit_break(user_id):
+    player = load_player(user_id)
+    if not player:
+        return redirect(url_for('auth.index'))
+    success, msg = equipment_service.limit_break(player, request.form.get('instance_id', ''))
+    save_player(player, user_id)
+    flash(msg, 'success' if success else 'warn')
+    return redirect(url_for('inventory.enhance', user_id=user_id))
 
 @inventory_bp.route('/items/<int:user_id>', methods=['GET', 'POST'], endpoint='items')
 def items(user_id):
@@ -128,21 +127,9 @@ def shop(user_id):
     message = None
     if request.method == 'POST':
         if 'buy_item' in request.form:
-            item_id = request.form['buy_item']
-            price = loc.shop_items.get(item_id)
-            if price is not None and player.buy_item(item_id, price):
-                name = ALL_ITEMS[item_id].name if item_id in ALL_ITEMS else item_id
-                message = f"{name} を購入した。"
-            else:
-                message = '購入できなかった。'
+            _, message = shop_service.buy_item(player, loc, request.form['buy_item'])
         elif 'buy_monster' in request.form:
-            monster_id = request.form['buy_monster']
-            price = loc.shop_monsters.get(monster_id)
-            if price is not None and player.buy_monster(monster_id, price):
-                mname = ALL_MONSTERS[monster_id].name if monster_id in ALL_MONSTERS else monster_id
-                message = f"{mname} を仲間にした。"
-            else:
-                message = '購入できなかった。'
+            _, message = shop_service.buy_monster(player, loc, request.form['buy_monster'])
         save_player(player, user_id)
     entries = []
     for iid, pr in loc.shop_items.items():
@@ -192,8 +179,6 @@ def inn(user_id):
     loc = LOCATIONS.get(player.current_location_id)
     if not loc or not getattr(loc, 'has_inn', False):
         return redirect(url_for('main.play', user_id=user_id))
-    cost = getattr(loc, 'inn_cost', 10)
-    success = player.rest_at_inn(cost)
-    msg = '宿屋で休んだ。' if success else 'お金が足りない。'
+    _, msg = shop_service.rest_at_inn(player, loc)
     save_player(player, user_id)
     return render_template('result.html', message=msg, user_id=user_id)

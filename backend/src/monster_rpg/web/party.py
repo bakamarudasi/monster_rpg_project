@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 import json
-from ..player import Player
 from .utils import load_player, save_player
+from ..services import equipment_service
 from ..monsters.monster_data import MONSTER_BOOK_DATA
 from ..items.equipment import EquipmentInstance
 
@@ -70,29 +70,10 @@ def equip(user_id):
         return jsonify({'success': False, 'error': 'invalid index'}), 400
     if equip_id in [None, ''] and slot is None:
         return jsonify({'success': False, 'error': 'invalid equip_id'}), 400
-    success = player.equip_to_monster(idx_int, equip_id if equip_id not in ['', None] else None, slot)
+    success, view_data = equipment_service.equip(player, idx_int, equip_id, slot)
     if success:
         save_player(player, user_id)
-    monster = player.party_monsters[idx_int]
-    equipment_inventory = [
-        {
-            'id': (e.instance_id if isinstance(e, EquipmentInstance) else getattr(e, 'equip_id', str(e))),
-            'name': getattr(e, 'name', ''),
-        }
-        for e in player.equipment_inventory
-    ]
-    monster_equipment = {slot: eq.name for slot, eq in monster.equipment.items()}
-    monster_stats = {
-        'attack': monster.total_attack(),
-        'defense': monster.total_defense(),
-        'speed': monster.total_speed(),
-    }
-    return jsonify({
-        'success': success,
-        'equipment_inventory': equipment_inventory,
-        'monster_equipment': monster_equipment,
-        'monster_stats': monster_stats,
-    })
+    return jsonify({'success': success, **view_data})
 
 @party_bp.route('/formation/<int:user_id>', methods=['GET', 'POST'], endpoint='formation')
 def formation(user_id):
