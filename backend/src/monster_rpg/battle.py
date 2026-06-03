@@ -5,14 +5,13 @@ from .monsters import Monster
 from .items.equipment import Equipment, EquipmentInstance, create_titled_equipment
 from .skills.skills import Skill, ALL_SKILLS
 from .skills.skill_actions import apply_effects
-
-# Attribute compatibility multiplier definition
-ELEMENTAL_MULTIPLIERS = {
-    ("火", "風"): 1.5,
-    ("風", "水"): 1.5,
-    ("水", "火"): 1.5,
-    ("光", "闇"): 1.5,  # 光は闇に強い（闇のダーク童話勢は光が弱点）
-}
+from .elements import (
+    ELEMENTAL_MULTIPLIERS,
+    elemental_multiplier,
+    field_multiplier,
+    tick_field,
+    clear_field,
+)
 
 # Critical hit settings
 CRITICAL_HIT_CHANCE = 0.1
@@ -151,6 +150,14 @@ STATUS_DEFINITIONS = {
         "duration": 1,
         "message": "回避",
     },
+    "element_shift": {
+        "duration": 3,
+        "message": "属性変化",
+    },
+    "transform": {
+        "duration": 3,
+        "message": "変身",
+    },
 }
 
 def apply_status(target: Monster, status_name: str, log: List[Dict[str, str]] | None = None, duration: int | None = None) -> None:
@@ -186,13 +193,7 @@ def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, s
     base = attacker.total_attack() - defender.total_defense()
     damage = max(1, base)
 
-    multiplier = ELEMENTAL_MULTIPLIERS.get((attacker.element, defender.element))
-    if multiplier is None:
-        rev = ELEMENTAL_MULTIPLIERS.get((defender.element, attacker.element))
-        if rev is not None:
-            multiplier = 0.5
-        else:
-            multiplier = 1.0
+    multiplier = elemental_multiplier(attacker.element, defender.element)
 
     # 属性相性のフィードバック（弱点を突くと有利・耐性で不利）
     if multiplier > 1.0:
@@ -201,6 +202,12 @@ def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, s
         log.append({'type': 'resist', 'message': "こうかは いまひとつの ようだ…"})
 
     damage = int(damage * multiplier)
+
+    # フィールド（天候）補正：攻撃属性が場と一致していれば増幅
+    fmult = field_multiplier(attacker.element)
+    if fmult != 1.0:
+        damage = int(damage * fmult)
+        log.append({'type': 'effective', 'message': "フィールドが攻撃を後押しした！"})
 
     if random.random() < CRITICAL_HIT_CHANCE:
         damage = int(damage * CRITICAL_HIT_MULTIPLIER)
@@ -348,6 +355,9 @@ class Battle:
         self.current_actor: Optional[Monster] = None
         self.turn_order: List[Monster] = []
 
+        # 新しい戦闘を始めるので、前の戦闘のフィールド（天候）状態を消す
+        clear_field()
+
         all_monsters = self.player_party + self.enemy_party
 
         if turn_order_monsters:
@@ -424,6 +434,7 @@ class Battle:
 
             self.log.append({'type': 'info', 'message': f"{actor.name} attacks {target.name}!"})
             damage = calculate_damage(actor, target, self.log)
+            damage = target.absorb_with_shield(damage, self.log)
             target.hp -= damage
             self.log.append({'type': 'info', 'message': f"{target.name} took {damage} damage! (HP: {max(0, target.hp)})"})
             if target.hp <= 0:
@@ -433,6 +444,7 @@ class Battle:
                 if any(e["name"] == "counter_stance" for e in target.status_effects):
                     self.log.append({'type': 'info', 'message': f"{target.name} counters!"})
                     counter_damage = calculate_damage(target, actor, self.log)
+                    counter_damage = actor.absorb_with_shield(counter_damage, self.log)
                     actor.hp -= counter_damage
                     self.log.append({'type': 'info', 'message': f"{actor.name} took {counter_damage} damage! (HP: {max(0, actor.hp)})"})
                     if actor.hp <= 0:
@@ -601,6 +613,11 @@ class Battle:
         self.turn_count += 1
         self.log.append({'type': 'info', 'message': f"--- Turn {self.turn_count} ---"})
 
+        # フィールド（天候）の残りターンを減らす
+        expired_field = tick_field()
+        if expired_field:
+            self.log.append({'type': 'info', 'message': f"{expired_field} が消え去った。"})
+
         all_monsters = self.player_party + self.enemy_party
         for monster in all_monsters:
             if monster.is_alive:
@@ -683,6 +700,7 @@ def enemy_take_action(
             target = random.choice(alive_player_targets)
         log.append({'type': 'info', 'message': f"{enemy_actor.name} attacks due to taunt! -> {target.name}"})
         damage = calculate_damage(enemy_actor, target, log)
+        damage = target.absorb_with_shield(damage, log)
         target.hp -= damage
         log.append({'type': 'info', 'message': f"{target.name} took {damage} damage! (HP: {max(0, target.hp)})"})
         if target.hp <= 0:
@@ -692,6 +710,7 @@ def enemy_take_action(
             if any(e["name"] == "counter_stance" for e in target.status_effects):
                 log.append({'type': 'info', 'message': f"{target.name} counters!"})
                 counter_damage = calculate_damage(target, enemy_actor, log)
+                counter_damage = enemy_actor.absorb_with_shield(counter_damage, log)
                 enemy_actor.hp -= counter_damage
                 log.append({'type': 'info', 'message': f"{enemy_actor.name} took {counter_damage} damage! (HP: {max(0, enemy_actor.hp)})"})
                 if enemy_actor.hp <= 0:
@@ -753,6 +772,7 @@ def enemy_take_action(
             target = random.choice(alive_player_targets)
         log.append({'type': 'info', 'message': f"{enemy_actor.name} attacks! -> {target.name}"})
         damage = calculate_damage(enemy_actor, target, log)
+        damage = target.absorb_with_shield(damage, log)
         target.hp -= damage
         log.append({'type': 'info', 'message': f"{target.name} took {damage} damage! (HP: {max(0, target.hp)})"})
         if target.hp <= 0:

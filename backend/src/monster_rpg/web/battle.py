@@ -34,6 +34,7 @@ def serialize_monster(m, unit_id):
         'speed': m.speed,
         'element': m.element,
         'atb_gauge': m.atb_gauge,
+        'shield': getattr(m, 'shield', 0),
         'alive': m.is_alive,
         'image': url_for('static', filename='images/' + m.image_filename) if m.image_filename else None,
         'statuses': [
@@ -79,6 +80,7 @@ def deserialize_monster(data):
     monster.max_hp = data['max_hp']
     monster.max_mp = data['max_mp']
     monster.atb_gauge = data['atb_gauge']
+    monster.shield = data.get('shield', 0)
     monster.is_alive = data['alive']
     monster.status_effects = data['statuses']
     return monster

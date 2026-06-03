@@ -186,6 +186,8 @@ class Monster:
         self.skill_sequence = skill_sequence if skill_sequence else []
         self.unit_id = unit_id if unit_id is not None else str(uuid.uuid4()) # Add unit_id attribute
         self.atb_gauge = atb_gauge # ATBゲージの初期値
+        # バリア（シールド）。HPの手前でダメージを肩代わりする一時的な盾。
+        self.shield = 0
 
     def update_atb_gauge(self, amount: int | None = None) -> None:
         """ATBゲージを更新する。amountが指定されなければ素早さに応じて増加。"""
@@ -374,6 +376,22 @@ class Monster:
                 restored = self.mp - before
                 if restored:
                     log.append({'type': 'info', 'message': f"{self.name} のMPが {restored} 回復した！ (MP: {self.mp})"})
+
+    def absorb_with_shield(self, damage: int, log: list[dict[str, str]] | None = None) -> int:
+        """バリアでダメージを肩代わりし、HPに通す残りダメージを返す。
+
+        バリアが無い (shield == 0) ときは ``damage`` をそのまま返し、ログも残さない
+        ので、既存のダメージ処理の挙動は一切変わらない。
+        """
+        if log is None:
+            log = []
+        shield = getattr(self, "shield", 0)
+        if shield > 0 and damage > 0:
+            absorbed = min(shield, damage)
+            self.shield = shield - absorbed
+            damage -= absorbed
+            log.append({'type': 'info', 'message': f"{self.name} のバリアが {absorbed} ダメージを防いだ！ (残りバリア: {self.shield})"})
+        return damage
 
     def apply_buff(self, stat: str, amount: int, duration: int) -> None:
         if not stat:
@@ -641,6 +659,7 @@ class Monster:
             'defense': self.defense,
             'speed': self.speed,
             'atb_gauge': self.atb_gauge,
+            'shield': self.shield,
             'alive': self.is_alive,
             'image_filename': self.image_filename,
             'statuses': [{'name': s['name'], 'remaining': s['remaining']} for s in self.status_effects],
@@ -666,6 +685,7 @@ class Monster:
         monster.mp = data['mp'] # Set current mp
         monster.is_alive = data['alive']
         monster.status_effects = data['statuses']
+        monster.shield = data.get('shield', 0)
         return monster
 
     def copy(self):
