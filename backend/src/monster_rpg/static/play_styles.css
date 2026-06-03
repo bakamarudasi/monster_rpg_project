@@ -1,130 +1,177 @@
-/* === 全体レイアウト & 基本スタイル === */
-body {
-    background: #1a1a1a; /* 暗い背景 */
-    color: #f0f0f0;
-    font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-    font-size: 18px;
-    line-height: 1.6;
-}
+/* === 拠点（フィールド）画面 — 共通デザイントークンに準拠 === */
 
 /* === RPGのウィンドウ風コンテナ === */
 .field-container {
     max-width: 640px;
-    margin: 2rem auto;
-    background: #001a33; /* 深い青色のウィンドウ背景 */
-    border: 3px solid #ccc;
-    outline: 3px solid #001a33;
-    border-radius: 4px;
-    box-shadow: 0 0 20px rgba(0, 128, 255, 0.2);
-    padding: 8px;
+    margin: 1.5rem auto;
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+    padding: 10px;
+    animation: field-in 0.5s cubic-bezier(0.2, 1, 0.3, 1) both;
+}
+@keyframes field-in {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: none; }
 }
 
 /* === 上部: ヘッダーエリア === */
 .loc-header {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 1rem;
-    border-radius: 2px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.1));
+    padding: 1rem 1.1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-soft);
 }
 .header-top {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
     margin-bottom: 0.5rem;
 }
 .loc-header h2 {
-    color: #fff;
+    color: var(--text);
+    font-family: var(--font-display);
     font-size: 1.5rem;
     margin: 0;
-    text-shadow: 1px 1px 2px #000;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 .player-status {
-    color: #ffdd00; /* ゴールドの色 */
-    font-size: 1.1rem;
+    color: var(--gold);
+    font-size: 1.05rem;
+    font-weight: 600;
 }
-.player-status span {
-    margin-left: 1.5rem;
-}
+.player-status span { margin-left: 1.25rem; }
 .loc-desc {
-    color: #ddd;
+    color: var(--text-dim);
     font-size: 1rem;
     margin: 0;
-    padding-left: 0.5rem;
-    border-left: 3px solid #4a90e2; /* 説明文の左にアクセント */
+    padding-left: 0.6rem;
+    border-left: 3px solid var(--accent);
 }
 
 /* === 区切り線 === */
 .window-divider {
     border: 0;
     height: 2px;
-    background: linear-gradient(to right, transparent, #556, transparent);
-    margin: 8px 0;
+    background: linear-gradient(to right, transparent, var(--border), transparent);
+    margin: 10px 0;
 }
 
 /* === 下部: コマンドエリア === */
-.command-area {
-    padding: 0.5rem;
-}
+.command-area { padding: 0.5rem; }
 .actions-group h3 {
-    color: #87cefa; /* ライトブルー */
-    font-size: 1.1rem;
-    margin-top: 0;
-    margin-bottom: 0.75rem;
+    color: var(--accent);
+    font-size: 1.05rem;
+    margin: 0 0 0.75rem;
     padding-left: 0.5rem;
+    letter-spacing: 1px;
+    border-left: 3px solid var(--accent);
 }
+.actions-group + .actions-group { margin-top: 1rem; }
 
 /* === ボタン共通スタイル === */
-.move-btn-list, .menu-group {
-    display: grid;
-    gap: 8px 16px;
-}
-.menu-group {
-    grid-template-columns: 1fr 1fr; /* 2列グリッド */
-}
-.move-btn-list {
-    grid-template-columns: 1fr; /* 移動は1列 */
-}
-form {
-    margin: 0; /* formによる余白をなくす */
-}
+.move-btn-list, .menu-group { display: grid; gap: 8px 12px; }
+.menu-group { grid-template-columns: 1fr 1fr; }
+.move-btn-list { grid-template-columns: 1fr; }
+form { margin: 0; }
+
 .menu-btn {
-    background: transparent;
-    color: #f0f0f0;
-    border: none;
-    border-radius: 0;
-    font-size: 1.1rem;
-    padding: 4px 12px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.12));
+    color: var(--text);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    font-size: 1.05rem;
+    padding: 10px 12px 10px 30px;
     font-family: inherit;
     cursor: pointer;
-    transition: background .15s;
+    transition: background 0.15s, border-color 0.15s, transform 0.08s, box-shadow 0.15s;
     width: 100%;
     text-align: left;
-    position: relative; /* 疑似要素の位置の基準 */
+    position: relative;
 }
 
 /* === ホバー時のカーソル表現 === */
 .menu-btn::before {
     content: '▶';
     position: absolute;
-    left: 0px;
-    top: 4px;
-    color: #fff;
-    opacity: 0; /* 通常は非表示 */
-    transition: opacity 0.15s;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent);
+    opacity: 0;
+    font-size: 0.8rem;
+    transition: opacity 0.15s, left 0.15s;
 }
-.menu-btn span {
-    margin-left: 24px; /* カーソル分のスペースを確保 */
-}
+.menu-btn span { display: inline-block; }
 .menu-btn:hover,
 .menu-btn:focus {
-    background: rgba(255, 255, 255, 0.15);
+    background: linear-gradient(180deg, rgba(74, 144, 226, 0.18), rgba(74, 144, 226, 0.05));
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent-glow);
     outline: none;
 }
 .menu-btn:hover::before,
-.menu-btn:focus::before {
-    opacity: 1; /* ホバー/フォーカス時に表示 */
-}
+.menu-btn:focus::before { opacity: 1; left: 13px; }
+.menu-btn:active { transform: translateY(1px); }
 
-/* === セーブボタンの特別スタイル（任意） === */
-.save-btn span {
-    color: #ffb3b3; /* セーブは少し赤っぽく */
+/* === セーブボタンの特別スタイル === */
+.save-btn span { color: #ffd0a0; }
+.save-btn::before { color: var(--gold); }
+
+/* === 周辺ミニマップ === */
+.minimap-panel {
+    margin: 8px 4px 0;
+    padding: 8px 10px 10px;
+    background: rgba(8, 14, 24, 0.4);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+}
+.minimap-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+}
+.minimap-link { color: var(--accent); font-size: 0.78rem; text-decoration: none; }
+.minimap-link:hover { text-decoration: underline; }
+.minimap {
+    display: grid;
+    gap: 3px;
+    width: 100%;
+}
+.mm-cell {
+    --region-hue: 210;
+    aspect-ratio: 1 / 1;
+    border-radius: 3px;
+    background: hsl(var(--region-hue), 28%, 18%);
+    border: 1px solid hsl(var(--region-hue), 30%, 34%);
+    transition: transform 0.12s, box-shadow 0.12s;
+}
+.mm-cell.empty { background: transparent; border: none; }
+.mm-cell.fog { background: #0c1320; border-color: #1c2940; }
+.mm-cell.disc { cursor: pointer; }
+.mm-cell.disc:hover {
+    transform: scale(1.25);
+    box-shadow: 0 0 0 2px hsl(var(--region-hue), 70%, 60%);
+    z-index: 2;
+    position: relative;
+}
+.mm-cell.cur {
+    background: var(--gold);
+    border-color: #fff3c4;
+    box-shadow: 0 0 8px rgba(255, 210, 74, 0.7);
+}
+.mm-cell.boss::after {
+    content: '';
+    display: block;
+    width: 4px; height: 4px;
+    margin: 1px auto 0;
+    border-radius: 50%;
+    background: #ff6b6b;
 }

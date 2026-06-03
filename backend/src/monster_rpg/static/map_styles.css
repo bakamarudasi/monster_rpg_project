@@ -1,167 +1,188 @@
-body {
-    background: linear-gradient(120deg, #d2ffe9 0%, #c3c9ff 100%);
-    font-family: 'Segoe UI', 'Arial', sans-serif;
-  }
-  .map-container {
-    max-width: 520px;
-    margin: 40px auto;
-    background: rgba(255,255,255,0.95);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(50,70,160,0.13);
-    padding: 24px 22px 32px 22px;
+/* === ワールドマップ（統一ダークテーマ＋地方色分け＋ファストトラベル） === */
+.map-container {
+    max-width: 720px;
+    margin: 32px auto;
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px 22px 30px;
     text-align: center;
-  }
-  h2, h3 {
-    color: #2d355e;
+}
+.map-container h2 {
+    color: var(--gold);
+    font-family: var(--font-display);
+    letter-spacing: 2px;
+    margin: 0 0 6px;
+}
+.map-container h3 {
+    color: var(--accent);
     letter-spacing: 1px;
-    margin-bottom: 12px;
-  }
-  /* CSS Grid for map */
-  .map-grid {
+    margin: 18px 0 12px;
+}
+.map-hint { color: var(--text-dim); font-size: 0.9rem; margin: 0 0 18px; }
+
+/* === マップグリッド === */
+.map-grid {
     display: grid;
-    grid-gap: 4px;
-    margin: 0 auto 24px auto;
+    grid-gap: 6px;
+    margin: 0 auto 20px;
     width: 100%;
-  }
-  .map-cell {
-    background: #e9eefa;
-    border: 1px solid #cbd2ff;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    color: #2d355e;
+}
+.map-cell {
+    --region-hue: 210;
+    min-height: 58px;
+    background: hsl(var(--region-hue), 28%, 16%);
+    border: 1px solid hsl(var(--region-hue), 30%, 32%);
+    border-left: 4px solid hsl(var(--region-hue), 60%, 52%);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    color: var(--text);
     padding: 8px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
     text-align: center;
-    cursor: pointer;
     opacity: 0;
-    transform: scale(0.8);
-    transition: background 0.2s ease, transform 0.3s ease;
+    transform: scale(0.85);
+    transition: background 0.2s, transform 0.25s, box-shadow 0.2s, opacity 0.3s;
     position: relative;
-  }
-  .map-cell.empty {
+}
+.map-cell.empty {
     background: transparent;
     border: none;
-    cursor: default;
-  }
-  .map-cell.current {
-    background: #ffe8b6;
-    font-weight: bold;
-    border-color: #f4c242;
-  }
-  .map-cell.visited {
-    background: #d7ffd9;
-    border-color: #9be29c;
-  }
-  .map-cell:hover:not(.empty) {
-    background: #cce4f6;
-    transform: scale(1.05);
-  }
+    min-height: 0;
+}
+.cell-name { font-weight: bold; line-height: 1.2; }
+.cell-region { font-size: 0.62rem; color: var(--text-faint); }
+.cell-boss { position: absolute; top: 3px; right: 5px; font-size: 0.85rem; }
+.cell-here { font-size: 0.6rem; color: var(--gold); font-weight: bold; }
 
-  .legend {
-    margin-bottom: 12px;
-    font-size: 0.85rem;
-    color: #2d355e;
-    text-align: left;
-  }
-  .legend .box {
+/* 発見済み＝転送可能 */
+.map-cell.discovered { cursor: pointer; }
+.map-cell.discovered:hover {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 2px hsl(var(--region-hue), 70%, 60%), var(--shadow-sm);
+    z-index: 2;
+}
+/* 未踏破＝フォグ */
+.map-cell.fogged {
+    background: #0c1320;
+    border-color: #1c2940;
+    border-left-color: #2a3a55;
+    color: var(--text-faint);
+    cursor: default;
+    filter: saturate(0.3);
+}
+.map-cell.fogged .cell-name { letter-spacing: 2px; opacity: 0.6; }
+/* 現在地 */
+.map-cell.current {
+    background: hsl(var(--region-hue), 45%, 24%);
+    border-color: var(--gold);
+    box-shadow: 0 0 14px rgba(255, 210, 74, 0.4), inset 0 0 0 1px var(--gold);
+    font-weight: bold;
+}
+.map-cell.has-boss.discovered { border-top: 2px solid #ff6b6b66; }
+
+/* === 地方の凡例 === */
+.region-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 14px;
+}
+.region-tag {
+    --region-hue: 210;
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    color: hsl(var(--region-hue), 75%, 80%);
+    background: hsl(var(--region-hue), 40%, 18%);
+    border: 1px solid hsl(var(--region-hue), 55%, 45%);
+}
+
+/* === 凡例（状態） === */
+.legend {
+    margin-bottom: 18px;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+}
+.legend .box {
     display: inline-block;
-    width: 14px;
-    height: 14px;
+    width: 14px; height: 14px;
     margin-right: 4px;
     border-radius: 3px;
-    border: 1px solid #cbd2ff;
     vertical-align: middle;
-  }
-  .legend .box.visited {
-    background: #d7ffd9;
-    border-color: #9be29c;
-  }
-  .legend .box.current {
-    background: #ffe8b6;
-    border-color: #f4c242;
-  }
+    border: 1px solid var(--border);
+}
+.legend .box.current { background: hsl(210, 45%, 24%); border-color: var(--gold); }
+.legend .box.discovered { background: hsl(210, 28%, 16%); border-left: 4px solid hsl(210,60%,52%); }
+.legend .box.fogged { background: #0c1320; border-color: #2a3a55; }
+.legend .box.has-boss { background: hsl(210,28%,16%); border-top: 3px solid #ff6b6b; }
 
-  /* Tooltip */
-  .map-cell.tooltip:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 110%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(45,53,94,0.9);
-    color: #fff;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    white-space: nowrap;
-    pointer-events: none;
-    z-index: 10;
-  }
-
-  /* Exploration list */
-  .progress-list {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 28px 0;
-  }
-  .progress-item {
+/* === 探索度リスト === */
+.progress-list { list-style: none; padding: 0; margin: 0 0 24px; }
+.progress-item {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 16px;
-    background: #f2f5fc;
-    border-radius: 8px;
+    margin-bottom: 10px;
+    background: rgba(8, 14, 24, 0.45);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
     padding: 8px 12px;
-    box-shadow: 0 1px 6px #b5b3e626;
-  }
-  .loc-name {
-    flex: 0 0 100px;
+}
+.loc-name {
+    flex: 0 0 120px;
     font-weight: bold;
-    color: #52518f;
-    letter-spacing: .5px;
+    color: var(--text);
     text-align: left;
-    font-size: 0.95rem;
-  }
-  .progress-bar {
+    font-size: 0.9rem;
+}
+.progress-bar {
     flex: 1 1 auto;
-    background: #dde5fb;
+    background: #0a1422;
+    border: 1px solid var(--border-soft);
     border-radius: 7px;
-    height: 18px;
-    margin: 0 8px;
+    height: 16px;
     overflow: hidden;
-    box-shadow: 0 1px 3px #b5b3e615;
     position: relative;
-  }
-  .progress-fill {
-    background: linear-gradient(90deg, #5fffc2, #5e92fa 70%);
+}
+.progress-fill {
+    background: linear-gradient(90deg, var(--gold-deep), var(--gold));
     height: 100%;
-    border-radius: 7px 0 0 7px;
     width: 0%;
     transition: width 1s ease-in-out;
-  }
-  .progress-percent {
-    flex: 0 0 50px;
-    color: #377e6a;
-    font-weight: 500;
+}
+.progress-percent {
+    flex: 0 0 48px;
+    color: var(--gold);
+    font-weight: 600;
     text-align: right;
     font-variant-numeric: tabular-nums;
     font-size: 0.9rem;
-  }
-  .back-btn {
+}
+
+.back-btn {
     display: inline-block;
-    margin-top: 10px;
-    padding: 10px 38px;
-    background: linear-gradient(90deg,#42e695,#5e92fa 60%);
+    margin-top: 6px;
+    padding: 10px 36px;
+    background: linear-gradient(180deg, var(--accent), var(--accent-strong));
     color: #fff;
-    border: none;
-    border-radius: 8px;
+    border: 1px solid #6aa6ee;
+    border-radius: var(--radius-sm);
     font-weight: bold;
-    font-size: 1rem;
     letter-spacing: 1px;
-    box-shadow: 0 2px 8px rgba(66,150,225,0.11);
+    box-shadow: 0 3px 0 #0a3f7d, var(--shadow-sm);
     text-decoration: none;
-    transition: background .22s, box-shadow .22s;
-  }
-  .back-btn:hover {
-    background: linear-gradient(90deg,#5e92fa,#42e695 60%);
-    box-shadow: 0 4px 16px rgba(66,150,225,0.19);
-  }
+    transition: filter .15s, box-shadow .15s, transform .08s;
+}
+.back-btn:hover { filter: brightness(1.1); box-shadow: 0 3px 0 #0a3f7d, var(--shadow-glow); }
+.back-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a3f7d; }

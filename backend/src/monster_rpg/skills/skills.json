@@ -676,5 +676,83 @@
     "effects": [{"type": "mp_drain", "amount": 15}],
     "description": "敵のMPを奪う",
     "category": "魔法"
+  },
+  "venom_apple_feast": {
+    "name": "毒林檎の晩餐",
+    "power": 45,
+    "cost": 18,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage", "amount": 45},
+      {"type": "status", "status": "poison", "duration": 4},
+      {"type": "status", "status": "curse", "duration": 3}
+    ],
+    "description": "腐毒の林檎を全員に振る舞い、毒と呪いの晩餐へと誘う女王の宴",
+    "category": "固有技"
+  },
+  "beheading_game": {
+    "name": "断頭遊戯",
+    "power": 80,
+    "cost": 16,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage", "amount": 80},
+      {"type": "status", "status": "doom", "duration": 2},
+      {"type": "status", "status": "fear"}
+    ],
+    "description": "単体に致命の一撃を見舞い、終焉の刻印と恐怖を刻みつける処刑遊戯",
+    "category": "固有技"
+  },
+  "famished_devour": {
+    "name": "飢餓の貪り",
+    "power": 60,
+    "cost": 12,
+    "skill_type": "drain",
+    "effects": [
+      {"type": "damage", "amount": 60},
+      {"type": "heal_from_damage", "percent": 1.0}
+    ],
+    "description": "獲物を喰らい尽くし、与えた傷の全てを己の血肉へと変える",
+    "category": "固有技"
+  },
+  "eternal_lullaby": {
+    "name": "永遠の子守唄",
+    "power": 30,
+    "cost": 16,
+    "skill_type": "status",
+    "scope": "all",
+    "effects": [
+      {"type": "damage", "amount": 30},
+      {"type": "status", "status": "sleep", "duration": 3}
+    ],
+    "description": "終わらぬ子守唄を奏で、敵全体を二度と覚めぬ微睡みへと沈める",
+    "category": "固有技"
+  },
+  "final_ember": {
+    "name": "最後の燐火",
+    "power": 75,
+    "cost": 14,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage", "amount": 75},
+      {"type": "status", "status": "burn", "duration": 5}
+    ],
+    "description": "消えゆく命を糧に、煉獄の焔を全方位へと解き放つ最後の願い",
+    "category": "固有技"
+  },
+  "the_final_page": {
+    "name": "終焉の頁 -The Final Page-",
+    "power": 90,
+    "cost": 25,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage", "amount": 90},
+      {"type": "status", "status": "doom", "duration": 3}
+    ],
+    "description": "物語の最終頁を捲り、全ての存在に終焉の刻印を刻みつける禁断の一節",
+    "category": "固有技"
   }
 }

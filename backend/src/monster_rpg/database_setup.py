@@ -148,10 +148,22 @@ def initialize_database():
         _add_column_if_missing(table, "max_hp", "INTEGER")
         _add_column_if_missing(table, "mp", "INTEGER")
         _add_column_if_missing(table, "max_mp", "INTEGER")
+        # 永続強化（種・配合の＋値）の保存用
+        _add_column_if_missing(table, "bonus_attack", "INTEGER DEFAULT 0")
+        _add_column_if_missing(table, "bonus_defense", "INTEGER DEFAULT 0")
+        _add_column_if_missing(table, "bonus_speed", "INTEGER DEFAULT 0")
+        _add_column_if_missing(table, "bonus_magic", "INTEGER DEFAULT 0")
+        _add_column_if_missing(table, "plus_value", "INTEGER DEFAULT 0")
+        # レア個体（★）フラグ
+        _add_column_if_missing(table, "is_rare", "INTEGER DEFAULT 0")
+        # 習得スキル（配合の継承などを保存）。スキルIDのJSON配列
+        _add_column_if_missing(table, "skills", "TEXT")
     _add_column_if_missing("player_equipment", "random_bonuses", "TEXT")
     _add_column_if_missing("player_equipment", "synthesis_rank", "INTEGER")
     _add_column_if_missing("player_equipment", "stat_multiplier", "REAL")
     _add_column_if_missing("player_equipment", "sub_stat_slots", "INTEGER")
+    # 装備強化（+N）の保存用
+    _add_column_if_missing("player_equipment", "enhance_level", "INTEGER DEFAULT 0")
 
     # exploration_progress テーブルの作成
     cursor.execute(

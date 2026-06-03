@@ -1,0 +1,136 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="enhance-wrap">
+  <div class="enhance-card">
+    <div class="enhance-head">
+      <h2>装備強化</h2>
+      <span class="gold">{{ player.gold }} G</span>
+    </div>
+    <p class="enhance-hint">素材とゴールドを使って装備を <b>+{{ enhance_max }}</b> まで強化できます。（装備中の物は外してから）</p>
+
+    {% if entries %}
+    <ul class="equip-list">
+      {% for e in entries %}
+      <li class="equip-row">
+        <div class="equip-main">
+          <span class="equip-name">{{ e.name }}</span>
+          <span class="equip-slot">{{ e.slot }}</span>
+        </div>
+        <div class="equip-stats">
+          {% if e.attack %}<span>攻 {{ e.attack }}</span>{% endif %}
+          {% if e.defense %}<span>防 {{ e.defense }}</span>{% endif %}
+          {% if e.speed %}<span>速 {{ e.speed }}</span>{% endif %}
+        </div>
+        <div class="equip-action">
+          {% if e.maxed %}
+            <span class="maxed">MAX</span>
+          {% else %}
+            <form action="{{ url_for('inventory.enhance', user_id=user_id) }}" method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="instance_id" value="{{ e.instance_id }}">
+              <button type="submit" class="enhance-btn" {{ 'disabled' if player.gold < e.cost else '' }}>
+                強化 +{{ e.level + 1 }}
+                <small>{{ e.cost }}G ・ {{ e.material }}</small>
+              </button>
+            </form>
+          {% endif %}
+          {% if e.instance_id %}
+          <div class="equip-extra">
+            <form action="{{ url_for('inventory.limit_break', user_id=user_id) }}" method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="instance_id" value="{{ e.instance_id }}">
+              <button type="submit" class="sub-btn lb-btn" title="合成素材で装備のランクを上げる">限界突破{% if e.rank %} <small>R{{ e.rank }}</small>{% endif %}</button>
+            </form>
+            <form action="{{ url_for('inventory.disassemble', user_id=user_id) }}" method="post" onsubmit="return confirm('{{ e.name }} を分解して素材にしますか？');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="instance_id" value="{{ e.instance_id }}">
+              <button type="submit" class="sub-btn dis-btn" title="装備を素材に変える">分解</button>
+            </form>
+          </div>
+          {% endif %}
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty">強化できる装備を持っていない。</p>
+    {% endif %}
+
+    <a class="back-link" href="{{ url_for('play', user_id=user_id) }}">← 戻る</a>
+  </div>
+</div>
+
+<style>
+  .enhance-wrap { display: flex; justify-content: center; padding: 32px 12px; }
+  .enhance-card {
+    width: 100%;
+    max-width: 620px;
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+  }
+  .enhance-head { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid var(--border-soft); padding-bottom: 12px; }
+  .enhance-head h2 { margin: 0; font-family: var(--font-display); color: var(--gold); letter-spacing: 2px; }
+  .gold { color: var(--gold); font-weight: bold; font-size: 1.1rem; }
+  .enhance-hint { color: var(--text-dim); font-size: 0.95rem; margin: 14px 0 18px; }
+  .equip-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  .equip-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 12px;
+    align-items: center;
+    background: rgba(8, 14, 24, 0.4);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+  }
+  .equip-name { font-weight: bold; color: var(--text); }
+  .equip-slot { display: block; font-size: 0.8rem; color: var(--text-faint); margin-top: 2px; }
+  .equip-stats { display: flex; gap: 10px; color: var(--text-dim); font-size: 0.9rem; white-space: nowrap; }
+  .equip-stats span { background: rgba(74,144,226,0.12); border-radius: 6px; padding: 2px 8px; }
+  .enhance-btn {
+    background: linear-gradient(180deg, var(--gold), var(--gold-deep));
+    color: #3a2a00;
+    border: 1px solid #ffe79a;
+    border-radius: var(--radius-sm);
+    padding: 8px 14px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 3px 0 #7e5e16;
+    transition: filter .15s, transform .08s, box-shadow .15s;
+    display: flex; flex-direction: column; align-items: center; line-height: 1.2;
+  }
+  .enhance-btn small { font-weight: 600; font-size: 0.7rem; opacity: 0.85; }
+  .enhance-btn:hover:not(:disabled) { filter: brightness(1.08); }
+  .enhance-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #7e5e16; }
+  .enhance-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+  .maxed { color: var(--gold); font-weight: 800; letter-spacing: 1px; }
+  .equip-action { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
+  .equip-extra { display: flex; gap: 6px; }
+  .sub-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 5px 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: filter .15s, transform .08s;
+  }
+  .sub-btn small { font-weight: 600; opacity: 0.85; }
+  .sub-btn:hover { filter: brightness(1.18); }
+  .sub-btn:active { transform: translateY(1px); }
+  .lb-btn { border-color: #b066e0; color: #e9c9ff; background: rgba(176,102,224,0.16); }
+  .dis-btn { border-color: #c0654a; color: #ffd0bf; background: rgba(192,101,74,0.16); }
+  .empty { color: var(--text-dim); text-align: center; padding: 24px 0; }
+  .back-link { display: inline-block; margin-top: 20px; color: var(--accent); }
+  @media (max-width: 520px) {
+    .equip-row { grid-template-columns: 1fr auto; }
+    .equip-stats { grid-column: 1 / -1; }
+  }
+</style>
+{% endblock %}

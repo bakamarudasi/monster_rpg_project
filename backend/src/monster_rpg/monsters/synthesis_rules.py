@@ -12,7 +12,32 @@ SYNTHESIS_RECIPES = {
     ("orc_warrior", "skeleton_archer"): "undead_warrior",
     ("giant_golem", "thunder_eagle"): "storm_golem",
     ("celestial_dragon", "shadow_panther"): "celestial_panther",
+    # --- 特殊配合: ダーク童話の住人（隠しレシピ） ---
+    ("blighted_knight", "elf_mage"): "poison_queen",        # 白雪の毒后
+    ("shadow_panther", "vampire_lord"): "beheader_alice",   # 断頭のアリシア
+    ("shadow_panther", "wolf"): "crimson_hood",             # 紅ずきんの牙
+    ("abyss_watcher", "pontiff_shade"): "sleeping_maiden",  # 硝子棺の眠り姫
+    ("lava_elemental", "sky_seraph"): "match_ember",        # マッチ売りの焔
+    # --- 新モンスターの錬成レシピ（野生に出ない＝作って手に入れる） ---
+    ("giant_golem", "shadow_panther"): "obsidian_gargoyle",   # 黒曜のガーゴイル
+    ("desert_scorpion", "sand_wyrm"): "wyrm_of_dunes",        # 砂海の竜
+    ("cinder_hound", "wyrm_of_dunes"): "inferno_wyrm",        # 獄炎の竜（連鎖配合）
+    ("frost_elf", "glacier_warden"): "glacial_empress",       # 氷獄の女王
+    ("abyss_watcher", "kraken"): "void_leviathan",            # 虚海のリヴァイアサン
+    ("celestial_dragon", "sky_seraph"): "astral_seraphim",    # 天輪のセラフィム
+    ("astral_seraphim", "vampire_lord"): "abyssal_seraph",    # 堕天の熾天使
 }
+
+# ジャックポット（大当たり）配合の抽選プール。家系配合などの非レシピ配合時に
+# ごく稀に出現するダーク童話の住人たち。tale_devourer は最高レアでこの枠のみ。
+SPECIAL_MONSTER_POOL = [
+    "poison_queen",
+    "beheader_alice",
+    "crimson_hood",
+    "sleeping_maiden",
+    "match_ember",
+    "tale_devourer",
+]
 
 # 合成に必要なアイテムの定義
 # キーは SYNTHESIS_RECIPES と同じタプル、値は必要なアイテムID
@@ -22,6 +47,11 @@ SYNTHESIS_ITEMS_REQUIRED = {
     ("orc_warrior", "skeleton_archer"): "abyss_shard",
     ("giant_golem", "thunder_eagle"): "thunder_core",
     ("celestial_dragon", "shadow_panther"): "celestial_feather",
+    # S級錬成は希少素材を要求
+    ("abyss_watcher", "kraken"): "abyss_shard",
+    ("celestial_dragon", "sky_seraph"): "celestial_feather",
+    ("frost_elf", "glacier_warden"): "frost_crystal",
+    ("astral_seraphim", "vampire_lord"): "abyss_shard",
 }
 
 # モンスター1体とアイテム1つで行う特殊合成のレシピ

@@ -5,15 +5,26 @@
 {% block content %}
 <div class="map-container">
   <h2>ワールドマップ</h2>
+  <p class="map-hint">発見済みの拠点をクリックで<b>ファストトラベル</b>できる。</p>
+
   <div class="map-grid" data-cols="{{ map_grid[0]|length if map_grid else 0 }}">
     {% for row in map_grid %}
         {% for cell in row %}
           {% if cell %}
+            {% set is_discovered = discovered and cell.location_id in discovered %}
             <div
-              class="map-cell{% if progress.get(cell.location_id, 0) > 0 %} visited{% endif %}{% if current_loc_id == cell.location_id %} current{% endif %}"
+              class="map-cell{% if is_discovered %} discovered{% else %} fogged{% endif %}{% if current_loc_id == cell.location_id %} current{% endif %}{% if cell.boss_enemy_id %} has-boss{% endif %}"
               data-loc="{{ cell.location_id }}"
+              data-region="{{ cell.region or '' }}"
             >
-              {{ cell.name }}
+              {% if is_discovered %}
+                <span class="cell-name">{{ cell.name }}</span>
+                {% if cell.region %}<span class="cell-region">{{ cell.region }}</span>{% endif %}
+                {% if cell.boss_enemy_id %}<span class="cell-boss">👑</span>{% endif %}
+                {% if current_loc_id == cell.location_id %}<span class="cell-here">現在地</span>{% endif %}
+              {% else %}
+                <span class="cell-name">？？？</span>
+              {% endif %}
             </div>
           {% else %}
             <div class="map-cell empty"></div>
@@ -22,9 +33,13 @@
     {% endfor %}
   </div>
 
+  <div id="region-legend" class="region-legend"></div>
+
   <div class="legend">
-    <span class="box visited"></span> 訪問済
     <span class="box current"></span> 現在地
+    <span class="box discovered"></span> 発見済（転送可）
+    <span class="box fogged"></span> 未踏破
+    <span class="box has-boss"></span> 👑ボス
   </div>
 
   <h3>探索度</h3>
@@ -44,42 +59,65 @@
   <a class="back-btn" href="{{ url_for('play', user_id=user_id) }}">← 戻る</a>
 </div>
 
+<form id="ft-form" method="post" action="{{ url_for('main.fast_travel', user_id=user_id) }}" style="display:none">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="dest" id="ft-dest">
+</form>
+
+<script src="{{ url_for('static', filename='map_common.js') }}"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // 1. Set up CSS grid columns based on data attribute
     const grid = document.querySelector('.map-grid');
-    const cols = parseInt(grid.getAttribute('data-cols'));
+    const cols = parseInt(grid.getAttribute('data-cols')) || 1;
     grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 
-    // 2. Animate cells appearing one-by-one
     const cells = document.querySelectorAll('.map-cell');
+    const regionsSeen = new Map();
     cells.forEach((cell, idx) => {
+      const region = cell.dataset.region;
+      if (region) {
+        const hue = regionHue(region);
+        cell.style.setProperty('--region-hue', hue);
+        if (cell.classList.contains('discovered') && !regionsSeen.has(region)) {
+          regionsSeen.set(region, hue);
+        }
+      }
+      // 出現アニメ
       setTimeout(() => {
         cell.style.opacity = '1';
         cell.style.transform = 'scale(1)';
-      }, idx * 80);
+      }, idx * 40);
     });
 
-    // 3. Optional: add tooltip text for each cell (e.g., show coords or info)
-    //    You can inject data-tooltip attribute in template if needed.
-    //    Example: <div class="map-cell tooltip" data-tooltip="詳細情報">...
+    // 地方の凡例（発見済みの地方のみ）
+    const legend = document.getElementById('region-legend');
+    if (legend) {
+      regionsSeen.forEach((hue, region) => {
+        const tag = document.createElement('span');
+        tag.className = 'region-tag';
+        tag.style.setProperty('--region-hue', hue);
+        tag.textContent = region;
+        legend.appendChild(tag);
+      });
+    }
 
-    // 4. Click on a cell to navigate/move
+    // 発見済みセルのクリックでファストトラベル
+    const ftForm = document.getElementById('ft-form');
+    const ftDest = document.getElementById('ft-dest');
     cells.forEach(cell => {
-      if (!cell.classList.contains('empty')) {
+      if (cell.classList.contains('discovered') && !cell.classList.contains('current')) {
         cell.addEventListener('click', () => {
-          const locId = cell.getAttribute('data-loc');
-          // Redirect to move endpoint with destination=locId
-          window.location.href = "{{ url_for('move', user_id=user_id) }}?dest=" + locId;
+          ftDest.value = cell.getAttribute('data-loc');
+          ftForm.submit();
         });
       }
     });
 
-    // 5. Animate exploration bars
+    // 探索度バーのアニメ
     document.querySelectorAll('.progress-item').forEach(item => {
       const fill = item.querySelector('.progress-fill');
       const percentText = item.querySelector('.progress-percent');
-      const target = parseInt(fill.getAttribute('data-target'));
+      const target = parseInt(fill.getAttribute('data-target')) || 0;
       setTimeout(() => {
         fill.style.width = target + '%';
         percentText.textContent = target + '%';

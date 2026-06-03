@@ -27,68 +27,70 @@
   </div>
 </div>
 <style>
-  body {
-    background: linear-gradient(135deg, #c9e7ff 0%, #e0c3fc 100%);
-    font-family: 'Segoe UI', 'Arial', sans-serif;
-  }
   .container {
-    max-width: 400px;
-    margin: 60px auto 0 auto;
-    padding: 24px;
-    background: rgba(255,255,255,0.85);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(60, 80, 180, 0.1);
+    max-width: 420px;
+    margin: 48px auto 0 auto;
+    padding: 28px 24px 32px;
     text-align: center;
   }
   .container h1 {
-    margin-bottom: 24px;
-    font-size: 2rem;
-    letter-spacing: 1.5px;
-    color: #54436b;
+    margin-bottom: 28px;
+    font-family: var(--font-display);
+    font-size: 2.1rem;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, var(--gold), #fff3c4 55%, var(--gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 2px 12px rgba(255, 210, 74, 0.25);
   }
   .form-card {
-    margin-bottom: 24px;
-    padding: 20px 10px;
-    background: #f8fafc;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(84,67,107,0.05);
-    transition: box-shadow .2s;
+    margin-bottom: 20px;
+    padding: 22px 18px;
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: box-shadow .2s, transform .2s, border-color .2s;
   }
   .form-card:hover {
-    box-shadow: 0 8px 24px rgba(84,67,107,0.13);
+    box-shadow: var(--shadow), var(--shadow-glow);
+    border-color: var(--accent);
+    transform: translateY(-2px);
   }
-  input[type="text"], input[name="username"], input[name="user_id"], input[name="password"] {
-    width: 80%;
+  .container input {
+    width: 82%;
     padding: 12px 14px;
-    margin-bottom: 10px;
-    border: 1.5px solid #bfa2db;
-    border-radius: 8px;
+    margin-bottom: 12px;
+    color: var(--text);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
     font-size: 1rem;
-    background: #fff;
-    transition: border .2s;
+    background: rgba(8, 14, 24, 0.6);
+    transition: border .2s, box-shadow .2s;
     outline: none;
   }
-  input:focus {
-    border-color: #5f2e82;
-    background: #f3e8ff;
+  .container input::placeholder { color: var(--text-faint); }
+  .container input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
   }
-  button {
-    width: 85%;
+  .container button {
+    width: 86%;
     padding: 12px 0;
-    background: linear-gradient(90deg,#5f2e82,#8d58c3 60%);
+    margin-top: 2px;
     color: #fff;
-    border: none;
-    border-radius: 8px;
+    background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+    border: 1px solid #6aa6ee;
+    border-radius: var(--radius-sm);
     font-weight: bold;
     letter-spacing: 1px;
     font-size: 1rem;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(93,41,122,0.09);
-    transition: background .2s, box-shadow .2s;
+    box-shadow: 0 3px 0 #0a3f7d, var(--shadow-sm);
+    transition: filter .15s, box-shadow .15s, transform .08s;
   }
-  button:hover {
-    background: linear-gradient(90deg,#8d58c3,#5f2e82 70%);
-    box-shadow: 0 4px 16px rgba(93,41,122,0.13);
-  }
+  .container button:hover { filter: brightness(1.1); box-shadow: 0 3px 0 #0a3f7d, var(--shadow-glow); }
+  .container button:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a3f7d; }
 </style>
 {% endblock %}

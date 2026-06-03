@@ -17,6 +17,30 @@
         <p class="loc-desc">{{ loc.description if loc else '???' }}</p>
     </div>
 
+    {% if map_grid %}
+    <div class="minimap-panel">
+        <div class="minimap-head">
+            <span>周辺マップ</span>
+            <a href="{{ url_for('world_map', user_id=user_id) }}" class="minimap-link">全体地図 →</a>
+        </div>
+        <div class="minimap" data-cols="{{ map_grid[0]|length if map_grid else 0 }}">
+            {% for row in map_grid %}
+                {% for cell in row %}
+                    {% if cell %}
+                        {% set disc = discovered and cell.location_id in discovered %}
+                        <div class="mm-cell{% if disc %} disc{% else %} fog{% endif %}{% if current_loc_id == cell.location_id %} cur{% endif %}{% if cell.boss_enemy_id and disc %} boss{% endif %}"
+                             data-loc="{{ cell.location_id }}"
+                             data-region="{{ cell.region or '' }}"
+                             title="{{ (cell.name + ' [' + (cell.region or '') + ']') if disc else '未踏破' }}"></div>
+                    {% else %}
+                        <div class="mm-cell empty"></div>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <hr class="window-divider">
 
     <div class="command-area">
@@ -45,6 +69,7 @@
                 <form action="{{ url_for('battle_log', user_id=user_id) }}" method="get"><button class="menu-btn"><span>せんとうログ</span></button></form>
                 <form action="{{ url_for('items', user_id=user_id) }}" method="get"><button class="menu-btn"><span>アイテム</span></button></form>
                 <form action="{{ url_for('synthesize', user_id=user_id) }}" method="get"><button class="menu-btn"><span>ごうせい</span></button></form>
+                <form action="{{ url_for('inventory.enhance', user_id=user_id) }}" method="get"><button class="menu-btn"><span>そうびきょうか</span></button></form>
                 <form action="{{ url_for('monster_book', user_id=user_id) }}" method="get"><button class="menu-btn"><span>ずかん</span></button></form>
                 <form action="{{ url_for('world_map', user_id=user_id) }}" method="get"><button class="menu-btn"><span>マップ</span></button></form>
                 {% if loc and loc.has_shop %}
@@ -64,4 +89,31 @@
         </div>
     </div>
 </div>
+
+<form id="mm-ft-form" method="post" action="{{ url_for('main.fast_travel', user_id=user_id) }}" style="display:none">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="dest" id="mm-ft-dest">
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='map_common.js') }}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const mm = document.querySelector('.minimap');
+    if (!mm) return;
+    const cols = parseInt(mm.getAttribute('data-cols')) || 1;
+    mm.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
+    const form = document.getElementById('mm-ft-form');
+    const dest = document.getElementById('mm-ft-dest');
+    mm.querySelectorAll('.mm-cell').forEach(cell => {
+      const region = cell.dataset.region;
+      if (region) cell.style.setProperty('--region-hue', regionHue(region));
+      if (cell.classList.contains('disc') && !cell.classList.contains('cur')) {
+        cell.addEventListener('click', () => { dest.value = cell.dataset.loc; form.submit(); });
+      }
+    });
+  });
+</script>
 {% endblock %}

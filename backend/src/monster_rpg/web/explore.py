@@ -1,8 +1,7 @@
 import random
 from flask import Blueprint, render_template, redirect, url_for
-from .. import database_setup
 from ..player import Player
-from .. import save_manager
+from .utils import load_player, save_player
 from ..map_data import LOCATIONS
 from ..exploration import generate_enemy_party, get_monster_instance_copy
 from ..battle import start_atb_battle
@@ -12,7 +11,7 @@ explore_bp = Blueprint('explore', __name__)
 
 @explore_bp.route('/explore/<int:user_id>', methods=['POST'], endpoint='explore')
 def explore(user_id):
-    player = save_manager.load_game(database_setup.DATABASE_NAME, user_id=user_id)
+    player = load_player(user_id)
     if not player:
         return redirect(url_for('auth.index'))
     loc = LOCATIONS.get(player.current_location_id)
@@ -37,7 +36,7 @@ def explore(user_id):
                 active_battles[user_id] = battle_obj.get_current_state()
                 while not battle_obj.finished and battle_obj.current_actor not in battle_obj.player_party:
                     battle_obj.advance_turn()
-                save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
+                save_player(player, user_id)
                 init_data = {
                     'ally_info': [serialize_monster(m, f'ally-{i}') for i, m in enumerate(battle_obj.player_party)],
                     'enemy_info': [serialize_monster(m, f'enemy-{i}') for i, m in enumerate(battle_obj.enemy_party)],
@@ -74,7 +73,7 @@ def explore(user_id):
             active_battles[user_id] = battle_obj.get_current_state()
             while not battle_obj.finished and battle_obj.current_actor not in battle_obj.player_party:
                 battle_obj.advance_turn()
-            save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
+            save_player(player, user_id)
             init_data = {
                 'ally_info': [serialize_monster(m, f'ally-{i}') for i, m in enumerate(battle_obj.player_party)],
                 'enemy_info': [serialize_monster(m, f'enemy-{i}') for i, m in enumerate(battle_obj.enemy_party)],
@@ -104,5 +103,5 @@ def explore(user_id):
             messages.append('モンスターは現れなかった。')
     else:
         messages.append('モンスターは現れなかった。')
-    save_manager.save_game(player, database_setup.DATABASE_NAME, user_id=user_id)
+    save_player(player, user_id)
     return render_template('explore.html', messages=messages, user_id=user_id, progress=after, player=player)

@@ -1,11 +1,65 @@
-# shop.py
-from .player import Player
-from .monsters import ALL_MONSTERS
-from .map_data import Location
+"""ショップ／宿屋ドメイン：アイテム・モンスターの購入と宿泊。
+
+購入/宿泊ロジックは長らく party_manager に同居していたが、ここ（shop.py）に集約した。
+CLI 用の対話ショップ画面 open_shop もここに置く。Web からは services.shop_service が
+これらを（Player ファサード経由で）呼ぶ。Flask 非依存。
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from .monsters.monster_data import ALL_MONSTERS
 from .items.item_data import ALL_ITEMS
 
+if TYPE_CHECKING:  # pragma: no cover
+    from .player import Player
+    from .map_data import Location
 
-def open_shop(player: Player, location: Location):
+
+def buy_item(player: "Player", item_id: str, price: int) -> bool:
+    if player.gold < price:
+        print("お金が足りない！")
+        return False
+    if item_id not in ALL_ITEMS:
+        print("そのアイテムは存在しない。")
+        return False
+    player.gold -= price
+    player.items.append(ALL_ITEMS[item_id])
+    print(f"{ALL_ITEMS[item_id].name} を {price}G で購入した。")
+    return True
+
+
+def buy_monster(player: "Player", monster_id: str, price: int) -> bool:
+    if player.gold < price:
+        print("お金が足りない！")
+        return False
+    if monster_id not in ALL_MONSTERS:
+        print("そのモンスターは存在しない。")
+        return False
+    player.gold -= price
+    player.add_monster_to_party(monster_id)
+    print(f"{ALL_MONSTERS[monster_id].name} を {price}G で仲間にした。")
+    return True
+
+
+def rest_at_inn(player: "Player", cost: int) -> bool:
+    if player.gold >= cost:
+        player.gold -= cost
+        print(f"{cost}G を支払い、宿屋に泊まった。")
+        for monster in player.party_monsters:
+            monster.hp = monster.max_hp
+            monster.mp = monster.max_mp
+            monster.is_alive = True
+        print("パーティは完全に回復した！")
+        return True
+    else:
+        print("お金が足りない！宿屋に泊まれない...")
+        return False
+
+
+def open_shop(player: "Player", location: "Location"):
+    """CLI 用の対話ショップ画面。"""
     if not getattr(location, 'has_shop', False):
         print("ここにはお店はない。")
         return

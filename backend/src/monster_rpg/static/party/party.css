@@ -268,3 +268,29 @@
        background: #ede6d8;
        border-radius: 6px;
    }
+
+/* 配合の世代（＋値）バッジ */
+.plus-badge {
+    display: inline-block;
+    background: linear-gradient(180deg, #ffd24a, #c9962a);
+    color: #3a2a00;
+    font-weight: 800;
+    font-size: 0.78em;
+    padding: 1px 7px;
+    border-radius: 999px;
+    vertical-align: middle;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    letter-spacing: 0.5px;
+}
+
+/* レア個体（★） */
+.rare-star {
+    color: #ffd24a;
+    text-shadow: 0 0 6px rgba(255,210,74,0.8);
+    margin-right: 2px;
+    animation: rare-twinkle 1.8s ease-in-out infinite;
+}
+@keyframes rare-twinkle {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.65; transform: scale(1.18); }
+}

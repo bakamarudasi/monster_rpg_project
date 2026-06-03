@@ -1,44 +1,228 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 1rem;
-}
-header {
-    background-color: #444;
-    color: white;
-    padding: 1rem;
-}
-main {
-    margin-top: 1rem;
-}
-button {
-    margin-top: 0.5rem;
+/* =====================================================================
+   Monster RPG — 共通デザインシステム
+   全ページで読み込まれる土台。色・フォント・影などを :root で一元管理し、
+   各画面の見た目を一つの世界観に統一する。
+   ===================================================================== */
+:root {
+    /* --- 背景・サーフェス --- */
+    --bg: #0c1422;
+    --bg-2: #122036;
+    --surface: #16263f;
+    --surface-2: #1d3252;
+    --surface-raised: #21395c;
+
+    /* --- 枠線・区切り --- */
+    --border: #33507a;
+    --border-soft: #2a426688;
+
+    /* --- アクセント --- */
+    --accent: #4a90e2;
+    --accent-strong: #0066cc;
+    --accent-glow: rgba(74, 144, 226, 0.45);
+    --gold: #ffd24a;
+    --gold-deep: #c9962a;
+
+    /* --- テキスト --- */
+    --text: #e8edf4;
+    --text-dim: #9fb0c8;
+    --text-faint: #6b7d96;
+
+    /* --- 状態色 --- */
+    --danger: #ff4d4d;
+    --warn: #ffb100;
+    --success: #00e075;
+    --heal: #32cd32;
+
+    /* --- 形状 --- */
+    --radius: 12px;
+    --radius-sm: 7px;
+    --radius-pill: 999px;
+
+    /* --- 影 --- */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+    --shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+    --shadow-glow: 0 0 18px var(--accent-glow);
+
+    /* --- フォント --- */
+    --font-ui: "Segoe UI", "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, sans-serif;
+    --font-display: ui-serif, Georgia, "Times New Roman", serif;
 }
 
-/* Battle log styles */
+* { box-sizing: border-box; }
+
+body {
+    font-family: var(--font-ui);
+    margin: 0;
+    padding: 0;
+    color: var(--text);
+    background:
+        radial-gradient(1200px 600px at 50% -10%, #1a2c49 0%, transparent 60%),
+        linear-gradient(160deg, var(--bg) 0%, #0a1019 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+/* === 共通ヘッダー（全ページ） === */
+header {
+    background: linear-gradient(180deg, var(--bg-2), #0d1726);
+    color: var(--text);
+    padding: 0.8rem 1.25rem;
+    border-bottom: 2px solid var(--border);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+header h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, var(--gold), #fff3c4 60%, var(--gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+}
+
+main { margin-top: 1rem; padding: 0 0.5rem; }
+
+a { color: var(--accent); }
+
+/* === 共通コンポーネント（任意で利用可能） === */
+.panel {
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.25rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.7rem 1.4rem;
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #fff;
+    background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+    border: 1px solid #6aa6ee;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 3px 0 #0a3f7d, var(--shadow-sm);
+    cursor: pointer;
+    transition: transform 0.08s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+.btn:hover { filter: brightness(1.1); box-shadow: 0 3px 0 #0a3f7d, var(--shadow-glow); }
+.btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a3f7d; }
+
+.btn-gold {
+    background: linear-gradient(180deg, var(--gold), var(--gold-deep));
+    border-color: #ffe79a;
+    color: #3a2a00;
+    box-shadow: 0 3px 0 #7e5e16, var(--shadow-sm);
+}
+.btn-gold:active { box-shadow: 0 1px 0 #7e5e16; }
+
+/* === 戦闘ログ・演出（全ページ共通の発色） === */
 .battle-log p,
 ul.log li {
     margin: 5px 0;
     transition: all 0.3s ease;
 }
 
-.log-message-player_damage {
-    color: #ff4d4d;
+.log-message-player_damage,
+.log-message-damage {
+    color: #ff6b6b;
     font-weight: bold;
-    font-size: 1.1em;
-    animation: damage-flash 0.6s ease-out;
 }
 
-.log-message-player_attack {
-    color: #ffffff;
+.log-message-player_attack { color: #ffffff; }
+.log-message-info { color: var(--text-dim); }
+.log-message-error { color: var(--danger); }
+.log-message-item_drop { color: var(--gold); font-weight: bold; }
+
+/* 属性相性のフィードバック */
+.log-message-effective {
+    color: #ffd24a;
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(255, 210, 74, 0.6);
+    animation: pop-in 0.4s ease-out;
+}
+.log-message-resist {
+    color: #8aa0bd;
+    font-style: italic;
+}
+/* クリティカル */
+.log-message-critical {
+    color: #ff8a3c;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(255, 138, 60, 0.7);
+    animation: pop-in 0.4s ease-out;
 }
 
-.log-message-info {
-    color: #a0a0a0;
+@keyframes pop-in {
+    0% { transform: scale(0.6); opacity: 0; }
+    60% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); }
 }
 
 @keyframes damage-flash {
     0% { transform: scale(1); }
-    50% { transform: scale(1.05); text-shadow: 0 0 8px rgba(255,255,255,0.8); }
+    50% { transform: scale(1.05); text-shadow: 0 0 8px rgba(255, 255, 255, 0.8); }
     100% { transform: scale(1); }
+}
+
+/* === スクロールバーの統一 === */
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--radius-pill); }
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* === トースト通知 === */
+.toast-container {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    max-width: min(360px, 90vw);
+}
+.toast {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(180deg, var(--surface-raised), var(--surface-2));
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    box-shadow: var(--shadow);
+    font-size: 0.95rem;
+    line-height: 1.4;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.35s;
+    cursor: pointer;
+}
+.toast.show { transform: translateX(0); opacity: 1; }
+.toast.hide { transform: translateX(120%); opacity: 0; }
+.toast-icon { font-size: 1.2rem; flex-shrink: 0; }
+.toast-msg { word-break: break-word; }
+.toast-success { border-left-color: var(--success); }
+.toast-level { border-left-color: var(--gold); box-shadow: var(--shadow), 0 0 16px rgba(255, 210, 74, 0.35); }
+.toast-item { border-left-color: var(--gold); }
+.toast-save { border-left-color: var(--accent); }
+.toast-warn { border-left-color: var(--warn); }
+.toast-error { border-left-color: var(--danger); }
+
+@media (max-width: 560px) {
+    .toast-container { top: auto; bottom: 12px; right: 12px; left: 12px; max-width: none; }
+    .toast { transform: translateY(140%); }
+    .toast.show { transform: translateY(0); }
+    .toast.hide { transform: translateY(140%); }
 }

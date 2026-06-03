@@ -11,6 +11,7 @@ ELEMENTAL_MULTIPLIERS = {
     ("火", "風"): 1.5,
     ("風", "水"): 1.5,
     ("水", "火"): 1.5,
+    ("光", "闇"): 1.5,  # 光は闇に強い（闇のダーク童話勢は光が弱点）
 }
 
 # Critical hit settings
@@ -193,11 +194,17 @@ def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, s
         else:
             multiplier = 1.0
 
+    # 属性相性のフィードバック（弱点を突くと有利・耐性で不利）
+    if multiplier > 1.0:
+        log.append({'type': 'effective', 'message': "こうかは ばつぐんだ！"})
+    elif multiplier < 1.0:
+        log.append({'type': 'resist', 'message': "こうかは いまひとつの ようだ…"})
+
     damage = int(damage * multiplier)
 
     if random.random() < CRITICAL_HIT_CHANCE:
         damage = int(damage * CRITICAL_HIT_MULTIPLIER)
-        log.append({'type': 'info', 'message': "クリティカルヒット！"})
+        log.append({'type': 'critical', 'message': "クリティカルヒット！"})
 
     if is_defending(defender):
         damage = int(damage * 0.5)

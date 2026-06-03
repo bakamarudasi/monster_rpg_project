@@ -278,6 +278,52 @@
     .panel::-webkit-scrollbar-track { background: #e7e5e4; border-radius: 10px; }
     .panel::-webkit-scrollbar-thumb { background: #a8a29e; border-radius: 10px; }
     .panel::-webkit-scrollbar-thumb:hover { background: #78716c; }
+
+    /* --- 配合結果プレビュー --- */
+    .synth-preview {
+        background: rgba(253, 246, 227, 0.9);
+        border: 2px solid var(--color-border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin: 4px auto 12px;
+        max-width: 420px;
+        color: var(--color-text-dark);
+        text-align: left;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    }
+    .synth-preview.hidden { display: none; }
+    .preview-head { font-size: 1.05rem; margin-bottom: 8px; }
+    .preview-head b { color: #7c2d12; }
+    .preview-plus {
+        display: inline-block; background: linear-gradient(180deg, #fde68a, #d4a017);
+        color: #5a3a00; font-weight: 800; border-radius: 999px; padding: 0 8px; font-size: 0.85rem;
+    }
+    .preview-tag {
+        display: inline-block; background: #efe3c4; border: 1px solid var(--color-border);
+        border-radius: 6px; padding: 0 7px; font-size: 0.78rem; margin-left: 4px;
+    }
+    .preview-stats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .preview-stats span { background: #efe3c4; border-radius: 6px; padding: 2px 9px; font-size: 0.9rem; font-weight: 600; }
+    .preview-skills-title { font-size: 0.85rem; color: #6b5836; margin-bottom: 6px; }
+    .skill-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .skill-chip {
+        display: inline-flex; align-items: center; gap: 5px;
+        background: #fff; border: 1.5px solid var(--color-border); border-radius: 999px;
+        padding: 3px 10px; font-size: 0.85rem; cursor: pointer; user-select: none;
+        transition: background .15s, box-shadow .15s;
+    }
+    .skill-chip:has(input:checked) { background: #fde68a; box-shadow: 0 0 0 2px #d4a01755; }
+    .skill-chip input { accent-color: #854d0e; }
+    .skill-chip input:disabled + span { opacity: 0.4; }
+    .preview-fail { color: #b91c1c; font-weight: 600; margin-top: 6px; }
+    .preview-hint { margin-top: 8px; font-size: 0.78rem; color: #8a6d2f; font-style: italic; }
+    .result-message.jackpot {
+        color: #d4a017;
+        font-weight: 800;
+        text-shadow: 0 0 10px rgba(212,160,23,0.6);
+        animation: jackpot-pulse 0.5s ease-in-out 3;
+    }
+    @keyframes jackpot-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
 </style>
 {% endblock %}
 
@@ -301,6 +347,8 @@
             <div id="result-msg" class="result-message">
                 {% if message %}{{ message }}{% else %}合成の素材を上の枠に配置してください…{% endif %}
             </div>
+
+            <div id="synth-preview" class="synth-preview hidden"></div>
 
             <div class="button-container">
                 <button id="do-synth" class="synth-button" disabled>合成実行</button>
@@ -355,6 +403,77 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultMsg = document.getElementById('result-msg');
     const draggableItems = document.querySelectorAll('.draggable-item');
     const dropZones = [baseSlot, materialSlot];
+    const previewBox = document.getElementById('synth-preview');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+    let previewMaxInherit = 3;
+
+    function hidePreview() {
+        if (previewBox) { previewBox.classList.add('hidden'); previewBox.textContent = ''; }
+    }
+
+    function selectedInheritIds() {
+        return Array.from(previewBox.querySelectorAll('input.skill-pick:checked')).map(c => c.value);
+    }
+
+    function enforceInheritLimit() {
+        const picks = Array.from(previewBox.querySelectorAll('input.skill-pick'));
+        const checked = picks.filter(c => c.checked);
+        picks.forEach(c => { c.disabled = !c.checked && checked.length >= previewMaxInherit; });
+    }
+
+    function renderPreview(d) {
+        if (!previewBox) return;
+        if (!d || !d.ok) {
+            previewBox.classList.remove('hidden');
+            previewBox.innerHTML = `<div class="preview-fail">${(d && d.message) || '何も生まれない…'}</div>`;
+            return;
+        }
+        previewMaxInherit = d.max_inherit || 3;
+        const s = d.stats || {};
+        const plus = d.plus_value ? ` <span class="preview-plus">+${d.plus_value}</span>` : '';
+        const elem = d.element ? `<span class="preview-tag">${d.element}</span>` : '';
+        const rank = d.rank ? `<span class="preview-tag">${d.rank}</span>` : '';
+        let skillsHtml = '';
+        if (Array.isArray(d.skills) && d.skills.length) {
+            const chips = d.skills.map(sk =>
+                `<label class="skill-chip"><input type="checkbox" class="skill-pick" value="${sk.id}"><span>${sk.name}</span></label>`
+            ).join('');
+            skillsHtml = `<div class="preview-skills"><div class="preview-skills-title">継承するスキル（最大${previewMaxInherit}個）</div><div class="skill-chips">${chips}</div></div>`;
+        } else {
+            skillsHtml = `<div class="preview-skills-title">継承できるスキルはありません</div>`;
+        }
+        let itemWarn = '';
+        if (d.required_item && !d.has_required_item) {
+            itemWarn = `<div class="preview-fail">触媒「${d.required_item}」が必要</div>`;
+        }
+        previewBox.classList.remove('hidden');
+        previewBox.innerHTML = `
+            <div class="preview-head">生まれる: <b>${d.result_name}</b>${plus} ${elem}${rank}</div>
+            <div class="preview-stats">
+                <span>HP ${s.max_hp ?? '?'}</span>
+                <span>攻 ${s.attack ?? '?'}</span>
+                <span>防 ${s.defense ?? '?'}</span>
+                <span>速 ${s.speed ?? '?'}</span>
+            </div>
+            ${skillsHtml}
+            ${itemWarn}
+            <div class="preview-hint">✨ ごく稀に「特別な存在」や★レア個体が生まれることがある…</div>
+        `;
+        previewBox.querySelectorAll('input.skill-pick').forEach(c => c.addEventListener('change', enforceInheritLimit));
+    }
+
+    function fetchPreview() {
+        const baseId = parseInt(baseSlot.dataset.id);
+        const matId = parseInt(materialSlot.dataset.id);
+        fetch("{{ url_for('inventory.synthesize_preview', user_id=user_id) }}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+            body: JSON.stringify({ base_id: baseId, material_id: matId })
+        })
+        .then(res => res.json())
+        .then(renderPreview)
+        .catch(() => hidePreview());
+    }
 
     // --- タブ切り替え ---
     const tabMonsters = document.getElementById('tab-monsters');
@@ -467,6 +586,15 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             resultMsg.textContent = '合成の素材を上の枠に配置してください…';
         }
+
+        // 両方モンスターが揃ったら結果をプレビュー
+        const bothMonsters = baseReady && materialReady && !isSameMonster
+            && baseSlot.dataset.type === 'monster' && materialSlot.dataset.type === 'monster';
+        if (bothMonsters) {
+            fetchPreview();
+        } else {
+            hidePreview();
+        }
     }
 
     // --- 合成実行 ---
@@ -479,24 +607,34 @@ document.addEventListener('DOMContentLoaded', () => {
             material_type: materialSlot.dataset.type,
             material_id: materialSlot.dataset.type === 'monster' ? parseInt(materialSlot.dataset.id) : materialSlot.dataset.id
         };
+        if (baseSlot.dataset.type === 'monster' && materialSlot.dataset.type === 'monster') {
+            payload.inherit_skills = selectedInheritIds();
+        }
 
         resultMsg.textContent = '合成中…';
         resultMsg.classList.remove('error', 'success');
-        
+
         fetch("{{ url_for('synthesize_action', user_id=user_id) }}", {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
             body: JSON.stringify(payload)
         })
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                const msg = data.result_type === 'monster' 
+                const msg = data.message || (data.result_type === 'monster'
                     ? `合成成功！ ${data.name} が誕生しました！`
-                    : `合成成功！ ${data.name} を入手しました！`;
+                    : `合成成功！ ${data.name} を入手しました！`);
                 resultMsg.textContent = msg;
                 resultMsg.classList.add('success');
-                setTimeout(() => window.location.reload(), 2000);
+                // 大当たり・レア個体はトーストで祝福し、余韻を長めに
+                let delay = 2000;
+                if (typeof window.showToast === 'function') {
+                    if (data.jackpot) { window.showToast(`✨大当たり！ ${data.name} ✨`, 'level', { duration: 5000 }); delay = 3200; }
+                    else if (data.rare) { window.showToast(`★レア個体！ ${data.name}`, 'item', { duration: 4500 }); delay = 3000; }
+                }
+                if (data.jackpot || data.rare) { resultMsg.classList.add('jackpot'); }
+                setTimeout(() => window.location.reload(), delay);
             } else {
                 resultMsg.textContent = `合成失敗： ${data.error || '原因不明のエラー'}`;
                 resultMsg.classList.add('error');

@@ -2,9 +2,10 @@
 
 /* === 全体レイアウト & 基本スタイル === */
 body {
-    background: #111;
-    color: #f0f0f0;
-    font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    background:
+        radial-gradient(1000px 520px at 50% 0%, #182c4a 0%, transparent 55%),
+        linear-gradient(180deg, #0a1019 0%, #05080e 100%);
+    color: var(--text);
     font-size: 18px;
 }
 .battle-page {
@@ -13,12 +14,16 @@ body {
     height: 100vh;
     max-width: 1000px;
     margin: 0 auto;
-    border: 2px solid #888;
-    background: #001a33;
-    box-shadow: inset 0 0 0 3px #001a33, 0 0 15px rgba(0, 128, 255, 0.4);
-    border-radius: 8px;
+    border: 1px solid var(--border);
+    background:
+        radial-gradient(120% 80% at 50% 0%, rgba(74, 144, 226, 0.10), transparent 60%),
+        linear-gradient(180deg, var(--surface), var(--bg-2));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 0 28px rgba(0, 128, 255, 0.18);
+    border-radius: var(--radius);
     padding: 1rem;
+    animation: battle-in 0.5s ease both;
 }
+@keyframes battle-in { from { opacity: 0; } to { opacity: 1; } }
 
 
 /* === 上部：敵エリア (横並びレイアウトに変更) === */
@@ -35,7 +40,7 @@ body {
 .divider {
     border: 0;
     height: 2px;
-    background-image: linear-gradient(to right, transparent, #888, transparent);
+    background-image: linear-gradient(to right, transparent, var(--border), transparent);
     margin: 0.5rem 0;
 }
 
@@ -75,8 +80,25 @@ body {
     object-fit: contain;
     image-rendering: pixelated;
     margin-bottom: 0.5rem;
-    filter: drop-shadow(2px 4px 6px #000); /* 画像に影をつける */
+    filter: drop-shadow(0 6px 5px rgba(0, 0, 0, 0.55)); /* 画像に影をつける */
 }
+
+/* 足元の接地影（要素背景として描画＝z-index不要） */
+.battle-unit {
+    background: radial-gradient(ellipse 58px 11px at 50% 92px, rgba(0, 0, 0, 0.42), transparent 72%);
+    background-repeat: no-repeat;
+}
+
+/* アイドル時のゆったりした浮遊で生命感を出す */
+@keyframes idle-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+.battle-unit:not(.down):not(.hit-flash) .unit-img {
+    animation: idle-float 3.2s ease-in-out infinite;
+}
+.battle-unit:nth-child(2n) .unit-img { animation-delay: -1.1s; }
+.battle-unit:nth-child(3n) .unit-img { animation-delay: -2.0s; }
 .battle-unit .member-info {
     width: 100%;
 }
@@ -108,15 +130,17 @@ body {
 }
 .hp-fill {
     height: 100%;
-    background: #00e075;
+    background: var(--success);
     box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.4);
+    transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1), background 0.3s;
 }
-.hp-fill.low { background: #ffb100; }
-.hp-fill.critical { background: #ff3c3c; }
+.hp-fill.low { background: var(--warn); }
+.hp-fill.critical { background: var(--danger); }
 .mp-fill {
     height: 100%;
-    background: #0090ff;
+    background: var(--accent);
     box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.4);
+    transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 .hp-text {
     font-size: 0.9rem;
@@ -158,30 +182,32 @@ body {
 .command-window {
     margin-top: auto; /* Push to bottom */
     padding: 1rem;
-    border: 2px solid #666;
-    border-radius: 6px;
-    background: #112a44;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: linear-gradient(180deg, var(--surface-2), var(--bg-2));
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.35);
     z-index: 10;
 }
 
-.turn-banner { font-size: 1.5rem; font-weight: bold; text-align: center; margin-bottom: 1rem; color: #ffdd00; text-shadow: 1px 1px 2px #000; }
+.turn-banner { font-size: 1.5rem; font-weight: bold; text-align: center; margin-bottom: 1rem; color: var(--gold); text-shadow: 0 0 10px rgba(255, 210, 74, 0.4), 1px 1px 2px #000; }
 .action-row { display: grid; grid-template-columns: 100px 1fr 1fr; gap: .75rem; align-items: center; margin-bottom: .75rem; }
-.action-row label { font-weight: bold; color: #fff; }
-select, button { background: #2d2d2d; color: #e0e0e0; border: 1px solid #777; border-radius: 4px; padding: .4rem .6rem; font-family: inherit; font-size: 1rem; }
-button { cursor: pointer; display: block; margin: 1.5rem auto 0; background: #0055aa; border: 1px solid #0088ff; padding: .5rem 2rem; font-weight: bold; transition: background .2s; box-shadow: 0 0 8px rgba(0, 136, 255, 0.5); }
-button:hover { background: #004cd1; }
+.action-row label { font-weight: bold; color: var(--text); }
+select, button { background: var(--surface-raised); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: .4rem .6rem; font-family: inherit; font-size: 1rem; }
+button { cursor: pointer; display: block; margin: 1.5rem auto 0; background: linear-gradient(180deg, var(--accent), var(--accent-strong)); border: 1px solid #6aa6ee; padding: .55rem 2rem; font-weight: bold; transition: filter .15s, box-shadow .15s, transform .08s; box-shadow: 0 3px 0 #0a3f7d, 0 0 10px var(--accent-glow); }
+button:hover { filter: brightness(1.1); box-shadow: 0 3px 0 #0a3f7d, 0 0 16px var(--accent-glow); }
+button:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a3f7d; }
 
-/* === ログ & リンク (変更なし) === */
-.log { margin-top: 1.5rem; height: 180px; overflow-y: auto; background: rgba(0, 0, 0, 0.4); border: 1px solid #555; border-radius: 6px; padding: .75rem; list-style: none; padding-left: .75rem; }
+/* === ログ & リンク === */
+.log { margin-top: 1.5rem; height: 180px; overflow-y: auto; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); padding: .75rem; list-style: none; padding-left: .75rem; }
 .log li { margin-bottom: .4rem; font-size: 1rem; line-height: 1.4; }
-.back-link { display: block; text-align: center; margin-top: 1rem; color: #00b3ff; }
+.back-link { display: block; text-align: center; margin-top: 1rem; color: var(--accent); }
 
 /* === アニメーション (変更なし) === */
 @keyframes blink-red { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.6); } }
 .hp-fill.critical.blink { animation: blink-red 1s infinite; }
 
 /* === 敵詳細パネル (変更なし) === */
-.enemy-detail-panel { position: fixed; top: 0; right: 0; width: 260px; height: 100%; background: rgba(0, 0, 0, 0.85); color: #fff; padding: 1rem; box-shadow: -2px 0 5px rgba(0,0,0,0.5); transform: translateX(100%); transition: transform 0.3s ease; overflow-y: auto; z-index: 100; }
+.enemy-detail-panel { position: fixed; top: 0; right: 0; width: 260px; height: 100%; background: linear-gradient(180deg, var(--surface), var(--bg-2)); border-left: 1px solid var(--border); color: var(--text); padding: 1rem; box-shadow: -8px 0 24px rgba(0,0,0,0.5); transform: translateX(100%); transition: transform 0.3s ease; overflow-y: auto; z-index: 100; }
 .enemy-detail-panel.open { transform: translateX(0); }
 .enemy-detail-panel .close-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
 
@@ -267,4 +293,82 @@ button:hover { background: #004cd1; }
 
 .tab-panel.active {
     display: block;
+}
+
+/* =====================================================================
+   戦闘の手触り（juice）: 画面シェイク・被弾フラッシュ・属性/クリティカル演出
+   ===================================================================== */
+
+/* 画面シェイク */
+@keyframes screen-shake {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(-6px, 3px); }
+    40% { transform: translate(6px, -3px); }
+    60% { transform: translate(-4px, -2px); }
+    80% { transform: translate(4px, 2px); }
+}
+@keyframes screen-shake-hard {
+    0%, 100% { transform: translate(0, 0) rotate(0); }
+    15% { transform: translate(-11px, 5px) rotate(-0.6deg); }
+    30% { transform: translate(11px, -6px) rotate(0.6deg); }
+    45% { transform: translate(-9px, -4px) rotate(-0.4deg); }
+    60% { transform: translate(9px, 5px) rotate(0.4deg); }
+    80% { transform: translate(-5px, 3px); }
+}
+.battle-page.shake { animation: screen-shake 0.35s ease; }
+.battle-page.shake-hard { animation: screen-shake-hard 0.5s ease; }
+
+/* 被弾フラッシュ（ダメージを受けたユニット） */
+@keyframes hit-flash-anim {
+    0% { filter: brightness(2.2) drop-shadow(0 0 10px #ff5252); transform: translateX(0); }
+    20% { transform: translateX(-7px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(3px); }
+    100% { filter: none; transform: translateX(0); }
+}
+.battle-unit.hit-flash .unit-img { animation: hit-flash-anim 0.45s ease; }
+
+/* 行動者の前進（攻撃モーション） */
+@keyframes lunge-enemy { 0% { transform: translateY(0); } 40% { transform: translateY(22px) scale(1.04); } 100% { transform: translateY(0); } }
+@keyframes lunge-ally { 0% { transform: translateY(0); } 40% { transform: translateY(-22px) scale(1.04); } 100% { transform: translateY(0); } }
+.battle-unit.enemy.attacking { animation: lunge-enemy 0.4s ease; }
+.battle-unit.ally.attacking { animation: lunge-ally 0.4s ease; }
+
+/* ダメージ数字を大きく・見やすく */
+.damage-indicator {
+    font-size: 1.6rem;
+    text-shadow: 0 2px 4px #000, 0 0 8px rgba(255, 60, 60, 0.6);
+}
+.heal-indicator {
+    font-size: 1.5rem;
+    text-shadow: 0 2px 4px #000, 0 0 8px rgba(50, 205, 50, 0.6);
+}
+/* クリティカル時のダメージ数字 */
+.damage-indicator.crit {
+    color: #ffc23c;
+    font-size: 2.2rem;
+    text-shadow: 0 2px 5px #000, 0 0 14px rgba(255, 180, 40, 0.9);
+}
+
+/* ログ内のメッセージ発色（battle画面用の上書き） */
+.log .log-message-effective { color: #ffd24a; font-weight: bold; text-shadow: 0 0 8px rgba(255, 210, 74, 0.6); }
+.log .log-message-resist { color: #9bb0cc; font-style: italic; }
+.log .log-message-critical { color: #ff8a3c; font-weight: 800; letter-spacing: 1px; }
+.log .log-message-item_drop { color: var(--gold); font-weight: bold; }
+
+/* 敵詳細パネルの属性・弱点 */
+.enemy-detail-panel .detail-element { color: #9cd3ff; font-weight: bold; }
+.enemy-detail-panel .detail-weakness-row { color: #ffd24a; }
+.enemy-detail-panel .detail-weakness {
+    font-weight: bold;
+    color: #ffd24a;
+    text-shadow: 0 0 8px rgba(255, 210, 74, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .battle-page, .battle-page.shake, .battle-page.shake-hard,
+    .battle-unit .unit-img,
+    .battle-unit.hit-flash .unit-img,
+    .battle-unit.attacking { animation: none !important; }
 }

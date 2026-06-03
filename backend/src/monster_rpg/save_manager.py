@@ -10,6 +10,7 @@ from typing import Optional
 from .map_data import STARTING_LOCATION_ID
 from .monsters.monster_class import Monster
 from .monsters.monster_data import ALL_MONSTERS
+from .skills.skills import ALL_SKILLS
 from .items.item_data import ALL_ITEMS
 from .items.equipment import (
     create_titled_equipment,
@@ -69,37 +70,48 @@ def save_game(player: "Player", db_name: str, user_id: Optional[int] = None) -> 
             )
             player.db_id = cursor.lastrowid
 
+        def _skill_ids(monster):
+            ids = []
+            for sk in (getattr(monster, "skills", None) or []):
+                nm = getattr(sk, "name", None)
+                sid = next((k for k, obj in ALL_SKILLS.items() if getattr(obj, "name", None) == nm), None)
+                if sid is not None:
+                    ids.append(sid)
+            return ids
+
+        def _monster_row(monster):
+            pb = getattr(monster, "permanent_bonuses", {}) or {}
+            return (
+                player.db_id,
+                monster.monster_id,
+                monster.level,
+                monster.exp,
+                monster.hp,
+                monster.max_hp,
+                monster.mp,
+                monster.max_mp,
+                int(pb.get("attack", 0)),
+                int(pb.get("defense", 0)),
+                int(pb.get("speed", 0)),
+                int(pb.get("magic", 0)),
+                int(getattr(monster, "plus_value", 0)),
+                int(bool(getattr(monster, "is_rare", False))),
+                json.dumps(_skill_ids(monster)),
+            )
+
+        _monster_cols = (
+            "(player_id, monster_id, level, exp, hp, max_hp, mp, max_mp, "
+            "bonus_attack, bonus_defense, bonus_speed, bonus_magic, plus_value, is_rare, skills) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        )
+
         cursor.execute("DELETE FROM party_monsters WHERE player_id=?", (player.db_id,))
         for monster in player.party_monsters:
-            cursor.execute(
-                "INSERT INTO party_monsters (player_id, monster_id, level, exp, hp, max_hp, mp, max_mp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                (
-                    player.db_id,
-                    monster.monster_id,
-                    monster.level,
-                    monster.exp,
-                    monster.hp,
-                    monster.max_hp,
-                    monster.mp,
-                    monster.max_mp,
-                ),
-            )
+            cursor.execute("INSERT INTO party_monsters " + _monster_cols, _monster_row(monster))
 
         cursor.execute("DELETE FROM storage_monsters WHERE player_id=?", (player.db_id,))
         for monster in player.reserve_monsters:
-            cursor.execute(
-                "INSERT INTO storage_monsters (player_id, monster_id, level, exp, hp, max_hp, mp, max_mp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                (
-                    player.db_id,
-                    monster.monster_id,
-                    monster.level,
-                    monster.exp,
-                    monster.hp,
-                    monster.max_hp,
-                    monster.mp,
-                    monster.max_mp,
-                ),
-            )
+            cursor.execute("INSERT INTO storage_monsters " + _monster_cols, _monster_row(monster))
 
         cursor.execute("DELETE FROM player_items WHERE player_id=?", (player.db_id,))
         for item in player.items:
@@ -124,7 +136,7 @@ def save_game(player: "Player", db_name: str, user_id: Optional[int] = None) -> 
                 instance_id = None
                 bonuses = None
             cursor.execute(
-                "INSERT INTO player_equipment (player_id, equip_id, title_id, instance_id, random_bonuses, synthesis_rank, stat_multiplier, sub_stat_slots) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO player_equipment (player_id, equip_id, title_id, instance_id, random_bonuses, synthesis_rank, stat_multiplier, sub_stat_slots, enhance_level) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     player.db_id,
                     equip_id,
@@ -134,6 +146,7 @@ def save_game(player: "Player", db_name: str, user_id: Optional[int] = None) -> 
                     getattr(equip, "synthesis_rank", 0),
                     getattr(equip, "stat_multiplier", 1.0),
                     getattr(equip, "sub_stat_slots", 0),
+                    getattr(equip, "enhance_level", 0),
                 ),
             )
 
@@ -188,44 +201,67 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
             loaded_player.current_location_id = location_id
             loaded_player.db_id = db_id
 
+            def _build_saved_monster(row):
+                (monster_id, m_level, m_exp, hp, max_hp, mp, max_mp,
+                 b_atk, b_def, b_spd, b_mag, plus_value, is_rare, skills_json) = row
+                if monster_id not in ALL_MONSTERS:
+                    return None
+                monster = ALL_MONSTERS[monster_id].copy()
+                if monster.level < m_level:
+                    monster.advance_to_level(m_level, verbose=False)
+                monster.exp = m_exp
+                if max_hp is not None:
+                    monster.max_hp = max_hp
+                if hp is not None:
+                    monster.hp = hp
+                if max_mp is not None:
+                    monster.max_mp = max_mp
+                if mp is not None:
+                    monster.mp = mp
+                # 永続強化（種・配合の＋値）を復元
+                monster.permanent_bonuses = {
+                    "attack": b_atk or 0,
+                    "defense": b_def or 0,
+                    "speed": b_spd or 0,
+                    "magic": b_mag or 0,
+                }
+                monster.plus_value = plus_value or 0
+                monster.is_rare = bool(is_rare)
+                # 習得スキル（配合の継承など）を復元
+                if skills_json:
+                    try:
+                        skill_ids = json.loads(skills_json)
+                    except (ValueError, TypeError):
+                        skill_ids = []
+                    if skill_ids:
+                        import copy as _copy
+                        restored = [
+                            _copy.deepcopy(ALL_SKILLS[sid])
+                            for sid in skill_ids if sid in ALL_SKILLS
+                        ]
+                        if restored:
+                            monster.skills = restored
+                return monster
+
+            _saved_cols = ("monster_id, level, exp, hp, max_hp, mp, max_mp, "
+                           "bonus_attack, bonus_defense, bonus_speed, bonus_magic, plus_value, is_rare, skills")
+
             cursor.execute(
-                "SELECT monster_id, level, exp, hp, max_hp, mp, max_mp FROM party_monsters WHERE player_id=?",
+                f"SELECT {_saved_cols} FROM party_monsters WHERE player_id=?",
                 (db_id,),
             )
-            for monster_id, m_level, m_exp, hp, max_hp, mp, max_mp in cursor.fetchall():
-                if monster_id in ALL_MONSTERS:
-                    monster = ALL_MONSTERS[monster_id].copy()
-                    if monster.level < m_level:
-                        monster.advance_to_level(m_level, verbose=False)
-                    monster.exp = m_exp
-                    if max_hp is not None:
-                        monster.max_hp = max_hp
-                    if hp is not None:
-                        monster.hp = hp
-                    if max_mp is not None:
-                        monster.max_mp = max_mp
-                    if mp is not None:
-                        monster.mp = mp
+            for row in cursor.fetchall():
+                monster = _build_saved_monster(row)
+                if monster is not None:
                     loaded_player.party_monsters.append(monster)
 
             cursor.execute(
-                "SELECT monster_id, level, exp, hp, max_hp, mp, max_mp FROM storage_monsters WHERE player_id=?",
+                f"SELECT {_saved_cols} FROM storage_monsters WHERE player_id=?",
                 (db_id,),
             )
-            for monster_id, m_level, m_exp, hp, max_hp, mp, max_mp in cursor.fetchall():
-                if monster_id in ALL_MONSTERS:
-                    monster = ALL_MONSTERS[monster_id].copy()
-                    if monster.level < m_level:
-                        monster.advance_to_level(m_level, verbose=False)
-                    monster.exp = m_exp
-                    if max_hp is not None:
-                        monster.max_hp = max_hp
-                    if hp is not None:
-                        monster.hp = hp
-                    if max_mp is not None:
-                        monster.max_mp = max_mp
-                    if mp is not None:
-                        monster.mp = mp
+            for row in cursor.fetchall():
+                monster = _build_saved_monster(row)
+                if monster is not None:
                     loaded_player.reserve_monsters.append(monster)
 
             cursor.execute(
@@ -237,10 +273,10 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
                     loaded_player.items.append(ALL_ITEMS[item_id])
 
             cursor.execute(
-                "SELECT equip_id, title_id, instance_id, random_bonuses, synthesis_rank, stat_multiplier, sub_stat_slots FROM player_equipment WHERE player_id=?",
+                "SELECT equip_id, title_id, instance_id, random_bonuses, synthesis_rank, stat_multiplier, sub_stat_slots, enhance_level FROM player_equipment WHERE player_id=?",
                 (db_id,),
             )
-            for equip_id, title_id, instance_id, bonuses_json, rank, mult, slots in cursor.fetchall():
+            for equip_id, title_id, instance_id, bonuses_json, rank, mult, slots, enhance_level in cursor.fetchall():
                 if equip_id in ALL_EQUIPMENT:
                     base = ALL_EQUIPMENT[equip_id]
                     if title_id and title_id in ALL_TITLES:
@@ -254,6 +290,7 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
                             synthesis_rank=rank or 0,
                             stat_multiplier=mult or 1.0,
                             sub_stat_slots=slots or 0,
+                            enhance_level=enhance_level or 0,
                         )
                     else:
                         equip = EquipmentInstance(
@@ -264,6 +301,7 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
                             synthesis_rank=rank or 0,
                             stat_multiplier=mult or 1.0,
                             sub_stat_slots=slots or 0,
+                            enhance_level=enhance_level or 0,
                         )
                     loaded_player.equipment_inventory.append(equip)
 

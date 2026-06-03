@@ -324,9 +324,33 @@ def _handle_mp_drain(
     log.append({'type': 'info', 'message': f"{caster.name} はMPを {amount} 吸収した！ (残りMP: {caster.mp})"})
 
 
+def _handle_permanent_stat(
+    caster: Monster,
+    target: Monster,
+    effect: dict,
+    log: List[Dict[str, str]] | None,
+    skill: Optional[Skill] = None,
+    context: Optional[Dict[str, Any]] = None,
+) -> None:
+    """種アイテム等による恒久的なステータス上昇。"""
+    if log is None:
+        log = []
+    stat = effect.get("stat", "attack")
+    amount = int(effect.get("amount", 0))
+    applied = target.add_permanent_stat(stat, amount)
+    labels = {
+        "attack": "こうげき", "defense": "しゅび", "speed": "すばやさ", "magic": "まりょく",
+        "hp": "さいだいHP", "max_hp": "さいだいHP", "mp": "さいだいMP", "max_mp": "さいだいMP",
+    }
+    label = labels.get(stat, stat)
+    if applied:
+        log.append({'type': 'info', 'message': f"{target.name} の{label}が永続的に {applied} 上がった！"})
+
+
 HANDLERS: Dict[str, Callable[[Monster, Monster, dict, List[Dict[str, str]], Optional[Skill], Optional[Dict[str, Any]]], None]] = {
     "damage": _handle_damage,
     "heal": _handle_heal,
+    "permanent_stat": _handle_permanent_stat,
     "buff": _handle_buff,
     "buff_percent": _handle_buff_percent,
     "status": _handle_status,
@@ -358,7 +382,7 @@ def apply_effects(
         handler = HANDLERS.get(eff.get("type"))
         if handler:
             # Pass log to handlers that accept it
-            if handler in [_handle_damage, _handle_heal, _handle_buff, _handle_buff_percent, _handle_status, _handle_revive, _handle_cure_status, _handle_charge, _handle_hp_cost_percent, _handle_self_ko, _handle_heal_from_damage, _handle_mp_drain]:
+            if handler in [_handle_damage, _handle_heal, _handle_permanent_stat, _handle_buff, _handle_buff_percent, _handle_status, _handle_revive, _handle_cure_status, _handle_charge, _handle_hp_cost_percent, _handle_self_ko, _handle_heal_from_damage, _handle_mp_drain]:
                 handler(caster, target, eff, log, skill, context)
             else:
                 handler(caster, target, eff, skill, context)

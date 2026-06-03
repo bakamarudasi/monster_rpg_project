@@ -14,6 +14,10 @@
   <main>
     {% block content %}{% endblock %}
   </main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  <script id="flash-data" type="application/json">[{% for cat, msg in messages %}{"category": {{ cat|tojson }}, "message": {{ msg|tojson }}}{{ "," if not loop.last }}{% endfor %}]</script>
+  {% endwith %}
+  <script src="{{ url_for('static', filename='toast.js') }}"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>
