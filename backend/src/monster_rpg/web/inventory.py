@@ -1,11 +1,9 @@
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify, flash
-from ..player import Player
-from ..items.equipment import Equipment, EquipmentInstance
-from ..monsters.monster_class import Monster
 from ..items.item_data import ALL_ITEMS
 from ..monsters.monster_data import ALL_MONSTERS, MONSTER_BOOK_DATA
 from ..map_data import LOCATIONS
-from .utils import process_synthesis_payload, load_player, save_player
+from .utils import load_player, save_player
+from ..services.synthesis_service import perform_synthesis, preview_synthesis
 from ..enhancement import (
     enhance_equipment,
     enhance_cost,
@@ -77,29 +75,18 @@ def synthesize(user_id):
     message = None
     if request.method == 'POST':
         if request.is_json:
-            data = request.get_json(silent=True) or {}
-            success, msg, result = process_synthesis_payload(player, data)
-            if success:
+            outcome = perform_synthesis(player, request.get_json(silent=True) or {})
+            if outcome.success:
                 save_player(player, user_id)
-            resp = {'success': success}
-            if success:
-                if isinstance(result, (Equipment, EquipmentInstance)):
-                    resp.update({'result_type': 'equipment', 'name': result.name})
-                elif isinstance(result, Monster):
-                    resp.update({'result_type': 'monster', 'name': result.name})
-                else:
-                    resp.update({'result_type': 'item', 'name': getattr(result, 'name', '')})
-            else:
-                resp['error'] = msg
-            return jsonify(resp)
-        try:
-            idx1 = int(request.form.get('mon1', -1))
-            idx2 = int(request.form.get('mon2', -1))
-        except (TypeError, ValueError):
-            idx1 = idx2 = -1
-        success, msg, _ = player.synthesize_monster(idx1, idx2)
-        save_player(player, user_id)
-        message = msg
+            return jsonify(outcome.to_dict())
+        # 旧来のフォーム送信（モンスター同士の配合のみ）
+        outcome = perform_synthesis(player, {
+            'base_type': 'monster', 'base_id': request.form.get('mon1', -1),
+            'material_type': 'monster', 'material_id': request.form.get('mon2', -1),
+        })
+        if outcome.success:
+            save_player(player, user_id)
+        message = outcome.message
     return render_template('synthesize.html', player=player, user_id=user_id, message=message)
 
 @inventory_bp.route('/synthesize_action/<int:user_id>', methods=['POST'], endpoint='synthesize_action')
@@ -110,29 +97,12 @@ def synthesize_action(user_id):
         return jsonify({'success': False, 'error': 'player not found'}), 404
     if not request.is_json:
         return jsonify({'success': False, 'error': 'json required'}), 400
-    data = request.get_json(silent=True) or {}
-    success, msg, result = process_synthesis_payload(player, data)
-    if msg in {'invalid base index', 'invalid base id', 'invalid material index', 'invalid material id', 'invalid types'} and not success:
-        return jsonify({'success': False, 'error': msg}), 400
-    if success:
+    outcome = perform_synthesis(player, request.get_json(silent=True) or {})
+    if outcome.is_validation_error:
+        return jsonify({'success': False, 'error': outcome.message}), 400
+    if outcome.success:
         save_player(player, user_id)
-        resp = {'success': True}
-        if isinstance(result, (Equipment, EquipmentInstance)):
-            resp.update({'result_type': 'equipment', 'name': result.name})
-        elif isinstance(result, Monster):
-            from ..monsters.synthesis_rules import SPECIAL_MONSTER_POOL
-            resp.update({
-                'result_type': 'monster',
-                'name': result.name,
-                'message': msg,
-                'rare': bool(getattr(result, 'is_rare', False)),
-                'jackpot': result.monster_id in SPECIAL_MONSTER_POOL,
-                'plus_value': getattr(result, 'plus_value', 0),
-            })
-        else:
-            resp.update({'result_type': 'item', 'name': getattr(result, 'name', '')})
-        return jsonify(resp)
-    return jsonify({'success': False, 'error': msg})
+    return jsonify(outcome.to_dict())
 
 @inventory_bp.route('/synthesize_preview/<int:user_id>', methods=['POST'], endpoint='synthesize_preview')
 def synthesize_preview(user_id):
@@ -142,13 +112,9 @@ def synthesize_preview(user_id):
         return jsonify({'ok': False, 'message': 'player not found'}), 404
     if not request.is_json:
         return jsonify({'ok': False, 'message': 'json required'}), 400
-    data = request.get_json(silent=True) or {}
-    try:
-        base_idx = int(data.get('base_id'))
-        mat_idx = int(data.get('material_id'))
-    except (TypeError, ValueError):
-        return jsonify({'ok': False, 'message': 'invalid index'}), 400
-    preview = player.preview_synthesis(base_idx, mat_idx)
+    preview, err = preview_synthesis(player, request.get_json(silent=True) or {})
+    if err:
+        return jsonify({'ok': False, 'message': err}), 400
     return jsonify(preview)
 
 @inventory_bp.route('/shop/<int:user_id>', methods=['GET', 'POST'], endpoint='shop')
