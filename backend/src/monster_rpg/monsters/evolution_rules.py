@@ -24,9 +24,17 @@ EVOLUTION_RULES = {
     "slime": [
         {"level": 5, "evolves_to": "water_wolf", "requires_skill": "ヒール"},
     ],
-    # ウルフはLv7でシャドウパンサーへ進化
+    # ウルフはLv7でシャドウパンサー。覚醒すると陽光のグリフォンへ。
     "wolf": [
-        {"level": 7, "evolves_to": "shadow_panther"},
+        {"level": 7, "evolves_to": "shadow_panther", "awaken_chance": 0.12, "awaken_into": "solar_griffon"},
+    ],
+    # ファイアパピーはLv12で焦土の猟犬へ
+    "ember_pup": [
+        {"level": 12, "evolves_to": "cinder_hound", "awaken_chance": 0.1},
+    ],
+    # 疾風のハリアーはLv14で雷帝の大鷲へ
+    "gale_harrier": [
+        {"level": 14, "evolves_to": "thunderlord_roc", "awaken_chance": 0.1},
     ],
 }
 
