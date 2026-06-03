@@ -1,6 +1,7 @@
 from ..skills.skills import ALL_SKILLS
 import copy  # deepcopyのためにインポート
 import uuid # uuidのためにインポート
+import random
 from .evolution_rules import EVOLUTION_RULES
 
 GROWTH_TYPE_AVERAGE = "平均型"
@@ -271,6 +272,29 @@ class Monster:
         self.hp = min(self.max_hp, self.hp)
         self.mp = min(self.max_mp, self.mp)
 
+    def make_rare_individual(self) -> None:
+        """★レア個体化：基礎能力の約30%を恒久ボーナスとして上乗せする。
+
+        合成のレア個体抽選と、進化の覚醒抽選の両方から使われる共通処理。
+        """
+        self.is_rare = True
+        for stat in ("attack", "defense", "speed", "magic"):
+            base = getattr(self, f"base_{stat}", 0)
+            self.permanent_bonuses[stat] = self.permanent_bonuses.get(stat, 0) + max(1, round(base * 0.3))
+        self.max_hp += max(5, round(self.max_hp * 0.3))
+        self.max_mp += max(2, round(self.max_mp * 0.3))
+        self.hp = self.max_hp
+        self.mp = self.max_mp
+        self.add_plus_value(2)
+
+    def _has_equipment(self, key: str) -> bool:
+        """指定の equip_id もしくはカテゴリの装備を装備中か（触媒進化の条件用）。"""
+        for eq in getattr(self, "equipment", {}).values():
+            base = getattr(eq, "base_item", eq)
+            if getattr(base, "equip_id", None) == key or getattr(base, "category", None) == key:
+                return True
+        return False
+
     def show_status(self, log: list[dict[str, str]] | None):
         if log is None:
             return
@@ -426,28 +450,46 @@ class Monster:
         return details
 
     def _try_evolution(self, log: list[dict[str, str]] | None = None, verbose=True):
-        """Check evolution rules and evolve if conditions are met."""
-        rule = EVOLUTION_RULES.get(self.monster_id)
-        if not rule:
-            return
-        if self.level < rule.get('level', 0):
-            return
-        req_skill = rule.get('requires_skill')
-        if req_skill:
-            if not any(getattr(s, 'name', '') == req_skill for s in self.skills):
-                return
+        """進化分岐を評価し、最初に条件を満たす枝へ進化する（覚醒抽選つき）。
+
+        戻り値は進化したとき reveal 用の dict、しなければ None。
+        """
+        from .evolution_rules import get_evolution_branches
         from .monster_data import ALL_MONSTERS  # local import to avoid cycle
-        new_id = rule.get('evolves_to')
-        template = ALL_MONSTERS.get(new_id)
-        if not template:
-            return
-        evolved = template.copy()
-        evolved.level = self.level
-        evolved.exp = self.exp
-        evolved.equipment = getattr(self, 'equipment', {}).copy()
-        self.__dict__.update(evolved.__dict__)
-        if verbose and log is not None:
-            log.append({'type': 'info', 'message': f"{template.name} に進化した！"})
+
+        for branch in get_evolution_branches(self.monster_id):
+            if self.level < branch.get('level', 0):
+                continue
+            req_skill = branch.get('requires_skill')
+            if req_skill and not any(getattr(s, 'name', '') == req_skill for s in self.skills):
+                continue
+            req_equip = branch.get('requires_equipment')
+            if req_equip and not self._has_equipment(req_equip):
+                continue
+
+            # 覚醒抽選：当たると★レア個体化し、awaken_into があればさらに上位種へ
+            awakened = random.random() < float(branch.get('awaken_chance', 0) or 0)
+            target_id = branch.get('awaken_into') if (awakened and branch.get('awaken_into')) else branch.get('evolves_to')
+            template = ALL_MONSTERS.get(target_id) or ALL_MONSTERS.get(branch.get('evolves_to'))
+            if not template:
+                continue
+
+            evolved = template.copy()
+            evolved.level = self.level
+            evolved.exp = self.exp
+            evolved.equipment = getattr(self, 'equipment', {}).copy()
+            self.__dict__.update(evolved.__dict__)
+            if awakened:
+                self.make_rare_individual()
+
+            if verbose and log is not None:
+                if awakened:
+                    log.append({'type': 'info', 'message': f"✨覚醒進化！ ★{template.name} になった！"})
+                else:
+                    log.append({'type': 'info', 'message': f"{template.name} に進化した！"})
+            return {'evolved_to': self.monster_id, 'name': template.name,
+                    'awakened': awakened, 'became_rare': awakened}
+        return None
 
     def _learn_skills_for_level(self, log: list[dict[str, str]] | None = None, verbose=True):
         if not isinstance(getattr(self, "learnset", None), dict):

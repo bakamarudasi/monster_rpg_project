@@ -72,16 +72,8 @@ def _roll_jackpot_result(parent1: Monster, parent2: Monster) -> Optional[str]:
 
 
 def _apply_rare_individual(monster: Monster) -> None:
-    """レア個体（★）化：基礎能力の約30%を恒久ボーナスとして上乗せ。"""
-    monster.is_rare = True
-    for stat in ("attack", "defense", "speed", "magic"):
-        base = getattr(monster, f"base_{stat}", 0)
-        monster.permanent_bonuses[stat] = monster.permanent_bonuses.get(stat, 0) + max(1, round(base * 0.3))
-    monster.max_hp += max(5, round(monster.max_hp * 0.3))
-    monster.max_mp += max(2, round(monster.max_mp * 0.3))
-    monster.hp = monster.max_hp
-    monster.mp = monster.max_mp
-    monster.add_plus_value(2)
+    """レア個体（★）化。実体は Monster.make_rare_individual に集約（進化の覚醒と共通）。"""
+    monster.make_rare_individual()
 
 
 def resolve_synthesis_result(parent1: Monster, parent2: Monster):
