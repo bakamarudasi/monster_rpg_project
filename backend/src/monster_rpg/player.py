@@ -7,7 +7,7 @@ from .map_data import STARTING_LOCATION_ID
 from .monsters.monster_class import Monster
 from .monster_book import MonsterBook
 
-from . import save_manager, party_manager, synthesis_manager
+from . import save_manager, party_manager, synthesis_manager, equipment_manager
 
 logger = logging.getLogger(__name__)
 
@@ -97,16 +97,16 @@ class Player:
         return party_manager.buy_monster(self, monster_id, price)
 
     def craft_equipment(self, equip_id: str):
-        return party_manager.craft_equipment(self, equip_id)
+        return equipment_manager.craft_equipment(self, equip_id)
 
     def equip_to_monster(self, party_idx: int, equip_id: str | None = None, slot: str | None = None) -> bool:
-        return party_manager.equip_to_monster(self, party_idx, equip_id, slot)
+        return equipment_manager.equip_to_monster(self, party_idx, equip_id, slot)
 
-    def disassemble_equipment(self, equip_id: str) -> bool:
-        return party_manager.disassemble_equipment(self, equip_id)
+    def disassemble_equipment(self, equip_id: str) -> tuple[bool, str]:
+        return equipment_manager.disassemble_equipment(self, equip_id)
 
-    def limit_break_equipment(self, equip_id: str) -> bool:
-        return party_manager.limit_break_equipment(self, equip_id)
+    def limit_break_equipment(self, equip_id: str) -> tuple[bool, str]:
+        return equipment_manager.limit_break_equipment(self, equip_id)
 
     # --- Synthesis -------------------------------------------------------
     def synthesize_monster(self, monster1_idx: int, monster2_idx: int, item_id: str | None = None, inherit_skill_ids=None):

@@ -50,16 +50,12 @@ def enhance(player, instance_id: str):
 
 def disassemble(player, instance_id: str):
     """装備を分解して素材を得る。戻り値 (success, message)。"""
-    if player.disassemble_equipment(instance_id):
-        return True, '装備を分解して素材を手に入れた。'
-    return False, '分解できなかった。'
+    return player.disassemble_equipment(instance_id)
 
 
 def limit_break(player, instance_id: str):
     """装備を限界突破（合成ランクを1段階上げる）する。戻り値 (success, message)。"""
-    if player.limit_break_equipment(instance_id):
-        return True, '限界突破に成功した！'
-    return False, '限界突破できなかった（素材不足など）。'
+    return player.limit_break_equipment(instance_id)
 
 
 def enhance_entries(player):
