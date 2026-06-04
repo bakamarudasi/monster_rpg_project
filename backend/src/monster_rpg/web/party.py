@@ -76,6 +76,37 @@ def equip(user_id):
         save_player(player, user_id)
     return jsonify({'success': success, **view_data})
 
+APPRAISE_COST = 50  # 個体値ジャッジ（鑑定）の費用
+
+
+@party_bp.route('/appraise/<int:user_id>', methods=['POST'], endpoint='appraise')
+def appraise(user_id):
+    """個体値ジャッジ：ゴールドを払って1体の個体値を開示する。"""
+    player = load_player(user_id)
+    if not player:
+        return jsonify({'success': False, 'error': 'player not found'}), 404
+    data = request.get_json(silent=True) or {}
+    try:
+        idx = int(data.get('monster_idx'))
+    except (TypeError, ValueError):
+        return jsonify({'success': False, 'error': 'invalid index'}), 400
+    if not (0 <= idx < len(player.party_monsters)):
+        return jsonify({'success': False, 'error': 'invalid index'}), 400
+
+    monster = player.party_monsters[idx]
+    if getattr(monster, 'iv_appraised', False):
+        return jsonify({'success': True, 'already': True,
+                        'gold': player.gold, 'individuality': monster.individuality_summary()})
+    if player.gold < APPRAISE_COST:
+        return jsonify({'success': False, 'error': f'鑑定には {APPRAISE_COST}G 必要です。'}), 400
+
+    player.gold -= APPRAISE_COST
+    monster.appraise()
+    save_player(player, user_id)
+    return jsonify({'success': True, 'cost': APPRAISE_COST, 'gold': player.gold,
+                    'individuality': monster.individuality_summary()})
+
+
 @party_bp.route('/formation/<int:user_id>', methods=['GET', 'POST'], endpoint='formation')
 def formation(user_id):
     """Edit the player's party formation with drag-and-drop."""

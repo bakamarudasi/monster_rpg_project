@@ -306,7 +306,7 @@
     "party_size": [1, 2],
     "has_inn": true, "inn_cost": 60,
     "has_shop": true,
-    "shop_items": { "elixir": 300, "power_seed": 300, "guard_seed": 300, "speed_seed": 300, "life_seed": 400, "mind_seed": 250, "weapon_core_rare": 400, "armor_fragment_rare": 400, "abyss_shard": 200, "celestial_feather": 500, "aegis_shield": 1200, "sage_orb": 700, "berserker_band": 700, "angel_robe": 650, "vorpal_blade": 2000 },
+    "shop_items": { "elixir": 300, "power_seed": 300, "guard_seed": 300, "speed_seed": 300, "life_seed": 400, "mind_seed": 250, "weapon_core_rare": 400, "armor_fragment_rare": 400, "abyss_shard": 200, "celestial_feather": 500, "aegis_shield": 1200, "sage_orb": 700, "berserker_band": 700, "angel_robe": 650, "vorpal_blade": 2000, "destiny_knot": 1500, "everstone": 800, "power_weight": 1000, "power_bracer": 1000, "power_belt": 1000, "power_lens": 1000, "power_anklet": 1000 },
     "avg_enemy_level": 14,
     "x": 1, "y": 5
   },

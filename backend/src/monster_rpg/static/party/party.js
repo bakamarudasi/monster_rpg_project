@@ -6,6 +6,7 @@
 
     let equipmentList = [];
     let equipUrl = '';
+    let appraiseUrl = '';
     const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
     const csrfToken = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
     const dataElem = document.getElementById('party-data');
@@ -14,9 +15,34 @@
         const parsed = JSON.parse(dataElem.textContent);
         equipmentList = parsed.equipment_list || [];
         equipUrl = parsed.equip_url || '';
+        appraiseUrl = parsed.appraise_url || '';
       } catch (e) {
         console.error('Failed to parse party-data', e);
       }
+    }
+
+    function appraiseMonster(data, btn) {
+      if (!appraiseUrl) return;
+      btn.disabled = true;
+      fetch(appraiseUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+        body: JSON.stringify({ monster_idx: data.index })
+      })
+        .then(res => res.json())
+        .then(resp => {
+          if (resp.success) {
+            data.individuality = resp.individuality;
+            displayMonsterDetails(data);
+            if (typeof window.showToast === 'function' && !resp.already) {
+              window.showToast('🔍 鑑定完了！', 'item', { duration: 2500 });
+            }
+          } else {
+            alert(resp.error || '鑑定に失敗しました');
+            btn.disabled = false;
+          }
+        })
+        .catch(() => { alert('鑑定に失敗しました'); btn.disabled = false; });
     }
 
     let currentData = null;
@@ -109,6 +135,13 @@
           hint.className = 'iv-unappraised';
           hint.textContent = '個体値：未鑑定';
           ivBox.appendChild(hint);
+          if (data.index != null && appraiseUrl) {
+            const btn = document.createElement('button');
+            btn.className = 'appraise-btn';
+            btn.textContent = '鑑定する（50G）';
+            btn.addEventListener('click', () => appraiseMonster(data, btn));
+            ivBox.appendChild(btn);
+          }
         }
         header.appendChild(ivBox);
       }

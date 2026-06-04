@@ -8,7 +8,7 @@ from typing import Tuple, Optional
 
 from .monsters.monster_class import Monster
 from .monsters.monster_data import ALL_MONSTERS
-from .monsters.personality import inherit_personality_id, inherit_ivs
+from .monsters.personality import inherit_personality_id, inherit_ivs, DEFAULT_INHERIT_COUNT
 from .monsters.synthesis_rules import (
     SYNTHESIS_RECIPES,
     SYNTHESIS_ITEMS_REQUIRED,
@@ -110,8 +110,12 @@ def _compute_child_plus(parent1: Monster, parent2: Monster) -> int:
     return max(getattr(parent1, "plus_value", 0), getattr(parent2, "plus_value", 0)) + 1
 
 
-def _build_child(parent1: Monster, parent2: Monster, result_id: str, inherit_skill_ids=None) -> Monster:
-    """合成結果のモンスターを生成（スキル継承・ステ補正・累代＋値を適用）。"""
+def _build_child(parent1: Monster, parent2: Monster, result_id: str, inherit_skill_ids=None, breeding=None) -> Monster:
+    """合成結果のモンスターを生成（スキル継承・ステ補正・累代＋値・個体値遺伝を適用）。
+
+    ``breeding`` は配合補助アイテムの効果（``inherit_count`` / ``power_stats`` /
+    ``everstone_parent``）を表す辞書。None なら通常の継承（個体値3継承・性格は親or変異）。
+    """
     new_monster = ALL_MONSTERS[result_id].copy()
 
     existing = {getattr(s, "name", None) for s in new_monster.skills}
@@ -151,13 +155,20 @@ def _build_child(parent1: Monster, parent2: Monster, result_id: str, inherit_ski
     # 累代＋値（強い親ほど強い子になるループ）
     new_monster.add_plus_value(_compute_child_plus(parent1, parent2))
 
-    # 個性の継承：性格はどちらかの親（稀に変異）、個体値はステごとに親から引き継ぐ
-    # （ポケモンの遺伝に準拠）。良個体値を集めて厳選＝才能（鬼才）を狙う配合ループの核。
+    # 個性の継承：性格はどちらかの親（稀に変異／かわらずのいしで確定）、個体値はステ
+    # ごとに親から引き継ぐ（ポケモンの遺伝に準拠）。あかいいとで継承数3→5、パワー系で
+    # 指定ステを確定継承。良個体値を集めて厳選＝才能（鬼才）を狙う配合ループの核。
+    breeding = breeding or {}
     new_monster.personality_id = inherit_personality_id(
-        getattr(parent1, "personality_id", None), getattr(parent2, "personality_id", None)
+        getattr(parent1, "personality_id", None),
+        getattr(parent2, "personality_id", None),
+        everstone_parent=breeding.get("everstone_parent"),
     )
     new_monster.ivs = inherit_ivs(
-        getattr(parent1, "ivs", None), getattr(parent2, "ivs", None)
+        getattr(parent1, "ivs", None),
+        getattr(parent2, "ivs", None),
+        inherit_count=breeding.get("inherit_count", DEFAULT_INHERIT_COUNT),
+        power_stats=breeding.get("power_stats") or None,
     )
     new_monster.iv_appraised = False
 
@@ -213,7 +224,7 @@ def preview_synthesis(player: "Player", monster1_idx: int, monster2_idx: int, it
     }
 
 
-def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, item_id: str | None = None, inherit_skill_ids=None) -> Tuple[bool, str, Optional[Monster]]:
+def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, item_id: str | None = None, inherit_skill_ids=None, breeding=None) -> Tuple[bool, str, Optional[Monster]]:
     if not (0 <= monster1_idx < len(player.party_monsters) and 0 <= monster2_idx < len(player.party_monsters)):
         return False, "無効なモンスターの選択です。", None
     if monster1_idx == monster2_idx:
@@ -255,7 +266,7 @@ def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, i
             result_monster_id = jackpot_id
             is_jackpot = True
 
-    new_monster = _build_child(parent1, parent2, result_monster_id, inherit_skill_ids=inherit_skill_ids)
+    new_monster = _build_child(parent1, parent2, result_monster_id, inherit_skill_ids=inherit_skill_ids, breeding=breeding)
 
     # レア個体（★）抽選
     if random.random() < _rare_individual_chance(parent1, parent2):

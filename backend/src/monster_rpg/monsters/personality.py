@@ -177,10 +177,24 @@ def iv_judge_label(value: int) -> str:
     return "苦手"
 
 
+# 配合補助アイテム（ポケモン準拠）。持ち込むと個体値・性格の継承を制御できる。
+DESTINY_KNOT_ITEM = "destiny_knot"   # あかいいと: 個体値の継承数 3→5
+EVERSTONE_ITEM = "everstone"         # かわらずのいし: 親の性格を確定継承
+POWER_ITEMS: dict[str, str] = {      # パワー系: 指定ステの個体値を確定継承
+    "power_weight": "hp",
+    "power_bracer": "attack",
+    "power_belt": "defense",
+    "power_lens": "magic",
+    "power_anklet": "speed",
+}
+DEFAULT_INHERIT_COUNT = 3
+DESTINY_KNOT_INHERIT_COUNT = 5
+
+
 def inherit_ivs(
     p1_ivs: dict[str, int] | None,
     p2_ivs: dict[str, int] | None,
-    inherit_count: int = 3,
+    inherit_count: int = DEFAULT_INHERIT_COUNT,
     power_stats: dict[str, int] | None = None,
 ) -> dict[str, int]:
     """配合での個体値遺伝（ポケモン準拠）。

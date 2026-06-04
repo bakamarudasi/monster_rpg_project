@@ -257,5 +257,102 @@ class PersistenceTests(unittest.TestCase):
         self.assertGreater(lm.max_hp, weak.max_hp)
 
 
+class BreedingItemTests(unittest.TestCase):
+    def test_everstone_forces_parent_nature(self):
+        # 変異が起きるロール(0.0)でも、かわらずのいし指定があれば親の性格で確定
+        with patch(PMOD + ".random.random", return_value=0.0):
+            self.assertEqual(P.inherit_personality_id("brave", "clever", everstone_parent=1), "brave")
+            self.assertEqual(P.inherit_personality_id("brave", "clever", everstone_parent=2), "clever")
+
+    def test_parse_breeding_respects_ownership(self):
+        from monster_rpg.services import synthesis_service as ss
+        from monster_rpg.items.item_data import ALL_ITEMS
+        player = Player("B")
+        player.items.append(ALL_ITEMS["destiny_knot"])
+        player.items.append(ALL_ITEMS["power_bracer"])
+        data = {"breeding": {"destiny_knot": True, "everstone_parent": 1,
+                             "power": {"power_bracer": 2, "power_anklet": 1}}}
+        b = ss._parse_breeding(player, data)
+        self.assertEqual(b.get("inherit_count"), P.DESTINY_KNOT_INHERIT_COUNT)
+        self.assertEqual(b.get("power_stats"), {"attack": 2})   # bracer所持/anklet未所持
+        self.assertNotIn("everstone_parent", b)                 # かわらずのいし未所持
+
+    def test_destiny_knot_breeding_inherits_all_from_perfect_parents(self):
+        player = Player("B")
+        player.add_monster_to_party("slime")
+        player.add_monster_to_party("wolf")
+        player.party_monsters[0].ivs = {s: 31 for s in P.IV_STATS}
+        player.party_monsters[1].ivs = {s: 31 for s in P.IV_STATS}
+        ok, _msg, child = player.synthesize_monster(0, 1, breeding={"inherit_count": 5})
+        self.assertTrue(ok)
+        # 両親5V＋5継承なら全ステ親由来＝全て31
+        self.assertTrue(all(v == 31 for v in child.ivs.values()))
+        self.assertEqual(child.talent.id, "mastermind")
+
+    def test_power_item_breeding_forces_stat(self):
+        player = Player("B")
+        player.add_monster_to_party("slime")
+        player.add_monster_to_party("wolf")
+        player.party_monsters[0].ivs = {s: 0 for s in P.IV_STATS}
+        player.party_monsters[1].ivs = {s: 0 for s in P.IV_STATS}
+        player.party_monsters[1].ivs["attack"] = 31  # 触媒(親2)の攻撃だけ31
+        ok, _msg, child = player.synthesize_monster(
+            0, 1, breeding={"power_stats": {"attack": 2}}
+        )
+        self.assertTrue(ok)
+        self.assertEqual(child.ivs["attack"], 31)  # 確定継承
+
+
+class AppraiseRouteTests(unittest.TestCase):
+    def setUp(self):
+        from monster_rpg.web_main import app
+        self.db_path = "test_appraise.db"
+        if os.path.exists(self.db_path):
+            os.remove(self.db_path)
+        database_setup.DATABASE_NAME = self.db_path
+        database_setup.initialize_database()
+        self.user_id = database_setup.create_user("ap", "pw")
+        app.config["TESTING"] = True
+        app.config["WTF_CSRF_ENABLED"] = False
+        self.client = app.test_client()
+        player = Player("Ap", user_id=self.user_id)
+        player.add_monster_to_party("slime")
+        player.party_monsters[0].ivs = {s: 31 for s in P.IV_STATS}
+        player.gold = 100
+        save_manager.save_game(player, self.db_path, user_id=self.user_id)
+
+    def tearDown(self):
+        if os.path.exists(self.db_path):
+            os.remove(self.db_path)
+
+    def test_appraise_costs_gold_and_reveals_ivs(self):
+        resp = self.client.post(f"/appraise/{self.user_id}", json={"monster_idx": 0})
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertTrue(data["success"])
+        self.assertEqual(data["gold"], 50)  # 100 - 50
+        self.assertTrue(data["individuality"]["appraised"])
+        self.assertEqual(data["individuality"]["ivs"]["attack"]["value"], 31)
+        # 永続化されている
+        loaded = save_manager.load_game(self.db_path, user_id=self.user_id)
+        self.assertTrue(loaded.party_monsters[0].iv_appraised)
+
+    def test_appraise_insufficient_gold(self):
+        player = save_manager.load_game(self.db_path, user_id=self.user_id)
+        player.gold = 10
+        save_manager.save_game(player, self.db_path, user_id=self.user_id)
+        resp = self.client.post(f"/appraise/{self.user_id}", json={"monster_idx": 0})
+        self.assertEqual(resp.status_code, 400)
+        self.assertFalse(resp.get_json()["success"])
+
+    def test_appraise_already_done_is_free(self):
+        self.client.post(f"/appraise/{self.user_id}", json={"monster_idx": 0})
+        resp = self.client.post(f"/appraise/{self.user_id}", json={"monster_idx": 0})
+        data = resp.get_json()
+        self.assertTrue(data["success"])
+        self.assertTrue(data.get("already"))
+        self.assertEqual(data["gold"], 50)  # 二重課金されない
+
+
 if __name__ == "__main__":
     unittest.main()
