@@ -172,6 +172,17 @@ body {
     background: linear-gradient(90deg, #ff3b3b, #b71c1c) !important;
 }
 .log-message-boss { color: #ff6b6b; font-weight: bold; }
+/* オート/倍速トグル */
+.battle-toggles { display: flex; gap: 8px; justify-content: center; margin-bottom: 8px; }
+.bt-toggle {
+    padding: 4px 12px; border-radius: 999px; border: 1px solid #667;
+    background: #2a2a33; color: #aab; font-size: 0.82rem; font-weight: bold; cursor: pointer;
+}
+.bt-toggle.on { background: linear-gradient(90deg, #2e7d32, #43a047); color: #fff; border-color: #43a047; }
+/* 倍速：アニメーションを短縮 */
+body.fast-battle .hp-fill, body.fast-battle .mp-fill { transition-duration: 0.15s !important; }
+body.fast-battle .damage-indicator, body.fast-battle .heal-indicator { animation-duration: 0.3s !important; }
+body.fast-battle .shake, body.fast-battle .shake-hard { animation-duration: 0.15s !important; }
 /* クリック可能な敵ユニットにカーソルを表示 */
 .enemy.battle-unit {
     cursor: pointer;

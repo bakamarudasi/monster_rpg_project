@@ -1,4 +1,41 @@
 (() => {
+    /* --- オート/倍速 戦闘の状態と共通送信 --- */
+    let battlePostUrl = null;
+    let battleCsrf = null;
+    let autoMode = false;
+    let fastMode = false;
+    let lastData = null;
+
+    function sendBattleAction(payload) {
+        if (!battlePostUrl) return;
+        if (payload.action === 'skill' && payload.selected_skill_id) {
+            payload.action = 'skill' + payload.selected_skill_id;
+        }
+        const submitBtn = document.querySelector('.command-window form button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+        fetch(battlePostUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': battleCsrf },
+            body: JSON.stringify(payload)
+        })
+            .then(resp => { if (!resp.ok) throw new Error(`HTTP ${resp.status}`); return resp.json(); })
+            .then(data => {
+                if (data.finished) { document.open(); document.write(data.html); document.close(); return; }
+                applyBattleData(data);
+            })
+            .catch(err => { console.error('Fetch error', err); alert(`通信エラー: ${err.message}`); })
+            .finally(() => { if (submitBtn) submitBtn.disabled = false; });
+    }
+
+    /* プレイヤーのターンでオートONなら、自動で「ランダムな敵を攻撃」する */
+    function maybeAutoAct(data) {
+        if (!autoMode || !data || data.finished || !data.current_actor) return;
+        const delay = fastMode ? 120 : 450;
+        setTimeout(() => {
+            if (autoMode) sendBattleAction({ action: 'attack', target_enemy: -1 });
+        }, delay);
+    }
+
     /* 属性相性: その属性が「弱い」相手（弱点を突かれる側）。backend の elements.py と対応 */
     const ELEMENT_WEAKNESS = {
         '火': '水', '風': '火', '水': '風',
@@ -426,50 +463,31 @@
         });
         closeBtn.addEventListener('click', () => detailPanel.classList.remove('open'));
 
-        /* --- AJAXでコマンド送信 --- */
+        /* --- AJAXでコマンド送信（オート/手動 共通） --- */
         const form = document.querySelector('.command-window form');
         if (form) {
+            battlePostUrl = form.getAttribute('action');
+            battleCsrf = (new FormData(form)).get('csrf_token');
             form.addEventListener('submit', evt => {
                 evt.preventDefault();
-                const formData = new FormData(form);
-                const csrfToken = formData.get('csrf_token');
-                const postUrl = form.getAttribute('action');  // use the form's action URL
-                const submitBtn = form.querySelector('button[type="submit"]');
-                if (submitBtn) submitBtn.disabled = true;
-
-                const payload = Object.fromEntries(formData.entries());
-                if (payload.action === 'skill' && payload.selected_skill_id) {
-                    payload.action = 'skill' + payload.selected_skill_id;
-                }
-                fetch(postUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
-                    body: JSON.stringify(payload)
-                })
-                    .then(resp => {
-                        if (!resp.ok) {
-                            throw new Error(`HTTP ${resp.status}`);
-                        }
-                        return resp.json();
-                    })
-                    .then(data => {
-                        if (data.finished) {
-                            document.open();
-                            document.write(data.html);
-                            document.close();
-                            return;
-                        }
-                        applyBattleData(data);
-                    })
-                    .catch(err => {
-                        console.error('Fetch error', err);
-                        alert(`通信エラー: ${err.message}`);
-                    })
-                    .finally(() => {
-                        if (submitBtn) submitBtn.disabled = false;
-                    });
+                sendBattleAction(Object.fromEntries(new FormData(form).entries()));
             });
         }
+        /* オート/倍速トグル */
+        const autoBtn = document.getElementById('auto-toggle');
+        if (autoBtn) autoBtn.addEventListener('click', () => {
+            autoMode = !autoMode;
+            autoBtn.textContent = 'オート: ' + (autoMode ? 'ON' : 'OFF');
+            autoBtn.classList.toggle('on', autoMode);
+            if (autoMode) maybeAutoAct(lastData);
+        });
+        const fastBtn = document.getElementById('fast-toggle');
+        if (fastBtn) fastBtn.addEventListener('click', () => {
+            fastMode = !fastMode;
+            fastBtn.textContent = '倍速: ' + (fastMode ? 'ON' : 'OFF');
+            fastBtn.classList.toggle('on', fastMode);
+            document.body.classList.toggle('fast-battle', fastMode);
+        });
 
         const cmdWindow = document.querySelector('.command-window');
         // Disabled auto scrolling to keep the battle screen position
@@ -691,6 +709,10 @@
         const cmdWindow = document.querySelector('.command-window');
         // Disabled auto scrolling to keep the battle screen position
         // if (cmdWindow) cmdWindow.scrollIntoView({behavior: 'smooth'});
+
+        /* オートONなら自分のターンを自動消化 */
+        lastData = data;
+        maybeAutoAct(data);
     }
 
     function showPopupIndicator(container, text, className) {
