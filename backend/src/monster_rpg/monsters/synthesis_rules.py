@@ -63,6 +63,13 @@ SYNTHESIS_RECIPES = {
     ("data_wraith", "vampire_lord"): "nameless_kingling",     # 名もなき王
     ("phantom_thief", "shadow_panther"): "ronin_spirit",      # 浪人の霊
     ("mist_wraith", "thunder_eagle"): "storm_djinn",          # 嵐の精霊
+
+    # === 魔王枠（新規）：合成限定のプレステージS級。属性の手薄なS帯を埋める ===
+    ("storm_djinn", "thunderlord_roc"): "storm_sovereign",        # 風: 暴風の覇王
+    ("iron_juggernaut", "obsidian_titan"): "gaia_colossus",       # 土: 山喰らいの巨王
+    ("blighted_knight", "venom_naga"): "plague_monarch",          # 毒: 万病の魔王
+    ("coral_hydra", "void_leviathan"): "abyssal_tide_king",       # 水: 深淵の海皇
+    ("nameless_kingling", "thunderlord_roc"): "thunder_emperor",  # 雷: 雷霆の帝王
 }
 
 # ジャックポット（大当たり）配合の抽選プール。家系配合などの非レシピ配合時に
@@ -95,6 +102,12 @@ SYNTHESIS_ITEMS_REQUIRED = {
     ("abyss_watcher", "midnight_horror"): "abyss_shard",
     ("data_wraith", "vampire_lord"): "thunder_core",
     ("dragon_pup", "sky_seraph"): "celestial_feather",
+    # 魔王枠の錬成ゲート
+    ("storm_djinn", "thunderlord_roc"): "thunder_core",
+    ("iron_juggernaut", "obsidian_titan"): "dragon_scale",
+    ("blighted_knight", "venom_naga"): "abyss_shard",
+    ("coral_hydra", "void_leviathan"): "frost_crystal",
+    ("nameless_kingling", "thunderlord_roc"): "thunder_core",
 }
 
 # モンスター1体とアイテム1つで行う特殊合成のレシピ

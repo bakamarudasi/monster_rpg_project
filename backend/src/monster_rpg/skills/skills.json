@@ -967,5 +967,72 @@
     ],
     "description": "溜め抜いた力で大地を砕く。敵全体に絶大なダメージと恐怖を刻む（ため技の解放専用）",
     "category": "固有技"
+  },
+  "tempest_judgment": {
+    "name": "天裁の暴風",
+    "power": 60,
+    "cost": 16,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage"},
+      {"type": "status", "status": "slow", "duration": 3}
+    ],
+    "description": "天を裂く暴風で敵全体を薙ぎ払い、その動きを鈍らせる暴風覇王の権能",
+    "category": "固有技"
+  },
+  "continental_crush": {
+    "name": "大陸断ち",
+    "power": 75,
+    "cost": 18,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage"},
+      {"type": "status", "status": "stun"}
+    ],
+    "description": "大地ごと敵を握り潰す山喰らいの一撃。衝撃で気絶させる",
+    "category": "固有技"
+  },
+  "pandemic": {
+    "name": "パンデミック",
+    "power": 30,
+    "cost": 18,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage"},
+      {"type": "status", "status": "poison", "duration": 4},
+      {"type": "status", "status": "curse", "duration": 3},
+      {"type": "status", "status": "blind", "duration": 3}
+    ],
+    "description": "万病を撒き散らし、敵全体を毒・呪い・盲目の地獄へ突き落とす疫病の宴",
+    "category": "固有技"
+  },
+  "maelstrom": {
+    "name": "大渦潮",
+    "power": 55,
+    "cost": 16,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage"},
+      {"type": "atb_change", "amount": -40}
+    ],
+    "description": "深淵の大渦で敵全体を呑み込み、ダメージとともに行動を大きく遅らせる",
+    "category": "固有技"
+  },
+  "ragnarok_bolt": {
+    "name": "神鳴の裁き",
+    "power": 65,
+    "cost": 17,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage"},
+      {"type": "status", "status": "paralyze"}
+    ],
+    "description": "天空から神鳴を落とし、敵全体を撃ち据えて麻痺させる雷霆帝王の裁き",
+    "category": "固有技"
   }
 }
