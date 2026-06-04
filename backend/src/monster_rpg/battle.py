@@ -4,11 +4,12 @@ from .player import Player
 from .monsters import Monster
 from .items.equipment import Equipment, EquipmentInstance, create_titled_equipment
 from .skills.skills import Skill, ALL_SKILLS
-from .skills.skill_actions import apply_effects
+from .skills.skill_actions import apply_effects, NEGATIVE_STATUSES
 from .elements import (
     ELEMENTAL_MULTIPLIERS,
     elemental_multiplier,
     field_multiplier,
+    get_field,
     tick_field,
     clear_field,
 )
@@ -640,6 +641,54 @@ def start_atb_battle(player_party: list[Monster], enemy_party: list[Monster], pl
     battle_instance = Battle(player_party, enemy_party, player, log, turn_order_monsters)
     return battle_instance
 
+
+def _skill_has(skill: Skill, *effect_types: str) -> bool:
+    """skill の効果に指定タイプ（"multi_hit" など）のいずれかが含まれるか。"""
+    return any(e.get("type") in effect_types for e in getattr(skill, "effects", []))
+
+
+def _enemy_skill_targets(actor: Monster, skill: Skill, players: list[Monster], allies: list[Monster]) -> list[Monster]:
+    """敵が使うスキルのアーキタイプに応じて最適なターゲットを選ぶ。"""
+    if skill.target == "self":
+        return [actor]
+    if skill.target == "ally":
+        if skill.scope == "all":
+            return allies
+        if _skill_has(skill, "shield", "heal", "revive"):
+            return [min(allies, key=lambda m: m.hp / m.max_hp)]   # 一番ピンチの味方
+        return [max(allies, key=lambda m: m.attack)]              # 強化はエース格へ
+    # --- ここから敵（プレイヤー）対象 ---
+    if skill.scope == "all":
+        return players
+    if _skill_has(skill, "percent_damage", "multi_hit"):
+        return [max(players, key=lambda m: m.hp)]                 # 割合/連撃は高HPに刺す
+    if _skill_has(skill, "transform"):
+        return [max(players, key=lambda m: m.attack)]             # 最強をコピー
+    if _skill_has(skill, "atb_change"):
+        return [max(players, key=lambda m: m.atb_gauge)]          # 行動間近を遅延
+    if any(e.get("bonus_if_status") or e.get("bonus_per_status") for e in skill.effects):
+        statused = [m for m in players if any(s["name"] in NEGATIVE_STATUSES for s in m.status_effects)]
+        if statused:
+            return [max(statused, key=lambda m: m.hp)]            # 追い討ち
+    if skill.skill_type in ("debuff", "status"):
+        return [max(players, key=lambda m: m.attack)]             # 厄介な相手を妨害
+    return [min(players, key=lambda m: m.hp)]                     # 通常攻撃技はトドメ狙い
+
+
+def _choose_enemy_skill(actor: Monster, usable_skills: list[Skill], players: list[Monster], allies: list[Monster]):
+    """攻撃技を優先しつつ支援/妨害技も時々選ぶ。(skill, targets) を返す。"""
+    offensive = [s for s in usable_skills if s.target == "enemy"]
+    support = [s for s in usable_skills if s.target in ("ally", "self")]
+    if offensive and (not support or random.random() < 0.7):
+        pool = offensive
+    else:
+        pool = support or offensive
+    if not pool:
+        return None, []
+    skill = random.choice(pool)
+    return skill, _enemy_skill_targets(actor, skill, players, allies)
+
+
 def enemy_take_action(
     enemy_actor: Monster,
     active_player_party: list[Monster],
@@ -687,6 +736,18 @@ def enemy_take_action(
                 return
 
     if enemy_actor.hp <= enemy_actor.max_hp * 0.3 and not is_defending(enemy_actor):
+        # ピンチ時：回復やバリアを持っていれば、ただ守るよりそれを使う
+        emergency_heal = [s for s in usable_skills if s.target in ("ally", "self") and _skill_has(s, "heal", "revive")]
+        emergency_shield = [s for s in usable_skills if _skill_has(s, "shield")]
+        if emergency_heal and not taunted:
+            skill = max(emergency_heal, key=lambda s: s.cost)
+            allies = [m for m in active_enemy_party if m.is_alive]
+            tgts = allies if skill.scope == "all" else [enemy_actor]
+            apply_skill_effect(enemy_actor, tgts, skill, log, active_enemy_party, active_player_party)
+            return
+        if emergency_shield and not taunted:
+            apply_skill_effect(enemy_actor, [enemy_actor], emergency_shield[0], log, active_enemy_party, active_player_party)
+            return
         defend(enemy_actor, log)
         return
 
@@ -720,47 +781,45 @@ def enemy_take_action(
 
     selected_skill = None
     skill_targets: list[Monster] = []
+    allies = [m for m in active_enemy_party if m.is_alive]
 
-    if role == "healer":
+    # 1) 反応的な回復・復活：味方(自分含む)が瀕死なら確率に関係なく使う
+    if selected_skill is None:
+        heal_skills = [s for s in usable_skills if s.target in ("ally", "self") and _skill_has(s, "heal", "revive")]
+        critical = [m for m in allies if m.hp < m.max_hp * 0.4]
+        if heal_skills and critical:
+            selected_skill = max(heal_skills, key=lambda s: s.cost)
+            skill_targets = allies if selected_skill.scope == "all" else [min(critical, key=lambda m: m.hp / m.max_hp)]
+
+    # 2) 既存ロール：healer / debuffer は決定的に動く（後方互換）
+    if selected_skill is None and role == "healer":
         heal_skills = [s for s in usable_skills if s.skill_type == "heal" and s.target == "ally"]
-        low_allies = [m for m in active_enemy_party if m.is_alive and m.hp < m.max_hp * 0.5]
+        low_allies = [m for m in allies if m.hp < m.max_hp * 0.5]
         if heal_skills and low_allies:
-            ally = min(low_allies, key=lambda m: m.hp / m.max_hp)
             selected_skill = random.choice(heal_skills)
-            if selected_skill.scope == "all":
-                skill_targets = [m for m in active_enemy_party if m.is_alive]
-            else:
-                skill_targets = [ally]
+            skill_targets = allies if selected_skill.scope == "all" else [min(low_allies, key=lambda m: m.hp / m.max_hp)]
 
-    if role == "debuffer" and selected_skill is None:
+    if selected_skill is None and role == "debuffer":
         debuff_skills = [s for s in usable_skills if s.skill_type == "debuff"]
         if debuff_skills and alive_player_targets:
-            target = max(alive_player_targets, key=lambda m: m.attack)
             selected_skill = random.choice(debuff_skills)
-            if selected_skill.scope == "all":
-                skill_targets = alive_player_targets
-            else:
-                skill_targets = [target]
+            skill_targets = alive_player_targets if selected_skill.scope == "all" else [max(alive_player_targets, key=lambda m: m.attack)]
 
+    # 3) フィールド設営：場が無く、自分の属性を強化するフィールド技があれば早めに張る
+    if selected_skill is None and get_field() is None:
+        field_skills = [
+            s for s in usable_skills
+            if any(e.get("type") == "set_field" and e.get("element") == enemy_actor.element for e in s.effects)
+        ]
+        if field_skills and random.random() < 0.6:
+            selected_skill = random.choice(field_skills)
+            skill_targets = [enemy_actor]
+
+    # 4) それ以外：50%の確率でスキルを使い、アーキタイプに応じて賢くターゲティング
     if selected_skill is None and usable_skills and random.random() < 0.5:
-        selected_skill = random.choice(usable_skills)
-        if selected_skill.target == "enemy":
-            if selected_skill.scope == "all":
-                skill_targets = alive_player_targets
-            else:
-                if role == "attacker":
-                    target = min(alive_player_targets, key=lambda m: m.hp)
-                else:
-                    target = random.choice(alive_player_targets)
-                skill_targets = [target]
-        else:  # ally target
-            allies = [m for m in active_enemy_party if m.is_alive]
-            if selected_skill.scope == "all":
-                skill_targets = allies
-            else:
-                skill_targets = [random.choice(allies)]
+        selected_skill, skill_targets = _choose_enemy_skill(enemy_actor, usable_skills, alive_player_targets, allies)
 
-    if selected_skill is not None:
+    if selected_skill is not None and skill_targets:
         apply_skill_effect(enemy_actor, skill_targets, selected_skill, log, active_enemy_party, active_player_party)
     else:
         if cant_attack:

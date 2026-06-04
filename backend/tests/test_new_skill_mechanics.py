@@ -9,11 +9,17 @@
 
 import random
 import unittest
+from unittest import mock
 
 from monster_rpg.monsters.monster_class import Monster
 from monster_rpg.skills.skills import ALL_SKILLS, Skill
 from monster_rpg.skills.skill_actions import apply_effects, deal_damage, calculate_skill_damage
-from monster_rpg.battle import apply_skill_effect, process_status_effects
+from monster_rpg.battle import (
+    apply_skill_effect,
+    process_status_effects,
+    enemy_take_action,
+    _enemy_skill_targets,
+)
 from monster_rpg import elements
 
 
@@ -257,6 +263,76 @@ class TransformTests(unittest.TestCase):
         self.assertEqual(caster.attack, 5)
         self.assertEqual(caster.defense, 5)
         self.assertEqual(caster.element, "無")
+
+
+# ---------------------------------------------------------------------------
+# 敵AIが新スキルを賢く使う/狙う
+# ---------------------------------------------------------------------------
+class EnemyAITargetingTests(unittest.TestCase):
+    """アーキタイプ別ターゲティング（純粋関数なので決定的）。"""
+
+    def setUp(self):
+        self.actor = Monster("Foe", hp=80, attack=20, defense=10, element="火")
+        self.allies = [self.actor]
+        self.weak = Monster("Weak", hp=40, attack=30, defense=5)
+        self.weak.hp = 20
+        self.tanky = Monster("Tanky", hp=300, attack=8, defense=5)
+        self.players = [self.weak, self.tanky]
+
+    def test_self_target_routes_to_self(self):
+        # かつて self 対象スキルがランダムな味方へ飛ぶバグがあった箇所
+        for sid in ("decoy", "inferno_field"):
+            tgt = _enemy_skill_targets(self.actor, ALL_SKILLS[sid], self.players, self.allies)
+            self.assertEqual(tgt, [self.actor])
+
+    def test_percent_and_multihit_hit_high_hp(self):
+        for sid in ("gravity", "rapid_slash"):
+            tgt = _enemy_skill_targets(self.actor, ALL_SKILLS[sid], self.players, self.allies)
+            self.assertEqual(tgt, [self.tanky])
+
+    def test_transform_copies_strongest(self):
+        tgt = _enemy_skill_targets(self.actor, ALL_SKILLS["mimicry"], self.players, self.allies)
+        self.assertEqual(tgt, [self.weak])  # weak が最高attack(30)
+
+    def test_delay_hits_highest_atb(self):
+        self.weak.atb_gauge = 90
+        self.tanky.atb_gauge = 10
+        tgt = _enemy_skill_targets(self.actor, ALL_SKILLS["time_delay"], self.players, self.allies)
+        self.assertEqual(tgt, [self.weak])
+
+    def test_exploit_prefers_statused_target(self):
+        self.tanky.apply_status("poison", [], 3)
+        tgt = _enemy_skill_targets(self.actor, ALL_SKILLS["exploit_weakness"], self.players, self.allies)
+        self.assertEqual(tgt, [self.tanky])
+
+
+class EnemyAIBehaviorTests(unittest.TestCase):
+    def tearDown(self):
+        elements.clear_field()
+
+    def test_fire_enemy_sets_matching_field(self):
+        enemy = Monster("Wyrm", hp=120, attack=20, defense=10, element="火",
+                        skills=[ALL_SKILLS["inferno_field"], ALL_SKILLS["fireball"]])
+        enemy.mp = 999
+        hero = Monster("Hero", hp=200, attack=10, defense=10, speed=5)
+        elements.clear_field()
+        with mock.patch("random.random", return_value=0.0):  # フィールド設営ゲートを通す
+            enemy_take_action(enemy, [hero], [enemy], [])
+        field = elements.get_field()
+        self.assertIsNotNone(field)
+        self.assertEqual(field["element"], "火")
+
+    def test_enemy_reactively_heals_critical_ally(self):
+        healer = Monster("Support", hp=60, attack=10, defense=5,
+                         skills=[ALL_SKILLS["heal"]])
+        healer.mp = 999
+        ally = Monster("Ally", hp=100, attack=10, defense=5)
+        ally.hp = 25  # 25% < 40% → 危機
+        hero = Monster("Hero", hp=80, attack=10, defense=5)
+        # 確率ゲートに関係なく回復する（random=1.0でも発動）
+        with mock.patch("random.random", return_value=1.0):
+            enemy_take_action(healer, [hero], [healer, ally], [])
+        self.assertGreater(ally.hp, 25)
 
 
 if __name__ == "__main__":

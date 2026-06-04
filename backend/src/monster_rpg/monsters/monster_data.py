@@ -84,25 +84,26 @@ def _load_from_json(filepath: str | None = None) -> Tuple[Dict[str, Monster], Di
                 drops.append((item, rate))
         m.drop_items = drops
 
-        learnset = attrs.get("learnset", {}).copy()
+        # 直接定義の learnset を取り込む（内側のリストもコピーして元データを汚さない）
+        learnset: Dict[str, list] = {}
+        for key, ids in attrs.get("learnset", {}).items():
+            learnset[str(key)] = [ids] if isinstance(ids, str) else list(ids)
+        # skill_sets 由来の learnset をマージ。ALL_SKILL_SETS の共有リストは
+        # 参照・破壊せず、必ず新しいリストへコピーしてから追記する。
         for set_id in attrs.get("skill_sets", []):
             sset = ALL_SKILL_SETS.get(set_id)
             if not sset:
                 continue
             for lvl, ids in sset.get("learnset", {}).items():
                 key = str(lvl)
+                add_ids = [ids] if isinstance(ids, str) else list(ids)
                 existing = learnset.get(key)
                 if existing is None:
-                    learnset[key] = ids
+                    learnset[key] = add_ids
                     continue
-                if isinstance(existing, str):
-                    existing = [existing]
-                if isinstance(ids, str):
-                    ids = [ids]
-                for sid in ids:
+                for sid in add_ids:
                     if sid not in existing:
                         existing.append(sid)
-                learnset[key] = existing
         m.learnset = {int(k): v for k, v in learnset.items()}
 
         monsters[monster_id] = m

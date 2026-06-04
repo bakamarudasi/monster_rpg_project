@@ -1938,8 +1938,8 @@
     "image_filename": "lava_elemental.png",
     "growth_type": "魔法型",
     "stats": {"hp": 110, "mp": 90, "attack": 42, "defense": 30, "speed": 24},
-    "skills": ["final_ember", "inferno_of_purgatory", "fireball", "curse", "last_wish"],
-    "skill_sequence": ["final_ember", "inferno_of_purgatory", "fireball"],
+    "skills": ["final_ember", "inferno_of_purgatory", "fireball", "curse", "last_wish", "inferno_field"],
+    "skill_sequence": ["inferno_field", "inferno_of_purgatory", "final_ember", "fireball"],
     "drop_items": [["mind_seed", 0.3], ["fire_crystal", 0.5]],
     "learnset": {"24": ["meteor_strike"]},
     "book": {
@@ -2014,8 +2014,8 @@
     "image_filename": "imp.png",
     "growth_type": "スピード型",
     "stats": {"hp": 115, "mp": 55, "attack": 46, "defense": 30, "speed": 40},
-    "skills": ["blade_rush", "sand_attack", "mana_burn", "poison_dart"],
-    "skill_sequence": ["sand_attack", "blade_rush", "mana_burn"],
+    "skills": ["blade_rush", "sand_attack", "mana_burn", "poison_dart", "mimicry"],
+    "skill_sequence": ["mimicry", "blade_rush", "mana_burn", "sand_attack"],
     "drop_items": [["speed_seed", 0.3], ["abyss_shard", 0.2]],
     "learnset": {},
     "book": {
@@ -2176,7 +2176,7 @@
     "stats": {"hp": 72, "mp": 20, "attack": 28, "defense": 15, "speed": 17},
     "skills": ["bite", "fireball_weak"],
     "drop_items": [["fire_crystal", 0.3], ["power_seed", 0.15]],
-    "learnset": {"5": ["blade_rush"], "8": ["fireball"], "12": ["roar"]},
+    "learnset": {"5": ["blade_rush"], "8": ["fireball"], "12": ["roar"], "14": ["inferno_field"]},
     "book": {"description": "焼け野を駆ける業火の番犬。咆哮で群れを統べる。", "location_hint": "火山帯の麓、燻る焦土。", "synthesis_hint": "竜の血を引くと灼熱の牙となる。"},
     "family": "beast"
   },
@@ -2358,7 +2358,7 @@
     "stats": {"hp": 48, "mp": 14, "attack": 22, "defense": 10, "speed": 16},
     "skills": ["blade_rush"],
     "drop_items": [["fire_crystal", 0.25], ["power_seed", 0.1]],
-    "learnset": {"4": ["fireball_weak"], "8": ["fireball"]},
+    "learnset": {"4": ["fireball_weak"], "8": ["fireball"], "11": ["inferno_field"]},
     "book": {"description": "灼熱の鎌を構える昆虫。一閃で乾いた草を焼き払う。", "location_hint": "火山帯の岩場、熱砂の縁。", "synthesis_hint": "竜と交えると鎌が業火を纏う。"},
     "family": "insect"
   },
@@ -2412,7 +2412,7 @@
     "image_filename": "inferno_wyrm.png",
     "growth_type": "パワー型",
     "stats": {"hp": 110, "mp": 30, "attack": 42, "defense": 24, "speed": 18},
-    "skills": ["dragon_breath", "fireball"],
+    "skills": ["dragon_breath", "fireball", "inferno_field"],
     "drop_items": [["dragon_scale", 0.4], ["fire_crystal", 0.3]],
     "learnset": {"5": ["earth_quake"], "10": ["roar"], "15": ["meteor_strike"]},
     "book": {"description": "焦土の猟犬と砂海の竜が混ざり合った業火の化身。吐息は岩を熔かす。", "location_hint": "野生では現れない。錬成によってのみ生まれる。", "synthesis_hint": "焦土の猟犬と砂海の竜を掛け合わせよ。"},
