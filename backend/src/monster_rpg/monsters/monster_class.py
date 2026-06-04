@@ -10,6 +10,7 @@ from .personality import (
     IV_MAX,
     IV_GROWTH_STRENGTH,
     get_personality,
+    get_trait,
     talent_from_ivs,
     iv_judge_label,
     iv_total,
@@ -17,6 +18,7 @@ from .personality import (
     normalize_ivs,
     random_personality_id,
     random_ivs,
+    roll_trait_for_talent,
     zero_ivs,
 )
 
@@ -248,6 +250,15 @@ class Monster:
         """この個体の才能（個体値の総合評価ランク）。個体値から導出する。"""
         return talent_from_ivs(self.ivs)
 
+    @property
+    def trait(self):
+        """この個体の固有特性（無ければ None）。"""
+        return get_trait(self.trait_id)
+
+    def has_trait_effect(self, effect: str) -> bool:
+        t = self.trait
+        return t is not None and t.effect == effect
+
     def _individual_multiplier(self, stat: str) -> float:
         """性格による派生ステの恒久倍率。バランス型なら 1.0（=従来通り）。
 
@@ -256,9 +267,11 @@ class Monster:
         return 1.0 + self.personality.modifiers.get(stat, 0.0)
 
     def roll_individuality(self) -> None:
-        """性格・個体値をランダムに引き直す（野生個体の生成時などに使う）。"""
+        """性格・個体値・固有特性をランダムに引き直す（野生個体の生成時などに使う）。"""
         self.personality_id = random_personality_id()
         self.ivs = random_ivs()
+        # 固有特性は才能（個体値）が高い個体にだけ宿る。野生では稀。
+        self.trait_id = roll_trait_for_talent(self.talent.id)
 
     def appraise(self) -> None:
         """個体値の数値を開示済みにする（鑑定）。"""
@@ -283,9 +296,11 @@ class Monster:
         """
         p = self.personality
         t = self.talent
+        trait = self.trait
         summary = {
             "personality": {"id": p.id, "name": p.name, "effect": p.effect_text},
             "talent": {"id": t.id, "name": t.name, "hidden": t.hidden},
+            "trait": {"id": trait.id, "name": trait.name, "description": trait.description} if trait else None,
             "appraised": bool(self.iv_appraised),
         }
         if self.iv_appraised:
@@ -400,6 +415,8 @@ class Monster:
         talent = self.talent
         talent_txt = talent.name + ("（隠し才能）" if talent.hidden else "")
         log.append({'type': 'info', 'message': f"性格: {self.personality.name}（{self.personality.effect_text}） / 才能: {talent_txt}"})
+        if self.trait is not None:
+            log.append({'type': 'info', 'message': f"固有特性: {self.trait.name}（{self.trait.description}）"})
         if self.iv_appraised:
             iv_txt = " ".join(
                 f"{IV_LABELS[s]}:{int(self.ivs.get(s, 0) or 0)}({iv_judge_label(self.ivs.get(s, 0))})"
@@ -691,6 +708,11 @@ class Monster:
     def gain_exp(self, amount, log: list[dict[str, str]] | None = None, verbose=True):
         if not self.is_alive:
             return
+
+        # 固有特性「速学」: 獲得経験値を底上げする。
+        trait = self.trait
+        if trait is not None and trait.effect == "exp" and amount > 0:
+            amount = int(amount * (1.0 + trait.value))
 
         self.exp += amount
         if verbose:

@@ -40,6 +40,7 @@ class SynthesisOutcome:
     personality: str = ''
     talent: str = ''
     talent_hidden: bool = False
+    trait: str = ''
 
     @property
     def is_validation_error(self) -> bool:
@@ -60,6 +61,7 @@ class SynthesisOutcome:
                 personality=self.personality,
                 talent=self.talent,
                 talent_hidden=self.talent_hidden,
+                trait=self.trait,
             )
         return data
 
@@ -132,6 +134,7 @@ def _describe(result) -> SynthesisOutcome:
             personality=result.personality.name,
             talent=talent.name,
             talent_hidden=talent.hidden,
+            trait=result.trait.name if result.trait else '',
         )
     return SynthesisOutcome(True, result_type='item', name=getattr(result, 'name', ''))
 

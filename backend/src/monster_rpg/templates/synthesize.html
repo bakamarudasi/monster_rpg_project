@@ -691,6 +691,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (typeof window.showToast === 'function') {
                     if (data.talent_hidden) { window.showToast(`🌟隠し才能『${data.talent}』が覚醒！ ${data.name}`, 'level', { duration: 5500 }); delay = 3500; }
                     else if (data.jackpot) { window.showToast(`✨大当たり！ ${data.name} ✨`, 'level', { duration: 5000 }); delay = 3200; }
+                    else if (data.trait) { window.showToast(`✦固有特性『${data.trait}』持ち！ ${data.name}`, 'item', { duration: 4800 }); delay = 3000; }
                     else if (data.rare) { window.showToast(`★レア個体！ ${data.name}`, 'item', { duration: 4500 }); delay = 3000; }
                 }
                 if (data.jackpot || data.rare || data.talent_hidden) { resultMsg.classList.add('jackpot'); }

@@ -303,6 +303,71 @@ class BreedingItemTests(unittest.TestCase):
         self.assertEqual(child.ivs["attack"], 31)  # 確定継承
 
 
+class TraitAssignmentTests(unittest.TestCase):
+    def test_roll_trait_by_talent(self):
+        with patch(PMOD + ".random.random", return_value=0.0), \
+             patch(PMOD + ".random.choice", side_effect=lambda s: s[0]):
+            self.assertIsNotNone(P.roll_trait_for_talent("mastermind"))  # 確定
+            self.assertIsNotNone(P.roll_trait_for_talent("genius"))      # 0.0<0.5
+        with patch(PMOD + ".random.random", return_value=0.99):
+            self.assertIsNone(P.roll_trait_for_talent("genius"))         # 0.99≥0.5
+            self.assertIsNone(P.roll_trait_for_talent("prodigy"))        # 対象外
+            self.assertIsNone(P.roll_trait_for_talent("common"))
+
+    def test_inherit_trait_prefers_parent(self):
+        with patch(PMOD + ".random.random", return_value=0.0), \
+             patch(PMOD + ".random.choice", side_effect=lambda s: s[0]):
+            self.assertEqual(P.inherit_trait("lucky", None, "mastermind"), "lucky")
+        # 天才未満の子には宿らない
+        self.assertIsNone(P.inherit_trait("lucky", "vanguard", "common"))
+
+    def test_trait_persists_save_load_and_copy(self):
+        m = ALL_MONSTERS["slime"].copy()
+        m.trait_id = "fast_learner"
+        self.assertEqual(m.copy().trait_id, "fast_learner")
+
+
+class TraitEffectTests(unittest.TestCase):
+    def test_fast_learner_boosts_exp(self):
+        m = ALL_MONSTERS["slime"].copy()
+        m.level = 10           # exp閾値を大きくしてレベルアップを避ける
+        m.trait_id = "fast_learner"
+        m.gain_exp(40, verbose=False)
+        self.assertEqual(m.exp, 60)  # 40 × 1.5
+
+    def test_element_savant_boosts_attack_damage(self):
+        from monster_rpg.battle import calculate_damage
+        atk = ALL_MONSTERS["wolf"].copy(); atk.element = "火"
+        df = ALL_MONSTERS["wolf"].copy(); df.element = None
+        with patch("monster_rpg.battle.random.random", return_value=0.99):  # クリ/回避なし
+            base = calculate_damage(atk, df, [])
+            atk.trait_id = "element_savant"
+            boosted = calculate_damage(atk, df, [])
+        self.assertGreater(boosted, base)
+
+    def test_vanguard_starts_with_extra_atb(self):
+        from monster_rpg.battle import Battle
+        from monster_rpg.player import Player
+        m = ALL_MONSTERS["slime"].copy(); m.trait_id = "vanguard"
+        enemy = ALL_MONSTERS["goblin"].copy()
+        with patch("monster_rpg.battle.random.randint", return_value=0):
+            Battle([m], [enemy], Player("V"))
+        self.assertGreaterEqual(m.atb_gauge, 40)
+
+    def test_lucky_boosts_drop_rate(self):
+        from monster_rpg.battle import award_experience
+        from monster_rpg.player import Player
+        from monster_rpg.items.item_data import ALL_ITEMS
+        player = Player("L")
+        lucky = ALL_MONSTERS["slime"].copy(); lucky.trait_id = "lucky"
+        enemy = ALL_MONSTERS["goblin"].copy()
+        enemy.drop_items = [(ALL_ITEMS["small_potion"], 0.5)]
+        # random=0.6: 幸運なし(0.6<0.5)は落ちず、幸運あり(0.6<0.75)で落ちる
+        with patch("monster_rpg.battle.random.random", return_value=0.6):
+            award_experience([lucky], [enemy], player, [])
+        self.assertTrue(any(getattr(it, "item_id", None) == "small_potion" for it in player.items))
+
+
 class AppraiseRouteTests(unittest.TestCase):
     def setUp(self):
         from monster_rpg.web_main import app

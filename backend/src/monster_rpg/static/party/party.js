@@ -108,6 +108,14 @@
           tTag.textContent = (t.hidden ? '🌟才能: ' : '才能: ') + t.name;
           indiv.appendChild(tTag);
         }
+        const tr = ind.trait;
+        if (tr) {
+          const trTag = document.createElement('span');
+          trTag.className = 'indiv-tag indiv-trait';
+          trTag.textContent = '✦特性: ' + tr.name;
+          if (tr.description) trTag.title = tr.description;
+          indiv.appendChild(trTag);
+        }
         header.appendChild(indiv);
 
         // 個体値（鑑定済みのときだけ数値を表示）

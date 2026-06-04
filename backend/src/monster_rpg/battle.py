@@ -204,6 +204,11 @@ def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, s
 
     damage = int(damage * multiplier)
 
+    # 固有特性「属性の申し子」: 自分の属性での攻撃ダメージを底上げする。
+    atk_trait = getattr(attacker, "trait", None)
+    if attacker.element and atk_trait is not None and atk_trait.effect == "element_attack":
+        damage = int(damage * (1.0 + atk_trait.value))
+
     # フィールド（天候）補正：攻撃属性が場と一致していれば増幅
     fmult = field_multiplier(attacker.element)
     if fmult != 1.0:
@@ -381,6 +386,10 @@ class Battle:
         else:
             for monster in all_monsters:
                 monster.atb_gauge = random.randint(0, 50) # Initialize ATB gauge randomly
+                # 固有特性「先制」: 開始時にATBゲージを上乗せして先手を取りやすくする。
+                trait = getattr(monster, "trait", None)
+                if trait is not None and trait.effect == "atb":
+                    monster.atb_gauge = min(100, monster.atb_gauge + int(trait.value))
 
     def _update_turn_order(self):
         self.turn_order = sorted(
@@ -864,6 +873,12 @@ RANK_EXP_MULTIPLIERS = {
 def award_experience(alive_party: list[Monster], defeated_enemies: list[Monster], player: Player | None, log: List[Dict[str, str]] | None = None):
     if log is None:
         log = []
+    # 固有特性「幸運」: パーティにいる間、敵ドロップ率を底上げする。
+    luck_mult = 1.0
+    for m in alive_party:
+        trait = getattr(m, "trait", None)
+        if getattr(m, "is_alive", False) and trait is not None and trait.effect == "drop":
+            luck_mult += trait.value
     total_exp_reward = 0
     for enemy in defeated_enemies:
         base = (enemy.level * 10) + (enemy.max_hp // 5)
@@ -871,7 +886,7 @@ def award_experience(alive_party: list[Monster], defeated_enemies: list[Monster]
         total_exp_reward += int(base * mult)
         if player is not None:
             for item_obj, rate in getattr(enemy, "drop_items", []):
-                if random.random() < rate:
+                if random.random() < min(1.0, rate * luck_mult):
                     if isinstance(item_obj, Equipment):
                         new_equip = create_titled_equipment(item_obj.equip_id)
                         if new_equip:

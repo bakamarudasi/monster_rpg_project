@@ -267,3 +267,67 @@ def talent_from_ivs(ivs: dict[str, int] | None) -> Talent:
         if ratio >= t.min_ratio:
             best = t
     return best
+
+
+# ---------------------------------------------------------------------------
+# 固有特性（パッシブ）。才能（個体値）が高い個体にだけ宿る隠し才能。
+# ---------------------------------------------------------------------------
+@dataclass(frozen=True)
+class Trait:
+    """固有特性。``effect`` で効果の種類、``value`` でその強さを表す。
+
+    effect の種類:
+      - "exp"            … 獲得経験値が ×(1+value)（育成が早い）
+      - "atb"            … 戦闘開始時にATBゲージ +value（先手を取りやすい）
+      - "drop"           … パーティにいる間、敵ドロップ率が ×(1+value)
+      - "element_attack" … 自分の属性での攻撃ダメージ ×(1+value)
+    """
+
+    id: str
+    name: str
+    description: str
+    effect: str
+    value: float = 0.0
+
+
+ALL_TRAITS: dict[str, Trait] = {
+    t.id: t
+    for t in (
+        Trait("fast_learner", "速学", "獲得経験値が1.5倍になる。", "exp", 0.5),
+        Trait("vanguard", "先制", "戦闘開始時にATBゲージが大きく溜まった状態で始まる。", "atb", 40),
+        Trait("lucky", "幸運", "パーティにいる間、敵のドロップ率が上がる。", "drop", 0.5),
+        Trait("element_savant", "属性の申し子", "自分の属性での攻撃ダメージが2割増しになる。", "element_attack", 0.2),
+    )
+}
+
+# 才能ランク別の固有特性の付与率（凡才〜秀才は宿らない）
+_TRAIT_CHANCE_BY_TALENT = {"genius": 0.5, "mastermind": 1.0}
+
+
+def get_trait(trait_id: str | None) -> Trait | None:
+    return ALL_TRAITS.get(trait_id) if trait_id else None
+
+
+def random_trait_id() -> str:
+    return random.choice(list(ALL_TRAITS.keys()))
+
+
+def roll_trait_for_talent(talent_id: str | None) -> str | None:
+    """才能ランクに応じて固有特性を抽選する（鬼才は確定、天才は半々）。"""
+    chance = _TRAIT_CHANCE_BY_TALENT.get(talent_id or "", 0.0)
+    if chance > 0.0 and random.random() < chance:
+        return random_trait_id()
+    return None
+
+
+def inherit_trait(parent1_trait: str | None, parent2_trait: str | None, child_talent_id: str | None) -> str | None:
+    """配合での固有特性継承。
+
+    子が天才以上のときだけ宿り、親が特性を持っていれば受け継ぎやすい。なければ抽選。
+    """
+    if child_talent_id not in _TRAIT_CHANCE_BY_TALENT:
+        return None
+    parents = [t for t in (parent1_trait, parent2_trait) if t in ALL_TRAITS]
+    if parents and random.random() < 0.7:
+        return random.choice(parents)
+    return roll_trait_for_talent(child_talent_id)

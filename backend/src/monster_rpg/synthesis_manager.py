@@ -8,7 +8,7 @@ from typing import Tuple, Optional
 
 from .monsters.monster_class import Monster
 from .monsters.monster_data import ALL_MONSTERS
-from .monsters.personality import inherit_personality_id, inherit_ivs, DEFAULT_INHERIT_COUNT
+from .monsters.personality import inherit_personality_id, inherit_ivs, inherit_trait, DEFAULT_INHERIT_COUNT
 from .monsters.synthesis_rules import (
     SYNTHESIS_RECIPES,
     SYNTHESIS_ITEMS_REQUIRED,
@@ -171,6 +171,12 @@ def _build_child(parent1: Monster, parent2: Monster, result_id: str, inherit_ski
         power_stats=breeding.get("power_stats") or None,
     )
     new_monster.iv_appraised = False
+    # 固有特性：才能（個体値）が高い子にだけ宿る。親の特性は受け継がれやすい。
+    new_monster.trait_id = inherit_trait(
+        getattr(parent1, "trait_id", None),
+        getattr(parent2, "trait_id", None),
+        new_monster.talent.id,
+    )
 
     new_monster.hp = new_monster.max_hp
     new_monster.mp = new_monster.max_mp
@@ -295,9 +301,11 @@ def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, i
     else:
         prefix = ""
     msg = f"{prefix}{removed_monster_names[1]} と {removed_monster_names[0]} を合成して {star}{new_monster.name}{plus_txt} が誕生した！"
-    # 生まれた個体の個性（性格・才能）を知らせる。隠し才能はとくに強調する。
+    # 生まれた個体の個性（性格・才能・固有特性）を知らせる。隠し才能はとくに強調する。
     talent = new_monster.talent
     msg += f" 性格は『{new_monster.personality.name}』、才能は『{talent.name}』。"
+    if new_monster.trait is not None:
+        msg += f" 固有特性『{new_monster.trait.name}』を宿している！"
     if talent.hidden:
         msg = f"🌟隠し才能『{talent.name}』が覚醒！🌟 " + msg
     if achv:

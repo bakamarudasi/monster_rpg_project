@@ -340,6 +340,11 @@
     color: #34507c;
     border-color: #34507c33;
 }
+.indiv-trait {
+    background: #efe3f3;
+    color: #6b348c;
+    border-color: #6b348c33;
+}
 .indiv-talent-hidden {
     background: linear-gradient(180deg, #ffe18a, #e0a93a);
     color: #4a2f00;
