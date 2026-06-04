@@ -21,13 +21,21 @@ def buy_item(player: "Player", item_id: str, price: int) -> bool:
     if player.gold < price:
         print("お金が足りない！")
         return False
-    if item_id not in ALL_ITEMS:
-        print("そのアイテムは存在しない。")
-        return False
-    player.gold -= price
-    player.items.append(ALL_ITEMS[item_id])
-    print(f"{ALL_ITEMS[item_id].name} を {price}G で購入した。")
-    return True
+    if item_id in ALL_ITEMS:
+        player.gold -= price
+        player.items.append(ALL_ITEMS[item_id])
+        print(f"{ALL_ITEMS[item_id].name} を {price}G で購入した。")
+        return True
+    # 装備もショップで取り扱う（ランダムなタイトル付きインスタンスを生成）
+    from .items.equipment import ALL_EQUIPMENT, create_titled_equipment
+    if item_id in ALL_EQUIPMENT:
+        player.gold -= price
+        equip = create_titled_equipment(item_id) or ALL_EQUIPMENT[item_id]
+        player.equipment_inventory.append(equip)
+        print(f"{ALL_EQUIPMENT[item_id].name} を {price}G で購入した。")
+        return True
+    print("そのアイテムは存在しない。")
+    return False
 
 
 def buy_monster(player: "Player", monster_id: str, price: int) -> bool:
@@ -69,11 +77,12 @@ def open_shop(player: "Player", location: "Location"):
         print(f"所持金: {player.gold}G")
         options = []
         idx = 1
+        from .items.equipment import ALL_EQUIPMENT
         for item_id, price in getattr(location, 'shop_items', {}).items():
-            item = ALL_ITEMS.get(item_id)
-            if item:
+            obj = ALL_ITEMS.get(item_id) or ALL_EQUIPMENT.get(item_id)
+            if obj:
                 options.append(('item', item_id, price))
-                print(f"{idx}: {item.name} - {price}G")
+                print(f"{idx}: {obj.name} - {price}G")
                 idx += 1
         for monster_id, price in getattr(location, 'shop_monsters', {}).items():
             monster = ALL_MONSTERS.get(monster_id)

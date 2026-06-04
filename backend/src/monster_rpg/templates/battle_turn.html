@@ -8,12 +8,17 @@
 {% block content %}
 <div class="battle-page">
   <div id="turn-order-bar" class="turn-order-bar"></div>
+  <div id="field-banner" class="field-banner hidden"></div>
   <div id="enemy-party-area" class="enemy-area"></div>
   <div class="divider"></div>
   <div id="ally-party-area" class="ally-party-display"></div>
 
   <div class="command-window">
     <div class="turn-banner">Turn {{ init_data.turn }}</div>
+    <div class="battle-toggles">
+      <button type="button" id="auto-toggle" class="bt-toggle">オート: OFF</button>
+      <button type="button" id="fast-toggle" class="bt-toggle">倍速: OFF</button>
+    </div>
     <div class="command-tabs">
       <div class="tab-buttons">
         <button data-panel="tab-actions" class="tab-btn active">行動</button>

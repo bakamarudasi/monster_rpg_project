@@ -45,7 +45,29 @@ def play(user_id, player):
 @main_bp.route('/status/<int:user_id>', endpoint='status')
 @with_player
 def status(user_id, player):
-    return render_template('status.html', player=player, user_id=user_id)
+    party_n = len(player.party_monsters)
+    roster = []
+    for i, m in enumerate(player.party_monsters + player.reserve_monsters):
+        roster.append({
+            'idx': i, 'name': m.name, 'level': m.level, 'rank': m.rank,
+            'element': m.element or '—', 'locked': getattr(m, 'locked', False),
+            'in_party': i < party_n,
+        })
+    return render_template('status.html', player=player, user_id=user_id, roster=roster)
+
+
+@main_bp.route('/toggle_lock/<int:user_id>', methods=['POST'], endpoint='toggle_lock')
+@with_player
+def toggle_lock(user_id, player):
+    try:
+        idx = int(request.form.get('idx', -1))
+    except (TypeError, ValueError):
+        idx = -1
+    roster = player.party_monsters + player.reserve_monsters
+    if 0 <= idx < len(roster):
+        roster[idx].locked = not getattr(roster[idx], 'locked', False)
+        save_player(player, user_id)
+    return redirect(url_for('status', user_id=user_id))
 
 
 @main_bp.route('/monster_book/<int:user_id>', endpoint='monster_book')
@@ -67,6 +89,73 @@ def monster_book(user_id, player):
         'monster_book.html', entries=entries,
         completion=player.monster_book.completion_rate(), user_id=user_id
     )
+
+
+@main_bp.route('/achievements/<int:user_id>', endpoint='achievements')
+@with_player
+def achievements(user_id, player):
+    from ..achievements import ACHIEVEMENTS, BESTIARY_MILESTONES, check_achievements
+    # 現在の状態で新規達成があれば解禁して保存（節目を見逃さない）
+    if check_achievements(player):
+        save_player(player, user_id)
+    entries = [{
+        'name': a['name'],
+        'desc': a['desc'],
+        'unlocked': a['id'] in player.achievements,
+        'reward': a.get('reward', {}),
+    } for a in ACHIEVEMENTS]
+    captured = len(player.monster_book.captured)
+    milestones = [{'n': n, 'reached': captured >= n} for n in BESTIARY_MILESTONES]
+    unlocked = sum(1 for e in entries if e['unlocked'])
+    return render_template(
+        'achievements.html', entries=entries, milestones=milestones,
+        captured=captured, total=len(MONSTER_BOOK_DATA),
+        unlocked=unlocked, achievement_total=len(ACHIEVEMENTS), user_id=user_id,
+    )
+
+
+@main_bp.route('/quests/<int:user_id>', methods=['GET', 'POST'], endpoint='quests')
+@with_player
+def quests(user_id, player):
+    from .. import quests as quest_mod
+    message = None
+    if request.method == 'POST':
+        action = request.form.get('action')
+        qid = request.form.get('quest_id', '')
+        if action == 'accept':
+            _, message = quest_mod.accept_quest(player, qid)
+        elif action == 'claim':
+            _, message = quest_mod.claim_quest(player, qid)
+        save_player(player, user_id)
+    rows = quest_mod.quest_view(player)
+    return render_template('quests.html', rows=rows, message=message, user_id=user_id)
+
+
+@main_bp.route('/arena/<int:user_id>', methods=['GET', 'POST'], endpoint='arena')
+@with_player
+def arena(user_id, player):
+    from .. import arena as arena_mod
+    message = None
+    if request.method == 'POST':
+        try:
+            tier = int(request.form.get('tier', -1))
+        except (TypeError, ValueError):
+            tier = -1
+        _, message, _ = arena_mod.run_arena_tier(player, tier)
+        save_player(player, user_id)
+    rows = arena_mod.arena_view(player)
+    return render_template('arena.html', rows=rows, message=message,
+                           user_id=user_id, gold=player.gold)
+
+
+@main_bp.route('/story/<int:user_id>', endpoint='story')
+@with_player
+def story(user_id, player):
+    from .. import story as story_mod
+    entries = story_mod.codex_entries(player)
+    unlocked, total = story_mod.unlocked_count(player)
+    return render_template('story.html', entries=entries, unlocked=unlocked,
+                           total=total, user_id=user_id)
 
 
 @main_bp.route('/map/<int:user_id>', endpoint='world_map')

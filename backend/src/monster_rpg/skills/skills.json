@@ -754,5 +754,285 @@
     ],
     "description": "物語の最終頁を捲り、全ての存在に終焉の刻印を刻みつける禁断の一節",
     "category": "固有技"
+  },
+  "rapid_slash": {
+    "name": "らんげき",
+    "power": 12,
+    "cost": 5,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "multi_hit", "min_hits": 2, "max_hits": 4, "scale": 0.5}
+    ],
+    "description": "目にも止まらぬ速さで2〜4回斬りつける連続攻撃（1発の威力は控えめ）",
+    "category": "物理"
+  },
+  "gravity": {
+    "name": "グラビデ",
+    "power": 0,
+    "cost": 10,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "percent_damage", "percent": 0.25}
+    ],
+    "description": "重力で押し潰し、防御を無視して敵の最大HPの25%のダメージを与える",
+    "category": "魔法"
+  },
+  "exploit_weakness": {
+    "name": "おいうち",
+    "power": 25,
+    "cost": 6,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage", "amount": 25, "bonus_if_status": ["poison", "burn", "freeze", "paralyze", "sleep", "fear", "blind", "curse"], "status_multiplier": 1.6}
+    ],
+    "description": "状態異常の敵に追い討ちをかけ、威力が1.8倍に跳ね上がる",
+    "category": "物理"
+  },
+  "desperate_strike": {
+    "name": "はいすいの剣",
+    "power": 30,
+    "cost": 5,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage", "amount": 30, "desperation": 1.5}
+    ],
+    "description": "自分のHPが減っているほど威力が増す捨て身の一撃（瀕死で最大約2.5倍）",
+    "category": "物理"
+  },
+  "affliction_swap": {
+    "name": "てんか",
+    "power": 0,
+    "cost": 6,
+    "skill_type": "debuff",
+    "effects": [
+      {"type": "transfer_status"}
+    ],
+    "description": "自分にかかった状態異常をまとめて敵に押し付ける",
+    "category": "弱体"
+  },
+  "time_delay": {
+    "name": "ディレイ",
+    "power": 0,
+    "cost": 7,
+    "skill_type": "debuff",
+    "effects": [
+      {"type": "atb_change", "amount": -50}
+    ],
+    "description": "敵の時を遅らせ、行動ゲージを大きく押し戻す",
+    "category": "魔法"
+  },
+  "haste": {
+    "name": "ヘイスト",
+    "power": 0,
+    "cost": 7,
+    "skill_type": "buff",
+    "target": "ally",
+    "effects": [
+      {"type": "atb_change", "amount": 80}
+    ],
+    "description": "味方一体の行動ゲージを一気に満たし、即座の行動を促す（自分以外に有効）",
+    "category": "補助"
+  },
+  "frost_brand": {
+    "name": "氷の烙印",
+    "power": 0,
+    "cost": 6,
+    "skill_type": "debuff",
+    "effects": [
+      {"type": "change_element", "element": "氷", "duration": 3}
+    ],
+    "description": "敵の属性を氷に変え、炎の弱点を強制的に作り出す",
+    "category": "魔法"
+  },
+  "inferno_field": {
+    "name": "業火のフィールド",
+    "power": 0,
+    "cost": 12,
+    "skill_type": "buff",
+    "target": "self",
+    "effects": [
+      {"type": "set_field", "element": "火", "multiplier": 1.5, "duration": 5, "field_name": "業火の地"}
+    ],
+    "description": "戦場を業火で包み、数ターンの間すべての火属性ダメージを1.5倍にする",
+    "category": "炎魔法"
+  },
+  "barrier": {
+    "name": "バリア",
+    "power": 0,
+    "cost": 6,
+    "skill_type": "buff",
+    "target": "ally",
+    "effects": [
+      {"type": "shield", "amount": 40}
+    ],
+    "description": "味方一体に光の盾を張り、40ダメージ分を肩代わりする",
+    "category": "補助"
+  },
+  "mimicry": {
+    "name": "ものまね",
+    "power": 0,
+    "cost": 10,
+    "skill_type": "buff",
+    "target": "enemy",
+    "effects": [
+      {"type": "transform", "duration": 3}
+    ],
+    "description": "相手の能力と属性を数ターンの間コピーして変身する",
+    "category": "補助"
+  },
+  "decoy": {
+    "name": "みがわり",
+    "power": 0,
+    "cost": 5,
+    "skill_type": "buff",
+    "target": "self",
+    "duration": 2,
+    "effects": [
+      {"type": "shield", "percent": 0.2},
+      {"type": "status", "status": "taunt", "duration": 2}
+    ],
+    "description": "囮となって敵の攻撃を引きつけつつ、自身に最大HPの20%ぶんのバリアを張る",
+    "category": "補助"
+  },
+  "power_charge": {
+    "name": "ちからため",
+    "power": 0,
+    "cost": 4,
+    "skill_type": "buff",
+    "target": "self",
+    "effects": [
+      {"type": "charge", "release_skill_id": "charged_strike", "charge_turns": 1, "charge_message": "{name} は渾身の一撃に力を溜めた！"}
+    ],
+    "description": "1ターン力を溜め、次の自分の番に強烈な一撃を放つ（溜め中は防御が下がる）",
+    "category": "物理"
+  },
+  "spell_charge": {
+    "name": "じゅもんため",
+    "power": 0,
+    "cost": 6,
+    "skill_type": "buff",
+    "target": "self",
+    "effects": [
+      {"type": "charge", "release_skill_id": "arcane_nova", "charge_turns": 1, "charge_message": "{name} は魔力を練り上げている！"}
+    ],
+    "description": "1ターン魔力を練り、次の自分の番に敵全体へ魔力の爆発を放つ",
+    "category": "魔法"
+  },
+  "overdrive_charge": {
+    "name": "オーバードライブ",
+    "power": 0,
+    "cost": 20,
+    "skill_type": "buff",
+    "target": "self",
+    "effects": [
+      {"type": "charge", "release_skill_id": "cataclysm", "charge_turns": 2, "charge_message": "{name} の全身に膨大なエネルギーが渦巻き始めた…！"}
+    ],
+    "description": "2ターンかけて極限まで力を溜め、全てを薙ぎ払う大崩壊を解き放つ大技",
+    "category": "禁忌"
+  },
+  "charged_strike": {
+    "name": "ためた一撃",
+    "power": 75,
+    "cost": 0,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage"},
+      {"type": "status", "status": "stun"}
+    ],
+    "description": "溜めた力を乗せた渾身の一撃。まれに気絶させる（ため技の解放専用）",
+    "category": "物理"
+  },
+  "arcane_nova": {
+    "name": "チャージノヴァ",
+    "power": 65,
+    "cost": 0,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage"},
+      {"type": "status", "status": "burn"}
+    ],
+    "description": "練り上げた魔力を一気に爆発させ、敵全体を焼き尽くす（ため技の解放専用）",
+    "category": "魔法"
+  },
+  "cataclysm": {
+    "name": "大崩壊",
+    "power": 130,
+    "cost": 0,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage"},
+      {"type": "status", "status": "fear"}
+    ],
+    "description": "溜め抜いた力で大地を砕く。敵全体に絶大なダメージと恐怖を刻む（ため技の解放専用）",
+    "category": "固有技"
+  },
+  "tempest_judgment": {
+    "name": "天裁の暴風",
+    "power": 60,
+    "cost": 16,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage"},
+      {"type": "status", "status": "slow", "duration": 3}
+    ],
+    "description": "天を裂く暴風で敵全体を薙ぎ払い、その動きを鈍らせる暴風覇王の権能",
+    "category": "固有技"
+  },
+  "continental_crush": {
+    "name": "大陸断ち",
+    "power": 75,
+    "cost": 18,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage"},
+      {"type": "status", "status": "stun"}
+    ],
+    "description": "大地ごと敵を握り潰す山喰らいの一撃。衝撃で気絶させる",
+    "category": "固有技"
+  },
+  "pandemic": {
+    "name": "パンデミック",
+    "power": 30,
+    "cost": 18,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage"},
+      {"type": "status", "status": "poison", "duration": 4},
+      {"type": "status", "status": "curse", "duration": 3},
+      {"type": "status", "status": "blind", "duration": 3}
+    ],
+    "description": "万病を撒き散らし、敵全体を毒・呪い・盲目の地獄へ突き落とす疫病の宴",
+    "category": "固有技"
+  },
+  "maelstrom": {
+    "name": "大渦潮",
+    "power": 55,
+    "cost": 16,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage"},
+      {"type": "atb_change", "amount": -40}
+    ],
+    "description": "深淵の大渦で敵全体を呑み込み、ダメージとともに行動を大きく遅らせる",
+    "category": "固有技"
+  },
+  "ragnarok_bolt": {
+    "name": "神鳴の裁き",
+    "power": 65,
+    "cost": 17,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage"},
+      {"type": "status", "status": "paralyze"}
+    ],
+    "description": "天空から神鳴を落とし、敵全体を撃ち据えて麻痺させる雷霆帝王の裁き",
+    "category": "固有技"
   }
 }

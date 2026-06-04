@@ -5,6 +5,21 @@ from .utils import load_player, save_player
 from ..monsters.monster_class import Monster
 from ..services import battle_service
 from ..skills.skills import ALL_SKILLS
+from .. import elements
+
+
+def _restore_field(state):
+    """シリアライズされた battle_state からフィールド(天候)状態を復元する。
+
+    戦闘の再構築（start_atb_battle → Battle.__init__）でフィールドはクリアされる
+    ため、ターンをまたいでも場が維持されるよう保存しておいた状態を復元する。
+    """
+    field = state.get('field') if isinstance(state, dict) else None
+    if field and field.get('element') and field.get('remaining', 0) > 0:
+        elements.set_field(field['element'], field.get('multiplier', 1.5),
+                           field.get('remaining', 0), field.get('name', ''))
+    else:
+        elements.clear_field()
 
 def serialize_monster(m, unit_id):
     skills = []
@@ -34,6 +49,8 @@ def serialize_monster(m, unit_id):
         'speed': m.speed,
         'element': m.element,
         'atb_gauge': m.atb_gauge,
+        'shield': getattr(m, 'shield', 0),
+        'is_boss': getattr(m, 'is_boss', False),
         'alive': m.is_alive,
         'image': url_for('static', filename='images/' + m.image_filename) if m.image_filename else None,
         'statuses': [
@@ -79,8 +96,17 @@ def deserialize_monster(data):
     monster.max_hp = data['max_hp']
     monster.max_mp = data['max_mp']
     monster.atb_gauge = data['atb_gauge']
+    monster.shield = data.get('shield', 0)
     monster.is_alive = data['alive']
     monster.status_effects = data['statuses']
+    # 耐性は種族固有なのでテンプレートから復元（シリアライズ往復で失わない）
+    from ..monsters.monster_data import ALL_MONSTERS
+    template = ALL_MONSTERS.get(data['monster_id'])
+    if template is not None:
+        monster.status_resist = dict(template.status_resist)
+        monster.element_resist = dict(template.element_resist)
+        monster.is_boss = template.is_boss
+    monster.is_boss = bool(data.get('is_boss', monster.is_boss))
     return monster
 
 def turn_order_ids(monsters):
@@ -109,6 +135,7 @@ def serialize_battle_state(player_party, enemy_party, log, current_actor_info, t
             'max_hp': m.max_hp,
             'mp': m.mp,
             'max_mp': m.max_mp,
+            'shield': getattr(m, 'shield', 0),
             'alive': m.is_alive,
             'status_effects': [
                 {
@@ -124,6 +151,7 @@ def serialize_battle_state(player_party, enemy_party, log, current_actor_info, t
         'player': [serialize_unit(m) for m in player_party],
         'enemy': [serialize_unit(m) for m in enemy_party],
         'log': log,
+        'field': elements.get_field(),
         'current_actor_info': current_actor_info,
         'turn_order_monsters': [serialize_monster(m, m.unit_id) for m in turn_order_monsters]
     }
@@ -175,6 +203,7 @@ def battle(user_id):
 
             # Reconstruct the battle object for processing the turn
             battle_obj = start_atb_battle(player_party, enemy_party, player, log, turn_order_monsters)
+            _restore_field(battle_state)
 
         battle_obj.process_player_action(battle_service.build_player_action(data_src))
 
@@ -195,7 +224,8 @@ def battle(user_id):
                 'finished': battle_obj.finished,
                 'outcome': battle_obj.outcome,
                 'current_actor_info': serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None,
-                'turn_order_monsters_data': [serialize_monster(m, m.unit_id) for m in battle_obj.turn_order]
+                'turn_order_monsters_data': [serialize_monster(m, m.unit_id) for m in battle_obj.turn_order],
+                'field': elements.get_field()
             }
             save_player(player, user_id)
 
@@ -234,7 +264,8 @@ def battle(user_id):
                 'finished': battle_obj.finished,
                 'outcome': battle_obj.outcome,
                 'current_actor_info': serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None,
-                'turn_order_monsters_data': [serialize_monster(m, m.unit_id) for m in battle_obj.turn_order]
+                'turn_order_monsters_data': [serialize_monster(m, m.unit_id) for m in battle_obj.turn_order],
+                'field': elements.get_field()
             }
             save_player(player, user_id)
         elif isinstance(battle_state, Battle):
@@ -248,6 +279,7 @@ def battle(user_id):
             log = battle_state['log']
             turn_order_monsters = [deserialize_monster(m_data) for m_data in battle_state['turn_order_monsters_data']]
             battle_obj = start_atb_battle(player_party, enemy_party, player, log, turn_order_monsters)
+            _restore_field(battle_state)
 
         init_data = {
             'ally_info': [serialize_monster(m, f'ally-{i}') for i, m in enumerate(battle_obj.player_party)],
@@ -295,6 +327,10 @@ def battle_json(user_id):
             turn_count = battle_state['turn']
             finished = battle_state['finished']
             outcome = battle_state['outcome']
+
+    # 表示用にフィールド(天候)状態を復元（Battleオブジェクト保持時は現状のまま）
+    if not isinstance(battle_state, Battle):
+        _restore_field(battle_state)
 
     # Reconstruct a dummy battle_obj for serialization purposes only
     # This is a temporary object and its methods should not be called to advance the battle

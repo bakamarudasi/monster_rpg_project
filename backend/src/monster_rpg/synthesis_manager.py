@@ -211,6 +211,11 @@ def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, i
     parent1 = player.party_monsters[monster1_idx]
     parent2 = player.party_monsters[monster2_idx]
 
+    # ロックされた個体は素材にしない（事故防止）
+    locked = [p.name for p in (parent1, parent2) if getattr(p, "locked", False)]
+    if locked:
+        return False, f"{'・'.join(locked)} はロックされている。合成するには解除が必要。", None
+
     if not parent1.monster_id or not parent2.monster_id:
         return False, "エラー: 合成元のモンスターにIDが設定されていません。", None
 
@@ -252,6 +257,13 @@ def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, i
     player.party_monsters.append(new_monster)
     player.monster_book.record_captured(new_monster.monster_id)
 
+    # 進行フラグ＆実績判定（初合成・レア誕生・捕獲数の節目など）
+    player.story_flags.add("synthesized")
+    if new_monster.is_rare:
+        player.story_flags.add("rare_born")
+    from .achievements import check_achievements
+    achv = check_achievements(player)
+
     star = "★" if new_monster.is_rare else ""
     plus_txt = f"（+{new_monster.plus_value}）" if new_monster.plus_value else ""
     if is_jackpot:
@@ -260,7 +272,10 @@ def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, i
         prefix = "✨レア個体出現！✨ "
     else:
         prefix = ""
-    return True, f"{prefix}{removed_monster_names[1]} と {removed_monster_names[0]} を合成して {star}{new_monster.name}{plus_txt} が誕生した！", new_monster
+    msg = f"{prefix}{removed_monster_names[1]} と {removed_monster_names[0]} を合成して {star}{new_monster.name}{plus_txt} が誕生した！"
+    if achv:
+        msg += " " + " ".join(achv)
+    return True, msg, new_monster
 
 
 def synthesize_monster_with_item(player: "Player", monster_idx: int, item_id: str) -> Tuple[bool, str, Optional[Monster]]:

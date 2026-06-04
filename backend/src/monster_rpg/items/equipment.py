@@ -28,6 +28,18 @@ class Equipment:
     defense: int = 0
     magic: int = 0  # Added magic stat
     speed: int = 0  # Added speed stat
+    granted_skill_ids: List[str] = field(default_factory=list)  # 装備中に使えるスキル
+    status_resist: Dict[str, float] = field(default_factory=dict)  # 状態異常耐性 (1.0=通常,0.0=無効)
+    element_resist: Dict[str, float] = field(default_factory=dict)  # 属性ダメージ耐性
+
+    @property
+    def granted_skills(self) -> List:
+        """装備している間だけ使えるようになるスキル（deepcopy して返す）。"""
+        objs = []
+        for sid in self.granted_skill_ids:
+            if sid in ALL_SKILLS:
+                objs.append(copy.deepcopy(ALL_SKILLS[sid]))
+        return objs
 
 
 BRONZE_SWORD = Equipment(
@@ -240,6 +252,8 @@ AMULET_OF_FORTUNE = Equipment(
     slot="accessory",
     category="accessory",
     rarity="rare",
+    defense=2,
+    speed=2,
 )
 RING_OF_REGENERATION = Equipment(
     "ring_of_regeneration",
@@ -247,6 +261,8 @@ RING_OF_REGENERATION = Equipment(
     slot="accessory",
     category="accessory",
     rarity="rare",
+    defense=2,
+    granted_skill_ids=["regen"],  # 装備者がリジェネを使えるようになる
 )
 BOOTS_OF_HASTE = Equipment(
     "boots_of_haste",
@@ -255,6 +271,7 @@ BOOTS_OF_HASTE = Equipment(
     category="accessory",
     rarity="epic",
     speed=7,
+    granted_skill_ids=["haste"],  # 味方の行動を早めるヘイストを習得
 )
 ELEMENTAL_GEM = Equipment(
     "elemental_gem",
@@ -262,6 +279,135 @@ ELEMENTAL_GEM = Equipment(
     slot="accessory",
     category="accessory",
     rarity="legendary",
+    magic=6,
+    granted_skill_ids=["fireball"],
+)
+
+# =====================================================================
+# 追加装備：スキルを付与する装備＆多彩なステータス構成（種類拡張）
+# =====================================================================
+
+# --- 武器 ---
+FLAME_BLADE = Equipment(
+    "flame_blade", "炎刃の剣", slot="weapon", category="weapon",
+    rarity="rare", attack=8, granted_skill_ids=["fireball"],
+)
+THUNDER_LANCE = Equipment(
+    "thunder_lance", "雷神の槍", slot="weapon", category="weapon",
+    rarity="rare", attack=9, speed=2, granted_skill_ids=["thunder_bolt"],
+)
+FROST_STAFF = Equipment(
+    "frost_staff", "氷皇の杖", slot="weapon", category="weapon",
+    rarity="rare", attack=2, magic=9, granted_skill_ids=["ice_spear"],
+)
+ASSASSIN_DAGGER = Equipment(
+    "assassin_dagger", "暗殺者の短剣", slot="weapon", category="weapon",
+    rarity="uncommon", attack=6, speed=8,
+)
+WAR_HAMMER = Equipment(
+    "war_hammer", "ウォーハンマー", slot="weapon", category="weapon",
+    rarity="rare", attack=15, speed=-4,
+)
+VORPAL_BLADE = Equipment(
+    "vorpal_blade", "ヴォーパルブレード", slot="weapon", category="weapon",
+    rarity="legendary", attack=14, speed=4, granted_skill_ids=["rapid_slash"],
+)
+
+# --- 防具 ---
+AEGIS_SHIELD = Equipment(
+    "aegis_shield", "守護の大盾", slot="armor", category="armor",
+    rarity="epic", defense=14, granted_skill_ids=["barrier"],
+)
+ANGEL_ROBE = Equipment(
+    "angel_robe", "天使の羽衣", slot="armor", category="armor",
+    rarity="rare", defense=5, magic=6, granted_skill_ids=["heal"],
+)
+BERSERKER_MAIL = Equipment(
+    "berserker_mail", "狂戦士の鎧", slot="armor", category="armor",
+    rarity="rare", attack=6, defense=8, speed=2,
+)
+NINJA_GARB = Equipment(
+    "ninja_garb", "忍びの装束", slot="armor", category="armor",
+    rarity="uncommon", defense=4, speed=8,
+)
+PHOENIX_CLOAK = Equipment(
+    "phoenix_cloak", "不死鳥のマント", slot="armor", category="armor",
+    rarity="epic", defense=6, magic=4, granted_skill_ids=["revive"],
+)
+
+# --- アクセサリ ---
+GAUNTLET_OF_FLURRY = Equipment(
+    "gauntlet_of_flurry", "連撃の籠手", slot="accessory", category="accessory",
+    rarity="rare", attack=4, speed=4, granted_skill_ids=["rapid_slash"],
+)
+SAGE_ORB = Equipment(
+    "sage_orb", "賢者の宝珠", slot="accessory", category="accessory",
+    rarity="rare", magic=6, granted_skill_ids=["spell_charge"],
+)
+BERSERKER_BAND = Equipment(
+    "berserker_band", "猛者の腕輪", slot="accessory", category="accessory",
+    rarity="rare", attack=6, granted_skill_ids=["power_charge"],
+)
+GUARDIAN_CHARM = Equipment(
+    "guardian_charm", "守り手の護符", slot="accessory", category="accessory",
+    rarity="uncommon", defense=5, granted_skill_ids=["decoy"],
+)
+ARCANE_LOOP = Equipment(
+    "arcane_loop", "秘術の輪", slot="accessory", category="accessory",
+    rarity="rare", magic=8, speed=-2,
+)
+
+# --- 耐性アクセサリ ---
+WARD_OF_PURITY = Equipment(
+    "ward_of_purity", "浄化の護符", slot="accessory", category="accessory",
+    rarity="rare", defense=2,
+    status_resist={"poison": 0.0, "spore_poison": 0.0, "curse": 0.5},
+)
+STALWART_BADGE = Equipment(
+    "stalwart_badge", "不動の徽章", slot="accessory", category="accessory",
+    rarity="rare", defense=3,
+    status_resist={"stun": 0.0, "paralyze": 0.5, "sleep": 0.5, "fear": 0.5},
+)
+FLAME_WARD = Equipment(
+    "flame_ward", "炎除けの護符", slot="accessory", category="accessory",
+    rarity="uncommon", defense=2,
+    status_resist={"burn": 0.0}, element_resist={"火": 0.5},
+)
+FROST_WARD = Equipment(
+    "frost_ward", "氷除けの護符", slot="accessory", category="accessory",
+    rarity="uncommon", defense=2,
+    status_resist={"freeze": 0.0}, element_resist={"氷": 0.5},
+)
+
+# --- 兜（helmet スロット） ---
+IRON_HELM = Equipment(
+    "iron_helm", "鉄兜", slot="helmet", category="helmet", rarity="common", defense=4,
+)
+HORNED_HELM = Equipment(
+    "horned_helm", "角兜", slot="helmet", category="helmet", rarity="uncommon", attack=3, defense=3,
+)
+SAGE_CIRCLET = Equipment(
+    "sage_circlet", "賢者のサークレット", slot="helmet", category="helmet",
+    rarity="rare", magic=6, defense=1,
+)
+DRAGON_HELM = Equipment(
+    "dragon_helm", "竜の兜", slot="helmet", category="helmet",
+    rarity="epic", defense=8, granted_skill_ids=["stone_skin"],
+)
+
+# --- 靴（boots スロット） ---
+TRAVELER_BOOTS = Equipment(
+    "traveler_boots", "旅人のブーツ", slot="boots", category="boots", rarity="common", speed=3,
+)
+IRON_GREAVES = Equipment(
+    "iron_greaves", "鉄のグリーヴ", slot="boots", category="boots", rarity="uncommon", defense=5, speed=-1,
+)
+SWIFT_BOOTS = Equipment(
+    "swift_boots", "疾風のブーツ", slot="boots", category="boots", rarity="rare", speed=8,
+)
+WINDWALKERS = Equipment(
+    "windwalkers", "風渡りの靴", slot="boots", category="boots",
+    rarity="epic", speed=9, granted_skill_ids=["teleport"],
 )
 
 
@@ -314,12 +460,14 @@ class EquipmentInstance:
 
     @property
     def granted_skills(self) -> List:
-        if not self.title:
-            return []
-        objs = []
-        for sid in self.title.added_skills:
-            if sid in ALL_SKILLS:
-                objs.append(copy.deepcopy(ALL_SKILLS[sid]))
+        objs = list(self.base_item.granted_skills)  # 元装備のスキルも引き継ぐ
+        seen = {getattr(s, "name", None) for s in objs}
+        if self.title:
+            for sid in self.title.added_skills:
+                obj = ALL_SKILLS.get(sid)
+                if obj is not None and obj.name not in seen:
+                    objs.append(copy.deepcopy(obj))
+                    seen.add(obj.name)
         return objs
 
     @property
@@ -445,6 +593,37 @@ CRAFTING_RECIPES["plate_armor"] = {"chainmail": 1, "dragon_scale": 1}
 CRAFTING_RECIPES["boots_of_haste"] = {"speed_ring": 1, "celestial_feather": 1}
 CRAFTING_RECIPES["elemental_gem"] = {"fire_crystal": 1, "frost_crystal": 1, "thunder_core": 1}
 
+# 追加装備のクラフトレシピ（スキル付与装備など）
+CRAFTING_RECIPES["flame_blade"] = {"fire_crystal": 2, "steel_ingot": 1}
+CRAFTING_RECIPES["thunder_lance"] = {"thunder_core": 2, "steel_ingot": 1}
+CRAFTING_RECIPES["frost_staff"] = {"frost_crystal": 2, "magic_stone": 1}
+CRAFTING_RECIPES["assassin_dagger"] = {"weapon_core_common": 2, "tough_leather": 1}
+CRAFTING_RECIPES["war_hammer"] = {"steel_ingot": 4}
+CRAFTING_RECIPES["vorpal_blade"] = {"weapon_core_rare": 2, "celestial_feather": 1}
+CRAFTING_RECIPES["aegis_shield"] = {"armor_fragment_rare": 2, "dragon_scale": 1}
+CRAFTING_RECIPES["angel_robe"] = {"armor_fragment_rare": 1, "celestial_feather": 1}
+CRAFTING_RECIPES["berserker_mail"] = {"steel_ingot": 2, "tough_leather": 2}
+CRAFTING_RECIPES["ninja_garb"] = {"tough_leather": 3, "armor_fragment_common": 1}
+CRAFTING_RECIPES["phoenix_cloak"] = {"celestial_feather": 2, "fire_crystal": 1}
+CRAFTING_RECIPES["gauntlet_of_flurry"] = {"weapon_core_common": 1, "power_fragment": 1}
+CRAFTING_RECIPES["sage_orb"] = {"magic_stone": 2, "abyss_shard": 1}
+CRAFTING_RECIPES["berserker_band"] = {"power_fragment": 2, "steel_ingot": 1}
+CRAFTING_RECIPES["guardian_charm"] = {"armor_fragment_common": 2, "magic_stone": 1}
+CRAFTING_RECIPES["arcane_loop"] = {"magic_stone": 1, "abyss_shard": 1}
+CRAFTING_RECIPES["ward_of_purity"] = {"antidote": 2, "magic_stone": 1}
+CRAFTING_RECIPES["stalwart_badge"] = {"armor_fragment_rare": 1, "magic_stone": 2}
+CRAFTING_RECIPES["flame_ward"] = {"fire_crystal": 1, "magic_stone": 1}
+CRAFTING_RECIPES["frost_ward"] = {"frost_crystal": 1, "magic_stone": 1}
+# 兜・靴
+CRAFTING_RECIPES["iron_helm"] = {"steel_ingot": 2}
+CRAFTING_RECIPES["horned_helm"] = {"steel_ingot": 1, "tough_leather": 1}
+CRAFTING_RECIPES["sage_circlet"] = {"magic_stone": 2, "armor_fragment_common": 1}
+CRAFTING_RECIPES["dragon_helm"] = {"dragon_scale": 1, "armor_fragment_rare": 1}
+CRAFTING_RECIPES["traveler_boots"] = {"tough_leather": 2}
+CRAFTING_RECIPES["iron_greaves"] = {"steel_ingot": 2, "tough_leather": 1}
+CRAFTING_RECIPES["swift_boots"] = {"tough_leather": 1, "celestial_feather": 1}
+CRAFTING_RECIPES["windwalkers"] = {"celestial_feather": 2, "speed_seed": 1}
+
 ALL_EQUIPMENT = {
     BRONZE_SWORD.equip_id: BRONZE_SWORD,
     LEATHER_ARMOR.equip_id: LEATHER_ARMOR,
@@ -473,4 +652,32 @@ ALL_EQUIPMENT = {
     RING_OF_REGENERATION.equip_id: RING_OF_REGENERATION,
     BOOTS_OF_HASTE.equip_id: BOOTS_OF_HASTE,
     ELEMENTAL_GEM.equip_id: ELEMENTAL_GEM,
+    FLAME_BLADE.equip_id: FLAME_BLADE,
+    THUNDER_LANCE.equip_id: THUNDER_LANCE,
+    FROST_STAFF.equip_id: FROST_STAFF,
+    ASSASSIN_DAGGER.equip_id: ASSASSIN_DAGGER,
+    WAR_HAMMER.equip_id: WAR_HAMMER,
+    VORPAL_BLADE.equip_id: VORPAL_BLADE,
+    AEGIS_SHIELD.equip_id: AEGIS_SHIELD,
+    ANGEL_ROBE.equip_id: ANGEL_ROBE,
+    BERSERKER_MAIL.equip_id: BERSERKER_MAIL,
+    NINJA_GARB.equip_id: NINJA_GARB,
+    PHOENIX_CLOAK.equip_id: PHOENIX_CLOAK,
+    GAUNTLET_OF_FLURRY.equip_id: GAUNTLET_OF_FLURRY,
+    SAGE_ORB.equip_id: SAGE_ORB,
+    BERSERKER_BAND.equip_id: BERSERKER_BAND,
+    GUARDIAN_CHARM.equip_id: GUARDIAN_CHARM,
+    ARCANE_LOOP.equip_id: ARCANE_LOOP,
+    WARD_OF_PURITY.equip_id: WARD_OF_PURITY,
+    STALWART_BADGE.equip_id: STALWART_BADGE,
+    FLAME_WARD.equip_id: FLAME_WARD,
+    FROST_WARD.equip_id: FROST_WARD,
+    IRON_HELM.equip_id: IRON_HELM,
+    HORNED_HELM.equip_id: HORNED_HELM,
+    SAGE_CIRCLET.equip_id: SAGE_CIRCLET,
+    DRAGON_HELM.equip_id: DRAGON_HELM,
+    TRAVELER_BOOTS.equip_id: TRAVELER_BOOTS,
+    IRON_GREAVES.equip_id: IRON_GREAVES,
+    SWIFT_BOOTS.equip_id: SWIFT_BOOTS,
+    WINDWALKERS.equip_id: WINDWALKERS,
 }

@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+  .ach-wrap { max-width: 820px; margin: 0 auto; padding: 18px; }
+  .ach-title { text-align: center; color: #ffdd55; text-shadow: 1px 1px 2px #000; }
+  .ach-meta { text-align: center; margin-bottom: 14px; color: #ccc; }
+  .ach-bar { background: #222; border-radius: 8px; height: 14px; overflow: hidden; margin: 6px auto 2px; max-width: 480px; border: 1px solid #444; }
+  .ach-bar > div { height: 100%; background: linear-gradient(90deg, #ffb347, #ffd700); }
+  .ms-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 10px 0 18px; }
+  .ms-chip { padding: 4px 10px; border-radius: 999px; font-size: 0.85rem; border: 1px solid #555; color: #aaa; }
+  .ms-chip.on { background: linear-gradient(90deg, #c0392b, #e67e22); color: #fff; border-color: #e67e22; }
+  .ach-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+  .ach-card { background: #2a2a33; border: 1px solid #444; border-radius: 10px; padding: 12px; opacity: 0.55; }
+  .ach-card.unlocked { opacity: 1; border-color: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.25); }
+  .ach-name { font-weight: bold; color: #ffe680; }
+  .ach-card.unlocked .ach-name::before { content: "🏆 "; }
+  .ach-desc { font-size: 0.86rem; color: #ccc; margin-top: 4px; }
+  .ach-reward { font-size: 0.78rem; color: #9fe; margin-top: 6px; }
+  .ach-back { display: block; text-align: center; margin-top: 20px; }
+</style>
+<div class="ach-wrap">
+  <h2 class="ach-title">◆ じっせき ◆</h2>
+  <div class="ach-meta">
+    解除 {{ unlocked }} / {{ achievement_total }}　｜　図鑑 {{ captured }} / {{ total }}
+    <div class="ach-bar"><div style="width: {{ (100 * captured / total) if total else 0 }}%"></div></div>
+  </div>
+
+  <div class="ms-row">
+    {% for m in milestones %}
+      <span class="ms-chip {{ 'on' if m.reached }}">図鑑 {{ m.n }}体 {{ '✔' if m.reached else '' }}</span>
+    {% endfor %}
+  </div>
+
+  <ul class="ach-list">
+    {% for e in entries %}
+      <li class="ach-card {{ 'unlocked' if e.unlocked }}">
+        <div class="ach-name">{{ e.name if e.unlocked else '？？？' }}</div>
+        <div class="ach-desc">{{ e.desc }}</div>
+        {% if e.reward %}
+          <div class="ach-reward">報酬:
+            {% if e.reward.gold %}{{ e.reward.gold }}G{% endif %}
+            {% if e.reward.items %} ＋アイテム{% endif %}
+          </div>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+
+  <a class="ach-back" href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+</div>
+{% endblock %}

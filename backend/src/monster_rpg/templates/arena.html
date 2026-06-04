@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+  .ar-wrap { max-width: 760px; margin: 0 auto; padding: 18px; }
+  .ar-title { text-align: center; color: #e6a; text-shadow: 1px 1px 2px #000; }
+  .ar-sub { text-align: center; color: #bbb; margin-bottom: 12px; }
+  .ar-msg { text-align: center; background: #422; color: #fdd; padding: 8px; border-radius: 6px; margin: 10px auto; max-width: 560px; }
+  .ar-list { list-style: none; padding: 0; display: grid; gap: 12px; }
+  .ar-card { background: #2a2630; border: 1px solid #555; border-radius: 10px; padding: 12px; }
+  .ar-card.cleared { border-color: #5a5; }
+  .ar-card.open { border-color: #e6a; box-shadow: 0 0 10px rgba(230,100,170,0.3); }
+  .ar-card.locked { opacity: 0.5; }
+  .ar-name { font-weight: bold; color: #f9c; font-size: 1.05rem; }
+  .ar-info { font-size: 0.85rem; color: #ccc; margin: 4px 0; }
+  .ar-reward { font-size: 0.78rem; color: #9fe; }
+  .ar-badge { float: right; font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; }
+  .b-cleared { background: #2e7d32; color: #fff; }
+  .b-open { background: #ad1457; color: #fff; }
+  .b-locked { background: #444; color: #aaa; }
+  .ar-btn { margin-top: 8px; padding: 6px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; background: #c2185b; color: #fff; }
+  .ar-back { display: block; text-align: center; margin-top: 18px; }
+</style>
+<div class="ar-wrap">
+  <h2 class="ar-title">⚔ 闘技場 ⚔</h2>
+  <div class="ar-sub">編成したパーティ（全回復）で段位に挑戦。勝てば次の段位が解禁。所持金 {{ gold }}G</div>
+  {% if message %}<div class="ar-msg">{{ message }}</div>{% endif %}
+  <ul class="ar-list">
+    {% for r in rows %}
+      <li class="ar-card {{ r.status }}">
+        <span class="ar-badge b-{{ r.status }}">
+          {% if r.status == 'cleared' %}制覇{% elif r.status == 'open' %}挑戦可{% else %}未解禁{% endif %}
+        </span>
+        <div class="ar-name">{{ r.name }} <small>(Lv{{ r.level }})</small></div>
+        <div class="ar-info">出場: {{ r.enemies | join('、') }}</div>
+        <div class="ar-reward">初回報酬:
+          {% if r.reward.gold %}{{ r.reward.gold }}G{% endif %}
+          {% if r.reward.items or r.reward.monsters %} ＋お宝{% endif %}
+        </div>
+        {% if r.status != 'locked' %}
+          <form method="post" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="tier" value="{{ r.idx }}">
+            <button class="ar-btn" type="submit">挑戦する</button>
+          </form>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+  <a class="ar-back" href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+</div>
+{% endblock %}

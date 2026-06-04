@@ -1,6 +1,64 @@
 (() => {
-    /* 属性相性: その属性が「弱い」相手（弱点を突かれる側） */
-    const ELEMENT_WEAKNESS = { '火': '水', '風': '火', '水': '風', '闇': '光' };
+    /* --- オート/倍速 戦闘の状態と共通送信 --- */
+    let battlePostUrl = null;
+    let battleCsrf = null;
+    let autoMode = false;
+    let fastMode = false;
+    let lastData = null;
+
+    function sendBattleAction(payload) {
+        if (!battlePostUrl) return;
+        if (payload.action === 'skill' && payload.selected_skill_id) {
+            payload.action = 'skill' + payload.selected_skill_id;
+        }
+        const submitBtn = document.querySelector('.command-window form button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+        fetch(battlePostUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': battleCsrf },
+            body: JSON.stringify(payload)
+        })
+            .then(resp => { if (!resp.ok) throw new Error(`HTTP ${resp.status}`); return resp.json(); })
+            .then(data => {
+                if (data.finished) { document.open(); document.write(data.html); document.close(); return; }
+                applyBattleData(data);
+            })
+            .catch(err => { console.error('Fetch error', err); alert(`通信エラー: ${err.message}`); })
+            .finally(() => { if (submitBtn) submitBtn.disabled = false; });
+    }
+
+    /* プレイヤーのターンでオートONなら、自動で「ランダムな敵を攻撃」する */
+    function maybeAutoAct(data) {
+        if (!autoMode || !data || data.finished || !data.current_actor) return;
+        const delay = fastMode ? 120 : 450;
+        setTimeout(() => {
+            if (autoMode) sendBattleAction({ action: 'attack', target_enemy: -1 });
+        }, delay);
+    }
+
+    /* 属性相性: その属性が「弱い」相手（弱点を突かれる側）。backend の elements.py と対応 */
+    const ELEMENT_WEAKNESS = {
+        '火': '水', '風': '火', '水': '風',
+        '氷': '火', '雷': '土', '土': '風',
+        '毒': '風', '光': '闇', '闇': '光'
+    };
+
+    /* フィールド(天候)バナーの更新 */
+    function updateFieldBanner(field) {
+        const banner = document.getElementById('field-banner');
+        if (!banner) return;
+        if (field && field.element && field.remaining > 0) {
+            const nm = field.name || (field.element + 'フィールド');
+            const mult = field.multiplier ? `×${field.multiplier}` : '';
+            banner.textContent = `🌐 ${nm}（${field.element}属性${mult} ・ 残り${field.remaining}ターン）`;
+            banner.dataset.element = field.element;
+            banner.classList.remove('hidden');
+        } else {
+            banner.textContent = '';
+            banner.removeAttribute('data-element');
+            banner.classList.add('hidden');
+        }
+    }
 
     /* 戦闘ログの新規分からトーストを出す（重複防止に長さを記録） */
     let lastLogLen = -1;
@@ -25,6 +83,7 @@
         const unit = document.createElement('div');
         unit.className = `battle-unit ${side}`;
         if (!info.alive) unit.classList.add('down');
+        if (info.is_boss) unit.classList.add('boss');
         unit.dataset.unitId = `${side}-${idx}`;
         unit.dataset.name = info.name;
         unit.dataset.level = info.level;
@@ -50,7 +109,13 @@
         infoBox.className = 'member-info';
         const nm = document.createElement('div');
         nm.className = 'member-name';
-        nm.textContent = info.name;
+        if (info.is_boss) {
+            const badge = document.createElement('span');
+            badge.className = 'boss-badge';
+            badge.textContent = 'BOSS';
+            nm.appendChild(badge);
+        }
+        nm.appendChild(document.createTextNode(info.name));
         infoBox.appendChild(nm);
 
         const hpBar = document.createElement('div');
@@ -84,6 +149,14 @@
         mpText.className = 'mp-text';
         mpText.textContent = info.mp + '/' + info.max_mp;
         unit.appendChild(mpText);
+
+        const shieldText = document.createElement('div');
+        shieldText.className = 'shield-text';
+        const sh = info.shield || 0;
+        shieldText.textContent = sh > 0 ? '🛡' + sh : '';
+        if (sh <= 0) shieldText.classList.add('hidden');
+        unit.appendChild(shieldText);
+        unit.dataset.shield = sh;
 
         return unit;
     }
@@ -300,6 +373,7 @@
         populatePartyAreas(initData);
         buildActionUI(initData);
         updateTurnOrder(initData.turn_order || []);
+        updateFieldBanner(initData.field || null);
         selectTabs();
 
         /* HPバーのアニメーション */
@@ -389,50 +463,31 @@
         });
         closeBtn.addEventListener('click', () => detailPanel.classList.remove('open'));
 
-        /* --- AJAXでコマンド送信 --- */
+        /* --- AJAXでコマンド送信（オート/手動 共通） --- */
         const form = document.querySelector('.command-window form');
         if (form) {
+            battlePostUrl = form.getAttribute('action');
+            battleCsrf = (new FormData(form)).get('csrf_token');
             form.addEventListener('submit', evt => {
                 evt.preventDefault();
-                const formData = new FormData(form);
-                const csrfToken = formData.get('csrf_token');
-                const postUrl = form.getAttribute('action');  // use the form's action URL
-                const submitBtn = form.querySelector('button[type="submit"]');
-                if (submitBtn) submitBtn.disabled = true;
-
-                const payload = Object.fromEntries(formData.entries());
-                if (payload.action === 'skill' && payload.selected_skill_id) {
-                    payload.action = 'skill' + payload.selected_skill_id;
-                }
-                fetch(postUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
-                    body: JSON.stringify(payload)
-                })
-                    .then(resp => {
-                        if (!resp.ok) {
-                            throw new Error(`HTTP ${resp.status}`);
-                        }
-                        return resp.json();
-                    })
-                    .then(data => {
-                        if (data.finished) {
-                            document.open();
-                            document.write(data.html);
-                            document.close();
-                            return;
-                        }
-                        applyBattleData(data);
-                    })
-                    .catch(err => {
-                        console.error('Fetch error', err);
-                        alert(`通信エラー: ${err.message}`);
-                    })
-                    .finally(() => {
-                        if (submitBtn) submitBtn.disabled = false;
-                    });
+                sendBattleAction(Object.fromEntries(new FormData(form).entries()));
             });
         }
+        /* オート/倍速トグル */
+        const autoBtn = document.getElementById('auto-toggle');
+        if (autoBtn) autoBtn.addEventListener('click', () => {
+            autoMode = !autoMode;
+            autoBtn.textContent = 'オート: ' + (autoMode ? 'ON' : 'OFF');
+            autoBtn.classList.toggle('on', autoMode);
+            if (autoMode) maybeAutoAct(lastData);
+        });
+        const fastBtn = document.getElementById('fast-toggle');
+        if (fastBtn) fastBtn.addEventListener('click', () => {
+            fastMode = !fastMode;
+            fastBtn.textContent = '倍速: ' + (fastMode ? 'ON' : 'OFF');
+            fastBtn.classList.toggle('on', fastMode);
+            document.body.classList.toggle('fast-battle', fastMode);
+        });
 
         const cmdWindow = document.querySelector('.command-window');
         // Disabled auto scrolling to keep the battle screen position
@@ -484,6 +539,14 @@
             }
             const mpText = unit.querySelector('.mp-text');
             if (mpText) mpText.textContent = info.mp + '/' + info.max_mp;
+
+            const shieldText = unit.querySelector('.shield-text');
+            if (shieldText) {
+                const sh = info.shield || 0;
+                shieldText.textContent = sh > 0 ? '🛡' + sh : '';
+                shieldText.classList.toggle('hidden', sh <= 0);
+                unit.dataset.shield = sh;
+            }
 
             if (!isNaN(prevHp) && info.hp < prevHp) {
                 damaged = true;
@@ -599,6 +662,8 @@
 
         if (allyDamaged || enemyDamaged) triggerShake(hasCrit || hasEffective);
 
+        if (data.hp_values) updateFieldBanner(data.hp_values.field);
+
         if (Array.isArray(data.turn_order)) {
             updateTurnOrder(data.turn_order);
         }
@@ -644,6 +709,10 @@
         const cmdWindow = document.querySelector('.command-window');
         // Disabled auto scrolling to keep the battle screen position
         // if (cmdWindow) cmdWindow.scrollIntoView({behavior: 'smooth'});
+
+        /* オートONなら自分のターンを自動消化 */
+        lastData = data;
+        maybeAutoAct(data);
     }
 
     function showPopupIndicator(container, text, className) {

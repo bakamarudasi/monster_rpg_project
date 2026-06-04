@@ -16,9 +16,54 @@
       <span class="value">{{ player.gold }}</span>
     </div>
   </div>
+  <div class="roster">
+    <h3 class="roster-title">手持ち・控え <small>({{ roster|length }}体)</small></h3>
+    <input type="text" id="roster-filter" class="roster-filter" placeholder="名前で絞り込み…">
+    <ul class="roster-list">
+      {% for m in roster %}
+        <li class="roster-item {{ 'locked' if m.locked }}" data-name="{{ m.name }}">
+          <span class="ri-badge {{ 'party' if m.in_party else 'reserve' }}">{{ '手持ち' if m.in_party else '控え' }}</span>
+          <span class="ri-name">{% if m.locked %}🔒 {% endif %}{{ m.name }}</span>
+          <span class="ri-meta">Lv{{ m.level }}・{{ m.rank }}・{{ m.element }}</span>
+          <form method="post" action="{{ url_for('main.toggle_lock', user_id=user_id) }}" class="ri-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="idx" value="{{ m.idx }}">
+            <button type="submit" class="ri-lock {{ 'on' if m.locked }}">{{ '解除' if m.locked else 'ロック' }}</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
   <a class="back-btn" href="{{ url_for('play', user_id=user_id) }}">← 戻る</a>
 </div>
+<script>
+  (function(){
+    var f = document.getElementById('roster-filter');
+    if (!f) return;
+    f.addEventListener('input', function(){
+      var q = this.value.trim();
+      document.querySelectorAll('.roster-item').forEach(function(li){
+        li.style.display = (!q || li.dataset.name.indexOf(q) !== -1) ? '' : 'none';
+      });
+    });
+  })();
+</script>
 <style>
+  .status-container { max-width: 560px !important; }
+  .roster-title { color: #764ba2; margin: 6px 0; }
+  .roster-filter { width: 90%; padding: 7px 10px; border-radius: 8px; border: 1px solid #cbd; margin-bottom: 10px; }
+  .roster-list { list-style: none; padding: 0; margin: 0; max-height: 420px; overflow-y: auto; text-align: left; }
+  .roster-item { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+  .roster-item.locked { background: #fff6e0; }
+  .ri-badge { font-size: 0.68rem; padding: 1px 7px; border-radius: 999px; color: #fff; flex: 0 0 auto; }
+  .ri-badge.party { background: #5b8def; }
+  .ri-badge.reserve { background: #99a; }
+  .ri-name { font-weight: bold; color: #4a3f6a; flex: 1 1 auto; }
+  .ri-meta { color: #889; font-size: 0.78rem; flex: 0 0 auto; }
+  .ri-form { margin: 0; flex: 0 0 auto; }
+  .ri-lock { padding: 3px 10px; border-radius: 6px; border: 1px solid #b9a; background: #f4f0e8; cursor: pointer; font-size: 0.78rem; }
+  .ri-lock.on { background: linear-gradient(90deg,#e6a23c,#d4881f); color: #fff; border-color: #d4881f; }
+</style>
   body {
     background: linear-gradient(120deg, #ffe3f1 0%, #b5cfff 100%);
     font-family: 'Segoe UI', 'Arial', sans-serif;

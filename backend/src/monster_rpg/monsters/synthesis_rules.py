@@ -26,6 +26,50 @@ SYNTHESIS_RECIPES = {
     ("abyss_watcher", "kraken"): "void_leviathan",            # 虚海のリヴァイアサン
     ("celestial_dragon", "sky_seraph"): "astral_seraphim",    # 天輪のセラフィム
     ("astral_seraphim", "vampire_lord"): "abyssal_seraph",    # 堕天の熾天使
+
+    # === 追加レシピ（既存86体を素材の網で結ぶ。組み合わせ＝コンテンツ量） ===
+    # --- 序盤の遊べる配合 ---
+    ("bat", "wild_rat"): "spark_mouse",                    # 小獣どうし→帯電ネズミ
+    ("goblin", "wolf"): "orc_warrior",                     # 群れの長
+    ("moss_slime", "walking_mushroom"): "thorn_lurker",    # 苔と茸→棘の潜伏者
+    ("mire_toad", "rock_crab"): "tide_serpent",            # 沼の主
+    ("mire_toad", "skeleton_archer"): "bog_revenant",      # 沼＋骸→沼の亡者
+    # --- 鳥・雷の系譜 ---
+    ("gale_harrier", "spark_mouse"): "thunder_eagle",      # 疾風＋帯電→雷鷲
+    ("gale_harrier", "thunder_eagle"): "thunderlord_roc",  # 雷帝の大鷲
+    ("sky_seraph", "thunder_eagle"): "solar_griffon",      # 陽光のグリフォン
+    ("flame_mantis", "thunder_eagle"): "electro_mantis",   # 電磁の蟷螂
+    # --- 水棲の系譜 ---
+    ("mermaid_siren", "tide_serpent"): "coral_hydra",      # 珊瑚の多頭
+    ("crystal_golem", "sand_wyrm"): "crystal_drake",       # 水晶の竜
+    # --- 巨像・大地の系譜 ---
+    ("giant_golem", "troll_brute"): "iron_juggernaut",     # 鋼鉄の巨兵
+    ("crystal_golem", "frost_elf"): "glacier_warden",      # 氷河の番人
+    ("cinder_hound", "lava_elemental"): "cinder_sentinel", # 焔の守護像
+    ("cinder_sentinel", "giant_golem"): "obsidian_titan",  # 黒曜の巨神
+    ("cinder_hound", "flame_mantis"): "lava_elemental",    # 溶岩の精
+    # --- 自然・光の系譜 ---
+    ("meadow_sprite", "walking_mushroom"): "moonlit_dryad",# 月夜の樹精
+    ("ashen_drake", "ember_pup"): "phoenix_chick",         # 不死鳥の雛
+    ("dragon_pup", "sky_seraph"): "celestial_dragon",      # 天空竜
+    # --- 闇・不死の系譜 ---
+    ("shadow_panther", "spectral_raven"): "midnight_horror",  # 真夜中の恐怖
+    ("skeleton_archer", "spectral_raven"): "gravetide_hollow",# 墓潮のうろ
+    ("undead_warrior", "venom_naga"): "blighted_knight",      # 疫病の騎士
+    ("abyss_watcher", "frost_elf"): "pontiff_shade",          # 氷の教皇
+    ("abyss_watcher", "shadow_panther"): "blood_fiend",       # 血の魔
+    ("abyss_watcher", "blood_fiend"): "vampire_lord",         # 吸血鬼の王
+    ("abyss_watcher", "midnight_horror"): "eldritch_tome",    # 禁忌の魔導書
+    ("data_wraith", "vampire_lord"): "nameless_kingling",     # 名もなき王
+    ("phantom_thief", "shadow_panther"): "ronin_spirit",      # 浪人の霊
+    ("mist_wraith", "thunder_eagle"): "storm_djinn",          # 嵐の精霊
+
+    # === 魔王枠（新規）：合成限定のプレステージS級。属性の手薄なS帯を埋める ===
+    ("storm_djinn", "thunderlord_roc"): "storm_sovereign",        # 風: 暴風の覇王
+    ("iron_juggernaut", "obsidian_titan"): "gaia_colossus",       # 土: 山喰らいの巨王
+    ("blighted_knight", "venom_naga"): "plague_monarch",          # 毒: 万病の魔王
+    ("coral_hydra", "void_leviathan"): "abyssal_tide_king",       # 水: 深淵の海皇
+    ("nameless_kingling", "thunderlord_roc"): "thunder_emperor",  # 雷: 雷霆の帝王
 }
 
 # ジャックポット（大当たり）配合の抽選プール。家系配合などの非レシピ配合時に
@@ -52,6 +96,18 @@ SYNTHESIS_ITEMS_REQUIRED = {
     ("celestial_dragon", "sky_seraph"): "celestial_feather",
     ("frost_elf", "glacier_warden"): "frost_crystal",
     ("astral_seraphim", "vampire_lord"): "abyss_shard",
+    # 追加S級錬成のゲート
+    ("cinder_sentinel", "giant_golem"): "fire_crystal",
+    ("abyss_watcher", "blood_fiend"): "abyss_shard",
+    ("abyss_watcher", "midnight_horror"): "abyss_shard",
+    ("data_wraith", "vampire_lord"): "thunder_core",
+    ("dragon_pup", "sky_seraph"): "celestial_feather",
+    # 魔王枠の錬成ゲート
+    ("storm_djinn", "thunderlord_roc"): "thunder_core",
+    ("iron_juggernaut", "obsidian_titan"): "dragon_scale",
+    ("blighted_knight", "venom_naga"): "abyss_shard",
+    ("coral_hydra", "void_leviathan"): "frost_crystal",
+    ("nameless_kingling", "thunderlord_roc"): "thunder_core",
 }
 
 # モンスター1体とアイテム1つで行う特殊合成のレシピ

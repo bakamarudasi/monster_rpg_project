@@ -60,6 +60,10 @@ def start_new_battle(player):
     battle_obj = start_atb_battle(player.party_monsters, enemies, player)
     enemy_names = ', '.join(e.name for e in enemies)
     battle_obj.log.append({'type': 'info', 'message': f'{enemy_names} が現れた！'})
+    # ボス個体がいれば登場演出を出す
+    for e in enemies:
+        if getattr(e, 'is_boss', False):
+            battle_obj.log.append({'type': 'boss', 'message': f'⚠ {e.name} が立ちはだかった！'})
     return battle_obj, None
 
 
@@ -100,4 +104,13 @@ def apply_battle_rewards(player, outcome, player_party, enemy_party, log) -> lis
         msgs.append({'type': 'info', 'message': 'うまく逃げ切れた！'})
     else:
         msgs.append({'type': 'info', 'message': '敗北してしまった...'})
+
+    # ボス撃破を記録（実績・クエストの討伐条件に使う）
+    if outcome == 'win':
+        for e in enemy_party:
+            if getattr(e, 'is_boss', False):
+                player.story_flags.add('boss_defeated')
+                player.story_flags.add(f'defeated:{e.monster_id}')
+    from ..achievements import check_achievements
+    check_achievements(player, msgs)
     return msgs

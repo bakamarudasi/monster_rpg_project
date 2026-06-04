@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify, flash
 from ..items.item_data import ALL_ITEMS
+from ..items.equipment import ALL_EQUIPMENT
 from ..monsters.monster_data import ALL_MONSTERS, MONSTER_BOOK_DATA
 from ..map_data import LOCATIONS
 from .utils import load_player, save_player
@@ -134,8 +135,12 @@ def shop(user_id):
     entries = []
     for iid, pr in loc.shop_items.items():
         item = ALL_ITEMS.get(iid)
-        name = item.name if item else iid
-        desc = item.description if item else ""
+        if item:
+            name, desc = item.name, item.description
+        else:
+            eq = ALL_EQUIPMENT.get(iid)
+            name = eq.name if eq else iid
+            desc = f"{eq.slot} / {eq.rarity}" if eq else ""
         entries.append(("item", iid, name, pr, desc))
     for mid, pr in loc.shop_monsters.items():
         mon = ALL_MONSTERS.get(mid)

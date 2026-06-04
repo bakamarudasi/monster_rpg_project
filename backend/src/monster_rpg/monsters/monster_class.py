@@ -181,11 +181,20 @@ class Monster:
         self.ai_role = ai_role
         # 装備品スロット (weapon, armor など)。UI 表示のためスロットの一覧も保持
         self.equipment = {}
-        self.equipment_slots = ["weapon", "armor", "accessory"]
+        self.equipment_slots = ["weapon", "armor", "helmet", "accessory", "boots"]
         self.learnset = learnset if learnset else {}
         self.skill_sequence = skill_sequence if skill_sequence else []
         self.unit_id = unit_id if unit_id is not None else str(uuid.uuid4()) # Add unit_id attribute
         self.atb_gauge = atb_gauge # ATBゲージの初期値
+        # バリア（シールド）。HPの手前でダメージを肩代わりする一時的な盾。
+        self.shield = 0
+        # 耐性: 受けやすさ係数（1.0=通常, 0.5=半減, 0.0=無効）。種族固有＋装備で合算。
+        self.status_resist: dict[str, float] = {}
+        self.element_resist: dict[str, float] = {}
+        # ボス個体フラグ。登場演出やUIの強調に使う。
+        self.is_boss = False
+        # ロック：合成/リリースから保護する（大事な個体の事故防止）
+        self.locked = False
 
     def update_atb_gauge(self, amount: int | None = None) -> None:
         """ATBゲージを更新する。amountが指定されなければ素早さに応じて増加。"""
@@ -375,6 +384,44 @@ class Monster:
                 if restored:
                     log.append({'type': 'info', 'message': f"{self.name} のMPが {restored} 回復した！ (MP: {self.mp})"})
 
+    def _equipment_resist(self, kind: str, key: str) -> float:
+        """装備が持つ耐性係数を掛け合わせて返す（kind は 'status_resist' / 'element_resist'）。"""
+        factor = 1.0
+        for e in self.equipment.values():
+            base = getattr(e, "base_item", e)  # EquipmentInstance なら素装備を見る
+            table = getattr(base, kind, None)
+            if table and key in table:
+                factor *= float(table[key])
+        return factor
+
+    def status_resistance(self, name: str) -> float:
+        """状態異常 name の受けやすさ係数（種族固有×装備）。0.0 で無効。"""
+        factor = float(self.status_resist.get(name, 1.0)) * self._equipment_resist("status_resist", name)
+        return max(0.0, factor)
+
+    def element_damage_factor(self, attacker_element: str | None) -> float:
+        """attacker_element 属性ダメージの被ダメ係数（種族固有×装備）。0.0 で無効。"""
+        if not attacker_element:
+            return 1.0
+        factor = float(self.element_resist.get(attacker_element, 1.0)) * self._equipment_resist("element_resist", attacker_element)
+        return max(0.0, factor)
+
+    def absorb_with_shield(self, damage: int, log: list[dict[str, str]] | None = None) -> int:
+        """バリアでダメージを肩代わりし、HPに通す残りダメージを返す。
+
+        バリアが無い (shield == 0) ときは ``damage`` をそのまま返し、ログも残さない
+        ので、既存のダメージ処理の挙動は一切変わらない。
+        """
+        if log is None:
+            log = []
+        shield = getattr(self, "shield", 0)
+        if shield > 0 and damage > 0:
+            absorbed = min(shield, damage)
+            self.shield = shield - absorbed
+            damage -= absorbed
+            log.append({'type': 'info', 'message': f"{self.name} のバリアが {absorbed} ダメージを防いだ！ (残りバリア: {self.shield})"})
+        return damage
+
     def apply_buff(self, stat: str, amount: int, duration: int) -> None:
         if not stat:
             return
@@ -434,9 +481,14 @@ class Monster:
     @property
     def total_skills(self):
         skills = self.skills[:]
+        # 装備が付与するスキルを足す。覚えているスキルや別装備と名前が被るものは除く
+        seen = {getattr(s, 'name', None) for s in skills}
         for e in self.equipment.values():
-            if hasattr(e, 'granted_skills'):
-                skills.extend(e.granted_skills)
+            for gs in getattr(e, 'granted_skills', []) or []:
+                nm = getattr(gs, 'name', None)
+                if nm not in seen:
+                    skills.append(gs)
+                    seen.add(nm)
         return skills
 
     def get_skill_details(self):
@@ -641,6 +693,7 @@ class Monster:
             'defense': self.defense,
             'speed': self.speed,
             'atb_gauge': self.atb_gauge,
+            'shield': self.shield,
             'alive': self.is_alive,
             'image_filename': self.image_filename,
             'statuses': [{'name': s['name'], 'remaining': s['remaining']} for s in self.status_effects],
@@ -666,6 +719,7 @@ class Monster:
         monster.mp = data['mp'] # Set current mp
         monster.is_alive = data['alive']
         monster.status_effects = data['statuses']
+        monster.shield = data.get('shield', 0)
         return monster
 
     def copy(self):
@@ -706,4 +760,8 @@ class Monster:
         new_monster.skill_sequence = self.skill_sequence[:]
         new_monster.equipment = copy.deepcopy(self.equipment)
         new_monster.equipment_slots = self.equipment_slots[:]
+        new_monster.status_resist = dict(self.status_resist)
+        new_monster.element_resist = dict(self.element_resist)
+        new_monster.is_boss = self.is_boss
+        new_monster.locked = self.locked
         return new_monster

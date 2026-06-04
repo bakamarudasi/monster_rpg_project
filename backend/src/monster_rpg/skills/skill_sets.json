@@ -26,6 +26,8 @@
       "5": ["ice_bolt"],
       "10": ["lightning"],
       "15": ["life_drain"],
+      "16": ["spell_charge"],
+      "18": ["gravity"],
       "20": ["meteor_strike"]
     }
   },
@@ -34,8 +36,12 @@
     "learnset": {
       "1": ["tackle"],
       "5": ["blade_rush"],
+      "8": ["rapid_slash"],
       "10": ["stun_blow"],
+      "12": ["desperate_strike"],
       "15": ["blood_saber"],
+      "16": ["exploit_weakness"],
+      "18": ["power_charge"],
       "20": ["last_wish"]
     }
   },
@@ -44,7 +50,9 @@
     "learnset": {
       "1": ["mark_of_annihilation"],
       "10": ["embrace_of_the_void"],
+      "15": ["gravity"],
       "20": ["inferno_of_purgatory"],
+      "25": ["overdrive_charge"],
       "30": ["abyss_of_despair"]
     }
   },
@@ -56,7 +64,8 @@
       "5": ["cry"],
       "7": ["body_slam"],
       "9": ["bubble"],
-      "11": ["string_shot"]
+      "11": ["string_shot"],
+      "13": ["rapid_slash"]
     }
   },
   "guardian_set": {
@@ -64,7 +73,9 @@
     "learnset": {
       "1": ["stone_skin"],
       "5": ["roar"],
-      "10": ["counter_attack"]
+      "7": ["barrier"],
+      "10": ["counter_attack"],
+      "13": ["decoy"]
     }
   },
   "caster_set": {
@@ -72,7 +83,10 @@
     "learnset": {
       "1": ["poison_cloud"],
       "5": ["life_steal_mid"],
-      "10": ["mana_burn"]
+      "8": ["time_delay"],
+      "10": ["mana_burn"],
+      "13": ["frost_brand"],
+      "16": ["affliction_swap"]
     }
   },
   "agile_set": {
@@ -80,7 +94,20 @@
     "learnset": {
       "1": ["teleport"],
       "5": ["roar"],
-      "10": ["life_steal_mid"]
+      "7": ["haste"],
+      "10": ["life_steal_mid"],
+      "12": ["rapid_slash"],
+      "15": ["mimicry"]
+    }
+  },
+  "cleric_set": {
+    "name": "クレリックのスキルセット",
+    "learnset": {
+      "1": ["heal"],
+      "5": ["cure"],
+      "9": ["regen"],
+      "13": ["mass_heal"],
+      "18": ["revive"]
     }
   }
 }

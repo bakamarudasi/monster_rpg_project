@@ -121,6 +121,68 @@ body {
     font-weight: bold;
     color: #9cd3ff;
 }
+/* バリア(シールド)残量バッジ */
+.shield-text {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #8fe3ff;
+    text-shadow: 0 0 6px rgba(120, 200, 255, 0.8);
+}
+.shield-text.hidden { display: none; }
+/* フィールド(天候)バナー */
+.field-banner {
+    text-align: center;
+    margin: 0.3rem auto 0.5rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.92rem;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(90deg, rgba(255, 120, 40, 0.28), rgba(255, 205, 70, 0.28));
+    border: 1px solid rgba(255, 180, 80, 0.6);
+    text-shadow: 1px 1px 2px #000;
+    animation: field-pulse 2s ease-in-out infinite;
+}
+.field-banner.hidden { display: none; }
+@keyframes field-pulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(255, 160, 60, 0.30); }
+    50% { box-shadow: 0 0 18px rgba(255, 160, 60, 0.65); }
+}
+/* ボス演出 */
+.battle-unit.boss { filter: drop-shadow(0 0 10px rgba(255, 60, 60, 0.7)); }
+.battle-unit.boss .member-name {
+    color: #ff6b6b;
+    font-weight: bold;
+    text-shadow: 0 0 6px rgba(255, 40, 40, 0.6);
+}
+.boss-badge {
+    display: inline-block;
+    background: linear-gradient(90deg, #c0392b, #8e1d12);
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-right: 5px;
+    vertical-align: middle;
+    box-shadow: 0 0 6px rgba(255, 60, 60, 0.6);
+}
+.battle-unit.boss .hp-fill {
+    background: linear-gradient(90deg, #ff3b3b, #b71c1c) !important;
+}
+.log-message-boss { color: #ff6b6b; font-weight: bold; }
+/* オート/倍速トグル */
+.battle-toggles { display: flex; gap: 8px; justify-content: center; margin-bottom: 8px; }
+.bt-toggle {
+    padding: 4px 12px; border-radius: 999px; border: 1px solid #667;
+    background: #2a2a33; color: #aab; font-size: 0.82rem; font-weight: bold; cursor: pointer;
+}
+.bt-toggle.on { background: linear-gradient(90deg, #2e7d32, #43a047); color: #fff; border-color: #43a047; }
+/* 倍速：アニメーションを短縮 */
+body.fast-battle .hp-fill, body.fast-battle .mp-fill { transition-duration: 0.15s !important; }
+body.fast-battle .damage-indicator, body.fast-battle .heal-indicator { animation-duration: 0.3s !important; }
+body.fast-battle .shake, body.fast-battle .shake-hard { animation-duration: 0.15s !important; }
 /* クリック可能な敵ユニットにカーソルを表示 */
 .enemy.battle-unit {
     cursor: pointer;

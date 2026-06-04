@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+  .q-wrap { max-width: 820px; margin: 0 auto; padding: 18px; }
+  .q-title { text-align: center; color: #9ad; text-shadow: 1px 1px 2px #000; }
+  .q-msg { text-align: center; background: #163; color: #cfe; padding: 8px; border-radius: 6px; margin: 10px auto; max-width: 560px; }
+  .q-list { list-style: none; padding: 0; display: grid; gap: 12px; }
+  .q-card { background: #2a2a33; border: 1px solid #444; border-radius: 10px; padding: 12px; }
+  .q-card.completed { opacity: 0.6; border-color: #5a5; }
+  .q-card.ready { border-color: #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.3); }
+  .q-name { font-weight: bold; color: #cfe; }
+  .q-desc { font-size: 0.86rem; color: #ccc; margin: 4px 0; }
+  .q-reward { font-size: 0.78rem; color: #9fe; }
+  .q-badge { float: right; font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; }
+  .b-available { background: #345; color: #bcd; }
+  .b-active { background: #553; color: #fec; }
+  .b-ready { background: #c0392b; color: #fff; }
+  .b-completed { background: #2e7d32; color: #fff; }
+  .q-btn { margin-top: 8px; padding: 5px 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; }
+  .q-accept { background: #3a6; color: #fff; }
+  .q-claim { background: #c0392b; color: #fff; }
+  .q-back { display: block; text-align: center; margin-top: 18px; }
+</style>
+<div class="q-wrap">
+  <h2 class="q-title">◆ 依頼掲示板 ◆</h2>
+  {% if message %}<div class="q-msg">{{ message }}</div>{% endif %}
+  <ul class="q-list">
+    {% for r in rows %}
+      <li class="q-card {{ r.status }}">
+        <span class="q-badge b-{{ r.status }}">
+          {% if r.status == 'available' %}未受注{% elif r.status == 'active' %}進行中{% elif r.status == 'ready' %}達成可能！{% else %}達成済{% endif %}
+        </span>
+        <div class="q-name">{{ r.name }}</div>
+        <div class="q-desc">{{ r.desc }}</div>
+        <div class="q-reward">報酬:
+          {% if r.reward.gold %}{{ r.reward.gold }}G{% endif %}
+          {% if r.reward.items %} ＋アイテム{% endif %}
+        </div>
+        {% if r.status == 'available' %}
+          <form method="post" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="accept">
+            <input type="hidden" name="quest_id" value="{{ r.id }}">
+            <button class="q-btn q-accept" type="submit">受注する</button>
+          </form>
+        {% elif r.status == 'ready' %}
+          <form method="post" style="display:inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="action" value="claim">
+            <input type="hidden" name="quest_id" value="{{ r.id }}">
+            <button class="q-btn q-claim" type="submit">報酬を受け取る</button>
+          </form>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+  <a class="q-back" href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+</div>
+{% endblock %}
