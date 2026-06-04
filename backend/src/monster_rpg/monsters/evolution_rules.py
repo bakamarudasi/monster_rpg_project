@@ -87,6 +87,16 @@ EVOLUTION_RULES = {
     "lumen_moth": [{"level": 15, "evolves_to": "moonlit_dryad"}],
     "pebble_knight": [{"level": 16, "evolves_to": "crystal_golem"}],
     "thunder_pup": [{"level": 18, "evolves_to": "thunder_eagle", "awaken_chance": 0.08}],
+
+    # === 中盤モンスターの進化（C/B → 既存の中〜上位ラインへ） ===
+    "gust_wisp": [{"level": 18, "evolves_to": "tempest_hawk"}],
+    "granite_ogre": [{"level": 18, "evolves_to": "troll_brute"}],
+    "dust_djinn": [{"level": 18, "evolves_to": "sand_wyrm"}],
+    "flame_imp": [{"level": 20, "evolves_to": "lava_elemental", "awaken_chance": 0.08}],
+    "magma_serpent": [{"level": 28, "evolves_to": "inferno_wyrm", "awaken_chance": 0.08}],
+    "wraith_knight": [{"level": 18, "evolves_to": "bone_drake"}],
+    "reef_guardian": [{"level": 26, "evolves_to": "coral_hydra", "awaken_chance": 0.08}],
+    "glacier_pixie": [{"level": 18, "evolves_to": "glacier_warden"}],
 }
 
 

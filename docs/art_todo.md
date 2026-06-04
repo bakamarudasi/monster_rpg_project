@@ -1,6 +1,6 @@
 # モンスター アート不足リスト（art TODO）
 
-対象: 46 体 / 全 101 体。
+対象: 56 体 / 全 111 体。
 生成した画像を backend/src/monster_rpg/static/images/<ファイル名> に置けば、ファイル名一致で自動反映されます。
 
 | ランク | 属性 | family | ファイル名 | 名前 | 見た目の手掛かり |
@@ -21,19 +21,29 @@
 | A | 雷 | construct | `storm_golem.png` | ストームゴーレム | 雷と大地の力が合わさりし巨像。暴風と共に歩む破壊者なり。 |
 | A | 火 | dragon | `inferno_wyrm.png` | 獄炎の竜 | 焦土の猟犬と砂海の竜が混ざり合った業火の化身。吐息は岩を熔かす。 |
 | A | 土 | dragon | `wyrm_of_dunes.png` | 砂海の竜 | 砂の海を泳ぐ古竜。大地を揺らし、丸ごと獲物を呑む。 |
+| B | 水 | aquatic | `reef_guardian.png` | 珊瑚の守護者 | 珊瑚と貝殻の甲殻をまとう海の守り手。神殿の宝を護る。 |
 | B | 火 | beast | `cinder_hound.png` | 焦土の猟犬 | 焼け野を駆ける業火の番犬。咆哮で群れを統べる。 |
+| B | 風 | beast | `tempest_hawk.png` | 烈風鷹 | 翼に烈風をまとう猛禽。急降下の一撃は岩をも砕く。 |
 | B | 光 | construct | `crystal_golem.png` | 水晶ゴーレム | 古代遺跡の番人。透き通る水晶の体は光を弾き返す。 |
 | B | 氷 | construct | `glacier_warden.png` | 氷壁の番人 | 氷河に刻まれた守護像。近づく者を芯から凍てつかせる。 |
+| B | 火 | dragon | `magma_serpent.png` | 溶岩の大蛇 | 溶岩流の中を泳ぐ巨蛇。鱗は灼熱し、触れれば焼け爛れる。 |
 | B | 雷 | elemental | `storm_djinn.png` | 嵐の魔神 | 雷雲から生まれた気まぐれな魔神。稲妻を弄んで遊ぶ。 |
 | B | 毒 | humanoid | `venom_naga.png` | 毒蛇の巫女 | 下半身が大蛇の巫女。毒の祈りで獲物を朽ちさせる。 |
 | B | 毒 | undead | `bog_revenant.png` | 沼の亡霊 | 毒沼に沈んだ者の成れの果て。瘴気を撒き、生気を吸う。 |
+| B | 闇 | undead | `bone_drake.png` | 骸骨竜 | 肉を失い骨だけで蘇った竜。虚ろな眼窩に怨念の火が灯る。 |
 | B | 闇 | undead | `undead_warrior.png` | アンデッドウォリアー | 死してなお魂を持つ戦士。その剣、恐れを知らず振るわれる。 |
 | C | 水 | aquatic | `tide_serpent.png` | うしおの蛇 | 潮の満ち引きに乗って現れる海蛇。水の魔法を巧みに操る。 |
 | C | 氷 | beast | `frost_owl.png` | 氷梟 | 凍てつく羽音もなく舞う梟。視線が合えば既に氷漬け。 |
 | C | 風 | beast | `gale_harrier.png` | 疾風のハリアー | 風を切って滑空する猛禽。先手を取る鋭さが身上。 |
+| C | 火 | demon | `flame_imp.png` | 火炎の小鬼 | 炎をまとって跳ね回る小鬼。いたずらに火を放つ。 |
+| C | 土 | elemental | `dust_djinn.png` | 砂塵の精 | 砂塵が意思を持って渦巻く精霊。視界を奪い旅人を惑わせる。 |
+| C | 土 | humanoid | `granite_ogre.png` | 花崗岩の鬼 | 花崗岩の肌を持つ鬼。鈍重だが拳の一振りは岩盤を割る。 |
 | C | 毒 | insect | `desert_scorpion.png` | デザートスコーピオン | 砂海を駆ける狩人。猛毒の尾を振るい、敵を一閃に葬る。 |
 | C | 火 | insect | `flame_mantis.png` | 火炎カマキリ | 灼熱の鎌を構える昆虫。一閃で乾いた草を焼き払う。 |
 | C | 土 | plant | `thorn_lurker.png` | いばらの潜伏者 | 茨に擬態して獲物を待つ捕食植物。毒の棘を撒き散らす。 |
+| C | 氷 | spirit | `glacier_pixie.png` | 氷晶の妖精 | 氷の結晶を散らして舞う妖精。吐息で大気を凍てつかせる。 |
+| C | 風 | spirit | `gust_wisp.png` | 疾風の渦 | 空を渦巻く風の塊。掴もうとすると指の間をすり抜ける。 |
+| C | 闇 | undead | `wraith_knight.png` | 亡霊騎士 | 朽ちた甲冑だけが残り、未練で動く騎士の亡霊。 |
 | D | 毒 | aquatic | `mire_toad.png` | 沼ガエル | ぬめる毒皮の大蛙。長い舌で獲物を絡め取る。 |
 | D | 土 | aquatic | `rock_crab.png` | 岩ガニ | 岩そっくりの甲殻を持つ大蟹。挟まれると硬い殻ごと潰される。 |
 | D | 火 | beast | `ember_pup.png` | ファイアパピー | 尻尾の火を揺らして駆ける仔火犬。陽気だがよく燃える。 |
