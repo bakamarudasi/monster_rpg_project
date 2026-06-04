@@ -109,6 +109,23 @@ def quests(user_id, player):
     return render_template('quests.html', rows=rows, message=message, user_id=user_id)
 
 
+@main_bp.route('/arena/<int:user_id>', methods=['GET', 'POST'], endpoint='arena')
+@with_player
+def arena(user_id, player):
+    from .. import arena as arena_mod
+    message = None
+    if request.method == 'POST':
+        try:
+            tier = int(request.form.get('tier', -1))
+        except (TypeError, ValueError):
+            tier = -1
+        _, message, _ = arena_mod.run_arena_tier(player, tier)
+        save_player(player, user_id)
+    rows = arena_mod.arena_view(player)
+    return render_template('arena.html', rows=rows, message=message,
+                           user_id=user_id, gold=player.gold)
+
+
 @main_bp.route('/map/<int:user_id>', endpoint='world_map')
 @with_player
 def world_map(user_id, player):

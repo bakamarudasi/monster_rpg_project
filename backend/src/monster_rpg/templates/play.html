@@ -73,6 +73,7 @@
                 <form action="{{ url_for('monster_book', user_id=user_id) }}" method="get"><button class="menu-btn"><span>ずかん</span></button></form>
                 <form action="{{ url_for('main.achievements', user_id=user_id) }}" method="get"><button class="menu-btn"><span>じっせき</span></button></form>
                 <form action="{{ url_for('main.quests', user_id=user_id) }}" method="get"><button class="menu-btn"><span>いらい</span></button></form>
+                <form action="{{ url_for('main.arena', user_id=user_id) }}" method="get"><button class="menu-btn"><span>とうぎじょう</span></button></form>
                 <form action="{{ url_for('world_map', user_id=user_id) }}" method="get"><button class="menu-btn"><span>マップ</span></button></form>
                 {% if loc and loc.has_shop %}
                 <form action="{{ url_for('shop', user_id=user_id) }}" method="get"><button class="menu-btn"><span>ショップ</span></button></form>
