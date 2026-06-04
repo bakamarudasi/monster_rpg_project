@@ -452,9 +452,14 @@ class Monster:
     @property
     def total_skills(self):
         skills = self.skills[:]
+        # 装備が付与するスキルを足す。覚えているスキルや別装備と名前が被るものは除く
+        seen = {getattr(s, 'name', None) for s in skills}
         for e in self.equipment.values():
-            if hasattr(e, 'granted_skills'):
-                skills.extend(e.granted_skills)
+            for gs in getattr(e, 'granted_skills', []) or []:
+                nm = getattr(gs, 'name', None)
+                if nm not in seen:
+                    skills.append(gs)
+                    seen.add(nm)
         return skills
 
     def get_skill_details(self):

@@ -1940,7 +1940,7 @@
     "stats": {"hp": 110, "mp": 90, "attack": 42, "defense": 30, "speed": 24},
     "skills": ["final_ember", "inferno_of_purgatory", "fireball", "curse", "last_wish", "inferno_field"],
     "skill_sequence": ["inferno_field", "inferno_of_purgatory", "final_ember", "fireball"],
-    "drop_items": [["mind_seed", 0.3], ["fire_crystal", 0.5]],
+    "drop_items": [["mind_seed", 0.3], ["fire_crystal", 0.5], ["flame_blade", 0.15]],
     "learnset": {"24": ["meteor_strike"]},
     "book": {
       "description": "凍てつく夜に掻き消えた、最後の願い。それは煉獄の焔と化し、永遠に温もりを求めて彷徨う亡霊となった。擦るたび視える幻の灯り——其れを灰に変え尽くす、その日まで。",
@@ -1959,7 +1959,7 @@
     "stats": {"hp": 200, "mp": 100, "attack": 55, "defense": 46, "speed": 20},
     "skills": ["the_final_page", "mark_of_annihilation", "embrace_of_the_void", "inferno_of_purgatory", "abyss_of_despair"],
     "skill_sequence": ["the_final_page", "mark_of_annihilation", "embrace_of_the_void", "abyss_of_despair"],
-    "drop_items": [["elixir", 0.5], ["abyss_shard", 0.6]],
+    "drop_items": [["elixir", 0.5], ["abyss_shard", 0.6], ["vorpal_blade", 0.1]],
     "learnset": {},
     "book": {
       "description": "あらゆる物語の最終頁に巣食う、終焉そのものの具現。読み終えられた魂を栞として挟み込み、世界という名の長き物語が閉じる瞬間を、静かに待ち続ける。其の真名を口にした者から順に、頁は閉じてゆく。",
@@ -1978,7 +1978,7 @@
     "stats": {"hp": 130, "mp": 70, "attack": 42, "defense": 38, "speed": 30},
     "skills": ["lightning", "thunder_bolt", "paralysis_shock", "mana_burn"],
     "skill_sequence": ["lightning", "paralysis_shock", "thunder_bolt"],
-    "drop_items": [["thunder_core", 0.4], ["mind_seed", 0.2]],
+    "drop_items": [["thunder_core", 0.4], ["mind_seed", 0.2], ["thunder_lance", 0.15]],
     "learnset": {},
     "book": {
       "description": "電子の書架に巣食う、文字化けした亡霊。失われたSFの結末を、無限に再演し続ける壊れたプログラム。",
@@ -2035,7 +2035,7 @@
     "stats": {"hp": 190, "mp": 80, "attack": 56, "defense": 44, "speed": 16},
     "skills": ["holy_light", "meteor_strike", "brave_song", "mass_heal"],
     "skill_sequence": ["overdrive_charge", "holy_light", "meteor_strike", "brave_song"],
-    "drop_items": [["celestial_feather", 0.4], ["power_seed", 0.2]],
+    "drop_items": [["celestial_feather", 0.4], ["power_seed", 0.2], ["phoenix_cloak", 0.15]],
     "learnset": {"30": ["revive"]},
     "book": {
       "description": "神話の頁から墜落した、かつての全能者。信仰を失い、今は終焉の物語世界で己が神殿の瓦礫を抱いて座す。",
