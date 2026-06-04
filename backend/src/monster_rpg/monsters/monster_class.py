@@ -3,6 +3,14 @@ import copy  # deepcopyのためにインポート
 import uuid # uuidのためにインポート
 import random
 from .evolution_rules import EVOLUTION_RULES
+from .personality import (
+    DEFAULT_PERSONALITY_ID,
+    DEFAULT_TALENT_ID,
+    get_personality,
+    get_talent,
+    random_personality_id,
+    random_talent_id,
+)
 
 GROWTH_TYPE_AVERAGE = "平均型"
 GROWTH_TYPE_EARLY = "早熟型"
@@ -159,6 +167,10 @@ class Monster:
         self.plus_value = 0
         # レア個体（★）フラグ。配合のレア抽選で生まれた個体は能力が底上げされる
         self.is_rare = False
+        # 個体の個性。性格＝ステ傾向（倍率）、才能＝素質ランク（全ステ倍率）。
+        # is_rare/plus_value の「強さ」とは別軸で、良個体を狙う配合の動機になる。
+        self.personality_id = DEFAULT_PERSONALITY_ID
+        self.talent_id = DEFAULT_TALENT_ID
 
         self.level = level
         self.exp = exp
@@ -209,13 +221,55 @@ class Monster:
         self.atb_gauge = 0
 
     # ------------------------------------------------------------------
+    # Individuality (personality / talent)
+    # ------------------------------------------------------------------
+    @property
+    def personality(self):
+        """この個体の性格（ステ傾向）。未知IDはバランス型にフォールバック。"""
+        return get_personality(self.personality_id)
+
+    @property
+    def talent(self):
+        """この個体の才能（素質ランク）。未知IDは凡才にフォールバック。"""
+        return get_talent(self.talent_id)
+
+    def _individual_multiplier(self, stat: str) -> float:
+        """性格×才能による派生ステの恒久倍率。バランス型＋凡才なら 1.0（=従来通り）。"""
+        mult = self.talent.multiplier
+        mult *= 1.0 + self.personality.modifiers.get(stat, 0.0)
+        return mult
+
+    def roll_individuality(self) -> None:
+        """性格・才能をランダムに引き直す（野生個体の生成時などに使う）。"""
+        self.personality_id = random_personality_id()
+        self.talent_id = random_talent_id()
+
+    def individuality_summary(self) -> dict:
+        """UI / シリアライズ用に性格・才能をまとめた辞書を返す。"""
+        p = self.personality
+        t = self.talent
+        return {
+            "personality": {
+                "id": p.id,
+                "name": p.name,
+                "effect": p.effect_text,
+            },
+            "talent": {
+                "id": t.id,
+                "name": t.name,
+                "bonus_percent": t.bonus_percent,
+                "hidden": t.hidden,
+            },
+        }
+
+    # ------------------------------------------------------------------
     # Derived stat properties
     # ------------------------------------------------------------------
     @property
     def attack(self) -> int:
         base = self.base_attack + self._stat_bonuses.get("attack", 0) + self.permanent_bonuses.get("attack", 0)
         total = base + self._equipment_bonus("attack")
-        return int(total * self._stat_multipliers.get("attack", 1.0))
+        return int(total * self._stat_multipliers.get("attack", 1.0) * self._individual_multiplier("attack"))
 
     @attack.setter
     def attack(self, value: int) -> None:
@@ -225,7 +279,7 @@ class Monster:
     def defense(self) -> int:
         base = self.base_defense + self._stat_bonuses.get("defense", 0) + self.permanent_bonuses.get("defense", 0)
         total = base + self._equipment_bonus("defense")
-        return int(total * self._stat_multipliers.get("defense", 1.0))
+        return int(total * self._stat_multipliers.get("defense", 1.0) * self._individual_multiplier("defense"))
 
     @defense.setter
     def defense(self, value: int) -> None:
@@ -235,7 +289,7 @@ class Monster:
     def speed(self) -> int:
         base = self.base_speed + self._stat_bonuses.get("speed", 0) + self.permanent_bonuses.get("speed", 0)
         total = base + self._equipment_bonus("speed")
-        return int(total * self._stat_multipliers.get("speed", 1.0))
+        return int(total * self._stat_multipliers.get("speed", 1.0) * self._individual_multiplier("speed"))
 
     @speed.setter
     def speed(self, value: int) -> None:
@@ -245,7 +299,7 @@ class Monster:
     def magic(self) -> int:
         base = self.base_magic + self._stat_bonuses.get("magic", 0) + self.permanent_bonuses.get("magic", 0)
         total = base + self._equipment_bonus("magic")
-        return int(total * self._stat_multipliers.get("magic", 1.0))
+        return int(total * self._stat_multipliers.get("magic", 1.0) * self._individual_multiplier("magic"))
 
     @magic.setter
     def magic(self, value: int) -> None:
@@ -308,6 +362,9 @@ class Monster:
         if log is None:
             return
         log.append({'type': 'info', 'message': f"名前: {self.name} (ID: {self.monster_id}, Lv.{self.level}, Rank: {self.rank})"})
+        talent = self.talent
+        talent_txt = talent.name + ("（隠し才能）" if talent.hidden else "")
+        log.append({'type': 'info', 'message': f"性格: {self.personality.name}（{self.personality.effect_text}） / 才能: {talent_txt}"})
         if self.element:
             log.append({'type': 'info', 'message': f"属性: {self.element}"})
         log.append({'type': 'info', 'message': f"HP: {self.hp}/{self.max_hp}"})
@@ -697,7 +754,8 @@ class Monster:
             'alive': self.is_alive,
             'image_filename': self.image_filename,
             'statuses': [{'name': s['name'], 'remaining': s['remaining']} for s in self.status_effects],
-            'unit_id': self.unit_id
+            'unit_id': self.unit_id,
+            'individuality': self.individuality_summary(),
         }
 
     @classmethod
@@ -756,6 +814,8 @@ class Monster:
         new_monster.permanent_bonuses = dict(self.permanent_bonuses)
         new_monster.plus_value = self.plus_value
         new_monster.is_rare = self.is_rare
+        new_monster.personality_id = self.personality_id
+        new_monster.talent_id = self.talent_id
         new_monster.is_alive = True
         new_monster.skill_sequence = self.skill_sequence[:]
         new_monster.equipment = copy.deepcopy(self.equipment)

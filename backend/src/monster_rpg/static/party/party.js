@@ -63,6 +63,29 @@
       spanExp.textContent = 'EXP: ' + data.exp + ' / ' + data.exp_to_next + ' (残り ' + expNeeded + ')';
       lvhp.append(spanLv, document.createTextNode(' | '), spanHp, document.createTextNode(' | '), spanExp);
       header.appendChild(lvhp);
+
+      if (data.individuality) {
+        const indiv = document.createElement('div');
+        indiv.className = 'card-monster-individuality';
+        const p = data.individuality.personality;
+        const t = data.individuality.talent;
+        if (p) {
+          const pTag = document.createElement('span');
+          pTag.className = 'indiv-tag indiv-personality';
+          pTag.textContent = '性格: ' + p.name + (p.effect ? '（' + p.effect + '）' : '');
+          indiv.appendChild(pTag);
+        }
+        if (t) {
+          const tTag = document.createElement('span');
+          tTag.className = 'indiv-tag indiv-talent' + (t.hidden ? ' indiv-talent-hidden' : '');
+          let label = '才能: ' + t.name;
+          if (t.bonus_percent) { label += ' (全ステ+' + t.bonus_percent + '%)'; }
+          if (t.hidden) { label = '🌟' + label; }
+          tTag.textContent = label;
+          indiv.appendChild(tTag);
+        }
+        header.appendChild(indiv);
+      }
       modalCardBody.appendChild(header);
 
       const content = document.createElement('div');

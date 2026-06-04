@@ -33,6 +33,7 @@ def party(user_id):
                 'skills': m.get_skill_details(),
                 'description': MONSTER_BOOK_DATA.get(m.monster_id).description if MONSTER_BOOK_DATA.get(m.monster_id) else 'このモンスターに関する詳しい説明はまだ見つかっていない。',
                 'index': idx,
+                'individuality': m.individuality_summary(),
                 'equipment': {slot: eq.name for slot, eq in m.equipment.items()},
                 'equipment_slots': m.equipment_slots,
             },
@@ -181,6 +182,7 @@ def manage(user_id):
             },
             'skills': m.get_skill_details(),
             'description': MONSTER_BOOK_DATA.get(m.monster_id).description if MONSTER_BOOK_DATA.get(m.monster_id) else 'このモンスターに関する詳しい説明はまだ見つかっていない。',
+            'individuality': m.individuality_summary(),
         }
         if uid < len(player.party_monsters):
             detail.update({

@@ -160,6 +160,9 @@ def initialize_database():
         _add_column_if_missing(table, "skills", "TEXT")
         # ロック（合成/リリースから保護）
         _add_column_if_missing(table, "locked", "INTEGER DEFAULT 0")
+        # 個体の個性（性格・才能）。それぞれIDを文字列で保存
+        _add_column_if_missing(table, "personality", "TEXT")
+        _add_column_if_missing(table, "talent", "TEXT")
     _add_column_if_missing("player_equipment", "random_bonuses", "TEXT")
     _add_column_if_missing("player_equipment", "synthesis_rank", "INTEGER")
     _add_column_if_missing("player_equipment", "stat_multiplier", "REAL")

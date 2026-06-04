@@ -31,6 +31,9 @@ class SynthesisOutcome:
     rare: bool = False
     jackpot: bool = False
     plus_value: int = 0
+    personality: str = ''
+    talent: str = ''
+    talent_hidden: bool = False
 
     @property
     def is_validation_error(self) -> bool:
@@ -48,6 +51,9 @@ class SynthesisOutcome:
                 rare=self.rare,
                 jackpot=self.jackpot,
                 plus_value=self.plus_value,
+                personality=self.personality,
+                talent=self.talent,
+                talent_hidden=self.talent_hidden,
             )
         return data
 
@@ -65,6 +71,7 @@ def _describe(result) -> SynthesisOutcome:
     if isinstance(result, (Equipment, EquipmentInstance)):
         return SynthesisOutcome(True, result_type='equipment', name=result.name)
     if isinstance(result, Monster):
+        talent = result.talent
         return SynthesisOutcome(
             True,
             result_type='monster',
@@ -72,6 +79,9 @@ def _describe(result) -> SynthesisOutcome:
             rare=bool(getattr(result, 'is_rare', False)),
             jackpot=result.monster_id in SPECIAL_MONSTER_POOL,
             plus_value=getattr(result, 'plus_value', 0),
+            personality=result.personality.name,
+            talent=talent.name,
+            talent_hidden=talent.hidden,
         )
     return SynthesisOutcome(True, result_type='item', name=getattr(result, 'name', ''))
 

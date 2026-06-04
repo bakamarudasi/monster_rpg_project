@@ -458,6 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ${skillsHtml}
             ${itemWarn}
             <div class="preview-hint">✨ ごく稀に「特別な存在」や★レア個体が生まれることがある…</div>
+            <div class="preview-hint">🧬 性格と才能は誕生時に決まる。良個体ほど高才能の子が生まれやすい（天才×天才で隠し才能も…）</div>
         `;
         previewBox.querySelectorAll('input.skill-pick').forEach(c => c.addEventListener('change', enforceInheritLimit));
     }
@@ -630,10 +631,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 大当たり・レア個体はトーストで祝福し、余韻を長めに
                 let delay = 2000;
                 if (typeof window.showToast === 'function') {
-                    if (data.jackpot) { window.showToast(`✨大当たり！ ${data.name} ✨`, 'level', { duration: 5000 }); delay = 3200; }
+                    if (data.talent_hidden) { window.showToast(`🌟隠し才能『${data.talent}』が覚醒！ ${data.name}`, 'level', { duration: 5500 }); delay = 3500; }
+                    else if (data.jackpot) { window.showToast(`✨大当たり！ ${data.name} ✨`, 'level', { duration: 5000 }); delay = 3200; }
                     else if (data.rare) { window.showToast(`★レア個体！ ${data.name}`, 'item', { duration: 4500 }); delay = 3000; }
                 }
-                if (data.jackpot || data.rare) { resultMsg.classList.add('jackpot'); }
+                if (data.jackpot || data.rare || data.talent_hidden) { resultMsg.classList.add('jackpot'); }
                 setTimeout(() => window.location.reload(), delay);
             } else {
                 resultMsg.textContent = `合成失敗： ${data.error || '原因不明のエラー'}`;

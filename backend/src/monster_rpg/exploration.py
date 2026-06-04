@@ -27,6 +27,16 @@ def get_monster_instance_copy(monster_id_or_object: Monster | str) -> Monster | 
         return None
 
 
+def _roll_wild_individuality(monster: Monster) -> None:
+    """野生個体に性格・才能をランダム付与する（ボスは設計を尊重して据え置き）。
+
+    スカウトで仲間になったとき、その個体の個性がそのまま引き継がれる＝図鑑埋め／
+    良個体厳選の動機になる。
+    """
+    if monster is not None and not getattr(monster, "is_boss", False):
+        monster.roll_individuality()
+
+
 def generate_enemy_party(location: Location, player=None) -> list[Monster]:
     """指定された場所に基づいて敵パーティを生成します (1〜3体)。"""
     enemy_party: list[Monster] = []
@@ -42,6 +52,7 @@ def generate_enemy_party(location: Location, player=None) -> list[Monster]:
                 target_level = max(1, base_level + random.randint(-1, 1))
                 while enemy_instance.level < target_level:
                     enemy_instance.level_up()
+                _roll_wild_individuality(enemy_instance)
             return party
 
     if not location.possible_enemies:
@@ -60,6 +71,7 @@ def generate_enemy_party(location: Location, player=None) -> list[Monster]:
             target_level = max(1, base_level + random.randint(-1, 1))
             while enemy_copy.level < target_level:
                 enemy_copy.level_up()
+            _roll_wild_individuality(enemy_copy)
             enemy_party.append(enemy_copy)
 
     if not enemy_party and location.possible_enemies:
@@ -71,6 +83,7 @@ def generate_enemy_party(location: Location, player=None) -> list[Monster]:
             target_level = max(1, base_level + random.randint(-1, 1))
             while enemy_copy.level < target_level:
                 enemy_copy.level_up()
+            _roll_wild_individuality(enemy_copy)
             enemy_party.append(enemy_copy)
 
     return enemy_party

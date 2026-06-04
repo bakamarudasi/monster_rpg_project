@@ -8,6 +8,7 @@ from typing import Tuple, Optional
 
 from .monsters.monster_class import Monster
 from .monsters.monster_data import ALL_MONSTERS
+from .monsters.personality import inherit_personality_id, inherit_talent_id
 from .monsters.synthesis_rules import (
     SYNTHESIS_RECIPES,
     SYNTHESIS_ITEMS_REQUIRED,
@@ -150,6 +151,15 @@ def _build_child(parent1: Monster, parent2: Monster, result_id: str, inherit_ski
     # 累代＋値（強い親ほど強い子になるループ）
     new_monster.add_plus_value(_compute_child_plus(parent1, parent2))
 
+    # 個性の継承：性格はどちらかの親（稀に変異）、才能は良個体ほど高才能が出やすい。
+    # 良個体を狙って配合する動機＝収集の沼の核。
+    new_monster.personality_id = inherit_personality_id(
+        getattr(parent1, "personality_id", None), getattr(parent2, "personality_id", None)
+    )
+    new_monster.talent_id = inherit_talent_id(
+        getattr(parent1, "talent_id", None), getattr(parent2, "talent_id", None)
+    )
+
     new_monster.hp = new_monster.max_hp
     new_monster.mp = new_monster.max_mp
     new_monster.is_alive = True
@@ -273,6 +283,11 @@ def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, i
     else:
         prefix = ""
     msg = f"{prefix}{removed_monster_names[1]} と {removed_monster_names[0]} を合成して {star}{new_monster.name}{plus_txt} が誕生した！"
+    # 生まれた個体の個性（性格・才能）を知らせる。隠し才能はとくに強調する。
+    talent = new_monster.talent
+    msg += f" 性格は『{new_monster.personality.name}』、才能は『{talent.name}』。"
+    if talent.hidden:
+        msg = f"🌟隠し才能『{talent.name}』が覚醒！🌟 " + msg
     if achv:
         msg += " " + " ".join(achv)
     return True, msg, new_monster
