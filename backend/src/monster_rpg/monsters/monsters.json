@@ -2540,5 +2540,115 @@
     "learnset": {"20": ["paralysis_shock"], "30": ["ragnarok_bolt"]},
     "book": {"description": "天空に玉座を構える雷の帝王。神鳴を意のままに操り、大地を焼く。", "location_hint": "野生には現れない。雷の王と覇王を掛け合わせて錬成する。", "synthesis_hint": "名もなき王と雷帝の大鷲を融合させよ。"},
     "family": "elemental"
+  },
+  "cinder_kit": {
+    "name": "火の仔",
+    "ai_role": "attacker", "rank": "E", "element": "火",
+    "image_filename": "cinder_kit.png", "growth_type": "スピード型",
+    "stats": {"hp": 18, "mp": 12, "attack": 7, "defense": 4, "speed": 9},
+    "skills": ["scratch", "fireball_weak"],
+    "drop_items": [["fire_crystal", 0.12], ["small_potion", 0.2]],
+    "learnset": {"4": ["bite"]},
+    "book": {"description": "尾に火を灯した小さな獣。じゃれつくだけで毛先が焦げる。", "location_hint": "村の近くの草原や丘陵街道。", "synthesis_hint": ""},
+    "family": "beast"
+  },
+  "dawn_chick": {
+    "name": "暁の雛",
+    "ai_role": "healer", "rank": "E", "element": "光",
+    "image_filename": "dawn_chick.png", "growth_type": "魔法型",
+    "stats": {"hp": 16, "mp": 16, "attack": 5, "defense": 4, "speed": 7},
+    "skills": ["scratch", "heal"],
+    "drop_items": [["small_potion", 0.3]],
+    "learnset": {"5": ["guard_up"]},
+    "book": {"description": "夜明けの光を浴びて生まれる雛。淡い光で仲間の傷を癒やす。", "location_hint": "村の近くの草原。朝もやの中に多い。", "synthesis_hint": ""},
+    "family": "beast"
+  },
+  "breeze_sprite": {
+    "name": "そよ風の精",
+    "ai_role": "attacker", "rank": "E", "element": "風",
+    "image_filename": "breeze_sprite.png", "growth_type": "スピード型",
+    "stats": {"hp": 15, "mp": 14, "attack": 6, "defense": 3, "speed": 11},
+    "skills": ["cry", "wind_slash"],
+    "drop_items": [["small_potion", 0.2]],
+    "learnset": {"4": ["bubble"]},
+    "book": {"description": "風に乗って漂う微精霊。素早いが打たれ弱い。", "location_hint": "村の近くの草原や妖精の森の入り口。", "synthesis_hint": ""},
+    "family": "spirit"
+  },
+  "bubble_jelly": {
+    "name": "あわクラゲ",
+    "ai_role": "attacker", "rank": "E", "element": "水",
+    "image_filename": "bubble_jelly.png", "growth_type": "防御型",
+    "stats": {"hp": 22, "mp": 12, "attack": 5, "defense": 6, "speed": 5},
+    "skills": ["bubble", "tackle"],
+    "drop_items": [["frost_crystal", 0.1], ["small_potion", 0.2]],
+    "learnset": {"5": ["water_blast"]},
+    "book": {"description": "ぷかぷかと漂う泡の塊。弾けると周囲を濡らす。", "location_hint": "神秘の湖の浅瀬。", "synthesis_hint": ""},
+    "family": "aquatic"
+  },
+  "frost_pixie": {
+    "name": "霜の妖精",
+    "ai_role": "attacker", "rank": "E", "element": "氷",
+    "image_filename": "frost_pixie.png", "growth_type": "魔法型",
+    "stats": {"hp": 16, "mp": 18, "attack": 5, "defense": 4, "speed": 8},
+    "skills": ["cry", "ice_bolt"],
+    "drop_items": [["frost_crystal", 0.15], ["small_potion", 0.2]],
+    "learnset": {"6": ["bubble"]},
+    "book": {"description": "息を吐くと霜が舞う小さな妖精。湖畔の冷気から生まれる。", "location_hint": "妖精の森・入り口、神秘の湖のほとり。", "synthesis_hint": ""},
+    "family": "spirit"
+  },
+  "thunder_pup": {
+    "name": "雷の仔犬",
+    "ai_role": "attacker", "rank": "D", "element": "雷",
+    "image_filename": "thunder_pup.png", "growth_type": "スピード型",
+    "stats": {"hp": 28, "mp": 14, "attack": 11, "defense": 6, "speed": 12},
+    "skills": ["bite", "tackle"],
+    "drop_items": [["thunder_core", 0.12], ["small_potion", 0.2]],
+    "learnset": {"6": ["paralysis_shock"]},
+    "book": {"description": "毛皮に静電気をまとう仔犬。触れるとぴりっと痺れる。", "location_hint": "丘陵街道、砂漠の外れ。", "synthesis_hint": ""},
+    "family": "beast"
+  },
+  "venom_spider": {
+    "name": "毒蜘蛛",
+    "ai_role": "debuffer", "rank": "D", "element": "毒",
+    "image_filename": "venom_spider.png", "growth_type": "平均型",
+    "stats": {"hp": 26, "mp": 12, "attack": 10, "defense": 6, "speed": 9},
+    "skills": ["poison_dart", "string_shot"],
+    "drop_items": [["antidote", 0.2], ["tough_leather", 0.15]],
+    "learnset": {"7": ["bite"]},
+    "book": {"description": "粘つく糸と毒牙で獲物を絡め取る蜘蛛。", "location_hint": "オアシスの集落周辺、砂漠の外れ。", "synthesis_hint": ""},
+    "family": "insect"
+  },
+  "shade_imp": {
+    "name": "影の小鬼",
+    "ai_role": "attacker", "rank": "D", "element": "闇",
+    "image_filename": "shade_imp.png", "growth_type": "魔法型",
+    "stats": {"hp": 24, "mp": 16, "attack": 9, "defense": 5, "speed": 9},
+    "skills": ["scratch", "dark_pulse"],
+    "drop_items": [["abyss_shard", 0.08], ["small_potion", 0.2]],
+    "learnset": {"7": ["cry"]},
+    "book": {"description": "物陰にひそむ小鬼。隙を突いて影の刃を放つ。", "location_hint": "妖精の森・奥地、古代遺跡の物陰。", "synthesis_hint": ""},
+    "family": "demon"
+  },
+  "lumen_moth": {
+    "name": "光蛾",
+    "ai_role": "attacker", "rank": "D", "element": "光",
+    "image_filename": "lumen_moth.png", "growth_type": "魔法型",
+    "stats": {"hp": 25, "mp": 16, "attack": 8, "defense": 6, "speed": 10},
+    "skills": ["sand_attack", "holy_light"],
+    "drop_items": [["celestial_feather", 0.06], ["small_potion", 0.2]],
+    "learnset": {"7": ["cry"]},
+    "book": {"description": "鱗粉が淡く発光する蛾。光に誘われ夜の森を舞う。", "location_hint": "妖精の森・奥地。", "synthesis_hint": ""},
+    "family": "insect"
+  },
+  "pebble_knight": {
+    "name": "小石の騎士",
+    "ai_role": "attacker", "rank": "D", "element": "土",
+    "image_filename": "pebble_knight.png", "growth_type": "防御型",
+    "stats": {"hp": 32, "mp": 8, "attack": 10, "defense": 11, "speed": 4},
+    "skills": ["tackle", "stone_skin"],
+    "drop_items": [["steel_ingot", 0.15], ["armor_fragment_common", 0.15]],
+    "learnset": {"7": ["guard_up"]},
+    "book": {"description": "小石が寄り集まって鎧をまとった土くれの騎士。守りは堅い。", "location_hint": "山麓の荒野、古代遺跡。", "synthesis_hint": ""},
+    "family": "construct"
   }
 }

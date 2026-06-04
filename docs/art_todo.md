@@ -1,6 +1,6 @@
 # モンスター アート不足リスト（art TODO）
 
-対象: 36 体 / 全 91 体。
+対象: 46 体 / 全 101 体。
 生成した画像を backend/src/monster_rpg/static/images/<ファイル名> に置けば、ファイル名一致で自動反映されます。
 
 | ランク | 属性 | family | ファイル名 | 名前 | 見た目の手掛かり |
@@ -38,6 +38,16 @@
 | D | 土 | aquatic | `rock_crab.png` | 岩ガニ | 岩そっくりの甲殻を持つ大蟹。挟まれると硬い殻ごと潰される。 |
 | D | 火 | beast | `ember_pup.png` | ファイアパピー | 尻尾の火を揺らして駆ける仔火犬。陽気だがよく燃える。 |
 | D | 雷 | beast | `spark_mouse.png` | スパークマウス | 頬袋に電気を溜める小鼠。触れるとぱちっと痺れる。 |
+| D | 雷 | beast | `thunder_pup.png` | 雷の仔犬 | 毛皮に静電気をまとう仔犬。触れるとぴりっと痺れる。 |
+| D | 土 | construct | `pebble_knight.png` | 小石の騎士 | 小石が寄り集まって鎧をまとった土くれの騎士。守りは堅い。 |
 | D | 土 | demon | `dust_imp.png` | すなこぞう | 砂を巻き上げ視界を奪う小悪魔。素早く、ひどく目障り。 |
+| D | 闇 | demon | `shade_imp.png` | 影の小鬼 | 物陰にひそむ小鬼。隙を突いて影の刃を放つ。 |
+| D | 光 | insect | `lumen_moth.png` | 光蛾 | 鱗粉が淡く発光する蛾。光に誘われ夜の森を舞う。 |
+| D | 毒 | insect | `venom_spider.png` | 毒蜘蛛 | 粘つく糸と毒牙で獲物を絡め取る蜘蛛。 |
+| E | 水 | aquatic | `bubble_jelly.png` | あわクラゲ | ぷかぷかと漂う泡の塊。弾けると周囲を濡らす。 |
+| E | 火 | beast | `cinder_kit.png` | 火の仔 | 尾に火を灯した小さな獣。じゃれつくだけで毛先が焦げる。 |
+| E | 光 | beast | `dawn_chick.png` | 暁の雛 | 夜明けの光を浴びて生まれる雛。淡い光で仲間の傷を癒やす。 |
 | E | 土 | slime | `moss_slime.png` | こけスライム | 苔むした岩陰でまどろむ土のスライム。打たれ強いが動きは鈍い。 |
+| E | 風 | spirit | `breeze_sprite.png` | そよ風の精 | 風に乗って漂う微精霊。素早いが打たれ弱い。 |
+| E | 氷 | spirit | `frost_pixie.png` | 霜の妖精 | 息を吐くと霜が舞う小さな妖精。湖畔の冷気から生まれる。 |
 | E | 風 | spirit | `meadow_sprite.png` | 草原の精 | 草原にまぎれて舞う小さな精霊。風と微かな治癒の力を持つ。 |

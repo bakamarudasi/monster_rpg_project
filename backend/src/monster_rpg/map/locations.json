@@ -19,7 +19,7 @@
     "description": "見渡す限りの草原が広がっている。時折、弱いモンスターの姿が見える。",
     "connections": { "南": "village_square", "北東": "forest_entrance" },
     "encounter_rate": 0.6,
-    "enemy_pool": { "slime": 40, "goblin": 10, "wild_rat": 20, "walking_mushroom": 30, "moss_slime": 25, "meadow_sprite": 20, "spark_mouse": 15, "bat": 20 },
+    "enemy_pool": { "slime": 40, "goblin": 10, "wild_rat": 20, "walking_mushroom": 30, "moss_slime": 25, "meadow_sprite": 20, "spark_mouse": 15, "bat": 20, "cinder_kit": 20, "dawn_chick": 18, "breeze_sprite": 20 },
     "party_size": [1, 2],
     "avg_enemy_level": 1,
     "x": 1, "y": 0
@@ -39,7 +39,7 @@
     "description": "森の奥にひっそりと佇む美しい湖。水面が青く光っている。",
     "connections": { "西": "forest_entrance", "霧の水路へ": "sunken_temple" },
     "encounter_rate": 0.8,
-    "enemy_pool": { "water_wolf": 40, "mermaid_siren": 40, "mist_wraith": 20, "tide_serpent": 30, "rock_crab": 20, "mire_toad": 20 },
+    "enemy_pool": { "water_wolf": 40, "mermaid_siren": 40, "mist_wraith": 20, "tide_serpent": 30, "rock_crab": 20, "mire_toad": 20, "bubble_jelly": 25, "frost_pixie": 15 },
     "party_size": [1, 2],
     "avg_enemy_level": 3,
     "x": 3, "y": 0
@@ -55,7 +55,9 @@
       "shadow_panther": 20,
       "elf_mage": 30,
       "moonlit_dryad": 10,
-      "thorn_lurker": 15
+      "thorn_lurker": 15,
+      "lumen_moth": 18,
+      "shade_imp": 15
     },
     "party_size": [1, 3],
     "boss_enemy_id": "dragon_pup",
@@ -81,7 +83,7 @@
     "description": "ゆるやかな丘を抜ける古びた街道。行商人の姿もちらほら。",
     "connections": { "南": "field_near_village", "北": "mountain_foothills" },
     "encounter_rate": 0.55,
-    "enemy_pool": { "wolf": 40, "orc_warrior": 40, "goblin": 20, "moss_slime": 20, "ember_pup": 25, "spark_mouse": 20 },
+    "enemy_pool": { "wolf": 40, "orc_warrior": 40, "goblin": 20, "moss_slime": 20, "ember_pup": 25, "spark_mouse": 20, "thunder_pup": 20, "cinder_kit": 15 },
     "party_size": [1, 3],
     "avg_enemy_level": 3,
     "x": 1, "y": 1
@@ -91,7 +93,7 @@
     "description": "切り立った崖と転がる岩石。空気が薄くなり始めている。",
     "connections": { "南": "hill_road", "北": "thunder_peak", "西": "ancient_ruins" },
     "encounter_rate": 0.75,
-    "enemy_pool": { "orc_warrior": 40, "skeleton_archer": 30, "troll_brute": 20, "giant_golem": 10, "ember_pup": 20, "gale_harrier": 25 },
+    "enemy_pool": { "orc_warrior": 40, "skeleton_archer": 30, "troll_brute": 20, "giant_golem": 10, "ember_pup": 20, "gale_harrier": 25, "pebble_knight": 22 },
     "party_size": [2, 3],
     "treasure_items": ["medium_potion"],
     "avg_enemy_level": 4,
@@ -176,7 +178,7 @@
     "description": "熱風が吹きつけ、遠くに蜃気楼が揺れる。",
     "connections": { "西": "field_near_village", "東": "desert_oasis" },
     "encounter_rate": 0.65,
-    "enemy_pool": { "desert_scorpion": 50, "sand_wyrm": 30, "orc_warrior": 20, "dust_imp": 30, "flame_mantis": 20 },
+    "enemy_pool": { "desert_scorpion": 50, "sand_wyrm": 30, "orc_warrior": 20, "dust_imp": 30, "flame_mantis": 20, "thunder_pup": 20, "venom_spider": 20 },
     "party_size": [1, 3],
     "avg_enemy_level": 4,
     "x": 4, "y": 2
@@ -186,7 +188,7 @@
     "description": "椰子の木が茂る水辺。旅人の憩いの場だ。",
     "connections": { "西": "desert_outskirts", "北": "sunken_temple" },
     "encounter_rate": 0.3,
-    "enemy_pool": { "desert_scorpion": 100, "dust_imp": 40, "rock_crab": 30, "imp": 35 },
+    "enemy_pool": { "desert_scorpion": 100, "dust_imp": 40, "rock_crab": 30, "imp": 35, "venom_spider": 35 },
     "party_size": [1, 2],
     "has_inn": true, "inn_cost": 20,
     "has_shop": true,

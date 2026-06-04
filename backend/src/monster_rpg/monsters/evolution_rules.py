@@ -76,6 +76,17 @@ EVOLUTION_RULES = {
     # --- plant ---
     "walking_mushroom": [{"level": 8, "evolves_to": "thorn_lurker"}],
     "thorn_lurker": [{"level": 18, "evolves_to": "moonlit_dryad"}],
+
+    # === 序盤モンスターの進化（既存の中位ラインへ接続して育成の奥行きを作る） ===
+    "cinder_kit": [{"level": 6, "evolves_to": "ember_pup"}],
+    "breeze_sprite": [{"level": 10, "evolves_to": "gale_harrier"}],
+    "bubble_jelly": [{"level": 10, "evolves_to": "tide_serpent"}],
+    "frost_pixie": [{"level": 12, "evolves_to": "frost_owl"}],
+    "venom_spider": [{"level": 12, "evolves_to": "desert_scorpion"}],
+    "shade_imp": [{"level": 12, "evolves_to": "spectral_raven"}],
+    "lumen_moth": [{"level": 15, "evolves_to": "moonlit_dryad"}],
+    "pebble_knight": [{"level": 16, "evolves_to": "crystal_golem"}],
+    "thunder_pup": [{"level": 18, "evolves_to": "thunder_eagle", "awaken_chance": 0.08}],
 }
 
 
