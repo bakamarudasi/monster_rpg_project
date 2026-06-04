@@ -193,6 +193,8 @@ class Monster:
         self.element_resist: dict[str, float] = {}
         # ボス個体フラグ。登場演出やUIの強調に使う。
         self.is_boss = False
+        # ロック：合成/リリースから保護する（大事な個体の事故防止）
+        self.locked = False
 
     def update_atb_gauge(self, amount: int | None = None) -> None:
         """ATBゲージを更新する。amountが指定されなければ素早さに応じて増加。"""
@@ -761,4 +763,5 @@ class Monster:
         new_monster.status_resist = dict(self.status_resist)
         new_monster.element_resist = dict(self.element_resist)
         new_monster.is_boss = self.is_boss
+        new_monster.locked = self.locked
         return new_monster

@@ -158,6 +158,8 @@ def initialize_database():
         _add_column_if_missing(table, "is_rare", "INTEGER DEFAULT 0")
         # 習得スキル（配合の継承などを保存）。スキルIDのJSON配列
         _add_column_if_missing(table, "skills", "TEXT")
+        # ロック（合成/リリースから保護）
+        _add_column_if_missing(table, "locked", "INTEGER DEFAULT 0")
     _add_column_if_missing("player_equipment", "random_bonuses", "TEXT")
     _add_column_if_missing("player_equipment", "synthesis_rank", "INTEGER")
     _add_column_if_missing("player_equipment", "stat_multiplier", "REAL")

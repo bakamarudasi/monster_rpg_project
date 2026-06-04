@@ -211,6 +211,11 @@ def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, i
     parent1 = player.party_monsters[monster1_idx]
     parent2 = player.party_monsters[monster2_idx]
 
+    # ロックされた個体は素材にしない（事故防止）
+    locked = [p.name for p in (parent1, parent2) if getattr(p, "locked", False)]
+    if locked:
+        return False, f"{'・'.join(locked)} はロックされている。合成するには解除が必要。", None
+
     if not parent1.monster_id or not parent2.monster_id:
         return False, "エラー: 合成元のモンスターにIDが設定されていません。", None
 

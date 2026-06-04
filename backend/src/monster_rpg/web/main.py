@@ -45,7 +45,29 @@ def play(user_id, player):
 @main_bp.route('/status/<int:user_id>', endpoint='status')
 @with_player
 def status(user_id, player):
-    return render_template('status.html', player=player, user_id=user_id)
+    party_n = len(player.party_monsters)
+    roster = []
+    for i, m in enumerate(player.party_monsters + player.reserve_monsters):
+        roster.append({
+            'idx': i, 'name': m.name, 'level': m.level, 'rank': m.rank,
+            'element': m.element or '—', 'locked': getattr(m, 'locked', False),
+            'in_party': i < party_n,
+        })
+    return render_template('status.html', player=player, user_id=user_id, roster=roster)
+
+
+@main_bp.route('/toggle_lock/<int:user_id>', methods=['POST'], endpoint='toggle_lock')
+@with_player
+def toggle_lock(user_id, player):
+    try:
+        idx = int(request.form.get('idx', -1))
+    except (TypeError, ValueError):
+        idx = -1
+    roster = player.party_monsters + player.reserve_monsters
+    if 0 <= idx < len(roster):
+        roster[idx].locked = not getattr(roster[idx], 'locked', False)
+        save_player(player, user_id)
+    return redirect(url_for('status', user_id=user_id))
 
 
 @main_bp.route('/monster_book/<int:user_id>', endpoint='monster_book')
