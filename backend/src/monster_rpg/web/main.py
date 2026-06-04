@@ -92,6 +92,23 @@ def achievements(user_id, player):
     )
 
 
+@main_bp.route('/quests/<int:user_id>', methods=['GET', 'POST'], endpoint='quests')
+@with_player
+def quests(user_id, player):
+    from .. import quests as quest_mod
+    message = None
+    if request.method == 'POST':
+        action = request.form.get('action')
+        qid = request.form.get('quest_id', '')
+        if action == 'accept':
+            _, message = quest_mod.accept_quest(player, qid)
+        elif action == 'claim':
+            _, message = quest_mod.claim_quest(player, qid)
+        save_player(player, user_id)
+    rows = quest_mod.quest_view(player)
+    return render_template('quests.html', rows=rows, message=message, user_id=user_id)
+
+
 @main_bp.route('/map/<int:user_id>', endpoint='world_map')
 @with_player
 def world_map(user_id, player):

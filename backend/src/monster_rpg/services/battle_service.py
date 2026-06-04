@@ -105,9 +105,12 @@ def apply_battle_rewards(player, outcome, player_party, enemy_party, log) -> lis
     else:
         msgs.append({'type': 'info', 'message': '敗北してしまった...'})
 
-    # 実績判定（ボス撃破フラグ＋捕獲数などの節目）
-    if outcome == 'win' and any(getattr(e, 'is_boss', False) for e in enemy_party):
-        player.story_flags.add('boss_defeated')
+    # ボス撃破を記録（実績・クエストの討伐条件に使う）
+    if outcome == 'win':
+        for e in enemy_party:
+            if getattr(e, 'is_boss', False):
+                player.story_flags.add('boss_defeated')
+                player.story_flags.add(f'defeated:{e.monster_id}')
     from ..achievements import check_achievements
     check_achievements(player, msgs)
     return msgs

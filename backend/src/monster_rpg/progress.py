@@ -35,6 +35,28 @@ def to_json(player) -> str:
     return json.dumps(data, ensure_ascii=False)
 
 
+def grant_reward(player, reward: dict) -> list[str]:
+    """報酬(gold/items/monsters)をプレイヤーへ付与し、内容の表示文リストを返す。"""
+    from .items.item_data import ALL_ITEMS
+    from .monsters.monster_data import ALL_MONSTERS
+    parts: list[str] = []
+    gold = int(reward.get("gold", 0))
+    if gold:
+        player.gold += gold
+        parts.append(f"{gold}G")
+    for iid in reward.get("items", []):
+        item = ALL_ITEMS.get(iid)
+        if item is not None:
+            player.items.append(item)
+            parts.append(item.name)
+    for mid in reward.get("monsters", []):
+        if mid in ALL_MONSTERS:
+            player.party_monsters.append(ALL_MONSTERS[mid].copy())
+            player.monster_book.record_captured(mid)
+            parts.append(ALL_MONSTERS[mid].name)
+    return parts
+
+
 def apply_json(player, text: str | None) -> None:
     try:
         data = json.loads(text) if text else {}
