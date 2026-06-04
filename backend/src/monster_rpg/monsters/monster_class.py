@@ -181,7 +181,7 @@ class Monster:
         self.ai_role = ai_role
         # 装備品スロット (weapon, armor など)。UI 表示のためスロットの一覧も保持
         self.equipment = {}
-        self.equipment_slots = ["weapon", "armor", "accessory"]
+        self.equipment_slots = ["weapon", "armor", "helmet", "accessory", "boots"]
         self.learnset = learnset if learnset else {}
         self.skill_sequence = skill_sequence if skill_sequence else []
         self.unit_id = unit_id if unit_id is not None else str(uuid.uuid4()) # Add unit_id attribute

@@ -167,7 +167,7 @@
     "party_size": [2, 3],
     "has_inn": true, "inn_cost": 50,
     "has_shop": true,
-    "shop_items": { "large_potion": 120, "elixir": 300, "celestial_feather": 500, "flame_blade": 500, "thunder_lance": 550, "guardian_charm": 250, "assassin_dagger": 280 },
+    "shop_items": { "large_potion": 120, "elixir": 300, "celestial_feather": 500, "flame_blade": 500, "thunder_lance": 550, "guardian_charm": 250, "assassin_dagger": 280, "iron_helm": 200, "sage_circlet": 450, "swift_boots": 480, "flame_ward": 260, "frost_ward": 260 },
     "boss_enemy_id": "celestial_dragon",
     "treasure_items": ["celestial_feather", "elixir"],
     "avg_enemy_level": 10,

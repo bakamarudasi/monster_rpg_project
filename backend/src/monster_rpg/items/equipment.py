@@ -379,6 +379,37 @@ FROST_WARD = Equipment(
     status_resist={"freeze": 0.0}, element_resist={"氷": 0.5},
 )
 
+# --- 兜（helmet スロット） ---
+IRON_HELM = Equipment(
+    "iron_helm", "鉄兜", slot="helmet", category="helmet", rarity="common", defense=4,
+)
+HORNED_HELM = Equipment(
+    "horned_helm", "角兜", slot="helmet", category="helmet", rarity="uncommon", attack=3, defense=3,
+)
+SAGE_CIRCLET = Equipment(
+    "sage_circlet", "賢者のサークレット", slot="helmet", category="helmet",
+    rarity="rare", magic=6, defense=1,
+)
+DRAGON_HELM = Equipment(
+    "dragon_helm", "竜の兜", slot="helmet", category="helmet",
+    rarity="epic", defense=8, granted_skill_ids=["stone_skin"],
+)
+
+# --- 靴（boots スロット） ---
+TRAVELER_BOOTS = Equipment(
+    "traveler_boots", "旅人のブーツ", slot="boots", category="boots", rarity="common", speed=3,
+)
+IRON_GREAVES = Equipment(
+    "iron_greaves", "鉄のグリーヴ", slot="boots", category="boots", rarity="uncommon", defense=5, speed=-1,
+)
+SWIFT_BOOTS = Equipment(
+    "swift_boots", "疾風のブーツ", slot="boots", category="boots", rarity="rare", speed=8,
+)
+WINDWALKERS = Equipment(
+    "windwalkers", "風渡りの靴", slot="boots", category="boots",
+    rarity="epic", speed=9, granted_skill_ids=["teleport"],
+)
+
 
 @dataclass
 class EquipmentInstance:
@@ -583,6 +614,15 @@ CRAFTING_RECIPES["ward_of_purity"] = {"antidote": 2, "magic_stone": 1}
 CRAFTING_RECIPES["stalwart_badge"] = {"armor_fragment_rare": 1, "magic_stone": 2}
 CRAFTING_RECIPES["flame_ward"] = {"fire_crystal": 1, "magic_stone": 1}
 CRAFTING_RECIPES["frost_ward"] = {"frost_crystal": 1, "magic_stone": 1}
+# 兜・靴
+CRAFTING_RECIPES["iron_helm"] = {"steel_ingot": 2}
+CRAFTING_RECIPES["horned_helm"] = {"steel_ingot": 1, "tough_leather": 1}
+CRAFTING_RECIPES["sage_circlet"] = {"magic_stone": 2, "armor_fragment_common": 1}
+CRAFTING_RECIPES["dragon_helm"] = {"dragon_scale": 1, "armor_fragment_rare": 1}
+CRAFTING_RECIPES["traveler_boots"] = {"tough_leather": 2}
+CRAFTING_RECIPES["iron_greaves"] = {"steel_ingot": 2, "tough_leather": 1}
+CRAFTING_RECIPES["swift_boots"] = {"tough_leather": 1, "celestial_feather": 1}
+CRAFTING_RECIPES["windwalkers"] = {"celestial_feather": 2, "speed_seed": 1}
 
 ALL_EQUIPMENT = {
     BRONZE_SWORD.equip_id: BRONZE_SWORD,
@@ -632,4 +672,12 @@ ALL_EQUIPMENT = {
     STALWART_BADGE.equip_id: STALWART_BADGE,
     FLAME_WARD.equip_id: FLAME_WARD,
     FROST_WARD.equip_id: FROST_WARD,
+    IRON_HELM.equip_id: IRON_HELM,
+    HORNED_HELM.equip_id: HORNED_HELM,
+    SAGE_CIRCLET.equip_id: SAGE_CIRCLET,
+    DRAGON_HELM.equip_id: DRAGON_HELM,
+    TRAVELER_BOOTS.equip_id: TRAVELER_BOOTS,
+    IRON_GREAVES.equip_id: IRON_GREAVES,
+    SWIFT_BOOTS.equip_id: SWIFT_BOOTS,
+    WINDWALKERS.equip_id: WINDWALKERS,
 }
