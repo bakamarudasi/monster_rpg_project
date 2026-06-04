@@ -761,9 +761,9 @@
     "cost": 5,
     "skill_type": "attack",
     "effects": [
-      {"type": "multi_hit", "min_hits": 2, "max_hits": 4}
+      {"type": "multi_hit", "min_hits": 2, "max_hits": 4, "scale": 0.5}
     ],
-    "description": "目にも止まらぬ速さで2〜4回斬りつける連続攻撃",
+    "description": "目にも止まらぬ速さで2〜4回斬りつける連続攻撃（1発の威力は控えめ）",
     "category": "物理"
   },
   "gravity": {
@@ -783,7 +783,7 @@
     "cost": 6,
     "skill_type": "attack",
     "effects": [
-      {"type": "damage", "amount": 25, "bonus_if_status": ["poison", "burn", "freeze", "paralyze", "sleep", "fear", "blind", "curse"], "status_multiplier": 1.8}
+      {"type": "damage", "amount": 25, "bonus_if_status": ["poison", "burn", "freeze", "paralyze", "sleep", "fear", "blind", "curse"], "status_multiplier": 1.6}
     ],
     "description": "状態異常の敵に追い討ちをかけ、威力が1.8倍に跳ね上がる",
     "category": "物理"
@@ -791,7 +791,7 @@
   "desperate_strike": {
     "name": "はいすいの剣",
     "power": 30,
-    "cost": 4,
+    "cost": 5,
     "skill_type": "attack",
     "effects": [
       {"type": "damage", "amount": 30, "desperation": 1.5}
@@ -824,7 +824,7 @@
   "haste": {
     "name": "ヘイスト",
     "power": 0,
-    "cost": 6,
+    "cost": 7,
     "skill_type": "buff",
     "target": "ally",
     "effects": [
@@ -871,7 +871,7 @@
   "mimicry": {
     "name": "ものまね",
     "power": 0,
-    "cost": 8,
+    "cost": 10,
     "skill_type": "buff",
     "target": "enemy",
     "effects": [

@@ -1,6 +1,27 @@
 (() => {
-    /* 属性相性: その属性が「弱い」相手（弱点を突かれる側） */
-    const ELEMENT_WEAKNESS = { '火': '水', '風': '火', '水': '風', '闇': '光' };
+    /* 属性相性: その属性が「弱い」相手（弱点を突かれる側）。backend の elements.py と対応 */
+    const ELEMENT_WEAKNESS = {
+        '火': '水', '風': '火', '水': '風',
+        '氷': '火', '雷': '土', '土': '風',
+        '毒': '風', '光': '闇', '闇': '光'
+    };
+
+    /* フィールド(天候)バナーの更新 */
+    function updateFieldBanner(field) {
+        const banner = document.getElementById('field-banner');
+        if (!banner) return;
+        if (field && field.element && field.remaining > 0) {
+            const nm = field.name || (field.element + 'フィールド');
+            const mult = field.multiplier ? `×${field.multiplier}` : '';
+            banner.textContent = `🌐 ${nm}（${field.element}属性${mult} ・ 残り${field.remaining}ターン）`;
+            banner.dataset.element = field.element;
+            banner.classList.remove('hidden');
+        } else {
+            banner.textContent = '';
+            banner.removeAttribute('data-element');
+            banner.classList.add('hidden');
+        }
+    }
 
     /* 戦闘ログの新規分からトーストを出す（重複防止に長さを記録） */
     let lastLogLen = -1;
@@ -84,6 +105,14 @@
         mpText.className = 'mp-text';
         mpText.textContent = info.mp + '/' + info.max_mp;
         unit.appendChild(mpText);
+
+        const shieldText = document.createElement('div');
+        shieldText.className = 'shield-text';
+        const sh = info.shield || 0;
+        shieldText.textContent = sh > 0 ? '🛡' + sh : '';
+        if (sh <= 0) shieldText.classList.add('hidden');
+        unit.appendChild(shieldText);
+        unit.dataset.shield = sh;
 
         return unit;
     }
@@ -300,6 +329,7 @@
         populatePartyAreas(initData);
         buildActionUI(initData);
         updateTurnOrder(initData.turn_order || []);
+        updateFieldBanner(initData.field || null);
         selectTabs();
 
         /* HPバーのアニメーション */
@@ -485,6 +515,14 @@
             const mpText = unit.querySelector('.mp-text');
             if (mpText) mpText.textContent = info.mp + '/' + info.max_mp;
 
+            const shieldText = unit.querySelector('.shield-text');
+            if (shieldText) {
+                const sh = info.shield || 0;
+                shieldText.textContent = sh > 0 ? '🛡' + sh : '';
+                shieldText.classList.toggle('hidden', sh <= 0);
+                unit.dataset.shield = sh;
+            }
+
             if (!isNaN(prevHp) && info.hp < prevHp) {
                 damaged = true;
                 unit.classList.add('hit-flash');
@@ -598,6 +636,8 @@
         const enemyDamaged = updateUnitList(enemyUnits, data.hp_values.enemy, { crit: hasCrit });
 
         if (allyDamaged || enemyDamaged) triggerShake(hasCrit || hasEffective);
+
+        if (data.hp_values) updateFieldBanner(data.hp_values.field);
 
         if (Array.isArray(data.turn_order)) {
             updateTurnOrder(data.turn_order);

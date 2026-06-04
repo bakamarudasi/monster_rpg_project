@@ -96,5 +96,15 @@
       "12": ["rapid_slash"],
       "15": ["mimicry"]
     }
+  },
+  "cleric_set": {
+    "name": "クレリックのスキルセット",
+    "learnset": {
+      "1": ["heal"],
+      "5": ["cure"],
+      "9": ["regen"],
+      "13": ["mass_heal"],
+      "18": ["revive"]
+    }
   }
 }

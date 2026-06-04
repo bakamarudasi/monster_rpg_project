@@ -341,7 +341,7 @@
   },
   "elf_mage": {
     "name": "エルフメイジ",
-    "ai_role": "attacker",
+    "ai_role": "healer",
     "rank": "B",
     "element": "風",
     "image_filename": "elf_mage.png",
@@ -684,7 +684,7 @@
   },
   "poison_orc": {
     "name": "ポイズンオーク",
-    "ai_role": "attacker",
+    "ai_role": "debuffer",
     "rank": "B",
     "element": "毒",
     "image_filename": "poison_orc.png",
@@ -1129,7 +1129,7 @@
   },
   "pontiff_shade": {
     "name": "ポンティフシェイド",
-    "ai_role": "attacker",
+    "ai_role": "debuffer",
     "rank": "A",
     "element": "氷",
     "image_filename": "pontiff_shade.png",
@@ -1453,7 +1453,7 @@
   },
   "mist_wraith": {
     "name": "ミストレイス",
-    "ai_role": "attacker",
+    "ai_role": "debuffer",
     "rank": "B",
     "element": "氷",
     "image_filename": "mist_wraith.png",
@@ -1494,7 +1494,7 @@
   },
   "coral_hydra": {
     "name": "コーラルハイドラ",
-    "ai_role": "attacker",
+    "ai_role": "healer",
     "rank": "A",
     "element": "水",
     "image_filename": "coral_hydra.png",
@@ -1616,7 +1616,7 @@
   },
   "moonlit_dryad": {
     "name": "ムーンリットドリアード",
-    "ai_role": "attacker",
+    "ai_role": "healer",
     "rank": "B",
     "element": "光",
     "image_filename": "moonlit_dryad.png",
@@ -2294,13 +2294,14 @@
   },
   "meadow_sprite": {
     "name": "草原の精",
-    "ai_role": "attacker",
+    "ai_role": "healer",
     "rank": "E",
     "element": "風",
     "image_filename": "meadow_sprite.png",
     "growth_type": "魔法型",
     "stats": {"hp": 20, "mp": 14, "attack": 5, "defense": 4, "speed": 8},
     "skills": ["scratch"],
+    "skill_sets": ["cleric_set"],
     "drop_items": [["small_potion", 0.4], ["speed_seed", 0.1]],
     "learnset": {"3": ["wind_slash"], "6": ["cure"]},
     "book": {"description": "草原にまぎれて舞う小さな精霊。風と微かな治癒の力を持つ。", "location_hint": "村近くの花咲く草原。", "synthesis_hint": "獣と和合すると風の眷属が生まれる。"},

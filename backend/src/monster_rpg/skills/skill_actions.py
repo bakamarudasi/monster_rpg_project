@@ -399,6 +399,8 @@ def _handle_multi_hit(
         max_hits = min_hits
     hits = random.randint(min_hits, max_hits)
     bonus = _bonus_multiplier(caster, target, effect)
+    # 連撃は1発ごとにほぼ通常攻撃ぶんの威力が出るため、scale で1発あたりを抑える
+    scale = float(effect.get("scale", 1.0))
     log.append({'type': 'info', 'message': f"{caster.name} の連撃！ {hits} 回ヒット！"})
     total = 0
     for _ in range(hits):
@@ -408,7 +410,7 @@ def _handle_multi_hit(
             dmg = calculate_skill_damage(caster, target, skill)
         else:
             dmg = max(1, caster.total_attack() + int(effect.get("amount", 0)) - target.total_defense())
-        dmg = max(1, int(dmg * bonus))
+        dmg = max(1, int(dmg * bonus * scale))
         total += _inflict(caster, target, dmg, log, context)
     context["last_damage_dealt"] = total
 

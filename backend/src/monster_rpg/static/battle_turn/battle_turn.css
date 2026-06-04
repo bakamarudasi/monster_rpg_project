@@ -121,6 +121,33 @@ body {
     font-weight: bold;
     color: #9cd3ff;
 }
+/* バリア(シールド)残量バッジ */
+.shield-text {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #8fe3ff;
+    text-shadow: 0 0 6px rgba(120, 200, 255, 0.8);
+}
+.shield-text.hidden { display: none; }
+/* フィールド(天候)バナー */
+.field-banner {
+    text-align: center;
+    margin: 0.3rem auto 0.5rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.92rem;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(90deg, rgba(255, 120, 40, 0.28), rgba(255, 205, 70, 0.28));
+    border: 1px solid rgba(255, 180, 80, 0.6);
+    text-shadow: 1px 1px 2px #000;
+    animation: field-pulse 2s ease-in-out infinite;
+}
+.field-banner.hidden { display: none; }
+@keyframes field-pulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(255, 160, 60, 0.30); }
+    50% { box-shadow: 0 0 18px rgba(255, 160, 60, 0.65); }
+}
 /* クリック可能な敵ユニットにカーソルを表示 */
 .enemy.battle-unit {
     cursor: pointer;
