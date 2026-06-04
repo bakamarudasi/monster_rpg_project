@@ -36,6 +36,9 @@
           {% if entry.location_hint %}
             <div class="entry-hint"><span class="hint-label">手掛かり：</span>{{ entry.location_hint }}</div>
           {% endif %}
+          {% if entry.synthesis_hint %}
+            <div class="entry-hint"><span class="hint-label">合成秘訣：</span>{{ entry.synthesis_hint }}</div>
+          {% endif %}
         {% else %}
           <div class="entry-head">
             <span class="badge badge-unknown">未発見</span>

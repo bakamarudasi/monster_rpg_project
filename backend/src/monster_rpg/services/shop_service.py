@@ -11,11 +11,12 @@ from ..monsters.monster_data import ALL_MONSTERS
 
 
 def buy_item(player, loc, item_id: str):
-    """ショップでアイテムを購入する。戻り値 (success, message)。"""
+    """ショップでアイテム/装備を購入する。戻り値 (success, message)。"""
     price = loc.shop_items.get(item_id)
     if price is not None and player.buy_item(item_id, price):
-        item = ALL_ITEMS.get(item_id)
-        return True, f"{item.name if item else item_id} を購入した。"
+        from ..items.equipment import ALL_EQUIPMENT
+        obj = ALL_ITEMS.get(item_id) or ALL_EQUIPMENT.get(item_id)
+        return True, f"{obj.name if obj else item_id} を購入した。"
     return False, '購入できなかった。'
 
 
