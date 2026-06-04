@@ -175,6 +175,13 @@ def save_game(player: "Player", db_name: str, user_id: Optional[int] = None) -> 
                 ),
             )
 
+        # ゲーム進行データ（実績/クエスト/図鑑報酬/アリーナ）を JSON 1行で保存
+        from . import progress as _progress
+        cursor.execute(
+            "INSERT OR REPLACE INTO player_progress (player_id, data) VALUES (?, ?)",
+            (player.db_id, _progress.to_json(player)),
+        )
+
         print(f"{player.name} のデータがセーブされました。")
 
 
@@ -200,6 +207,12 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
             loaded_player.exp = exp
             loaded_player.current_location_id = location_id
             loaded_player.db_id = db_id
+
+            # ゲーム進行データ（実績/クエスト/図鑑報酬/アリーナ）を復元
+            from . import progress as _progress
+            cursor.execute("SELECT data FROM player_progress WHERE player_id=?", (db_id,))
+            prow = cursor.fetchone()
+            _progress.apply_json(loaded_player, prow[0] if prow else None)
 
             def _build_saved_monster(row):
                 (monster_id, m_level, m_exp, hp, max_hp, mp, max_mp,

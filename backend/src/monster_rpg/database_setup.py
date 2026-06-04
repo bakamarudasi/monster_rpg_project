@@ -177,6 +177,16 @@ def initialize_database():
         """
     )
 
+    # ゲーム進行データ（実績・クエスト・図鑑報酬・アリーナ等）を JSON 1行で保持
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS player_progress (
+            player_id INTEGER PRIMARY KEY,
+            data TEXT
+        )
+        """
+    )
+
     _ensure_default_user(cursor)
 
     conn.commit()

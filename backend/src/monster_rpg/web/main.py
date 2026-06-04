@@ -69,6 +69,29 @@ def monster_book(user_id, player):
     )
 
 
+@main_bp.route('/achievements/<int:user_id>', endpoint='achievements')
+@with_player
+def achievements(user_id, player):
+    from ..achievements import ACHIEVEMENTS, BESTIARY_MILESTONES, check_achievements
+    # 現在の状態で新規達成があれば解禁して保存（節目を見逃さない）
+    if check_achievements(player):
+        save_player(player, user_id)
+    entries = [{
+        'name': a['name'],
+        'desc': a['desc'],
+        'unlocked': a['id'] in player.achievements,
+        'reward': a.get('reward', {}),
+    } for a in ACHIEVEMENTS]
+    captured = len(player.monster_book.captured)
+    milestones = [{'n': n, 'reached': captured >= n} for n in BESTIARY_MILESTONES]
+    unlocked = sum(1 for e in entries if e['unlocked'])
+    return render_template(
+        'achievements.html', entries=entries, milestones=milestones,
+        captured=captured, total=len(MONSTER_BOOK_DATA),
+        unlocked=unlocked, achievement_total=len(ACHIEVEMENTS), user_id=user_id,
+    )
+
+
 @main_bp.route('/map/<int:user_id>', endpoint='world_map')
 @with_player
 def world_map(user_id, player):

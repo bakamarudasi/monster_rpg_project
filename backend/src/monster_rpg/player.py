@@ -28,6 +28,9 @@ class Player:
         self.exploration_progress: dict[str, int] = {}
         self.monster_book = MonsterBook()
         self.last_battle_log: list[str] = []
+        # ゲーム進行データ（実績・クエスト・図鑑報酬・アリーナ）
+        from . import progress as _progress
+        _progress.init_progress(self)
 
     # --- Persistence -----------------------------------------------------
     def save_game(self, db_name: str, user_id: int | None = None) -> None:
