@@ -126,6 +126,16 @@ def arena(user_id, player):
                            user_id=user_id, gold=player.gold)
 
 
+@main_bp.route('/story/<int:user_id>', endpoint='story')
+@with_player
+def story(user_id, player):
+    from .. import story as story_mod
+    entries = story_mod.codex_entries(player)
+    unlocked, total = story_mod.unlocked_count(player)
+    return render_template('story.html', entries=entries, unlocked=unlocked,
+                           total=total, user_id=user_id)
+
+
 @main_bp.route('/map/<int:user_id>', endpoint='world_map')
 @with_player
 def world_map(user_id, player):
