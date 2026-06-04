@@ -29,10 +29,12 @@ def explore(user_id):
         if getattr(loc, 'boss_enemy_id', None):
             boss_id = loc.boss_enemy_id
             boss_mon = get_monster_instance_copy(boss_id)
+            if boss_mon:
+                boss_mon.is_boss = True  # このエリアの主＝ボス演出の対象
             boss = [boss_mon] if boss_mon else []
             if boss:
                 battle_obj = start_atb_battle(player.party_monsters, boss, player)
-                battle_obj.log.append({'type': 'info', 'message': 'ボスが姿を現した！'})
+                battle_obj.log.append({'type': 'boss', 'message': f'⚠ {boss_mon.name} が立ちはだかった！'})
                 active_battles[user_id] = battle_obj.get_current_state()
                 while not battle_obj.finished and battle_obj.current_actor not in battle_obj.player_party:
                     battle_obj.advance_turn()

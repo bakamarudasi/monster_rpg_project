@@ -60,6 +60,10 @@ def start_new_battle(player):
     battle_obj = start_atb_battle(player.party_monsters, enemies, player)
     enemy_names = ', '.join(e.name for e in enemies)
     battle_obj.log.append({'type': 'info', 'message': f'{enemy_names} が現れた！'})
+    # ボス個体がいれば登場演出を出す
+    for e in enemies:
+        if getattr(e, 'is_boss', False):
+            battle_obj.log.append({'type': 'boss', 'message': f'⚠ {e.name} が立ちはだかった！'})
     return battle_obj, None
 
 

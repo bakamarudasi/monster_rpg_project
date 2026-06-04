@@ -119,6 +119,9 @@ def _load_from_json(filepath: str | None = None) -> Tuple[Dict[str, Monster], Di
         # 耐性（状態異常/属性の被ダメ係数）。属性・family の既定＋JSON 明示で決定
         m.status_resist, m.element_resist = _resolve_resistances(m.element, m.family, attrs)
 
+        # ボス判定: 明示 is_boss、または専用行動台本(skill_sequence)を持つ個体
+        m.is_boss = bool(attrs.get("is_boss", bool(attrs.get("skill_sequence"))))
+
         drops = []
         for item_id, rate in attrs.get("drop_items", []):
             item = ALL_ITEMS.get(item_id) or ALL_EQUIPMENT.get(item_id)

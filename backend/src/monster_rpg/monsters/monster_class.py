@@ -191,6 +191,8 @@ class Monster:
         # 耐性: 受けやすさ係数（1.0=通常, 0.5=半減, 0.0=無効）。種族固有＋装備で合算。
         self.status_resist: dict[str, float] = {}
         self.element_resist: dict[str, float] = {}
+        # ボス個体フラグ。登場演出やUIの強調に使う。
+        self.is_boss = False
 
     def update_atb_gauge(self, amount: int | None = None) -> None:
         """ATBゲージを更新する。amountが指定されなければ素早さに応じて増加。"""
@@ -758,4 +760,5 @@ class Monster:
         new_monster.equipment_slots = self.equipment_slots[:]
         new_monster.status_resist = dict(self.status_resist)
         new_monster.element_resist = dict(self.element_resist)
+        new_monster.is_boss = self.is_boss
         return new_monster

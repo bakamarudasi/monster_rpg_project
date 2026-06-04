@@ -46,6 +46,7 @@
         const unit = document.createElement('div');
         unit.className = `battle-unit ${side}`;
         if (!info.alive) unit.classList.add('down');
+        if (info.is_boss) unit.classList.add('boss');
         unit.dataset.unitId = `${side}-${idx}`;
         unit.dataset.name = info.name;
         unit.dataset.level = info.level;
@@ -71,7 +72,13 @@
         infoBox.className = 'member-info';
         const nm = document.createElement('div');
         nm.className = 'member-name';
-        nm.textContent = info.name;
+        if (info.is_boss) {
+            const badge = document.createElement('span');
+            badge.className = 'boss-badge';
+            badge.textContent = 'BOSS';
+            nm.appendChild(badge);
+        }
+        nm.appendChild(document.createTextNode(info.name));
         infoBox.appendChild(nm);
 
         const hpBar = document.createElement('div');

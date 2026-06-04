@@ -50,6 +50,7 @@ def serialize_monster(m, unit_id):
         'element': m.element,
         'atb_gauge': m.atb_gauge,
         'shield': getattr(m, 'shield', 0),
+        'is_boss': getattr(m, 'is_boss', False),
         'alive': m.is_alive,
         'image': url_for('static', filename='images/' + m.image_filename) if m.image_filename else None,
         'statuses': [
@@ -104,6 +105,8 @@ def deserialize_monster(data):
     if template is not None:
         monster.status_resist = dict(template.status_resist)
         monster.element_resist = dict(template.element_resist)
+        monster.is_boss = template.is_boss
+    monster.is_boss = bool(data.get('is_boss', monster.is_boss))
     return monster
 
 def turn_order_ids(monsters):

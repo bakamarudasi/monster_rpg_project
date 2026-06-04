@@ -148,6 +148,30 @@ body {
     0%, 100% { box-shadow: 0 0 8px rgba(255, 160, 60, 0.30); }
     50% { box-shadow: 0 0 18px rgba(255, 160, 60, 0.65); }
 }
+/* ボス演出 */
+.battle-unit.boss { filter: drop-shadow(0 0 10px rgba(255, 60, 60, 0.7)); }
+.battle-unit.boss .member-name {
+    color: #ff6b6b;
+    font-weight: bold;
+    text-shadow: 0 0 6px rgba(255, 40, 40, 0.6);
+}
+.boss-badge {
+    display: inline-block;
+    background: linear-gradient(90deg, #c0392b, #8e1d12);
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-right: 5px;
+    vertical-align: middle;
+    box-shadow: 0 0 6px rgba(255, 60, 60, 0.6);
+}
+.battle-unit.boss .hp-fill {
+    background: linear-gradient(90deg, #ff3b3b, #b71c1c) !important;
+}
+.log-message-boss { color: #ff6b6b; font-weight: bold; }
 /* クリック可能な敵ユニットにカーソルを表示 */
 .enemy.battle-unit {
     cursor: pointer;
