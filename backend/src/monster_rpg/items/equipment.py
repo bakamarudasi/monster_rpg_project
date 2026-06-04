@@ -29,6 +29,8 @@ class Equipment:
     magic: int = 0  # Added magic stat
     speed: int = 0  # Added speed stat
     granted_skill_ids: List[str] = field(default_factory=list)  # 装備中に使えるスキル
+    status_resist: Dict[str, float] = field(default_factory=dict)  # 状態異常耐性 (1.0=通常,0.0=無効)
+    element_resist: Dict[str, float] = field(default_factory=dict)  # 属性ダメージ耐性
 
     @property
     def granted_skills(self) -> List:
@@ -355,6 +357,28 @@ ARCANE_LOOP = Equipment(
     rarity="rare", magic=8, speed=-2,
 )
 
+# --- 耐性アクセサリ ---
+WARD_OF_PURITY = Equipment(
+    "ward_of_purity", "浄化の護符", slot="accessory", category="accessory",
+    rarity="rare", defense=2,
+    status_resist={"poison": 0.0, "spore_poison": 0.0, "curse": 0.5},
+)
+STALWART_BADGE = Equipment(
+    "stalwart_badge", "不動の徽章", slot="accessory", category="accessory",
+    rarity="rare", defense=3,
+    status_resist={"stun": 0.0, "paralyze": 0.5, "sleep": 0.5, "fear": 0.5},
+)
+FLAME_WARD = Equipment(
+    "flame_ward", "炎除けの護符", slot="accessory", category="accessory",
+    rarity="uncommon", defense=2,
+    status_resist={"burn": 0.0}, element_resist={"火": 0.5},
+)
+FROST_WARD = Equipment(
+    "frost_ward", "氷除けの護符", slot="accessory", category="accessory",
+    rarity="uncommon", defense=2,
+    status_resist={"freeze": 0.0}, element_resist={"氷": 0.5},
+)
+
 
 @dataclass
 class EquipmentInstance:
@@ -555,6 +579,10 @@ CRAFTING_RECIPES["sage_orb"] = {"magic_stone": 2, "abyss_shard": 1}
 CRAFTING_RECIPES["berserker_band"] = {"power_fragment": 2, "steel_ingot": 1}
 CRAFTING_RECIPES["guardian_charm"] = {"armor_fragment_common": 2, "magic_stone": 1}
 CRAFTING_RECIPES["arcane_loop"] = {"magic_stone": 1, "abyss_shard": 1}
+CRAFTING_RECIPES["ward_of_purity"] = {"antidote": 2, "magic_stone": 1}
+CRAFTING_RECIPES["stalwart_badge"] = {"armor_fragment_rare": 1, "magic_stone": 2}
+CRAFTING_RECIPES["flame_ward"] = {"fire_crystal": 1, "magic_stone": 1}
+CRAFTING_RECIPES["frost_ward"] = {"frost_crystal": 1, "magic_stone": 1}
 
 ALL_EQUIPMENT = {
     BRONZE_SWORD.equip_id: BRONZE_SWORD,
@@ -600,4 +628,8 @@ ALL_EQUIPMENT = {
     BERSERKER_BAND.equip_id: BERSERKER_BAND,
     GUARDIAN_CHARM.equip_id: GUARDIAN_CHARM,
     ARCANE_LOOP.equip_id: ARCANE_LOOP,
+    WARD_OF_PURITY.equip_id: WARD_OF_PURITY,
+    STALWART_BADGE.equip_id: STALWART_BADGE,
+    FLAME_WARD.equip_id: FLAME_WARD,
+    FROST_WARD.equip_id: FROST_WARD,
 }

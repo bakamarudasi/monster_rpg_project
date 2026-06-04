@@ -48,6 +48,11 @@ def calculate_skill_damage(caster: Monster, target: Monster, skill: Skill) -> in
     damage = int(damage * elemental_multiplier(caster.element, target.element))
     # フィールド（天候）補正：術者の属性が場と一致していれば増幅
     damage = int(damage * field_multiplier(caster.element))
+    # 属性耐性（種族固有＋装備）。0.0 で無効
+    resist = target.element_damage_factor(caster.element)
+    if resist <= 0.0:
+        return 0
+    damage = int(damage * resist)
     if is_defending(target):
         damage = int(damage * 0.5)
     return max(1, damage)
@@ -229,7 +234,11 @@ def _handle_status(
     duration = effect.get("duration")
     chance = float(effect.get("chance", 1.0))
     if status:
-        if random.random() < chance:
+        resist = target.status_resistance(status)
+        if resist <= 0.0:
+            log.append({'type': 'info', 'message': f"{target.name} には効かないようだ！"})
+            return
+        if random.random() < chance * resist:
             target.apply_status(status, log, duration)
         else:
             log.append({'type': 'info', 'message': f"{target.name} resisted the status effect."})

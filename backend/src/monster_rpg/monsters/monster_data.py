@@ -23,6 +23,44 @@ class MonsterBookEntry:
     reward: int = 0
 
 
+# 属性ごとの既定耐性（自属性は半減、特定状態に強い）。値は被ダメ/被状態の係数。
+ELEMENT_RESIST_DEFAULTS = {
+    "火": {"status": {"burn": 0.0}, "element": {"火": 0.5}},
+    "氷": {"status": {"freeze": 0.0}, "element": {"氷": 0.5}},
+    "雷": {"status": {"paralyze": 0.5}, "element": {"雷": 0.5}},
+    "水": {"status": {"burn": 0.5}, "element": {"水": 0.5}},
+    "毒": {"status": {"poison": 0.0, "spore_poison": 0.0}, "element": {"毒": 0.5}},
+    "光": {"status": {"blind": 0.5}, "element": {"光": 0.5}},
+    "闇": {"status": {"fear": 0.5, "curse": 0.5}, "element": {"闇": 0.5}},
+    "風": {"element": {"風": 0.5}},
+    "土": {"status": {"paralyze": 0.5}, "element": {"土": 0.5}},
+}
+
+# family ごとの既定耐性。生物でないものは毒/呪いに強く、弱点も持つ。
+FAMILY_RESIST_DEFAULTS = {
+    "undead":    {"status": {"poison": 0.0, "spore_poison": 0.0, "sleep": 0.5}, "element": {"光": 1.25}},
+    "construct": {"status": {"poison": 0.0, "spore_poison": 0.0, "curse": 0.5, "fear": 0.0}, "element": {"雷": 1.25}},
+    "elemental": {"status": {"poison": 0.0, "stun": 0.5}},
+    "demon":     {"status": {"fear": 0.0}, "element": {"光": 1.25}},
+    "plant":     {"element": {"火": 1.25, "水": 0.5}},
+    "slime":     {"element": {"水": 0.5}},
+    "dragon":    {"status": {"fear": 0.5}},
+}
+
+
+def _resolve_resistances(element, family, attrs):
+    """属性・family の既定耐性を合成し、JSON の明示指定で上書きして返す。"""
+    status: Dict[str, float] = {}
+    elem: Dict[str, float] = {}
+    for table in (ELEMENT_RESIST_DEFAULTS.get(element, {}),
+                  FAMILY_RESIST_DEFAULTS.get((family or "").lower(), {})):
+        status.update(table.get("status", {}))
+        elem.update(table.get("element", {}))
+    status.update({k: float(v) for k, v in attrs.get("status_resist", {}).items()})
+    elem.update({k: float(v) for k, v in attrs.get("element_resist", {}).items()})
+    return status, elem
+
+
 def _load_from_json(filepath: str | None = None) -> Tuple[Dict[str, Monster], Dict[str, MonsterBookEntry]]:
     if filepath is None:
         filepath = os.path.join(os.path.dirname(__file__), "monsters.json")
@@ -77,6 +115,9 @@ def _load_from_json(filepath: str | None = None) -> Tuple[Dict[str, Monster], Di
             if sid not in skill_ids:
                 skill_ids.append(sid)
         m.skills = [ALL_SKILLS[s] for s in skill_ids if s in ALL_SKILLS]
+
+        # 耐性（状態異常/属性の被ダメ係数）。属性・family の既定＋JSON 明示で決定
+        m.status_resist, m.element_resist = _resolve_resistances(m.element, m.family, attrs)
 
         drops = []
         for item_id, rate in attrs.get("drop_items", []):

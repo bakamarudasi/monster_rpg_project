@@ -98,6 +98,12 @@ def deserialize_monster(data):
     monster.shield = data.get('shield', 0)
     monster.is_alive = data['alive']
     monster.status_effects = data['statuses']
+    # 耐性は種族固有なのでテンプレートから復元（シリアライズ往復で失わない）
+    from ..monsters.monster_data import ALL_MONSTERS
+    template = ALL_MONSTERS.get(data['monster_id'])
+    if template is not None:
+        monster.status_resist = dict(template.status_resist)
+        monster.element_resist = dict(template.element_resist)
     return monster
 
 def turn_order_ids(monsters):

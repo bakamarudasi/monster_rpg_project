@@ -210,6 +210,15 @@ def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, s
         damage = int(damage * fmult)
         log.append({'type': 'effective', 'message': "フィールドが攻撃を後押しした！"})
 
+    # 属性耐性（種族固有＋装備）。0.0 で無効
+    eresist = defender.element_damage_factor(attacker.element)
+    if eresist <= 0.0:
+        log.append({'type': 'resist', 'message': f"{defender.name} はダメージを受けつけない！"})
+        return 0
+    if eresist < 1.0:
+        log.append({'type': 'resist', 'message': "こうかは いまひとつの ようだ…"})
+    damage = int(damage * eresist)
+
     if random.random() < CRITICAL_HIT_CHANCE:
         damage = int(damage * CRITICAL_HIT_MULTIPLIER)
         log.append({'type': 'critical', 'message': "クリティカルヒット！"})
