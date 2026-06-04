@@ -893,5 +893,79 @@
     ],
     "description": "囮となって敵の攻撃を引きつけつつ、自身に最大HPの20%ぶんのバリアを張る",
     "category": "補助"
+  },
+  "power_charge": {
+    "name": "ちからため",
+    "power": 0,
+    "cost": 4,
+    "skill_type": "buff",
+    "target": "self",
+    "effects": [
+      {"type": "charge", "release_skill_id": "charged_strike", "charge_turns": 1, "charge_message": "{name} は渾身の一撃に力を溜めた！"}
+    ],
+    "description": "1ターン力を溜め、次の自分の番に強烈な一撃を放つ（溜め中は防御が下がる）",
+    "category": "物理"
+  },
+  "spell_charge": {
+    "name": "じゅもんため",
+    "power": 0,
+    "cost": 6,
+    "skill_type": "buff",
+    "target": "self",
+    "effects": [
+      {"type": "charge", "release_skill_id": "arcane_nova", "charge_turns": 1, "charge_message": "{name} は魔力を練り上げている！"}
+    ],
+    "description": "1ターン魔力を練り、次の自分の番に敵全体へ魔力の爆発を放つ",
+    "category": "魔法"
+  },
+  "overdrive_charge": {
+    "name": "オーバードライブ",
+    "power": 0,
+    "cost": 20,
+    "skill_type": "buff",
+    "target": "self",
+    "effects": [
+      {"type": "charge", "release_skill_id": "cataclysm", "charge_turns": 2, "charge_message": "{name} の全身に膨大なエネルギーが渦巻き始めた…！"}
+    ],
+    "description": "2ターンかけて極限まで力を溜め、全てを薙ぎ払う大崩壊を解き放つ大技",
+    "category": "禁忌"
+  },
+  "charged_strike": {
+    "name": "ためた一撃",
+    "power": 75,
+    "cost": 0,
+    "skill_type": "attack",
+    "effects": [
+      {"type": "damage"},
+      {"type": "status", "status": "stun"}
+    ],
+    "description": "溜めた力を乗せた渾身の一撃。まれに気絶させる（ため技の解放専用）",
+    "category": "物理"
+  },
+  "arcane_nova": {
+    "name": "チャージノヴァ",
+    "power": 65,
+    "cost": 0,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage"},
+      {"type": "status", "status": "burn"}
+    ],
+    "description": "練り上げた魔力を一気に爆発させ、敵全体を焼き尽くす（ため技の解放専用）",
+    "category": "魔法"
+  },
+  "cataclysm": {
+    "name": "大崩壊",
+    "power": 130,
+    "cost": 0,
+    "skill_type": "attack",
+    "scope": "all",
+    "effects": [
+      {"type": "damage"},
+      {"type": "status", "status": "fear"}
+    ],
+    "description": "溜め抜いた力で大地を砕く。敵全体に絶大なダメージと恐怖を刻む（ため技の解放専用）",
+    "category": "固有技"
   }
 }

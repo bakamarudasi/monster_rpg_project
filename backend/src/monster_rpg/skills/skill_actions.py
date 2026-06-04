@@ -289,14 +289,22 @@ def _handle_charge(
     skill: Optional[Skill] = None,
     context: Optional[Dict[str, Any]] = None,
 ) -> None:
+    """指定スキルを溜めて、一定ターン後に解放する「ため」状態を付与する。"""
     if log is None:
         log = []
-    """Apply a charging state that will trigger another skill next turn."""
     release_id = effect.get("release_skill_id")
-    duration = int(effect.get("duration", 2))
+    # charge_turns: 解放までに必要な溜めターン数 (1=次の自ターンで解放)。
+    # 溜め中は process_status_effects で remaining が毎ターン減るため +1 して持たせる。
+    if "charge_turns" in effect:
+        duration = max(2, int(effect["charge_turns"]) + 1)
+    else:
+        duration = int(effect.get("duration", 2))
     target.apply_status("charging", log, duration)
     if target.status_effects and target.status_effects[-1]["name"] == "charging":
         target.status_effects[-1]["release_skill_id"] = release_id
+    msg = effect.get("charge_message")
+    log.append({'type': 'info', 'message': msg.replace("{name}", target.name) if msg
+                else f"{target.name} は力を溜め始めた！"})
 
 
 def _handle_hp_cost_percent(

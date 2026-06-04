@@ -305,6 +305,11 @@ def process_charge_state(actor: Monster, allies: list[Monster], enemies: list[Mo
     entry = next((e for e in actor.status_effects if e["name"] == "charging"), None)
     if not entry:
         return False
+    # まだ溜め切っていない（複数ターンのため技）→ このターンは溜めに専念する
+    if entry.get("remaining", 0) > 1:
+        log.append({'type': 'info', 'message': f"{actor.name} は力を溜めている…！"})
+        return True
+    # 溜め完了 → 解放
     if entry in actor.status_effects:
         actor.status_effects.remove(entry)
     remove_cb = entry.get("remove_func")
@@ -320,6 +325,7 @@ def process_charge_state(actor: Monster, allies: list[Monster], enemies: list[Mo
     if skill_obj is None:
         log.append({'type': 'error', 'message': f"不明な解放スキルID: {skill_id}"})
         return False
+    log.append({'type': 'info', 'message': f"{actor.name} は溜めた力を解き放った！"})
     targets: list[Monster] = []
     if skill_obj.target == "enemy":
         targets = [m for m in enemies if m.is_alive]

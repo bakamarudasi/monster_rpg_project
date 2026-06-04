@@ -2034,7 +2034,7 @@
     "growth_type": "パワー型",
     "stats": {"hp": 190, "mp": 80, "attack": 56, "defense": 44, "speed": 16},
     "skills": ["holy_light", "meteor_strike", "brave_song", "mass_heal"],
-    "skill_sequence": ["meteor_strike", "holy_light", "brave_song"],
+    "skill_sequence": ["overdrive_charge", "holy_light", "meteor_strike", "brave_song"],
     "drop_items": [["celestial_feather", 0.4], ["power_seed", 0.2]],
     "learnset": {"30": ["revive"]},
     "book": {

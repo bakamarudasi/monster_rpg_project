@@ -17,6 +17,7 @@ from monster_rpg.skills.skill_actions import apply_effects, deal_damage, calcula
 from monster_rpg.battle import (
     apply_skill_effect,
     process_status_effects,
+    process_charge_state,
     enemy_take_action,
     _enemy_skill_targets,
 )
@@ -333,6 +334,56 @@ class EnemyAIBehaviorTests(unittest.TestCase):
         with mock.patch("random.random", return_value=1.0):
             enemy_take_action(healer, [hero], [healer, ally], [])
         self.assertGreater(ally.hp, 25)
+
+
+# ---------------------------------------------------------------------------
+# ため技（チャージ）
+# ---------------------------------------------------------------------------
+class ChargeMoveTests(unittest.TestCase):
+    def test_single_turn_charge_releases_next_turn(self):
+        hero = Monster("Charger", hp=60, attack=40, defense=15, mp=99)
+        enemy = Monster("Enemy", hp=400, attack=5, defense=5)
+        apply_skill_effect(hero, [hero], ALL_SKILLS["power_charge"])
+        self.assertTrue(any(e["name"] == "charging" for e in hero.status_effects))
+        process_status_effects(hero)
+        released = process_charge_state(hero, [hero], [enemy])
+        self.assertTrue(released)
+        self.assertLess(enemy.hp, enemy.max_hp)  # ためた一撃が炸裂
+        self.assertFalse(any(e["name"] == "charging" for e in hero.status_effects))
+
+    def test_charge_lowers_then_restores_defense(self):
+        hero = Monster("Charger", hp=60, attack=40, defense=20, mp=99)
+        enemy = Monster("Enemy", hp=400, attack=5, defense=5)
+        base_def = hero.defense
+        apply_skill_effect(hero, [hero], ALL_SKILLS["power_charge"])
+        self.assertLess(hero.defense, base_def)  # 溜め中は無防備
+        process_status_effects(hero)
+        process_charge_state(hero, [hero], [enemy])
+        self.assertEqual(hero.defense, base_def)  # 解放後に元へ
+
+    def test_two_turn_charge_waits_then_unleashes(self):
+        hero = Monster("Boss", hp=120, attack=50, defense=20, mp=99)
+        enemy = Monster("Enemy", hp=900, attack=5, defense=5)
+        apply_skill_effect(hero, [hero], ALL_SKILLS["overdrive_charge"])
+        # 1ターン目: まだ溜め切っていない → 解放されない（行動は溜めに消費）
+        process_status_effects(hero)
+        self.assertTrue(process_charge_state(hero, [hero], [enemy]))
+        self.assertEqual(enemy.hp, enemy.max_hp)
+        self.assertTrue(any(e["name"] == "charging" for e in hero.status_effects))
+        # 2ターン目: 大崩壊が炸裂
+        process_status_effects(hero)
+        self.assertTrue(process_charge_state(hero, [hero], [enemy]))
+        self.assertLess(enemy.hp, enemy.max_hp)
+        self.assertFalse(any(e["name"] == "charging" for e in hero.status_effects))
+
+    def test_overdrive_payoff_is_large(self):
+        hero = Monster("Boss", hp=120, attack=50, defense=20, mp=99)
+        enemy = Monster("Enemy", hp=900, attack=5, defense=5)
+        apply_skill_effect(hero, [hero], ALL_SKILLS["overdrive_charge"])
+        for _ in range(2):
+            process_status_effects(hero)
+            process_charge_state(hero, [hero], [enemy])
+        self.assertGreater(enemy.max_hp - enemy.hp, 100)  # 溜め抜いた一撃は強烈
 
 
 if __name__ == "__main__":

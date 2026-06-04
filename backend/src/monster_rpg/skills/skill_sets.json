@@ -26,6 +26,7 @@
       "5": ["ice_bolt"],
       "10": ["lightning"],
       "15": ["life_drain"],
+      "16": ["spell_charge"],
       "18": ["gravity"],
       "20": ["meteor_strike"]
     }
@@ -40,6 +41,7 @@
       "12": ["desperate_strike"],
       "15": ["blood_saber"],
       "16": ["exploit_weakness"],
+      "18": ["power_charge"],
       "20": ["last_wish"]
     }
   },
@@ -50,6 +52,7 @@
       "10": ["embrace_of_the_void"],
       "15": ["gravity"],
       "20": ["inferno_of_purgatory"],
+      "25": ["overdrive_charge"],
       "30": ["abyss_of_despair"]
     }
   },
