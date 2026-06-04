@@ -2,6 +2,7 @@ import random
 from typing import cast, List, Dict, Any, Optional
 from .player import Player
 from .monsters import Monster
+from .monsters.personality_ai import auto_style
 from .items.equipment import Equipment, EquipmentInstance, create_titled_equipment
 from .skills.skills import Skill, ALL_SKILLS
 from .skills.skill_actions import apply_effects, NEGATIVE_STATUSES
@@ -699,11 +700,21 @@ def _enemy_skill_targets(actor: Monster, skill: Skill, players: list[Monster], a
     return [min(players, key=lambda m: m.hp)]                     # 通常攻撃技はトドメ狙い
 
 
+# 性格スタイル別の「攻撃技を選ぶ確率」。balanced は 0.7 で従来どおり。
+_ENEMY_OFFENSIVE_PREF = {
+    "aggressive": 0.9, "caster": 0.85, "striker": 0.8, "guardian": 0.45, "balanced": 0.7,
+}
+
+
 def _choose_enemy_skill(actor: Monster, usable_skills: list[Skill], players: list[Monster], allies: list[Monster]):
-    """攻撃技を優先しつつ支援/妨害技も時々選ぶ。(skill, targets) を返す。"""
+    """攻撃技を優先しつつ支援/妨害技も時々選ぶ。(skill, targets) を返す。
+
+    攻撃技を選ぶ確率は性格で前後する（攻撃寄りは技を撃ちやすく、防御寄りは支援に回る）。
+    """
     offensive = [s for s in usable_skills if s.target == "enemy"]
     support = [s for s in usable_skills if s.target in ("ally", "self")]
-    if offensive and (not support or random.random() < 0.7):
+    offensive_pref = _ENEMY_OFFENSIVE_PREF.get(auto_style(actor), 0.7)
+    if offensive and (not support or random.random() < offensive_pref):
         pool = offensive
     else:
         pool = support or offensive

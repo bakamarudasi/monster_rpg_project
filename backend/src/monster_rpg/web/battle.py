@@ -5,7 +5,21 @@ from .utils import load_player, save_player
 from ..monsters.monster_class import Monster
 from ..services import battle_service
 from ..skills.skills import ALL_SKILLS
+from ..monsters.personality_ai import choose_auto_action
 from .. import elements
+
+
+def _resolve_player_action(battle_obj, data_src) -> dict:
+    """プレイヤーのアクションを組み立てる。
+
+    ``action == 'auto'`` のときは現在の行動者の性格に応じたオート行動を選ぶ。
+    それ以外は通常どおりフォーム/JSON から組み立てる。
+    """
+    if data_src.get('action') == 'auto':
+        actor = battle_obj.current_actor
+        if actor is not None and actor in battle_obj.player_party:
+            return choose_auto_action(actor, battle_obj.player_party, battle_obj.enemy_party)
+    return battle_service.build_player_action(data_src)
 
 
 def _restore_field(state):
@@ -205,7 +219,7 @@ def battle(user_id):
             battle_obj = start_atb_battle(player_party, enemy_party, player, log, turn_order_monsters)
             _restore_field(battle_state)
 
-        battle_obj.process_player_action(battle_service.build_player_action(data_src))
+        battle_obj.process_player_action(_resolve_player_action(battle_obj, data_src))
 
         # Process AI turns until player's turn or battle ends
         while not battle_obj.finished and battle_obj.current_actor and battle_obj.current_actor not in battle_obj.player_party:

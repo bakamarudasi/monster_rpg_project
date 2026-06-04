@@ -27,12 +27,12 @@
             .finally(() => { if (submitBtn) submitBtn.disabled = false; });
     }
 
-    /* プレイヤーのターンでオートONなら、自動で「ランダムな敵を攻撃」する */
+    /* プレイヤーのターンでオートONなら、行動者の性格に応じた行動をサーバ側で選ぶ */
     function maybeAutoAct(data) {
         if (!autoMode || !data || data.finished || !data.current_actor) return;
         const delay = fastMode ? 120 : 450;
         setTimeout(() => {
-            if (autoMode) sendBattleAction({ action: 'attack', target_enemy: -1 });
+            if (autoMode) sendBattleAction({ action: 'auto' });
         }, delay);
     }
 
