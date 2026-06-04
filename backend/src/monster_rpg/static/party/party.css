@@ -347,3 +347,38 @@
     box-shadow: 0 0 6px rgba(255,200,74,0.7);
     animation: rare-twinkle 1.8s ease-in-out infinite;
 }
+
+/* 個体値（鑑定で開示） */
+.card-monster-ivs {
+    margin-top: 8px;
+    text-align: center;
+}
+.iv-title {
+    font-size: 0.8rem;
+    color: #7c653b;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.iv-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 6px;
+    justify-content: center;
+}
+.iv-cell {
+    font-size: 0.75rem;
+    background: #ede6d8;
+    color: #5d4b29;
+    border-radius: 6px;
+    padding: 2px 7px;
+}
+.iv-cell.iv-best {
+    background: linear-gradient(180deg, #ffe18a, #e0a93a);
+    color: #4a2f00;
+    font-weight: 800;
+}
+.iv-unappraised {
+    font-size: 0.78rem;
+    color: #9b8a66;
+    font-style: italic;
+}

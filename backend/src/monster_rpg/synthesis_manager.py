@@ -8,7 +8,7 @@ from typing import Tuple, Optional
 
 from .monsters.monster_class import Monster
 from .monsters.monster_data import ALL_MONSTERS
-from .monsters.personality import inherit_personality_id, inherit_talent_id
+from .monsters.personality import inherit_personality_id, inherit_ivs
 from .monsters.synthesis_rules import (
     SYNTHESIS_RECIPES,
     SYNTHESIS_ITEMS_REQUIRED,
@@ -151,14 +151,15 @@ def _build_child(parent1: Monster, parent2: Monster, result_id: str, inherit_ski
     # 累代＋値（強い親ほど強い子になるループ）
     new_monster.add_plus_value(_compute_child_plus(parent1, parent2))
 
-    # 個性の継承：性格はどちらかの親（稀に変異）、才能は良個体ほど高才能が出やすい。
-    # 良個体を狙って配合する動機＝収集の沼の核。
+    # 個性の継承：性格はどちらかの親（稀に変異）、個体値はステごとに親から引き継ぐ
+    # （ポケモンの遺伝に準拠）。良個体値を集めて厳選＝才能（鬼才）を狙う配合ループの核。
     new_monster.personality_id = inherit_personality_id(
         getattr(parent1, "personality_id", None), getattr(parent2, "personality_id", None)
     )
-    new_monster.talent_id = inherit_talent_id(
-        getattr(parent1, "talent_id", None), getattr(parent2, "talent_id", None)
+    new_monster.ivs = inherit_ivs(
+        getattr(parent1, "ivs", None), getattr(parent2, "ivs", None)
     )
+    new_monster.iv_appraised = False
 
     new_monster.hp = new_monster.max_hp
     new_monster.mp = new_monster.max_mp

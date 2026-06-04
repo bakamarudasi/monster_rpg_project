@@ -1,16 +1,17 @@
-"""個体の個性（性格・才能）。
+"""個体の個性（性格・個体値・才能）。
 
-``is_rare`` / ``plus_value`` が「強さの底上げ」を担うのに対し、ここでは個体ごとの
-"クセ" を表現する。
+ポケモンの「せいかく／個体値／個体値ジャッジ」を下敷きにしたモデル。
 
-- 性格（Personality）… ステ傾向。あるステータスが上がり、別のステータスが下がる
-  （またはクセ無しのバランス型）。攻撃/防御/素早さ/魔力に倍率として乗る。
-- 才能（Talent）… 隠し才能を含む素質ランク。全ステに小さな倍率がかかる。最上位
-  「鬼才」は野生では出ず、天才同士の配合からごく稀にしか生まれない＝収集の沼。
+- 性格（Personality）… ナチュラル相当。1ステ+10%/1ステ-10%（バランス型あり）。
+  派生4ステ（攻撃/防御/素早さ/魔力）に倍率として乗る。
+- 個体値（IV）… ステごとの隠し数値 0〜31。誕生時に固定され、レベルが上がるほど
+  ステに効いてくる＝成長率。HPを含む5ステ（HP/攻撃/防御/魔力/素早さ）が対象。
+- 才能（Talent）… 個体値の総合評価ラベル（凡才〜鬼才）。データではなく IV から導出。
+  最上位「鬼才」は実質5Vで、配合での厳選でしか到達できない＝収集の沼。
+- 鑑定（appraise）… 個体値の数値は普段伏せ、鑑定で「さいこう／すばらしい…」と開示。
 
-どちらも倍率は HP/MP には乗せず、派生4ステータス（attack/defense/speed/magic）にのみ
-作用させることで、レベルアップやHP回復まわりのロジックには一切手を入れずに済むように
-してある。
+倍率（性格）は HP/MP に乗せず派生4ステのみ、成長（個体値）は HP も含めて level_up の
+取得量に作用させる、という役割分担にしてある。
 """
 
 from __future__ import annotations
@@ -18,7 +19,7 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass
 
-# 性格が触れるステータスの表示名（魔力なども含む派生4ステ）
+# 性格が触れる派生4ステの表示名
 STAT_LABELS: dict[str, str] = {
     "attack": "攻撃",
     "defense": "防御",
@@ -26,7 +27,25 @@ STAT_LABELS: dict[str, str] = {
     "magic": "魔力",
 }
 
+# 個体値を持つ5ステ（HPを含む）と表示名
+IV_STATS: tuple[str, ...] = ("hp", "attack", "defense", "magic", "speed")
+IV_LABELS: dict[str, str] = {
+    "hp": "HP",
+    "attack": "攻撃",
+    "defense": "防御",
+    "magic": "魔力",
+    "speed": "素早さ",
+}
+IV_MAX = 31
+# 個体値が成長率に与える強さ。最大個体値で、そのステの毎レベル取得量が
+# (1 + IV_GROWTH_STRENGTH) 倍になる（0個体値は等倍＝従来どおり）。
+# ポケモンの個体値の効き（最大でステ十数%）に近い体感になるよう控えめに設定。
+IV_GROWTH_STRENGTH = 0.2
 
+
+# ---------------------------------------------------------------------------
+# 性格（ナチュラル）
+# ---------------------------------------------------------------------------
 @dataclass(frozen=True)
 class Personality:
     """性格（ステ傾向）。``up`` を ``magnitude`` だけ上げ、``down`` を同率下げる。"""
@@ -39,7 +58,6 @@ class Personality:
 
     @property
     def modifiers(self) -> dict[str, float]:
-        """stat -> 倍率の増減（+0.10 で +10%、-0.10 で -10%）。"""
         mods: dict[str, float] = {}
         if self.up:
             mods[self.up] = mods.get(self.up, 0.0) + self.magnitude
@@ -49,7 +67,6 @@ class Personality:
 
     @property
     def effect_text(self) -> str:
-        """「攻撃↑ 魔力↓」のような短い説明テキスト。"""
         if not self.up and not self.down:
             return "バランス型（クセなし）"
         parts = []
@@ -60,7 +77,6 @@ class Personality:
         return " ".join(parts)
 
 
-# 各派生ステを上下に散らした、被りのない性格セット。バランス型を1つ含む。
 ALL_PERSONALITIES: dict[str, Personality] = {
     p.id: p
     for p in (
@@ -77,84 +93,31 @@ ALL_PERSONALITIES: dict[str, Personality] = {
 }
 
 DEFAULT_PERSONALITY_ID = "balanced"
-
-
-@dataclass(frozen=True)
-class Talent:
-    """才能（素質ランク）。全ステに ``multiplier`` を乗せる。"""
-
-    id: str
-    name: str
-    multiplier: float = 1.0
-    weight: int = 0          # 野生抽選の重み（0 は野生に出ない＝隠し才能）
-    hidden: bool = False     # 配合でしか到達できない最上位
-
-    @property
-    def bonus_percent(self) -> int:
-        """+10 のような表示用の％値（端数は四捨五入）。"""
-        return round((self.multiplier - 1.0) * 100)
-
-
-# 下位から上位への順序。配合の継承・昇格判定はこの並びの index を使う。
-TALENT_ORDER: tuple[str, ...] = (
-    "common",
-    "hardworking",
-    "prodigy",
-    "genius",
-    "mastermind",
-)
-
-ALL_TALENTS: dict[str, Talent] = {
-    "common": Talent("common", "凡才", multiplier=1.0, weight=100),
-    "hardworking": Talent("hardworking", "努力家", multiplier=1.03, weight=45),
-    "prodigy": Talent("prodigy", "秀才", multiplier=1.06, weight=15),
-    "genius": Talent("genius", "天才", multiplier=1.10, weight=4),
-    # 鬼才（隠し才能）… 野生では出現せず、天才同士の配合からのみごく稀に生まれる。
-    "mastermind": Talent("mastermind", "鬼才", multiplier=1.18, weight=0, hidden=True),
-}
-
-DEFAULT_TALENT_ID = "common"
-
-# 配合まわりの確率・しきい値
-_PERSONALITY_MUTATION_CHANCE = 0.10   # 親と無関係な性格に変異する確率
-_TALENT_UPGRADE_CHANCE = 0.15         # 高い方の親を1段超える確率
-_TALENT_REGRESS_CHANCE = 0.10         # 高い方の親より1段下がる確率
-_MASTERMIND_CHANCE = 0.08             # 天才×天才から鬼才が生まれる確率
-_GENIUS_RANK = TALENT_ORDER.index("genius")
-_MAX_NORMAL_RANK = _GENIUS_RANK       # 通常の昇格で到達できる上限（鬼才は別枠）
+_PERSONALITY_MUTATION_CHANCE = 0.10  # 配合での性格変異率
 
 
 def get_personality(personality_id: str | None) -> Personality:
-    """ID から性格を引く。未知の場合はバランス型にフォールバック。"""
     return ALL_PERSONALITIES.get(personality_id or "", ALL_PERSONALITIES[DEFAULT_PERSONALITY_ID])
 
 
-def get_talent(talent_id: str | None) -> Talent:
-    """ID から才能を引く。未知の場合は凡才にフォールバック。"""
-    return ALL_TALENTS.get(talent_id or "", ALL_TALENTS[DEFAULT_TALENT_ID])
-
-
 def random_personality_id() -> str:
-    """性格を一様ランダムに選ぶ。"""
     return random.choice(list(ALL_PERSONALITIES.keys()))
 
 
-def random_talent_id() -> str:
-    """才能を重み付きで選ぶ（隠し才能 weight=0 は野生では出ない）。"""
-    talents = [t for t in ALL_TALENTS.values() if t.weight > 0]
-    weights = [t.weight for t in talents]
-    return random.choices(talents, weights=weights, k=1)[0].id
+def inherit_personality_id(
+    parent1_id: str | None,
+    parent2_id: str | None,
+    everstone_parent: int | None = None,
+) -> str:
+    """配合での性格継承。
 
-
-def _talent_rank(talent_id: str | None) -> int:
-    try:
-        return TALENT_ORDER.index(talent_id or DEFAULT_TALENT_ID)
-    except ValueError:
-        return 0
-
-
-def inherit_personality_id(parent1_id: str | None, parent2_id: str | None) -> str:
-    """配合での性格継承。基本はどちらかの親から、稀に変異して別の性格になる。"""
+    ``everstone_parent`` に 1 または 2 を渡すと、その親の性格を確定継承する
+    （かわらずのいし相当）。指定がなければ基本はどちらかの親から、稀に変異する。
+    """
+    if everstone_parent == 1 and parent1_id in ALL_PERSONALITIES:
+        return parent1_id
+    if everstone_parent == 2 and parent2_id in ALL_PERSONALITIES:
+        return parent2_id
     if random.random() < _PERSONALITY_MUTATION_CHANCE:
         return random_personality_id()
     pool = [pid for pid in (parent1_id, parent2_id) if pid in ALL_PERSONALITIES]
@@ -163,28 +126,130 @@ def inherit_personality_id(parent1_id: str | None, parent2_id: str | None) -> st
     return random.choice(pool)
 
 
-def inherit_talent_id(parent1_id: str | None, parent2_id: str | None) -> str:
-    """配合での才能継承。
+# ---------------------------------------------------------------------------
+# 個体値（IV）
+# ---------------------------------------------------------------------------
+def random_iv() -> int:
+    return random.randint(0, IV_MAX)
 
-    良個体（高い才能）同士を掛け合わせるほど高才能の子が出やすい＝配合ループの核。
-    基本は高い方の親の才能を引き継ぎ、一定確率で1段昇格／降格する。天才同士からは
-    ごく稀に隠し才能「鬼才」が生まれる。
+
+def random_ivs() -> dict[str, int]:
+    """全ステを 0〜31 で一様ロール（野生個体用）。"""
+    return {s: random_iv() for s in IV_STATS}
+
+
+def zero_ivs() -> dict[str, int]:
+    """全ステ0の個体値（既定値＝従来挙動と完全互換）。"""
+    return {s: 0 for s in IV_STATS}
+
+
+def normalize_ivs(ivs: dict[str, int] | None) -> dict[str, int]:
+    """欠損や範囲外を補正した個体値辞書を返す。"""
+    ivs = ivs or {}
+    return {s: max(0, min(IV_MAX, int(ivs.get(s, 0) or 0))) for s in IV_STATS}
+
+
+def iv_total(ivs: dict[str, int]) -> int:
+    return sum(int(ivs.get(s, 0) or 0) for s in IV_STATS)
+
+
+def iv_max_total() -> int:
+    return IV_MAX * len(IV_STATS)
+
+
+def iv_ratio(ivs: dict[str, int]) -> float:
+    return iv_total(ivs) / iv_max_total()
+
+
+def iv_judge_label(value: int) -> str:
+    """個体値ジャッジ風の評価語（ポケモン準拠）。"""
+    v = max(0, min(IV_MAX, int(value)))
+    if v == IV_MAX:
+        return "さいこう"
+    if v == IV_MAX - 1:
+        return "すばらしい"
+    if v >= 26:
+        return "すごくいい"
+    if v >= 16:
+        return "まあまあ"
+    if v >= 1:
+        return "ふつう"
+    return "苦手"
+
+
+def inherit_ivs(
+    p1_ivs: dict[str, int] | None,
+    p2_ivs: dict[str, int] | None,
+    inherit_count: int = 3,
+    power_stats: dict[str, int] | None = None,
+) -> dict[str, int]:
+    """配合での個体値遺伝（ポケモン準拠）。
+
+    ``inherit_count`` 個のステを親から継承し（各ステごとにランダムな親を採用）、
+    残りは新規に 0〜31 をロールする。
+
+    ``power_stats`` は「パワー系アイテム」相当で、``{stat: 1 or 2}`` の形でそのステを
+    どちらの親から確定継承するかを指定する（必ず継承枠に含まれる）。
     """
-    r1 = _talent_rank(parent1_id)
-    r2 = _talent_rank(parent2_id)
-    hi = max(r1, r2)
+    p1 = normalize_ivs(p1_ivs)
+    p2 = normalize_ivs(p2_ivs)
+    power_stats = {s: v for s, v in (power_stats or {}).items() if s in IV_STATS}
 
-    # 天才×天才のときだけ、隠し才能「鬼才」の抽選を行う。
-    if r1 >= _GENIUS_RANK and r2 >= _GENIUS_RANK and random.random() < _MASTERMIND_CHANCE:
-        return "mastermind"
+    # 継承するステを決める。パワー系で固定したステは必ず含める。
+    chosen: list[str] = list(dict.fromkeys(power_stats.keys()))
+    remaining = [s for s in IV_STATS if s not in chosen]
+    random.shuffle(remaining)
+    cap = max(len(chosen), min(inherit_count, len(IV_STATS)))
+    while len(chosen) < cap and remaining:
+        chosen.append(remaining.pop())
 
-    roll = random.random()
-    if roll < _TALENT_UPGRADE_CHANCE and hi < _MAX_NORMAL_RANK:
-        rank = hi + 1
-    elif roll < _TALENT_UPGRADE_CHANCE + _TALENT_REGRESS_CHANCE:
-        rank = max(0, hi - 1)
-    else:
-        rank = hi
+    result: dict[str, int] = {}
+    for s in IV_STATS:
+        if s in chosen:
+            if s in power_stats:
+                src = p1 if power_stats[s] == 1 else p2
+            else:
+                src = random.choice((p1, p2))
+            result[s] = int(src.get(s, 0))
+        else:
+            result[s] = random_iv()
+    return result
 
-    rank = min(rank, _MAX_NORMAL_RANK)
-    return TALENT_ORDER[rank]
+
+# ---------------------------------------------------------------------------
+# 才能（個体値の総合評価ラベル＝導出値）
+# ---------------------------------------------------------------------------
+@dataclass(frozen=True)
+class Talent:
+    """個体値の総合評価。``min_ratio`` 以上の個体値比率でこのランクになる。"""
+
+    id: str
+    name: str
+    min_ratio: float
+    hidden: bool = False  # 鬼才＝実質5V。配合の厳選でしか到達できない隠しランク
+
+
+# 下位→上位。talent_from_ivs はこの並びを下から評価していく。
+TALENT_RANKS: tuple[Talent, ...] = (
+    Talent("common", "凡才", 0.0),
+    Talent("hardworking", "努力家", 0.5),
+    Talent("prodigy", "秀才", 0.7),
+    Talent("genius", "天才", 0.85),
+    Talent("mastermind", "鬼才", 0.97, hidden=True),
+)
+ALL_TALENTS: dict[str, Talent] = {t.id: t for t in TALENT_RANKS}
+DEFAULT_TALENT_ID = "common"
+
+
+def get_talent(talent_id: str | None) -> Talent:
+    return ALL_TALENTS.get(talent_id or "", ALL_TALENTS[DEFAULT_TALENT_ID])
+
+
+def talent_from_ivs(ivs: dict[str, int] | None) -> Talent:
+    """個体値から才能ランクを導出する。"""
+    ratio = iv_ratio(normalize_ivs(ivs))
+    best = TALENT_RANKS[0]
+    for t in TALENT_RANKS:
+        if ratio >= t.min_ratio:
+            best = t
+    return best

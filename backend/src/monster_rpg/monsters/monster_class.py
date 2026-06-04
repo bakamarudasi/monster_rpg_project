@@ -5,11 +5,19 @@ import random
 from .evolution_rules import EVOLUTION_RULES
 from .personality import (
     DEFAULT_PERSONALITY_ID,
-    DEFAULT_TALENT_ID,
+    IV_STATS,
+    IV_LABELS,
+    IV_MAX,
+    IV_GROWTH_STRENGTH,
     get_personality,
-    get_talent,
+    talent_from_ivs,
+    iv_judge_label,
+    iv_total,
+    iv_max_total,
+    normalize_ivs,
     random_personality_id,
-    random_talent_id,
+    random_ivs,
+    zero_ivs,
 )
 
 GROWTH_TYPE_AVERAGE = "平均型"
@@ -167,10 +175,17 @@ class Monster:
         self.plus_value = 0
         # レア個体（★）フラグ。配合のレア抽選で生まれた個体は能力が底上げされる
         self.is_rare = False
-        # 個体の個性。性格＝ステ傾向（倍率）、才能＝素質ランク（全ステ倍率）。
+        # 個体の個性。性格＝ステ傾向（派生4ステの倍率）、個体値＝ステ別の隠し数値
+        # (0〜31)でレベルに比例して成長率に効く。才能ランクは個体値から導出する。
         # is_rare/plus_value の「強さ」とは別軸で、良個体を狙う配合の動機になる。
         self.personality_id = DEFAULT_PERSONALITY_ID
-        self.talent_id = DEFAULT_TALENT_ID
+        self.ivs = zero_ivs()
+        # 個体値の数値を鑑定済みか（未鑑定なら数値は伏せる）。才能ランクは常時表示。
+        self.iv_appraised = False
+        # 固有特性（鬼才で確定、天才で抽選）。None なら特性なし。
+        self.trait_id = None
+        # 個体値による成長の端数を貯めるバンク（小さな取得量でも倍率を取りこぼさない）
+        self._growth_bank = {s: 0.0 for s in IV_STATS}
 
         self.level = level
         self.exp = exp
@@ -230,37 +245,57 @@ class Monster:
 
     @property
     def talent(self):
-        """この個体の才能（素質ランク）。未知IDは凡才にフォールバック。"""
-        return get_talent(self.talent_id)
+        """この個体の才能（個体値の総合評価ランク）。個体値から導出する。"""
+        return talent_from_ivs(self.ivs)
 
     def _individual_multiplier(self, stat: str) -> float:
-        """性格×才能による派生ステの恒久倍率。バランス型＋凡才なら 1.0（=従来通り）。"""
-        mult = self.talent.multiplier
-        mult *= 1.0 + self.personality.modifiers.get(stat, 0.0)
-        return mult
+        """性格による派生ステの恒久倍率。バランス型なら 1.0（=従来通り）。
+
+        個体値は倍率ではなく成長率（level_up の取得量）に効くので、ここには乗せない。
+        """
+        return 1.0 + self.personality.modifiers.get(stat, 0.0)
 
     def roll_individuality(self) -> None:
-        """性格・才能をランダムに引き直す（野生個体の生成時などに使う）。"""
+        """性格・個体値をランダムに引き直す（野生個体の生成時などに使う）。"""
         self.personality_id = random_personality_id()
-        self.talent_id = random_talent_id()
+        self.ivs = random_ivs()
+
+    def appraise(self) -> None:
+        """個体値の数値を開示済みにする（鑑定）。"""
+        self.iv_appraised = True
+
+    def _iv_growth_increase(self, stat: str, base_gain: int) -> int:
+        """個体値に応じてレベルアップ取得量を底上げし、端数はバンクに繰り越す。
+
+        個体値0なら ``base_gain`` をそのまま返す（＝従来挙動と完全互換）。
+        """
+        iv = int(self.ivs.get(stat, 0) or 0)
+        bank = self._growth_bank
+        bank[stat] = bank.get(stat, 0.0) + base_gain * (1.0 + iv / IV_MAX * IV_GROWTH_STRENGTH)
+        take = int(bank[stat])
+        bank[stat] -= take
+        return take
 
     def individuality_summary(self) -> dict:
-        """UI / シリアライズ用に性格・才能をまとめた辞書を返す。"""
+        """UI / シリアライズ用に性格・才能・個体値をまとめた辞書を返す。
+
+        性格と才能ランクは常時表示。個体値の数値は鑑定済みのときだけ含める。
+        """
         p = self.personality
         t = self.talent
-        return {
-            "personality": {
-                "id": p.id,
-                "name": p.name,
-                "effect": p.effect_text,
-            },
-            "talent": {
-                "id": t.id,
-                "name": t.name,
-                "bonus_percent": t.bonus_percent,
-                "hidden": t.hidden,
-            },
+        summary = {
+            "personality": {"id": p.id, "name": p.name, "effect": p.effect_text},
+            "talent": {"id": t.id, "name": t.name, "hidden": t.hidden},
+            "appraised": bool(self.iv_appraised),
         }
+        if self.iv_appraised:
+            summary["ivs"] = {
+                s: {"value": int(self.ivs.get(s, 0) or 0), "label": iv_judge_label(self.ivs.get(s, 0))}
+                for s in IV_STATS
+            }
+            summary["iv_total"] = iv_total(self.ivs)
+            summary["iv_max"] = iv_max_total()
+        return summary
 
     # ------------------------------------------------------------------
     # Derived stat properties
@@ -365,6 +400,12 @@ class Monster:
         talent = self.talent
         talent_txt = talent.name + ("（隠し才能）" if talent.hidden else "")
         log.append({'type': 'info', 'message': f"性格: {self.personality.name}（{self.personality.effect_text}） / 才能: {talent_txt}"})
+        if self.iv_appraised:
+            iv_txt = " ".join(
+                f"{IV_LABELS[s]}:{int(self.ivs.get(s, 0) or 0)}({iv_judge_label(self.ivs.get(s, 0))})"
+                for s in IV_STATS
+            )
+            log.append({'type': 'info', 'message': f"個体値 {iv_txt}"})
         if self.element:
             log.append({'type': 'info', 'message': f"属性: {self.element}"})
         log.append({'type': 'info', 'message': f"HP: {self.hp}/{self.max_hp}"})
@@ -587,6 +628,13 @@ class Monster:
             evolved.level = self.level
             evolved.exp = self.exp
             evolved.equipment = getattr(self, 'equipment', {}).copy()
+            # 個体の個性（性格・個体値・鑑定状態・固有特性・成長バンク）は進化後も維持する。
+            # 個体値は成長率に効くため、ここで引き継がないと進化のたびに育ちがリセットされる。
+            evolved.personality_id = self.personality_id
+            evolved.ivs = dict(self.ivs)
+            evolved.iv_appraised = self.iv_appraised
+            evolved.trait_id = self.trait_id
+            evolved._growth_bank = dict(self._growth_bank)
             self.__dict__.update(evolved.__dict__)
             if awakened:
                 self.make_rare_individual()
@@ -704,13 +752,15 @@ class Monster:
         status_gains_dict.setdefault("magic", 0)
         status_gains_dict.setdefault("speed", 0)
 
-        hp_increase = status_gains_dict["hp"]
+        # 個体値（IV）でレベルアップ取得量を底上げする。HPを含む5ステが対象、MPは対象外。
+        # 端数はバンクに繰り越し、個体値が高いほどレベルを重ねるほど差が開く＝成長率。
+        hp_increase = self._iv_growth_increase("hp", status_gains_dict["hp"])
         mp_increase = status_gains_dict["mp"]
-        attack_increase = status_gains_dict["attack"]
-        defense_increase = status_gains_dict["defense"]
-        magic_increase = status_gains_dict["magic"]
-        speed_increase = status_gains_dict["speed"]
-            
+        attack_increase = self._iv_growth_increase("attack", status_gains_dict["attack"])
+        defense_increase = self._iv_growth_increase("defense", status_gains_dict["defense"])
+        magic_increase = self._iv_growth_increase("magic", status_gains_dict["magic"])
+        speed_increase = self._iv_growth_increase("speed", status_gains_dict["speed"])
+
         self.max_hp += hp_increase
         self.hp = self.max_hp
         self.base_attack += attack_increase
@@ -815,7 +865,10 @@ class Monster:
         new_monster.plus_value = self.plus_value
         new_monster.is_rare = self.is_rare
         new_monster.personality_id = self.personality_id
-        new_monster.talent_id = self.talent_id
+        new_monster.ivs = dict(self.ivs)
+        new_monster.iv_appraised = self.iv_appraised
+        new_monster.trait_id = self.trait_id
+        new_monster._growth_bank = dict(self._growth_bank)
         new_monster.is_alive = True
         new_monster.skill_sequence = self.skill_sequence[:]
         new_monster.equipment = copy.deepcopy(self.equipment)

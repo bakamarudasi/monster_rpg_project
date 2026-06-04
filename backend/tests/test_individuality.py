@@ -1,9 +1,11 @@
-"""個体の個性（性格・才能）のテスト。
+"""個体の個性（性格・個体値・才能）のテスト。
 
-- 性格＝ステ傾向（攻撃/防御/素早さ/魔力の倍率）
-- 才能＝素質ランク（全ステ倍率、最上位「鬼才」は隠し才能）
-- 既定（バランス型＋凡才）はステ無変化＝既存挙動と後方互換
-- 配合での継承（良個体ほど高才能が出やすい）と保存/読み込み
+ポケモン個体値モデル:
+- 性格＝派生4ステの±倍率（バランス型は無変化＝後方互換）
+- 個体値＝ステ別0〜31の隠し数値。レベルアップ取得量（成長率）に効く
+- 才能＝個体値から導出する総合評価ランク（鬼才＝実質5V・隠し）
+- 鑑定で個体値の数値を開示
+- 配合は個体値をステごとに親から継承（厳選ループ）
 """
 
 import os
@@ -16,192 +18,200 @@ from monster_rpg.monsters import personality as P
 from monster_rpg.player import Player
 from monster_rpg import database_setup, save_manager
 
-RANDOM_PATH = "monster_rpg.monsters.personality.random"
+PMOD = "monster_rpg.monsters.personality"
+MC_RANDOM = "monster_rpg.monsters.monster_class.random.random"
+NO_AWAKEN = 0.99
 
 
-def _wolf():
+def _wolf(ivs=None):
     m = ALL_MONSTERS["wolf"].copy()
-    m.base_magic = 20  # 魔力系の性格を検証できるよう下駄をはかせる
+    m.base_magic = 20
+    if ivs is not None:
+        m.ivs = dict(ivs)
     return m
 
 
-class PersonalityStatTests(unittest.TestCase):
-    def test_default_is_neutral(self):
-        """バランス型＋凡才では倍率1.0＝従来どおりのステータス。"""
+class DefaultsAndPersonalityTests(unittest.TestCase):
+    def test_defaults_are_neutral_and_compatible(self):
         m = _wolf()
         self.assertEqual(m.personality_id, P.DEFAULT_PERSONALITY_ID)
-        self.assertEqual(m.talent_id, P.DEFAULT_TALENT_ID)
+        self.assertEqual(m.ivs, {s: 0 for s in P.IV_STATS})
+        self.assertFalse(m.iv_appraised)
+        self.assertEqual(m.talent.id, "common")
+        # バランス型＋0個体値はステ無変化（従来どおり）
         self.assertEqual(m.attack, m.base_attack)
-        self.assertEqual(m.defense, m.base_defense)
-        self.assertEqual(m.speed, m.base_speed)
         self.assertEqual(m.magic, m.base_magic)
 
-    def test_personality_raises_and_lowers(self):
-        """ちからじまん＝攻撃↑/魔力↓。基準は素のステ。"""
+    def test_personality_still_shapes_derived_stats(self):
         m = _wolf()
         base_atk, base_mag = m.base_attack, m.base_magic
-        m.personality_id = "brave"
+        m.personality_id = "brave"  # 攻撃↑ 魔力↓
         self.assertEqual(m.attack, int(base_atk * 1.10))
         self.assertEqual(m.magic, int(base_mag * 0.90))
-        # 触れない防御・素早さは変化しない
-        self.assertEqual(m.defense, m.base_defense)
-        self.assertEqual(m.speed, m.base_speed)
 
-    def test_talent_multiplies_all_stats(self):
-        """天才は派生4ステすべてに同じ倍率を乗せる。"""
-        m = _wolf()
-        m.talent_id = "genius"  # x1.10
-        self.assertEqual(m.attack, int(m.base_attack * 1.10))
-        self.assertEqual(m.defense, int(m.base_defense * 1.10))
-        self.assertEqual(m.speed, int(m.base_speed * 1.10))
-        self.assertEqual(m.magic, int(m.base_magic * 1.10))
-
-    def test_personality_and_talent_stack(self):
-        """性格と才能は掛け算で重なる。"""
-        m = _wolf()
-        m.personality_id = "brave"   # attack +10%
-        m.talent_id = "prodigy"      # x1.06
-        self.assertEqual(m.attack, int(m.base_attack * 1.06 * 1.10))
-        self.assertEqual(m.magic, int(m.base_magic * 1.06 * 0.90))
-
-    def test_unknown_ids_fall_back_to_defaults(self):
-        m = _wolf()
-        m.personality_id = "???"
-        m.talent_id = "???"
-        self.assertEqual(m.personality.id, P.DEFAULT_PERSONALITY_ID)
-        self.assertEqual(m.talent.id, P.DEFAULT_TALENT_ID)
+    def test_ivs_do_not_act_as_flat_multiplier(self):
+        # 個体値は倍率ではなく成長率なので、レベルを上げない限りステは変わらない
+        m = _wolf({s: 31 for s in P.IV_STATS})
         self.assertEqual(m.attack, m.base_attack)
 
 
-class IndividualityHelpersTests(unittest.TestCase):
-    def test_roll_assigns_valid_ids_and_never_hidden(self):
+class IVGrowthTests(unittest.TestCase):
+    def test_perfect_ivs_grow_more_than_zero(self):
+        perfect = _wolf({s: 31 for s in P.IV_STATS})
+        zero = _wolf({s: 0 for s in P.IV_STATS})
+        with patch(MC_RANDOM, return_value=NO_AWAKEN):
+            perfect.advance_to_level(50)
+            zero.advance_to_level(50)
+        self.assertGreater(perfect.base_attack, zero.base_attack)
+        self.assertGreater(perfect.base_speed, zero.base_speed)
+        self.assertGreater(perfect.max_hp, zero.max_hp)
+
+    def test_zero_iv_growth_is_unchanged_baseline(self):
+        # 0個体値は従来のレベルアップ結果と完全一致（成長率に手を入れていないのと同じ）
+        zero = ALL_MONSTERS["slime"].copy()
+        with patch(MC_RANDOM, return_value=NO_AWAKEN):
+            zero.advance_to_level(20)
+        # もう一体、明示的に ivs を 0 にしても同じ
+        zero2 = ALL_MONSTERS["slime"].copy()
+        zero2.ivs = P.zero_ivs()
+        with patch(MC_RANDOM, return_value=NO_AWAKEN):
+            zero2.advance_to_level(20)
+        self.assertEqual(zero.base_attack, zero2.base_attack)
+        self.assertEqual(zero.max_hp, zero2.max_hp)
+
+    def test_ivs_persist_through_evolution(self):
+        m = ALL_MONSTERS["dragon_pup"].copy()
+        ivs = {s: 20 for s in P.IV_STATS}
+        m.ivs = dict(ivs)
+        m.personality_id = "hasty"
+        with patch(MC_RANDOM, return_value=NO_AWAKEN):
+            m.advance_to_level(11)
+        self.assertEqual(m.monster_id, "ashen_drake")  # 進化済み
+        self.assertEqual(m.ivs, ivs)                    # 個体値は維持
+        self.assertEqual(m.personality_id, "hasty")     # 性格も維持
+
+
+class TalentDerivationTests(unittest.TestCase):
+    def test_talent_thresholds(self):
+        self.assertEqual(P.talent_from_ivs({s: 0 for s in P.IV_STATS}).id, "common")
+        self.assertEqual(P.talent_from_ivs({s: 16 for s in P.IV_STATS}).id, "hardworking")
+        self.assertEqual(P.talent_from_ivs({s: 22 for s in P.IV_STATS}).id, "prodigy")
+        self.assertEqual(P.talent_from_ivs({s: 27 for s in P.IV_STATS}).id, "genius")
+        self.assertEqual(P.talent_from_ivs({s: 31 for s in P.IV_STATS}).id, "mastermind")
+
+    def test_mastermind_is_hidden_and_near_perfect(self):
+        t = P.talent_from_ivs({s: 31 for s in P.IV_STATS})
+        self.assertTrue(t.hidden)
+        # 30 では届かない（鬼才＝ほぼ5V）
+        self.assertEqual(P.talent_from_ivs({s: 30 for s in P.IV_STATS}).id, "genius")
+
+    def test_judge_labels(self):
+        self.assertEqual(P.iv_judge_label(31), "さいこう")
+        self.assertEqual(P.iv_judge_label(30), "すばらしい")
+        self.assertEqual(P.iv_judge_label(26), "すごくいい")
+        self.assertEqual(P.iv_judge_label(16), "まあまあ")
+        self.assertEqual(P.iv_judge_label(1), "ふつう")
+        self.assertEqual(P.iv_judge_label(0), "苦手")
+
+
+class RollAndAppraiseTests(unittest.TestCase):
+    def test_roll_assigns_valid_ivs_and_personality(self):
         m = ALL_MONSTERS["slime"].copy()
         for _ in range(200):
             m.roll_individuality()
             self.assertIn(m.personality_id, P.ALL_PERSONALITIES)
-            self.assertIn(m.talent_id, P.ALL_TALENTS)
-            # 隠し才能（鬼才）は野生抽選では出ない
-            self.assertFalse(P.get_talent(m.talent_id).hidden)
+            self.assertEqual(set(m.ivs.keys()), set(P.IV_STATS))
+            for v in m.ivs.values():
+                self.assertTrue(0 <= v <= P.IV_MAX)
+
+    def test_summary_hides_ivs_until_appraised(self):
+        m = _wolf({s: 31 for s in P.IV_STATS})
+        s = m.individuality_summary()
+        self.assertFalse(s["appraised"])
+        self.assertNotIn("ivs", s)
+        # 才能ランクと性格は未鑑定でも見える
+        self.assertEqual(s["talent"]["name"], "鬼才")
+        self.assertIn("personality", s)
+        m.appraise()
+        s2 = m.individuality_summary()
+        self.assertTrue(s2["appraised"])
+        self.assertEqual(s2["ivs"]["attack"]["value"], 31)
+        self.assertEqual(s2["ivs"]["attack"]["label"], "さいこう")
+        self.assertEqual(s2["iv_total"], 31 * len(P.IV_STATS))
 
     def test_copy_preserves_individuality(self):
         m = ALL_MONSTERS["slime"].copy()
+        m.ivs = {s: 10 for s in P.IV_STATS}
+        m.ivs["attack"] = 31
         m.personality_id = "hasty"
-        m.talent_id = "genius"
+        m.iv_appraised = True
+        m.trait_id = "fast_learner"
         c = m.copy()
+        self.assertEqual(c.ivs, m.ivs)
         self.assertEqual(c.personality_id, "hasty")
-        self.assertEqual(c.talent_id, "genius")
-
-    def test_summary_shape(self):
-        m = ALL_MONSTERS["slime"].copy()
-        m.personality_id = "brave"
-        m.talent_id = "genius"
-        s = m.individuality_summary()
-        self.assertEqual(s["personality"]["name"], "ちからじまん")
-        self.assertIn("攻撃↑", s["personality"]["effect"])
-        self.assertEqual(s["talent"]["name"], "天才")
-        self.assertEqual(s["talent"]["bonus_percent"], 10)
-        self.assertFalse(s["talent"]["hidden"])
-
-    def test_random_talent_weighted_excludes_hidden(self):
-        ids = {P.random_talent_id() for _ in range(500)}
-        self.assertNotIn("mastermind", ids)
-        self.assertIn("common", ids)
+        self.assertTrue(c.iv_appraised)
+        self.assertEqual(c.trait_id, "fast_learner")
 
 
-class InheritanceTests(unittest.TestCase):
-    def test_personality_inherits_from_a_parent(self):
-        # 変異なし（random>=0.10）→ どちらかの親の性格
-        with patch(RANDOM_PATH + ".random", return_value=0.99), \
-             patch(RANDOM_PATH + ".choice", side_effect=lambda seq: seq[0]):
-            self.assertEqual(P.inherit_personality_id("brave", "clever"), "brave")
+class IVInheritanceTests(unittest.TestCase):
+    def test_inherits_three_stats_from_parents(self):
+        p1 = {s: 31 for s in P.IV_STATS}
+        p2 = {s: 0 for s in P.IV_STATS}
+        with patch(PMOD + ".random.shuffle", lambda x: None), \
+             patch(PMOD + ".random.choice", side_effect=lambda seq: seq[0]), \
+             patch(PMOD + ".random_iv", return_value=-1):
+            child = P.inherit_ivs(p1, p2, inherit_count=3)
+        inherited = [s for s, v in child.items() if v == 31]   # 親1由来
+        fresh = [s for s, v in child.items() if v == -1]        # 新規ロール
+        self.assertEqual(len(inherited), 3)
+        self.assertEqual(len(fresh), 2)
 
-    def test_personality_mutates(self):
-        # 変異あり（random<0.10）→ 親と無関係に全性格から一様抽選
-        with patch(RANDOM_PATH + ".random", return_value=0.0), \
-             patch(RANDOM_PATH + ".choice", side_effect=lambda seq: seq[-1]):
-            result = P.inherit_personality_id("brave", "brave")
-            self.assertEqual(result, list(P.ALL_PERSONALITIES.keys())[-1])
+    def test_destiny_knot_inherits_five(self):
+        p1 = {s: 31 for s in P.IV_STATS}
+        p2 = {s: 0 for s in P.IV_STATS}
+        with patch(PMOD + ".random.shuffle", lambda x: None), \
+             patch(PMOD + ".random.choice", side_effect=lambda seq: seq[0]), \
+             patch(PMOD + ".random_iv", return_value=-1):
+            child = P.inherit_ivs(p1, p2, inherit_count=5)
+        # 5継承＝全ステ親由来、新規ロールは無し
+        self.assertTrue(all(v == 31 for v in child.values()))
 
-    def test_talent_keeps_better_parent(self):
-        with patch(RANDOM_PATH + ".random", return_value=0.99):
-            self.assertEqual(P.inherit_talent_id("common", "genius"), "genius")
-            self.assertEqual(P.inherit_talent_id("prodigy", "hardworking"), "prodigy")
-
-    def test_talent_can_upgrade_one_tier(self):
-        with patch(RANDOM_PATH + ".random", return_value=0.0):
-            # 秀才×秀才 → 1段昇格して天才
-            self.assertEqual(P.inherit_talent_id("prodigy", "prodigy"), "genius")
-
-    def test_non_genius_pair_never_reaches_hidden(self):
-        # 天才を1体しか含まない配合は、どのロールでも隠し才能（鬼才）にならない
-        for roll in (0.0, 0.14, 0.2, 0.5, 0.99):
-            with patch(RANDOM_PATH + ".random", return_value=roll):
-                result = P.inherit_talent_id("genius", "common")
-                self.assertNotEqual(result, "mastermind")
-                self.assertFalse(P.get_talent(result).hidden)
-
-    def test_mastermind_only_from_genius_pair(self):
-        with patch(RANDOM_PATH + ".random", return_value=0.0):
-            self.assertEqual(P.inherit_talent_id("genius", "genius"), "mastermind")
-        # 天才同士でも当たらなければ天才のまま
-        with patch(RANDOM_PATH + ".random", return_value=0.99):
-            self.assertEqual(P.inherit_talent_id("genius", "genius"), "genius")
+    def test_power_item_forces_specific_stat_from_parent(self):
+        p1 = {s: 31 for s in P.IV_STATS}
+        p2 = {s: 7 for s in P.IV_STATS}
+        child = P.inherit_ivs(p1, p2, inherit_count=3, power_stats={"attack": 2})
+        self.assertEqual(child["attack"], 7)  # 親2から確定継承
 
 
-class SynthesisIndividualityTests(unittest.TestCase):
-    def test_child_gets_individuality_and_message(self):
+class SynthesisAndWildTests(unittest.TestCase):
+    def test_child_inherits_ivs_and_message(self):
         player = Player("Breeder")
         player.add_monster_to_party("slime")
         player.add_monster_to_party("wolf")
-        player.party_monsters[0].level = 5
-        player.party_monsters[1].level = 5
-        # 親の個性を固定し、変異なしで継承されることを確認
-        player.party_monsters[0].personality_id = "hasty"
-        player.party_monsters[0].talent_id = "prodigy"
-        player.party_monsters[1].personality_id = "hasty"
-        player.party_monsters[1].talent_id = "prodigy"
-
-        with patch(RANDOM_PATH + ".random", return_value=0.99), \
-             patch(RANDOM_PATH + ".choice", side_effect=lambda seq: seq[0]):
-            ok, msg, child = player.synthesize_monster(0, 1)
-
+        player.party_monsters[0].ivs = {s: 31 for s in P.IV_STATS}
+        player.party_monsters[1].ivs = {s: 31 for s in P.IV_STATS}
+        ok, msg, child = player.synthesize_monster(0, 1)
         self.assertTrue(ok)
-        self.assertIn(child.personality_id, P.ALL_PERSONALITIES)
-        self.assertEqual(child.talent_id, "prodigy")  # 秀才×秀才・昇格なし→秀才
+        self.assertEqual(set(child.ivs.keys()), set(P.IV_STATS))
+        # 両親が完全individ値なら、継承された3ステは必ず31
+        self.assertGreaterEqual(sum(1 for v in child.ivs.values() if v == 31), 3)
         self.assertIn("性格", msg)
         self.assertIn("才能", msg)
 
-
-class WildIndividualityTests(unittest.TestCase):
-    def test_wild_rolls_but_boss_is_left_alone(self):
+    def test_wild_rolls_ivs_but_boss_left_alone(self):
         from monster_rpg.exploration import _roll_wild_individuality
         normal = ALL_MONSTERS["slime"].copy()
         with patch.object(Monster, "roll_individuality") as roll:
             _roll_wild_individuality(normal)
             roll.assert_called_once()
-
         boss = ALL_MONSTERS["slime"].copy()
         boss.is_boss = True
         with patch.object(Monster, "roll_individuality") as roll:
             _roll_wild_individuality(boss)
             roll.assert_not_called()
 
-    def test_generate_enemy_party_assigns_valid_individuality(self):
-        from monster_rpg.exploration import generate_enemy_party
-        from monster_rpg.map_data import Location
-        loc = Location(
-            location_id="t", name="t", description="",
-            enemy_pool={"slime": 50, "goblin": 50}, party_size=[1, 2],
-            encounter_rate=1.0,
-        )
-        party = generate_enemy_party(loc)
-        self.assertTrue(party)
-        for m in party:
-            self.assertIn(m.personality_id, P.ALL_PERSONALITIES)
-            self.assertIn(m.talent_id, P.ALL_TALENTS)
 
-
-class IndividualityPersistenceTests(unittest.TestCase):
+class PersistenceTests(unittest.TestCase):
     def setUp(self):
         self.db_path = "test_individuality.db"
         if os.path.exists(self.db_path):
@@ -214,18 +224,37 @@ class IndividualityPersistenceTests(unittest.TestCase):
         if os.path.exists(self.db_path):
             os.remove(self.db_path)
 
-    def test_personality_and_talent_round_trip(self):
+    def test_ivs_appraisal_and_growth_round_trip(self):
         player = Player("Saver", user_id=self.user_id)
         player.add_monster_to_party("slime")
-        player.party_monsters[0].personality_id = "stubborn"
-        player.party_monsters[0].talent_id = "mastermind"  # 隠し才能も保存される
+        m = player.party_monsters[0]
+        # 進化（slime→water_wolf は ヒール が条件）を止め、再構築経路を一致させる
+        m.skills = [s for s in m.skills if getattr(s, "name", "") != "ヒール"]
+        m.ivs = {s: 31 for s in P.IV_STATS}
+        m.personality_id = "stubborn"
+        m.iv_appraised = True
+        with patch(MC_RANDOM, return_value=NO_AWAKEN):
+            m.advance_to_level(30)
+        self.assertEqual(m.monster_id, "slime")  # 進化していないこと
+        saved_attack, saved_hp = m.base_attack, m.max_hp
         save_manager.save_game(player, self.db_path, user_id=self.user_id)
 
         loaded = save_manager.load_game(self.db_path, user_id=self.user_id)
         lm = loaded.party_monsters[0]
+        self.assertEqual(lm.ivs, {s: 31 for s in P.IV_STATS})
         self.assertEqual(lm.personality_id, "stubborn")
-        self.assertEqual(lm.talent_id, "mastermind")
-        self.assertTrue(lm.talent.hidden)
+        self.assertTrue(lm.iv_appraised)
+        self.assertEqual(lm.talent.id, "mastermind")
+        # 個体値由来の成長が再構築される（再レベルアップで base/HP が一致）
+        self.assertEqual(lm.base_attack, saved_attack)
+        self.assertEqual(lm.max_hp, saved_hp)
+        # 0個体値の同種より明確に強い（＝個体値が効いている）
+        weak = ALL_MONSTERS["slime"].copy()
+        weak.skills = [s for s in weak.skills if getattr(s, "name", "") != "ヒール"]
+        with patch(MC_RANDOM, return_value=NO_AWAKEN):
+            weak.advance_to_level(30)
+        self.assertGreater(lm.base_attack, weak.base_attack)
+        self.assertGreater(lm.max_hp, weak.max_hp)
 
 
 if __name__ == "__main__":

@@ -65,10 +65,11 @@
       header.appendChild(lvhp);
 
       if (data.individuality) {
+        const ind = data.individuality;
         const indiv = document.createElement('div');
         indiv.className = 'card-monster-individuality';
-        const p = data.individuality.personality;
-        const t = data.individuality.talent;
+        const p = ind.personality;
+        const t = ind.talent;
         if (p) {
           const pTag = document.createElement('span');
           pTag.className = 'indiv-tag indiv-personality';
@@ -78,13 +79,38 @@
         if (t) {
           const tTag = document.createElement('span');
           tTag.className = 'indiv-tag indiv-talent' + (t.hidden ? ' indiv-talent-hidden' : '');
-          let label = '才能: ' + t.name;
-          if (t.bonus_percent) { label += ' (全ステ+' + t.bonus_percent + '%)'; }
-          if (t.hidden) { label = '🌟' + label; }
-          tTag.textContent = label;
+          tTag.textContent = (t.hidden ? '🌟才能: ' : '才能: ') + t.name;
           indiv.appendChild(tTag);
         }
         header.appendChild(indiv);
+
+        // 個体値（鑑定済みのときだけ数値を表示）
+        const ivBox = document.createElement('div');
+        ivBox.className = 'card-monster-ivs';
+        if (ind.appraised && ind.ivs) {
+          const title = document.createElement('div');
+          title.className = 'iv-title';
+          title.textContent = '個体値 ' + (ind.iv_total != null ? '(' + ind.iv_total + '/' + ind.iv_max + ')' : '');
+          ivBox.appendChild(title);
+          const grid = document.createElement('div');
+          grid.className = 'iv-grid';
+          const labels = { hp: 'HP', attack: '攻', defense: '防', magic: '魔', speed: '速' };
+          ['hp', 'attack', 'defense', 'magic', 'speed'].forEach(s => {
+            if (!ind.ivs[s]) return;
+            const cell = document.createElement('span');
+            const v = ind.ivs[s].value;
+            cell.className = 'iv-cell' + (v === 31 ? ' iv-best' : '');
+            cell.textContent = (labels[s] || s) + ' ' + v + '（' + ind.ivs[s].label + '）';
+            grid.appendChild(cell);
+          });
+          ivBox.appendChild(grid);
+        } else {
+          const hint = document.createElement('div');
+          hint.className = 'iv-unappraised';
+          hint.textContent = '個体値：未鑑定';
+          ivBox.appendChild(hint);
+        }
+        header.appendChild(ivBox);
       }
       modalCardBody.appendChild(header);
 

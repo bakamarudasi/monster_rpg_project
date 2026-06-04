@@ -160,9 +160,13 @@ def initialize_database():
         _add_column_if_missing(table, "skills", "TEXT")
         # ロック（合成/リリースから保護）
         _add_column_if_missing(table, "locked", "INTEGER DEFAULT 0")
-        # 個体の個性（性格・才能）。それぞれIDを文字列で保存
+        # 個体の個性（性格・才能）。talent は旧データ用に残すが、現在は ivs から導出する
         _add_column_if_missing(table, "personality", "TEXT")
         _add_column_if_missing(table, "talent", "TEXT")
+        # 個体値（ステ別0〜31のJSON）・鑑定フラグ・固有特性
+        _add_column_if_missing(table, "ivs", "TEXT")
+        _add_column_if_missing(table, "iv_appraised", "INTEGER DEFAULT 0")
+        _add_column_if_missing(table, "trait", "TEXT")
     _add_column_if_missing("player_equipment", "random_bonuses", "TEXT")
     _add_column_if_missing("player_equipment", "synthesis_rank", "INTEGER")
     _add_column_if_missing("player_equipment", "stat_multiplier", "REAL")
