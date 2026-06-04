@@ -19,7 +19,7 @@
     "description": "見渡す限りの草原が広がっている。時折、弱いモンスターの姿が見える。",
     "connections": { "南": "village_square", "北東": "forest_entrance" },
     "encounter_rate": 0.6,
-    "enemy_pool": { "slime": 40, "goblin": 10, "wild_rat": 20, "walking_mushroom": 30, "moss_slime": 25, "meadow_sprite": 20, "spark_mouse": 15 },
+    "enemy_pool": { "slime": 40, "goblin": 10, "wild_rat": 20, "walking_mushroom": 30, "moss_slime": 25, "meadow_sprite": 20, "spark_mouse": 15, "bat": 20 },
     "party_size": [1, 2],
     "avg_enemy_level": 1,
     "x": 1, "y": 0
@@ -186,7 +186,7 @@
     "description": "椰子の木が茂る水辺。旅人の憩いの場だ。",
     "connections": { "西": "desert_outskirts", "北": "sunken_temple" },
     "encounter_rate": 0.3,
-    "enemy_pool": { "desert_scorpion": 100, "dust_imp": 40, "rock_crab": 30 },
+    "enemy_pool": { "desert_scorpion": 100, "dust_imp": 40, "rock_crab": 30, "imp": 35 },
     "party_size": [1, 2],
     "has_inn": true, "inn_cost": 20,
     "has_shop": true,

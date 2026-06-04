@@ -36,6 +36,50 @@ EVOLUTION_RULES = {
     "gale_harrier": [
         {"level": 14, "evolves_to": "thunderlord_roc", "awaken_chance": 0.1},
     ],
+
+    # === 追加進化系統（既存モンスターを進化先に再利用し、育成の到達点を増やす） ===
+    # --- beast ---
+    "bat": [{"level": 8, "evolves_to": "gale_harrier"}],
+    "wild_rat": [{"level": 6, "evolves_to": "goblin"}],
+    "goblin": [{"level": 12, "evolves_to": "wolf"}],
+    "spark_mouse": [{"level": 16, "evolves_to": "thunder_eagle", "awaken_chance": 0.1}],
+    "orc_warrior": [{"level": 18, "evolves_to": "troll_brute"}],
+    "frost_owl": [{"level": 20, "evolves_to": "crystal_drake", "awaken_chance": 0.1}],
+    # --- undead ---
+    "skeleton_archer": [{"level": 14, "evolves_to": "undead_warrior"}],
+    "undead_warrior": [{"level": 24, "evolves_to": "abyss_watcher"}],
+    "gravetide_hollow": [{"level": 24, "evolves_to": "abyss_watcher"}],
+    "bog_revenant": [{"level": 24, "evolves_to": "blighted_knight"}],
+    "abyss_watcher": [{"level": 38, "evolves_to": "vampire_lord", "awaken_chance": 0.08}],
+    # --- construct / elemental ---
+    "crystal_golem": [{"level": 20, "evolves_to": "giant_golem"}],
+    "giant_golem": [{"level": 34, "evolves_to": "obsidian_titan", "awaken_chance": 0.08}],
+    "storm_djinn": [{"level": 24, "evolves_to": "storm_golem"}],
+    # --- spirit ---
+    "meadow_sprite": [{"level": 8, "evolves_to": "spectral_raven"}],
+    "spectral_raven": [{"level": 18, "evolves_to": "midnight_horror", "awaken_chance": 0.1}],
+    "mist_wraith": [{"level": 24, "evolves_to": "midnight_horror"}],
+    # --- dragon ---
+    "sand_wyrm": [{"level": 20, "evolves_to": "wyrm_of_dunes"}],
+    # --- humanoid ---
+    "frost_elf": [{"level": 28, "evolves_to": "glacial_empress", "awaken_chance": 0.08}],
+    # --- aquatic ---
+    "mire_toad": [{"level": 12, "evolves_to": "tide_serpent"}],
+    "tide_serpent": [{"level": 22, "evolves_to": "coral_hydra"}],
+    "mermaid_siren": [{"level": 26, "evolves_to": "kraken"}],
+    "kraken": [{"level": 38, "evolves_to": "void_leviathan", "awaken_chance": 0.08}],
+    # --- demon ---
+    "imp": [{"level": 6, "evolves_to": "dust_imp"}],
+    "dust_imp": [{"level": 18, "evolves_to": "blood_fiend", "awaken_chance": 0.1}],
+    "blood_fiend": [{"level": 36, "evolves_to": "eldritch_tome", "awaken_chance": 0.08}],
+    # --- slime ---
+    "moss_slime": [{"level": 5, "evolves_to": "slime"}],
+    # --- insect ---
+    "flame_mantis": [{"level": 20, "evolves_to": "electro_mantis", "awaken_chance": 0.1}],
+    "desert_scorpion": [{"level": 18, "evolves_to": "wyrm_of_dunes"}],
+    # --- plant ---
+    "walking_mushroom": [{"level": 8, "evolves_to": "thorn_lurker"}],
+    "thorn_lurker": [{"level": 18, "evolves_to": "moonlit_dryad"}],
 }
 
 
