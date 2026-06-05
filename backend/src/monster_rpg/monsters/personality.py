@@ -302,6 +302,10 @@ ALL_TRAITS: dict[str, Trait] = {
         Trait("evasive", "見切り", "回避率が常時+15%される。", "evasion", 15),
         Trait("magic_ward", "魔法の盾", "受ける魔法ダメージが25%軽減される。", "magic_ward", 0.25),
         Trait("mana_leech", "吸魔", "魔法ダメージを与えると、その一部だけMPを回復する。", "mana_leech", 0.25),
+        # --- リアクティブ ---
+        Trait("endure", "不屈", "致死ダメージを受けてもHP1で持ちこたえる（1戦闘1回）。", "endure", 1),
+        Trait("lifesteal", "吸血", "与えた物理ダメージの25%だけHPを回復する。", "lifesteal", 0.25),
+        Trait("pinch_power", "火事場の馬鹿力", "HPが減るほど物理攻撃の威力が上がる（最大+50%）。", "pinch_attack", 0.5),
     )
 }
 

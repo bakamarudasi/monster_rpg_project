@@ -121,7 +121,7 @@ def _inflict(caster: Monster, target: Monster, damage: int, log: List[Dict[str, 
     if damage > 0:
         target.hp -= damage
         log.append({'type': 'info', 'message': f"{target.name} took {damage} damage! (HP: {max(0, target.hp)})"})
-    if target.hp <= 0:
+    if target.hp <= 0 and not target.try_endure(log):
         target.is_alive = False
         log.append({'type': 'info', 'message': f"{target.name} fainted!"})
     elif damage > 0:

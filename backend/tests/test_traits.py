@@ -4,7 +4,8 @@ import unittest
 from unittest.mock import patch
 
 from monster_rpg import battle
-from monster_rpg.battle import calculate_damage
+from monster_rpg.battle import calculate_damage, enemy_take_action, Battle
+from monster_rpg.player import Player
 from monster_rpg.monsters.monster_class import Monster
 from monster_rpg.skills.skills import Skill
 from monster_rpg.skills.skill_actions import calculate_skill_damage
@@ -63,6 +64,40 @@ class NewStatTraitTests(unittest.TestCase):
         phys = Skill('Slash', power=10, category='物理', skill_type='attack', target='enemy')
         calculate_skill_damage(leecher, target, phys)
         self.assertEqual(leecher.mp, 0)   # 物理ではMP回復しない
+
+
+class ReactiveTraitTests(unittest.TestCase):
+    def test_endure_survives_lethal_once_then_dies(self):
+        hero = mk()
+        hero.max_hp, hero.hp = 60, 5
+        hero.trait_id = 'endure'
+        foe = mk(attack=100)
+        foe.ai_role = 'attacker'
+        Battle([hero], [foe], Player('P'))   # 戦闘開始で不屈フラグをリセット
+        enemy_take_action(foe, [hero], [foe], [])
+        self.assertTrue(hero.is_alive)
+        self.assertEqual(hero.hp, 1)
+        hero.hp = 5
+        enemy_take_action(foe, [hero], [foe], [])
+        self.assertFalse(hero.is_alive)
+
+    def test_lifesteal_heals_attacker(self):
+        vamp = mk(attack=50)
+        vamp.trait_id = 'lifesteal'
+        vamp.hp = 10
+        calculate_damage(vamp, mk(defense=0), [])
+        self.assertGreater(vamp.hp, 10)
+
+    def test_pinch_power_scales_with_missing_hp(self):
+        full = mk(attack=30)
+        full.trait_id = 'pinch_power'
+        low = mk(attack=30)
+        low.trait_id = 'pinch_power'
+        low.hp = max(1, int(low.max_hp * 0.1))
+        with patch('monster_rpg.battle.random.random', return_value=0.99):  # 会心を排除
+            d_full = calculate_damage(full, mk(defense=0), [])
+            d_low = calculate_damage(low, mk(defense=0), [])
+        self.assertGreater(d_low, d_full)
 
 
 if __name__ == '__main__':

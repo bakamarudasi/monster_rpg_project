@@ -200,6 +200,11 @@ def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, s
     base = attacker.total_attack() - defender.total_defense()
     damage = max(1, base)
 
+    # 特性「火事場の馬鹿力」: HPが減るほど物理攻撃の威力が上がる（最大 +value）
+    pinch = getattr(attacker, "trait", None)
+    if pinch is not None and pinch.effect == "pinch_attack" and attacker.max_hp > 0:
+        damage = int(damage * (1.0 + pinch.value * (1.0 - attacker.hp / attacker.max_hp)))
+
     multiplier = elemental_multiplier(attacker.element, defender.element)
 
     # 属性相性のフィードバック（弱点を突くと有利・耐性で不利）
@@ -243,7 +248,16 @@ def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, s
         log.append({'type': 'info', 'message': f"{defender.name} は攻撃を回避した！"})
         return 0
 
-    return max(1, damage)
+    damage = max(1, damage)
+    # 特性「吸血」: 与えた物理ダメージの一部だけHPを回復
+    steal = getattr(attacker, "trait", None)
+    if steal is not None and steal.effect == "lifesteal" and attacker.is_alive:
+        healed = max(1, int(damage * steal.value))
+        before = attacker.hp
+        attacker.hp = min(attacker.max_hp, attacker.hp + healed)
+        if attacker.hp > before:
+            log.append({'type': 'info', 'message': f"{attacker.name} は {attacker.hp - before} HP吸収した！"})
+    return damage
 
 def apply_skill_effect(
     caster: Monster,
@@ -384,6 +398,10 @@ class Battle:
         self.current_actor: Optional[Monster] = None
         self.turn_order: List[Monster] = []
 
+        # 特性「不屈」の使用済みフラグを戦闘開始時にリセット
+        for m in self.player_party + self.enemy_party:
+            m._endure_used = False
+
         # 新しい戦闘を始めるので、前の戦闘のフィールド（天候）状態を消す
         clear_field()
 
@@ -470,7 +488,7 @@ class Battle:
             damage = target.absorb_with_shield(damage, self.log)
             target.hp -= damage
             self.log.append({'type': 'info', 'message': f"{target.name} took {damage} damage! (HP: {max(0, target.hp)})"})
-            if target.hp <= 0:
+            if target.hp <= 0 and not target.try_endure(self.log):
                 target.is_alive = False
                 self.log.append({'type': 'info', 'message': f"{target.name} fainted!"})
             else:
@@ -834,7 +852,7 @@ def enemy_take_action(
         damage = target.absorb_with_shield(damage, log)
         target.hp -= damage
         log.append({'type': 'info', 'message': f"{target.name} took {damage} damage! (HP: {max(0, target.hp)})"})
-        if target.hp <= 0:
+        if target.hp <= 0 and not target.try_endure(log):
             target.is_alive = False
             log.append({'type': 'info', 'message': f"{target.name} fainted!"})
         else:
@@ -904,7 +922,7 @@ def enemy_take_action(
         damage = target.absorb_with_shield(damage, log)
         target.hp -= damage
         log.append({'type': 'info', 'message': f"{target.name} took {damage} damage! (HP: {max(0, target.hp)})"})
-        if target.hp <= 0:
+        if target.hp <= 0 and not target.try_endure(log):
             target.is_alive = False
             log.append({'type': 'info', 'message': f"{target.name} fainted!"})
 

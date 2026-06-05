@@ -205,6 +205,8 @@ class Monster:
         self.trait_id = None
         # 個体値による成長の端数を貯めるバンク（小さな取得量でも倍率を取りこぼさない）
         self._growth_bank = {s: 0.0 for s in IV_STATS}
+        # 特性「不屈」の使用済みフラグ（1戦闘1回。戦闘開始時にリセット）
+        self._endure_used = False
 
         self.level = level
         self.exp = exp
@@ -275,6 +277,17 @@ class Monster:
     def has_trait_effect(self, effect: str) -> bool:
         t = self.trait
         return t is not None and t.effect == effect
+
+    def try_endure(self, log: list[dict[str, str]] | None = None) -> bool:
+        """特性「不屈」: 致死ダメージをHP1で耐える（1戦闘1回）。耐えたら True。"""
+        t = self.trait
+        if t is not None and t.effect == "endure" and not self._endure_used and self.hp <= 0:
+            self.hp = 1
+            self._endure_used = True
+            if log is not None:
+                log.append({'type': 'info', 'message': f"{self.name} は不屈で持ちこたえた！"})
+            return True
+        return False
 
     def _individual_multiplier(self, stat: str) -> float:
         """性格による派生ステの恒久倍率。バランス型なら 1.0（=従来通り）。
