@@ -368,6 +368,27 @@ class Monster:
     def magic(self, value: int) -> None:
         self.base_magic = value
 
+    @property
+    def critical_rate(self) -> int:
+        """会心率（％ポイント）。個体差（速さ・才能）＋装備・バフ・恒久強化。
+
+        速いほど、才能が高いほど会心しやすい（C）。装備の critical_rate も反映（A）。
+        """
+        pts = self.speed // 40
+        pts += {"genius": 3, "mastermind": 6}.get(self.talent.id, 0)
+        pts += self._stat_bonuses.get("critical_rate", 0)
+        pts += self.permanent_bonuses.get("critical_rate", 0)
+        pts += self._equipment_bonus("critical_rate")
+        return max(0, pts)
+
+    @property
+    def evasion_rate(self) -> int:
+        """回避率（％ポイント）。装備・バフ・恒久強化から（A）。既定は0＝必中。"""
+        pts = self._stat_bonuses.get("evasion_rate", 0)
+        pts += self.permanent_bonuses.get("evasion_rate", 0)
+        pts += self._equipment_bonus("evasion_rate")
+        return max(0, pts)
+
     def add_permanent_stat(self, stat: str, amount: int) -> int:
         """種アイテム等で恒久的にステータスを上げる。HP/MPは最大値に直接加算する。"""
         amount = int(amount)

@@ -192,6 +192,11 @@ def defend(monster: Monster, log: List[Dict[str, str]]) -> None:
 def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, str]] | None = None) -> int:
     if log is None:
         log = []
+    # 回避判定（％ポイント→確率、上限60%）。回避率0なら必中＝従来どおり。
+    evasion = getattr(defender, "evasion_rate", 0)
+    if evasion > 0 and random.random() < min(0.6, evasion / 100.0):
+        log.append({'type': 'info', 'message': f"{defender.name} は素早く攻撃をかわした！"})
+        return 0
     base = attacker.total_attack() - defender.total_defense()
     damage = max(1, base)
 
@@ -225,7 +230,9 @@ def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, s
         log.append({'type': 'resist', 'message': "こうかは いまひとつの ようだ…"})
     damage = int(damage * eresist)
 
-    if random.random() < CRITICAL_HIT_CHANCE:
+    # 会心判定: 基礎率＋会心率（速さ・才能・装備）。上限75%。
+    crit_chance = CRITICAL_HIT_CHANCE + getattr(attacker, "critical_rate", 0) / 100.0
+    if random.random() < min(0.75, crit_chance):
         damage = int(damage * CRITICAL_HIT_MULTIPLIER)
         log.append({'type': 'critical', 'message': "クリティカルヒット！"})
 

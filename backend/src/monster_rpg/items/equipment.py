@@ -478,6 +478,22 @@ class EquipmentInstance:
         base = int(self.base_item.magic * self.stat_multiplier) # Use base_item.magic
         return base + bonus
 
+    @property
+    def total_critical_rate(self) -> int:
+        """会心率（％ポイント）。称号・ランダム副ステ・強化から合算。"""
+        bonus = self.title.stat_bonuses.get("critical_rate", 0) if self.title else 0
+        bonus += self._bonus_for("critical_rate")
+        bonus += self._enhance_bonus("critical_rate")
+        return bonus
+
+    @property
+    def total_evasion_rate(self) -> int:
+        """回避率（％ポイント）。称号・ランダム副ステ・強化から合算。"""
+        bonus = self.title.stat_bonuses.get("evasion_rate", 0) if self.title else 0
+        bonus += self._bonus_for("evasion_rate")
+        bonus += self._enhance_bonus("evasion_rate")
+        return bonus
+
     # ------------------------------------------------------------------
     def _enhance_bonus(self, stat: str) -> int:
         """強化レベル(+N)による上昇。基礎値の約10%/レベル（最低+1/レベル）。"""
