@@ -49,6 +49,7 @@ def serialize_monster(m, unit_id):
             'description': getattr(sk, 'description', '')
         })
 
+    indiv = m.individuality_summary()
     return {
         'unit_id': unit_id,
         'monster_id': m.monster_id,
@@ -76,6 +77,15 @@ def serialize_monster(m, unit_id):
             for e in m.status_effects
         ],
         'skills': skills,
+        # 表示用の個性（性格/才能/特性）
+        'personality': indiv['personality'],
+        'talent': indiv['talent'],
+        'trait': indiv['trait'],
+        # ターンをまたぐシリアライズ往復で個性を失わないための生データ
+        'personality_id': getattr(m, 'personality_id', None),
+        'ivs': dict(getattr(m, 'ivs', {}) or {}),
+        'trait_id': getattr(m, 'trait_id', None),
+        'iv_appraised': bool(getattr(m, 'iv_appraised', False)),
     }
 
 def deserialize_monster(data):
@@ -121,6 +131,12 @@ def deserialize_monster(data):
         monster.element_resist = dict(template.element_resist)
         monster.is_boss = template.is_boss
     monster.is_boss = bool(data.get('is_boss', monster.is_boss))
+    # 個性（性格/個体値/特性/鑑定状態）を復元（往復で失わない）
+    monster.personality_id = data.get('personality_id')
+    if data.get('ivs'):
+        monster.ivs = dict(data['ivs'])
+    monster.trait_id = data.get('trait_id')
+    monster.iv_appraised = bool(data.get('iv_appraised', False))
     return monster
 
 def turn_order_ids(monsters):

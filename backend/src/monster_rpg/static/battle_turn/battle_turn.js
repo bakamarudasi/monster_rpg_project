@@ -96,6 +96,16 @@
         unit.dataset.speed = info.speed;
         if (info.element) unit.dataset.element = info.element;
         unit.dataset.statuses = JSON.stringify(info.statuses || []);
+        /* 個性（詳細パネル用のデータ属性） */
+        if (info.personality) {
+            unit.dataset.personality = info.personality.name || '';
+            unit.dataset.personalityEffect = info.personality.effect || '';
+        }
+        if (info.talent && info.talent.id !== 'common') unit.dataset.talent = info.talent.name || '';
+        if (info.trait) {
+            unit.dataset.trait = info.trait.name || '';
+            unit.dataset.traitDesc = info.trait.description || '';
+        }
 
         if (info.image) {
             const img = document.createElement('img');
@@ -117,6 +127,25 @@
         }
         nm.appendChild(document.createTextNode(info.name));
         infoBox.appendChild(nm);
+
+        /* 性格・才能をカード上にも小さく表示（味方はタップ詳細が無いため） */
+        const tags = document.createElement('div');
+        tags.className = 'unit-tags';
+        if (info.personality) {
+            const p = document.createElement('span');
+            p.className = 'unit-pers';
+            p.textContent = info.personality.name;
+            if (info.personality.effect) p.title = '性格：' + info.personality.effect;
+            tags.appendChild(p);
+        }
+        if (info.talent && info.talent.id !== 'common') {
+            const t = document.createElement('span');
+            t.className = 'unit-talent' + (info.talent.hidden ? ' hidden' : '');
+            t.textContent = info.talent.name;
+            t.title = '才能';
+            tags.appendChild(t);
+        }
+        if (tags.childNodes.length) infoBox.appendChild(tags);
 
         const hpBar = document.createElement('div');
         hpBar.className = 'hp-bar';
@@ -428,6 +457,9 @@
         const fields = {
             name: document.getElementById('detail-name'),
             level: document.getElementById('detail-level'),
+            personality: document.getElementById('detail-personality'),
+            talent: document.getElementById('detail-talent'),
+            trait: document.getElementById('detail-trait'),
             element: document.getElementById('detail-element'),
             hp: document.getElementById('detail-hp'),
             maxHp: document.getElementById('detail-max-hp'),
@@ -457,6 +489,13 @@
                 if (weakEl) {
                     const weak = ELEMENT_WEAKNESS[elem];
                     weakEl.textContent = weak ? weak + '属性' : '—';
+                }
+                /* 個性: 空欄は「—」、効果/説明はツールチップに */
+                if (fields.personality) fields.personality.title = el.dataset.personalityEffect || '';
+                if (fields.talent && !fields.talent.textContent) fields.talent.textContent = '—';
+                if (fields.trait) {
+                    if (!fields.trait.textContent) fields.trait.textContent = '—';
+                    fields.trait.title = el.dataset.traitDesc || '';
                 }
                 detailPanel.classList.add('open');
             });
