@@ -240,7 +240,14 @@ def _handle_status(
         if resist <= 0.0:
             log.append({'type': 'info', 'message': f"{target.name} には効かないようだ！"})
             return
-        if random.random() < chance * resist:
+        prob = chance * resist
+        # 状態異常（負の状態）は、術者の魔力が相手の魔法防御を上回るほど決まりやすい。
+        # 上回らなければ補正なし＝従来どおり（魔力0の物理術者は影響を受けない）。
+        if status in NEGATIVE_STATUSES:
+            edge = getattr(caster, "magic", 0) - target.total_magic_defense()
+            if edge > 0:
+                prob *= 1.0 + min(0.5, edge / 100.0)
+        if random.random() < min(1.0, prob):
             target.apply_status(status, log, duration)
         else:
             log.append({'type': 'info', 'message': f"{target.name} resisted the status effect."})
