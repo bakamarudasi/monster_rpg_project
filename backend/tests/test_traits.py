@@ -221,7 +221,7 @@ class ExtraActionTraitTests(unittest.TestCase):
                 ace.trait_id = trait
             dummy = Monster('Dummy', hp=10 ** 7, attack=0, defense=5, speed=20)
             _, log = arena.auto_resolve([ace], [dummy], Player('P'))
-            return sum(1 for e in log if e.get('message') == "Ace's action!")
+            return sum(1 for e in log if e.get('message') == "Ace の行動！")
 
         self.assertGreater(acts('dual_strike'), acts(None))
 

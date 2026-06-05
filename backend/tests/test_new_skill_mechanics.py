@@ -60,7 +60,7 @@ class MultiHitTests(unittest.TestCase):
         skill = ALL_SKILLS["rapid_slash"]
         log = []
         apply_effects(caster, target, skill.effects, skill, log)
-        hit_msgs = [e for e in log if "took" in e["message"] and "damage" in e["message"]]
+        hit_msgs = [e for e in log if "のダメージ" in e["message"]]
         self.assertGreaterEqual(len(hit_msgs), 2)
         self.assertLessEqual(len(hit_msgs), 4)
         self.assertLess(target.hp, target.max_hp)

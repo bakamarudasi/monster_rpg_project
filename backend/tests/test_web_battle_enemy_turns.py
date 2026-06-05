@@ -61,7 +61,7 @@ class EnemyTurnEndpointTests(unittest.TestCase):
         # プレイヤーの行動後、敵が反撃してHPが減っている
         self.assertLess(self.hero.hp, before)
         log = [m.get('message', '') for m in resp.get_json()['log']]
-        self.assertTrue(any(m.startswith('Foe attacks') for m in log))
+        self.assertTrue(any(m.startswith('Foe の攻撃') for m in log))
 
 
 if __name__ == '__main__':
