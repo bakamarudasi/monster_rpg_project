@@ -9,6 +9,37 @@ from ..monsters.personality_ai import choose_auto_action
 from .. import elements
 
 
+def _assign_unit_ids(battle_obj) -> None:
+    """戦闘中のモンスターに安定した unit_id を振る（行動者ハイライトの一致用）。"""
+    for i, m in enumerate(battle_obj.player_party):
+        m.unit_id = f'ally-{i}'
+    for i, m in enumerate(battle_obj.enemy_party):
+        m.unit_id = f'enemy-{i}'
+
+
+def _current_actor_info(battle_obj):
+    ca = battle_obj.current_actor
+    return serialize_monster(ca, ca.unit_id) if ca else None
+
+
+def _resolve_battle(battle_state, player):
+    """active_battles の値を Battle オブジェクトに解決する。
+
+    既に Battle ならそのまま、レガシーな dict 形式なら復元する。無ければ None。
+    """
+    if isinstance(battle_state, Battle):
+        return battle_state
+    if not battle_state:
+        return None
+    player_party = [deserialize_monster(m) for m in battle_state['player_party_data']]
+    enemy_party = [deserialize_monster(m) for m in battle_state['enemy_party_data']]
+    turn_order = [deserialize_monster(m) for m in battle_state['turn_order_monsters_data']]
+    battle_obj = start_atb_battle(player_party, enemy_party, player, battle_state['log'], turn_order)
+    _restore_field(battle_state)
+    _assign_unit_ids(battle_obj)
+    return battle_obj
+
+
 def _resolve_player_action(battle_obj, data_src) -> dict:
     """プレイヤーのアクションを組み立てる。
 
@@ -216,53 +247,26 @@ def battle(user_id):
                 del active_battles[user_id]
             return redirect(url_for('explore.explore', user_id=user_id), code=307)
 
-        if isinstance(battle_state, Battle):
-            battle_obj = battle_state
-            player_party = battle_obj.player_party
-            enemy_party = battle_obj.enemy_party
-            log = battle_obj.log
-            turn_order_monsters = battle_obj.turn_order
-            while not battle_obj.finished and (battle_obj.current_actor is None or battle_obj.current_actor not in battle_obj.player_party):
-                battle_obj.advance_turn()
-        else:
-            if not battle_state:
-                # This should ideally not happen if battle_state is properly managed
-                return jsonify({'error': 'no_active_battle'}), 404
+        battle_obj = _resolve_battle(battle_state, player)
+        if battle_obj is None:
+            return jsonify({'error': 'no_active_battle'}), 404
 
-            # Deserialize monsters from the stored battle state
-            player_party = [deserialize_monster(m_data) for m_data in battle_state['player_party_data']]
-            enemy_party = [deserialize_monster(m_data) for m_data in battle_state['enemy_party_data']]
-            log = battle_state['log']
-            turn_order_monsters = [deserialize_monster(m_data) for m_data in battle_state['turn_order_monsters_data']]
+        # 入力待ちの行動者が生存プレイヤーでなければ、正準ループで手番を作る
+        if (battle_obj.current_actor is None
+                or battle_obj.current_actor not in battle_obj.player_party
+                or not battle_obj.current_actor.is_alive):
+            battle_obj.run_until_player_turn()
 
-            # Reconstruct the battle object for processing the turn
-            battle_obj = start_atb_battle(player_party, enemy_party, player, log, turn_order_monsters)
-            _restore_field(battle_state)
-
+        # 現在のプレイヤーが行動 → 敵の手番を消化し、次の入力（または決着）まで進める
         battle_obj.process_player_action(_resolve_player_action(battle_obj, data_src))
+        battle_obj.run_until_player_turn()
 
-        # Process AI turns until player's turn or battle ends
-        while not battle_obj.finished and battle_obj.current_actor and battle_obj.current_actor not in battle_obj.player_party:
-            battle_obj.process_ai_turn()
+        active_battles[user_id] = battle_obj
+        save_player(player, user_id)
 
-        # Update the stored battle state
-        if isinstance(battle_state, Battle):
-            active_battles[user_id] = battle_obj
-        else:
-            # Keep key names consistent with the initial stored battle state
-            active_battles[user_id] = {
-                'player_party_data': [serialize_monster(m, f'ally-{i}') for i, m in enumerate(battle_obj.player_party)],
-                'enemy_party_data': [serialize_monster(m, f'enemy-{i}') for i, m in enumerate(battle_obj.enemy_party)],
-                'log': battle_obj.log,
-                'turn': battle_obj.turn_count,
-                'finished': battle_obj.finished,
-                'outcome': battle_obj.outcome,
-                'current_actor_info': serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None,
-                'turn_order_monsters_data': [serialize_monster(m, m.unit_id) for m in battle_obj.turn_order],
-                'field': elements.get_field()
-            }
-            save_player(player, user_id)
-
+        player_party = battle_obj.player_party
+        enemy_party = battle_obj.enemy_party
+        log = battle_obj.log
         if battle_obj.finished:
             msgs = battle_service.apply_battle_rewards(
                 player, battle_obj.outcome, player_party, enemy_party, battle_obj.log
@@ -271,14 +275,14 @@ def battle(user_id):
             del active_battles[user_id]
             save_player(player, user_id)
             html = render_template('battle.html', messages=msgs, user_id=user_id)
-            return jsonify({'hp_values': serialize_battle_state(player_party, enemy_party, log, serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None, battle_obj.turn_order), 'log': msgs, 'finished': True, 'turn': battle_obj.turn_count, 'html': html, 'turn_order': turn_order_ids(battle_obj.turn_order)})
+            return jsonify({'hp_values': serialize_battle_state(player_party, enemy_party, log, _current_actor_info(battle_obj), battle_obj.turn_order), 'log': msgs, 'finished': True, 'turn': battle_obj.turn_count, 'html': html, 'turn_order': turn_order_ids(battle_obj.turn_order)})
         else:
             return jsonify({
-                'hp_values': serialize_battle_state(battle_obj.player_party, battle_obj.enemy_party, battle_obj.log, serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None, battle_obj.turn_order),
+                'hp_values': serialize_battle_state(battle_obj.player_party, battle_obj.enemy_party, battle_obj.log, _current_actor_info(battle_obj), battle_obj.turn_order),
                 'log': battle_obj.log,
                 'finished': False,
                 'turn': battle_obj.turn_count,
-                'current_actor': serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None,
+                'current_actor': _current_actor_info(battle_obj),
                 'turn_order': turn_order_ids(battle_obj.turn_order)
             })
     else: # GET request or initial battle setup
@@ -288,32 +292,29 @@ def battle(user_id):
                 return redirect(url_for('main.play', user_id=user_id))
             if error == 'no_enemies':
                 return render_template('result.html', message='モンスターは現れなかった。', user_id=user_id)
-
-            # Store the initial battle state
-            active_battles[user_id] = {
-                'player_party_data': [serialize_monster(m, f'ally-{i}') for i, m in enumerate(battle_obj.player_party)],
-                'enemy_party_data': [serialize_monster(m, f'enemy-{i}') for i, m in enumerate(battle_obj.enemy_party)],
-                'log': battle_obj.log,
-                'turn': battle_obj.turn_count,
-                'finished': battle_obj.finished,
-                'outcome': battle_obj.outcome,
-                'current_actor_info': serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None,
-                'turn_order_monsters_data': [serialize_monster(m, m.unit_id) for m in battle_obj.turn_order],
-                'field': elements.get_field()
-            }
+            _assign_unit_ids(battle_obj)
+            # 最初のプレイヤー手番まで進める（素早い敵はここで先制する）
+            battle_obj.run_until_player_turn()
+            active_battles[user_id] = battle_obj
             save_player(player, user_id)
-        elif isinstance(battle_state, Battle):
-            battle_obj = battle_state
-            while not battle_obj.finished and (battle_obj.current_actor is None or battle_obj.current_actor not in battle_obj.player_party):
-                battle_obj.advance_turn()
         else:
-            # If battle state exists, reconstruct battle_obj for rendering
-            player_party = [deserialize_monster(m_data) for m_data in battle_state['player_party_data']]
-            enemy_party = [deserialize_monster(m_data) for m_data in battle_state['enemy_party_data']]
-            log = battle_state['log']
-            turn_order_monsters = [deserialize_monster(m_data) for m_data in battle_state['turn_order_monsters_data']]
-            battle_obj = start_atb_battle(player_party, enemy_party, player, log, turn_order_monsters)
-            _restore_field(battle_state)
+            battle_obj = _resolve_battle(battle_state, player)
+            _assign_unit_ids(battle_obj)
+            if (battle_obj.current_actor is None
+                    or battle_obj.current_actor not in battle_obj.player_party
+                    or not battle_obj.current_actor.is_alive):
+                battle_obj.run_until_player_turn()
+            active_battles[user_id] = battle_obj
+
+        # 開始直後に決着していたら（全滅など）結果を表示する
+        if battle_obj.finished:
+            msgs = battle_service.apply_battle_rewards(
+                player, battle_obj.outcome, battle_obj.player_party, battle_obj.enemy_party, battle_obj.log
+            )
+            player.last_battle_log = msgs
+            active_battles.pop(user_id, None)
+            save_player(player, user_id)
+            return render_template('battle.html', messages=msgs, user_id=user_id)
 
         init_data = {
             'ally_info': [serialize_monster(m, f'ally-{i}') for i, m in enumerate(battle_obj.player_party)],

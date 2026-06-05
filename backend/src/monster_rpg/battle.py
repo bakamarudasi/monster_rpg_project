@@ -649,6 +649,23 @@ class Battle:
         enemy_take_action(actor, self.player_party, self.enemy_party, self.log)
         actor.reset_atb_gauge()
         self._maybe_extra_action(actor)
+
+    def run_until_player_turn(self, guard_limit: int = 1000):
+        """生存プレイヤーの手番（入力待ち）になるまで進める正準ループ。
+
+        advance_turn で次の行動者を決め、敵なら process_ai_turn で自動行動、味方なら
+        そこで止めて入力を待つ。これにより敵の手番が確実に消化される。
+        """
+        guard = 0
+        while not self.finished and guard < guard_limit:
+            guard += 1
+            self.advance_turn()
+            actor = self.current_actor
+            if actor is None or not actor.is_alive:
+                continue
+            if actor in self.player_party:
+                return  # プレイヤーの入力待ち
+            self.process_ai_turn()  # 敵の手番を自動消化
         self._check_battle_end()
 
     def _maybe_extra_action(self, actor):

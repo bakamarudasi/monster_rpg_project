@@ -58,7 +58,10 @@ class BattleUIStateTests(unittest.TestCase):
             self.battle.advance_turn()
         resp = self.client.get(f'/battle-json/{self.user_id}')
         self.assertEqual(resp.status_code, 200)
-        units = resp.get_json()['hp_values']['turn_order_monsters']
+        data = resp.get_json()
+        units = list(data['hp_values']['turn_order_monsters'])
+        if data.get('current_actor'):
+            units.append(data['current_actor'])   # Hero は行動者か待機列のどちらかに必ずいる
         hero = next(u for u in units if u['name'] == 'Hero')
         self.assertEqual(hero['personality']['name'], 'かしこい')
         self.assertIn('effect', hero['personality'])
@@ -70,7 +73,10 @@ class BattleUIStateTests(unittest.TestCase):
             if self.battle.turn_order:
                 break
             self.battle.advance_turn()
-        units = self.client.get(f'/battle-json/{self.user_id}').get_json()['hp_values']['turn_order_monsters']
+        data = self.client.get(f'/battle-json/{self.user_id}').get_json()
+        units = list(data['hp_values']['turn_order_monsters'])
+        if data.get('current_actor'):
+            units.append(data['current_actor'])
         hero = next(u for u in units if u['name'] == 'Hero')
         for key in ('magic', 'magic_defense', 'critical_rate', 'evasion_rate'):
             self.assertIn(key, hero)
