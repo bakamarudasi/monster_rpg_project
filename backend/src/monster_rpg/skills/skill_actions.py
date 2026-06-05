@@ -57,7 +57,18 @@ def calculate_skill_damage(caster: Monster, target: Monster, skill: Skill) -> in
     damage = int(damage * resist)
     if is_defending(target):
         damage = int(damage * 0.5)
-    return max(1, damage)
+    damage = max(1, damage)
+
+    if skill.category == "魔法":
+        # 特性「魔法の盾」: 受ける魔法ダメージを軽減
+        ward = target.trait
+        if ward is not None and ward.effect == "magic_ward":
+            damage = max(1, int(damage * (1.0 - ward.value)))
+        # 特性「吸魔」: 与えた魔法ダメージの一部だけ術者のMPを回復
+        leech = caster.trait
+        if leech is not None and leech.effect == "mana_leech":
+            caster.mp = min(caster.max_mp, caster.mp + max(1, int(damage * leech.value)))
+    return damage
 
 
 NEGATIVE_STATUSES = {

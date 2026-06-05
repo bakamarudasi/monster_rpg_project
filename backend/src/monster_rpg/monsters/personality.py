@@ -297,6 +297,11 @@ ALL_TRAITS: dict[str, Trait] = {
         Trait("vanguard", "先制", "戦闘開始時にATBゲージが大きく溜まった状態で始まる。", "atb", 40),
         Trait("lucky", "幸運", "パーティにいる間、敵のドロップ率が上がる。", "drop", 0.5),
         Trait("element_savant", "属性の申し子", "自分の属性での攻撃ダメージが2割増しになる。", "element_attack", 0.2),
+        # --- 新ステ直結 ---
+        Trait("critical_master", "会心の極み", "会心率が常時+15%される。", "crit", 15),
+        Trait("evasive", "見切り", "回避率が常時+15%される。", "evasion", 15),
+        Trait("magic_ward", "魔法の盾", "受ける魔法ダメージが25%軽減される。", "magic_ward", 0.25),
+        Trait("mana_leech", "吸魔", "魔法ダメージを与えると、その一部だけMPを回復する。", "mana_leech", 0.25),
     )
 }
 

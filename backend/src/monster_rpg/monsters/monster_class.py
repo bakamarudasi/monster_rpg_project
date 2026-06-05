@@ -390,6 +390,9 @@ class Monster:
         """
         pts = self.speed // 40
         pts += {"genius": 3, "mastermind": 6}.get(self.talent.id, 0)
+        t = self.trait
+        if t is not None and t.effect == "crit":
+            pts += int(t.value)
         pts += self._stat_bonuses.get("critical_rate", 0)
         pts += self.permanent_bonuses.get("critical_rate", 0)
         pts += self._equipment_bonus("critical_rate")
@@ -399,6 +402,9 @@ class Monster:
     def evasion_rate(self) -> int:
         """回避率（％ポイント）。装備・バフ・恒久強化から（A）。既定は0＝必中。"""
         pts = self._stat_bonuses.get("evasion_rate", 0)
+        t = self.trait
+        if t is not None and t.effect == "evasion":
+            pts += int(t.value)
         pts += self.permanent_bonuses.get("evasion_rate", 0)
         pts += self._equipment_bonus("evasion_rate")
         return max(0, pts)
