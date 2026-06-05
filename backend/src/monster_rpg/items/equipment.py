@@ -546,6 +546,39 @@ class EquipmentInstance:
         return total
 
 
+# 装備が持ちうるステータスと表示ラベル（魔防・会心率・回避率を含む）
+EQUIPMENT_STAT_LABELS = [
+    ("attack", "攻"), ("defense", "防"), ("magic", "魔"),
+    ("magic_defense", "魔防"), ("speed", "速"),
+    ("critical_rate", "会心率"), ("evasion_rate", "回避率"),
+]
+_PERCENT_STATS = {"critical_rate", "evasion_rate"}
+
+
+def equipment_stat_summary(equip) -> list[dict]:
+    """装備のゼロでないステータスを表示用に列挙する。
+
+    EquipmentInstance は total_*、素の Equipment は属性値を見る。会心率/回避率は % 付き。
+    戻り値は [{'key','label','value','display'}] の順序付きリスト。
+    """
+    summary = []
+    for key, label in EQUIPMENT_STAT_LABELS:
+        total_attr = getattr(equip, f"total_{key}", None)
+        value = total_attr if total_attr is not None else getattr(equip, key, 0)
+        value = int(value or 0)
+        if value == 0:
+            continue
+        sign = "+" if value > 0 else ""
+        unit = "%" if key in _PERCENT_STATS else ""
+        summary.append({
+            "key": key,
+            "label": label,
+            "value": value,
+            "display": f"{label}{sign}{value}{unit}",
+        })
+    return summary
+
+
 def _choose_amount(entry: Dict[str, Any]) -> int:
     """Return a stat amount using tiers if provided."""
     if "tiers" in entry:

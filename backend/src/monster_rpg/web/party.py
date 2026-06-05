@@ -3,9 +3,22 @@ import json
 from .utils import load_player, save_player
 from ..services import equipment_service
 from ..monsters.monster_data import MONSTER_BOOK_DATA
-from ..items.equipment import EquipmentInstance
+from ..items.equipment import EquipmentInstance, equipment_stat_summary
 
 party_bp = Blueprint('party', __name__)
+
+
+def _detail_stats(m):
+    """モンスター詳細パネル用の実効ステ（魔力・魔防・会心率・回避率を含む）。"""
+    return {
+        'attack': m.total_attack(),
+        'defense': m.total_defense(),
+        'magic': m.magic,
+        'magic_defense': m.magic_defense,
+        'speed': m.total_speed(),
+        'critical_rate': m.critical_rate,
+        'evasion_rate': m.evasion_rate,
+    }
 
 @party_bp.route('/party/<int:user_id>', endpoint='party')
 def party(user_id):
@@ -25,11 +38,7 @@ def party(user_id):
                 'exp': m.exp,
                 'exp_to_next': m.calculate_exp_to_next_level(),
                 'image': url_for('static', filename='images/' + m.image_filename) if m.image_filename else '',
-                'stats': {
-                    'attack': m.total_attack(),
-                    'defense': m.total_defense(),
-                    'speed': m.total_speed(),
-                },
+                'stats': _detail_stats(m),
                 'skills': m.get_skill_details(),
                 'description': MONSTER_BOOK_DATA.get(m.monster_id).description if MONSTER_BOOK_DATA.get(m.monster_id) else 'このモンスターに関する詳しい説明はまだ見つかっていない。',
                 'index': idx,
@@ -45,6 +54,7 @@ def party(user_id):
             'slot': getattr(e, 'slot', ''),
             'attack': getattr(e, 'total_attack', getattr(e, 'attack', 0)),
             'defense': getattr(e, 'total_defense', getattr(e, 'defense', 0)),
+            'stats': equipment_stat_summary(e),
         }
         for e in player.equipment_inventory
     ]
@@ -148,11 +158,7 @@ def formation(user_id):
             'exp': m.exp,
             'exp_to_next': m.calculate_exp_to_next_level(),
             'image': url_for('static', filename='images/' + m.image_filename) if m.image_filename else '',
-            'stats': {
-                'attack': m.total_attack(),
-                'defense': m.total_defense(),
-                'speed': m.total_speed(),
-            },
+            'stats': _detail_stats(m),
             'skills': m.get_skill_details(),
             'description': MONSTER_BOOK_DATA.get(m.monster_id).description if MONSTER_BOOK_DATA.get(m.monster_id) else 'このモンスターに関する詳しい説明はまだ見つかっていない。'
         }
@@ -206,11 +212,7 @@ def manage(user_id):
             'exp': m.exp,
             'exp_to_next': m.calculate_exp_to_next_level(),
             'image': url_for('static', filename='images/' + m.image_filename) if m.image_filename else '',
-            'stats': {
-                'attack': m.total_attack(),
-                'defense': m.total_defense(),
-                'speed': m.total_speed(),
-            },
+            'stats': _detail_stats(m),
             'skills': m.get_skill_details(),
             'description': MONSTER_BOOK_DATA.get(m.monster_id).description if MONSTER_BOOK_DATA.get(m.monster_id) else 'このモンスターに関する詳しい説明はまだ見つかっていない。',
             'individuality': m.individuality_summary(),
@@ -232,6 +234,7 @@ def manage(user_id):
             'slot': getattr(e, 'slot', ''),
             'attack': getattr(e, 'total_attack', getattr(e, 'attack', 0)),
             'defense': getattr(e, 'total_defense', getattr(e, 'defense', 0)),
+            'stats': equipment_stat_summary(e),
         }
         for e in player.equipment_inventory
     ]

@@ -160,27 +160,27 @@
 
       const statsGrid = document.createElement('div');
       statsGrid.className = 'card-stats-grid';
-
-      const atkSpan = document.createElement('span');
-      atkSpan.textContent = 'こうげき: ';
-      const atkVal = document.createElement('strong');
-      atkVal.textContent = data.stats.attack;
-      atkSpan.appendChild(atkVal);
-      statsGrid.appendChild(atkSpan);
-
-      const defSpan = document.createElement('span');
-      defSpan.textContent = 'ぼうぎょ: ';
-      const defVal = document.createElement('strong');
-      defVal.textContent = data.stats.defense;
-      defSpan.appendChild(defVal);
-      statsGrid.appendChild(defSpan);
-
-      const spdSpan = document.createElement('span');
-      spdSpan.textContent = 'すばやさ: ';
-      const spdVal = document.createElement('strong');
-      spdVal.textContent = data.stats.speed;
-      spdSpan.appendChild(spdVal);
-      statsGrid.appendChild(spdSpan);
+      // [ラベル, キー, 単位, 0でも表示するか]
+      const statDefs = [
+        ['こうげき', 'attack', '', true],
+        ['ぼうぎょ', 'defense', '', true],
+        ['まりょく', 'magic', '', true],
+        ['まぼう', 'magic_defense', '', true],
+        ['すばやさ', 'speed', '', true],
+        ['かいしん', 'critical_rate', '%', false],
+        ['かいひ', 'evasion_rate', '%', false],
+      ];
+      statDefs.forEach(([label, key, unit, showZero]) => {
+        const v = data.stats[key];
+        if (v === undefined || v === null) return;
+        if (!showZero && !v) return;   // 会心/回避は0なら省く
+        const span = document.createElement('span');
+        span.textContent = label + ': ';
+        const strong = document.createElement('strong');
+        strong.textContent = v + unit;
+        span.appendChild(strong);
+        statsGrid.appendChild(span);
+      });
       content.appendChild(statsGrid);
 
       const skillsSection = document.createElement('div');
@@ -255,6 +255,12 @@
           btn.dataset.idx = data.index;
           btn.textContent = '装備';
           li.textContent = eq.name + ' ';
+          if (Array.isArray(eq.stats) && eq.stats.length) {
+            const stats = document.createElement('span');
+            stats.className = 'equip-stats';
+            stats.textContent = '[' + eq.stats.map(s => s.display).join(' ') + '] ';
+            li.appendChild(stats);
+          }
           li.appendChild(btn);
           invUl.appendChild(li);
         });

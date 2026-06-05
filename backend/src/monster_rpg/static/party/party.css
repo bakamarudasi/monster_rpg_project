@@ -401,3 +401,6 @@
 }
 .appraise-btn:disabled { opacity: 0.5; cursor: default; }
 .appraise-btn:hover:not(:disabled) { filter: brightness(1.08); }
+
+/* 装備一覧の能力表示（攻/防/魔/魔防/速/会心/回避） */
+.equip-stats { color: #6a4fb0; font-size: 0.82em; font-weight: 600; }
