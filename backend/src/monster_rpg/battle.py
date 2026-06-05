@@ -679,6 +679,28 @@ def _skill_has(skill: Skill, *effect_types: str) -> bool:
     return any(e.get("type") in effect_types for e in getattr(skill, "effects", []))
 
 
+def _pick_damage_target(actor: Monster, players: list[Monster], skill: Skill | None = None) -> Monster:
+    """最も効率よくダメージを通せる相手を選ぶ。
+
+    魔法技は相手の魔法防御で、物理は物理防御で実効ダメージを見積もり、基本攻撃のみ
+    回避率を考慮する。HPの低さも加味して『最短で倒せる相手』を狙う。
+    """
+    is_magic = skill is not None and getattr(skill, "category", None) == "魔法"
+    power = getattr(skill, "power", 0) if skill is not None else 0
+
+    def value(m: Monster) -> float:
+        if is_magic:
+            eff = max(1, getattr(actor, "magic", 0) + power - m.total_magic_defense())
+            hit = 1.0
+        else:
+            eff = max(1, actor.total_attack() + power - m.total_defense())
+            # 回避は基本攻撃のみ乗る（スキルは回避不可のモデル）
+            hit = 1.0 - min(0.6, getattr(m, "evasion_rate", 0) / 100.0) if skill is None else 1.0
+        return eff * hit / max(1, m.hp)
+
+    return max(players, key=value)
+
+
 def _enemy_skill_targets(actor: Monster, skill: Skill, players: list[Monster], allies: list[Monster]) -> list[Monster]:
     """敵が使うスキルのアーキタイプに応じて最適なターゲットを選ぶ。"""
     if skill.target == "self":
@@ -703,8 +725,8 @@ def _enemy_skill_targets(actor: Monster, skill: Skill, players: list[Monster], a
         if statused:
             return [max(statused, key=lambda m: m.hp)]            # 追い討ち
     if skill.skill_type in ("debuff", "status"):
-        return [max(players, key=lambda m: m.attack)]             # 厄介な相手を妨害
-    return [min(players, key=lambda m: m.hp)]                     # 通常攻撃技はトドメ狙い
+        return [max(players, key=lambda m: (m.attack, -m.total_magic_defense()))]  # 厄介な相手を妨害（魔防が低い＝決まりやすい者を優先）
+    return [_pick_damage_target(actor, players, skill)]            # ダメージ技は最も効率よく削れる相手へ
 
 
 # 性格スタイル別の「攻撃技を選ぶ確率」。balanced は 0.7 で従来どおり。
@@ -720,6 +742,12 @@ def _choose_enemy_skill(actor: Monster, usable_skills: list[Skill], players: lis
     """
     offensive = [s for s in usable_skills if s.target == "enemy"]
     support = [s for s in usable_skills if s.target in ("ally", "self")]
+    # 術者型（魔力>攻撃）は魔法技を、武闘型は物理技を優先する（選べるときだけ）
+    if len(offensive) > 1:
+        prefer_magic = getattr(actor, "magic", 0) > actor.total_attack()
+        typed = [s for s in offensive if (getattr(s, "category", None) == "魔法") == prefer_magic]
+        if typed and random.random() < 0.7:
+            offensive = typed
     offensive_pref = _ENEMY_OFFENSIVE_PREF.get(auto_style(actor), 0.7)
     if offensive and (not support or random.random() < offensive_pref):
         pool = offensive
@@ -798,7 +826,7 @@ def enemy_take_action(
             log.append({'type': 'info', 'message': f"{enemy_actor.name} is taunted but cannot attack!"})
             return
         if role == "attacker":
-            target = min(alive_player_targets, key=lambda m: m.hp)
+            target = _pick_damage_target(enemy_actor, alive_player_targets)
         else:
             target = random.choice(alive_player_targets)
         log.append({'type': 'info', 'message': f"{enemy_actor.name} attacks due to taunt! -> {target.name}"})
@@ -868,7 +896,7 @@ def enemy_take_action(
             log.append({'type': 'info', 'message': f"{enemy_actor.name} cannot attack and waits..."})
             return
         if role == "attacker":
-            target = min(alive_player_targets, key=lambda m: m.hp)
+            target = _pick_damage_target(enemy_actor, alive_player_targets)
         else:
             target = random.choice(alive_player_targets)
         log.append({'type': 'info', 'message': f"{enemy_actor.name} attacks! -> {target.name}"})
