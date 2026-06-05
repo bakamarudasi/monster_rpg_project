@@ -9,6 +9,7 @@ from .monster_class import (
     GROWTH_TYPE_MAGIC,
     RANK_D,
 )
+from .personality import ALL_TRAITS
 from ..skills.skills import ALL_SKILLS
 from ..skills.skill_sets import ALL_SKILL_SETS
 from ..items.item_data import ALL_ITEMS
@@ -128,6 +129,14 @@ def _load_from_json(filepath: str | None = None) -> Tuple[Dict[str, Monster], Di
 
         # ボス判定: 明示 is_boss、または専用行動台本(skill_sequence)を持つ個体
         m.is_boss = bool(attrs.get("is_boss", bool(attrs.get("skill_sequence"))))
+
+        # デザイン固定の固有特性（ボス/強敵向け）。野生でも引き直されず維持される。
+        designed_trait = attrs.get("trait")
+        if designed_trait:
+            if designed_trait not in ALL_TRAITS:
+                raise ValueError(f"未知の特性 '{designed_trait}' が {monster_id} に指定されています")
+            m.trait_id = designed_trait
+            m._designed_trait = True
 
         drops = []
         for item_id, rate in attrs.get("drop_items", []):

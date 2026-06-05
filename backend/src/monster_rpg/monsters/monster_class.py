@@ -203,6 +203,9 @@ class Monster:
         self.iv_appraised = False
         # 固有特性（鬼才で確定、天才で抽選）。None なら特性なし。
         self.trait_id = None
+        # JSONで固定指定された特性か。True なら roll_individuality でも維持する
+        # （デザインされたボス/強敵に確定の特性を持たせるため）。
+        self._designed_trait = False
         # 個体値による成長の端数を貯めるバンク（小さな取得量でも倍率を取りこぼさない）
         self._growth_bank = {s: 0.0 for s in IV_STATS}
         # 特性「不屈」の使用済みフラグ（1戦闘1回。戦闘開始時にリセット）
@@ -311,7 +314,9 @@ class Monster:
         self.personality_id = random_personality_id()
         self.ivs = random_ivs()
         # 固有特性は才能（個体値）が高い個体にだけ宿る。野生では稀。
-        self.trait_id = roll_trait_for_talent(self.talent.id)
+        # ただしデザイン固定の特性（ボス/強敵）は引き直さず維持する。
+        if not self._designed_trait:
+            self.trait_id = roll_trait_for_talent(self.talent.id)
 
     def appraise(self) -> None:
         """個体値の数値を開示済みにする（鑑定）。"""
@@ -986,6 +991,7 @@ class Monster:
         new_monster.ivs = dict(self.ivs)
         new_monster.iv_appraised = self.iv_appraised
         new_monster.trait_id = self.trait_id
+        new_monster._designed_trait = self._designed_trait
         new_monster._growth_bank = dict(self._growth_bank)
         new_monster.is_alive = True
         new_monster.skill_sequence = self.skill_sequence[:]
