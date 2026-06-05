@@ -617,6 +617,7 @@ class Battle:
 
         actor.reset_atb_gauge()
         self._check_battle_end()
+        self._maybe_extra_action(actor)
 
     def process_ai_turn(self):
         if self.finished:
@@ -647,7 +648,21 @@ class Battle:
 
         enemy_take_action(actor, self.player_party, self.enemy_party, self.log)
         actor.reset_atb_gauge()
+        self._maybe_extra_action(actor)
         self._check_battle_end()
+
+    def _maybe_extra_action(self, actor):
+        """特性「連撃」: 行動後、確率でATBを満タンにして即もう一度行動できるようにする。
+
+        次の advance_turn で最優先に選ばれるため、同じ相手がもう一度行動する。連鎖は
+        確率的に減衰するので暴走しない（value=0.25 なら2連=約6%）。
+        """
+        if self.finished or actor is None or not actor.is_alive:
+            return
+        t = getattr(actor, "trait", None)
+        if t is not None and t.effect == "extra_action" and random.random() < t.value:
+            actor.atb_gauge = 100
+            self.log.append({'type': 'info', 'message': f"⚡ {actor.name} の連撃！ もう一度行動する！"})
 
     def _check_battle_end(self):
         if is_party_defeated(self.player_party):

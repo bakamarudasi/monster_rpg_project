@@ -66,6 +66,7 @@ def auto_resolve(player_party, enemy_party, player):
         enemy_take_action(actor, foes, allies, log)
         actor.reset_atb_gauge()
         battle._check_battle_end()
+        battle._maybe_extra_action(actor)
     if not battle.finished:
         battle.outcome = "draw"
     return battle.outcome, log
