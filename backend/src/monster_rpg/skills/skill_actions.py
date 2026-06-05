@@ -258,6 +258,13 @@ def _handle_status(
             edge = getattr(caster, "magic", 0) - target.total_magic_defense()
             if edge > 0:
                 prob *= 1.0 + min(0.5, edge / 100.0)
+            # 特性「状態異常の達人」: 付与成功率UP / 「鉄の精神」: 被付与率DOWN
+            ct = caster.trait
+            if ct is not None and ct.effect == "ailment_power":
+                prob *= 1.0 + ct.value
+            tt = target.trait
+            if tt is not None and tt.effect == "ailment_ward":
+                prob *= 1.0 - tt.value
         if random.random() < min(1.0, prob):
             target.apply_status(status, log, duration)
         else:

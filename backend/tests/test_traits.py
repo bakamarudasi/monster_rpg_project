@@ -4,11 +4,20 @@ import unittest
 from unittest.mock import patch
 
 from monster_rpg import battle
-from monster_rpg.battle import calculate_damage, enemy_take_action, Battle
+from monster_rpg.battle import calculate_damage, enemy_take_action, Battle, apply_skill_effect
 from monster_rpg.player import Player
 from monster_rpg.monsters.monster_class import Monster
 from monster_rpg.skills.skills import Skill
 from monster_rpg.skills.skill_actions import calculate_skill_damage
+
+
+def paralyze_skill(chance=0.5):
+    return Skill('P', power=0, skill_type='status',
+                 effects=[{'type': 'status', 'status': 'paralyze', 'chance': chance}])
+
+
+def _has(mon, name):
+    return any(e['name'] == name for e in mon.status_effects)
 
 
 def mk(**kw):
@@ -98,6 +107,35 @@ class ReactiveTraitTests(unittest.TestCase):
             d_full = calculate_damage(full, mk(defense=0), [])
             d_low = calculate_damage(low, mk(defense=0), [])
         self.assertGreater(d_low, d_full)
+
+
+class AilmentTraitTests(unittest.TestCase):
+    def test_afflictor_raises_infliction_rate(self):
+        master, plain = mk(), mk()
+        master.trait_id = 'afflictor'
+        t1, t2 = mk(defense=0), mk(defense=0)
+        with patch('monster_rpg.skills.skill_actions.random.random', return_value=0.7):
+            apply_skill_effect(master, [t1], paralyze_skill())   # 0.5*1.5=0.75 > 0.7 → 成立
+            apply_skill_effect(plain, [t2], paralyze_skill())    # 0.5 < 0.7 → 失敗
+        self.assertTrue(_has(t1, 'paralyze'))
+        self.assertFalse(_has(t2, 'paralyze'))
+
+    def test_iron_will_lowers_infliction_rate(self):
+        warded, normal = mk(defense=0), mk(defense=0)
+        warded.trait_id = 'iron_will'
+        with patch('monster_rpg.skills.skill_actions.random.random', return_value=0.4):
+            apply_skill_effect(mk(), [warded], paralyze_skill())   # 0.5*0.5=0.25 < 0.4 → 防ぐ
+            apply_skill_effect(mk(), [normal], paralyze_skill())   # 0.5 > 0.4 → 受ける
+        self.assertFalse(_has(warded, 'paralyze'))
+        self.assertTrue(_has(normal, 'paralyze'))
+
+    def test_venomous_poisons_on_physical_hit(self):
+        attacker = mk(attack=30)
+        attacker.trait_id = 'venomous'
+        target = mk(defense=0)
+        with patch('monster_rpg.battle.random.random', return_value=0.0):
+            calculate_damage(attacker, target, [])
+        self.assertTrue(_has(target, 'poison'))
 
 
 if __name__ == '__main__':

@@ -306,6 +306,10 @@ ALL_TRAITS: dict[str, Trait] = {
         Trait("endure", "不屈", "致死ダメージを受けてもHP1で持ちこたえる（1戦闘1回）。", "endure", 1),
         Trait("lifesteal", "吸血", "与えた物理ダメージの25%だけHPを回復する。", "lifesteal", 0.25),
         Trait("pinch_power", "火事場の馬鹿力", "HPが減るほど物理攻撃の威力が上がる（最大+50%）。", "pinch_attack", 0.5),
+        # --- 状態異常 ---
+        Trait("afflictor", "状態異常の達人", "自分が与える状態異常の成功率が上がる。", "ailment_power", 0.5),
+        Trait("venomous", "毒手", "物理攻撃時に確率で相手を毒状態にする。", "venom", 0.3),
+        Trait("iron_will", "鉄の精神", "状態異常を受けにくくなる。", "ailment_ward", 0.5),
     )
 }
 

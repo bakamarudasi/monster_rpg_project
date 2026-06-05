@@ -249,6 +249,12 @@ def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, s
         return 0
 
     damage = max(1, damage)
+    # 特性「毒手」: 物理攻撃時に確率で毒を付与（耐性で確率は下がる）
+    venom = getattr(attacker, "trait", None)
+    if venom is not None and venom.effect == "venom" and defender.is_alive:
+        presist = defender.status_resistance("poison")
+        if presist > 0.0 and random.random() < venom.value * presist:
+            defender.apply_status("poison", log, 3)
     # 特性「吸血」: 与えた物理ダメージの一部だけHPを回復
     steal = getattr(attacker, "trait", None)
     if steal is not None and steal.effect == "lifesteal" and attacker.is_alive:
