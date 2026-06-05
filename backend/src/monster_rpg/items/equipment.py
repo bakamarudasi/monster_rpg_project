@@ -29,6 +29,8 @@ class Equipment:
     magic: int = 0  # Added magic stat
     magic_defense: int = 0  # 魔法防御
     speed: int = 0  # Added speed stat
+    critical_rate: int = 0  # 会心率（％ポイント）
+    evasion_rate: int = 0   # 回避率（％ポイント）
     granted_skill_ids: List[str] = field(default_factory=list)  # 装備中に使えるスキル
     status_resist: Dict[str, float] = field(default_factory=dict)  # 状態異常耐性 (1.0=通常,0.0=無効)
     element_resist: Dict[str, float] = field(default_factory=dict)  # 属性ダメージ耐性
@@ -411,6 +413,24 @@ WINDWALKERS = Equipment(
     rarity="epic", speed=9, granted_skill_ids=["teleport"],
 )
 
+# --- 新ステータス装備（会心 / 回避 / 魔防） ---
+KEEN_BLADE = Equipment(
+    "keen_blade", "鋭刃の剣", slot="weapon", category="weapon",
+    rarity="uncommon", attack=9, critical_rate=10,
+)
+WARDING_ROBE = Equipment(
+    "warding_robe", "魔よけのローブ", slot="armor", category="armor",
+    rarity="uncommon", defense=7, magic_defense=12,
+)
+DRIFTER_CLOAK = Equipment(
+    "drifter_cloak", "夜風の外套", slot="accessory", category="accessory",
+    rarity="uncommon", speed=3, evasion_rate=12,
+)
+RUNE_AMULET = Equipment(
+    "rune_amulet", "守紋の護符", slot="accessory", category="accessory",
+    rarity="uncommon", magic_defense=8,
+)
+
 
 @dataclass
 class EquipmentInstance:
@@ -489,19 +509,19 @@ class EquipmentInstance:
 
     @property
     def total_critical_rate(self) -> int:
-        """会心率（％ポイント）。称号・ランダム副ステ・強化から合算。"""
+        """会心率（％ポイント）。ベース＋称号＋ランダム副ステ＋強化。"""
         bonus = self.title.stat_bonuses.get("critical_rate", 0) if self.title else 0
         bonus += self._bonus_for("critical_rate")
         bonus += self._enhance_bonus("critical_rate")
-        return bonus
+        return getattr(self.base_item, "critical_rate", 0) + bonus
 
     @property
     def total_evasion_rate(self) -> int:
-        """回避率（％ポイント）。称号・ランダム副ステ・強化から合算。"""
+        """回避率（％ポイント）。ベース＋称号＋ランダム副ステ＋強化。"""
         bonus = self.title.stat_bonuses.get("evasion_rate", 0) if self.title else 0
         bonus += self._bonus_for("evasion_rate")
         bonus += self._enhance_bonus("evasion_rate")
-        return bonus
+        return getattr(self.base_item, "evasion_rate", 0) + bonus
 
     # ------------------------------------------------------------------
     def _enhance_bonus(self, stat: str) -> int:
@@ -648,6 +668,11 @@ CRAFTING_RECIPES["traveler_boots"] = {"tough_leather": 2}
 CRAFTING_RECIPES["iron_greaves"] = {"steel_ingot": 2, "tough_leather": 1}
 CRAFTING_RECIPES["swift_boots"] = {"tough_leather": 1, "celestial_feather": 1}
 CRAFTING_RECIPES["windwalkers"] = {"celestial_feather": 2, "speed_seed": 1}
+# 新ステータス装備（会心 / 回避 / 魔防）
+CRAFTING_RECIPES["keen_blade"] = {"weapon_core_common": 1, "steel_ingot": 1}
+CRAFTING_RECIPES["warding_robe"] = {"armor_fragment_common": 1, "magic_stone": 1}
+CRAFTING_RECIPES["drifter_cloak"] = {"tough_leather": 2, "celestial_feather": 1}
+CRAFTING_RECIPES["rune_amulet"] = {"magic_stone": 1, "armor_fragment_common": 1}
 
 ALL_EQUIPMENT = {
     BRONZE_SWORD.equip_id: BRONZE_SWORD,
@@ -705,4 +730,8 @@ ALL_EQUIPMENT = {
     IRON_GREAVES.equip_id: IRON_GREAVES,
     SWIFT_BOOTS.equip_id: SWIFT_BOOTS,
     WINDWALKERS.equip_id: WINDWALKERS,
+    KEEN_BLADE.equip_id: KEEN_BLADE,
+    WARDING_ROBE.equip_id: WARDING_ROBE,
+    DRIFTER_CLOAK.equip_id: DRIFTER_CLOAK,
+    RUNE_AMULET.equip_id: RUNE_AMULET,
 }

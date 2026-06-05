@@ -4,9 +4,11 @@ import unittest
 
 from monster_rpg.monsters.monster_class import Monster
 from monster_rpg.items.equipment import (
-    EquipmentInstance, ALL_EQUIPMENT, RANDOM_STAT_CONFIG,
+    EquipmentInstance, ALL_EQUIPMENT, RANDOM_STAT_CONFIG, CRAFTING_RECIPES,
 )
 from monster_rpg.items.titles import TITLE_GUARDIANS, TITLE_SAGES
+
+NEW_ITEMS = ['keen_blade', 'warding_robe', 'drifter_cloak', 'rune_amulet']
 
 
 def _base():
@@ -54,6 +56,46 @@ class RandomBonusAppliesTests(unittest.TestCase):
         before = m.magic_defense
         m.equip(inst)
         self.assertEqual(m.magic_defense - before, 12)
+
+
+class NewStatItemTests(unittest.TestCase):
+    def test_items_registered_with_expected_stats(self):
+        for eid in NEW_ITEMS:
+            self.assertIn(eid, ALL_EQUIPMENT)
+        self.assertEqual(ALL_EQUIPMENT['keen_blade'].critical_rate, 10)
+        self.assertEqual(ALL_EQUIPMENT['warding_robe'].magic_defense, 12)
+        self.assertEqual(ALL_EQUIPMENT['drifter_cloak'].evasion_rate, 12)
+
+    def test_base_item_stats_apply_when_equipped(self):
+        m = Monster('M', hp=20, attack=8, defense=10, speed=5)
+        before = m.critical_rate
+        m.equip(EquipmentInstance(base_item=ALL_EQUIPMENT['keen_blade'], title=None))
+        self.assertEqual(m.critical_rate - before, 10)
+
+    def test_items_have_craft_recipes(self):
+        for eid in NEW_ITEMS:
+            self.assertIn(eid, CRAFTING_RECIPES)
+
+    def test_items_sold_in_a_shop(self):
+        from monster_rpg import map_data
+        map_data.load_locations()
+        sold = set()
+        for loc in map_data.LOCATIONS.values():
+            sold |= set(getattr(loc, 'shop_items', None) or {})
+        for eid in NEW_ITEMS:
+            self.assertIn(eid, sold)
+
+    def test_can_buy_new_item(self):
+        from monster_rpg import map_data
+        from monster_rpg.services import shop_service
+        from monster_rpg.player import Player
+        map_data.load_locations()
+        loc = next(l for l in map_data.LOCATIONS.values()
+                   if 'keen_blade' in (getattr(l, 'shop_items', None) or {}))
+        player = Player('Buyer')
+        player.gold = 2000
+        ok, _ = shop_service.buy_item(player, loc, 'keen_blade')
+        self.assertTrue(ok)
 
 
 if __name__ == '__main__':
