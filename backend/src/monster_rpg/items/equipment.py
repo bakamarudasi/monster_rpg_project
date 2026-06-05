@@ -27,6 +27,7 @@ class Equipment:
     attack: int = 0
     defense: int = 0
     magic: int = 0  # Added magic stat
+    magic_defense: int = 0  # 魔法防御
     speed: int = 0  # Added speed stat
     granted_skill_ids: List[str] = field(default_factory=list)  # 装備中に使えるスキル
     status_resist: Dict[str, float] = field(default_factory=dict)  # 状態異常耐性 (1.0=通常,0.0=無効)
@@ -476,6 +477,14 @@ class EquipmentInstance:
         bonus += self._bonus_for("magic")
         bonus += self._enhance_bonus("magic")
         base = int(self.base_item.magic * self.stat_multiplier) # Use base_item.magic
+        return base + bonus
+
+    @property
+    def total_magic_defense(self) -> int:
+        bonus = self.title.stat_bonuses.get("magic_defense", 0) if self.title else 0
+        bonus += self._bonus_for("magic_defense")
+        bonus += self._enhance_bonus("magic_defense")
+        base = int(getattr(self.base_item, "magic_defense", 0) * self.stat_multiplier)
         return base + bonus
 
     @property
