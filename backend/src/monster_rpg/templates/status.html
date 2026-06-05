@@ -30,6 +30,15 @@
             {% if m.trait %}<span class="ri-trait" title="特性：{{ m.trait.description }}">{{ m.trait.name }}</span>{% endif %}
           </span>
           <span class="ri-meta">Lv{{ m.level }}・{{ m.rank }}・{{ m.element }}</span>
+          <div class="ri-stats">
+            <span>HP <b>{{ m.hp }}</b>/{{ m.max_hp }}</span>
+            <span>MP <b>{{ m.mp }}</b>/{{ m.max_mp }}</span>
+            <span>攻 <b>{{ m.attack }}</b></span>
+            <span>防 <b>{{ m.defense }}</b></span>
+            <span>魔 <b>{{ m.magic }}</b></span>
+            <span>速 <b>{{ m.speed }}</b></span>
+            <span class="ri-next">{% if m.exp_to_next is none %}🏆 MAX{% else %}次Lvまで {{ m.exp_to_next }}{% endif %}</span>
+          </div>
           <form method="post" action="{{ url_for('main.toggle_lock', user_id=user_id) }}" class="ri-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="idx" value="{{ m.idx }}">
@@ -71,6 +80,9 @@
   .ri-talent.hidden { background: linear-gradient(90deg,#ffd1f5,#c9b6ff); color: #6a2a7a; }
   .ri-trait { background: #d7f5ec; color: #1f7a63; border: 1px solid #b3e6d6; }
   .ri-meta { color: #889; font-size: 0.78rem; flex: 0 0 auto; margin-left: auto; }
+  .ri-stats { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 0.74rem; color: #667; padding: 2px 2px 0; }
+  .ri-stats b { color: #5a4a8a; }
+  .ri-stats .ri-next { color: #9a7; margin-left: auto; }
   .ri-form { margin: 0; flex: 0 0 auto; }
   .ri-lock { padding: 3px 10px; border-radius: 6px; border: 1px solid #b9a; background: #f4f0e8; cursor: pointer; font-size: 0.78rem; }
   .ri-lock.on { background: linear-gradient(90deg,#e6a23c,#d4881f); color: #fff; border-color: #d4881f; }

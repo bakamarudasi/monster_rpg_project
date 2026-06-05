@@ -49,12 +49,18 @@ def status(user_id, player):
     roster = []
     for i, m in enumerate(player.party_monsters + player.reserve_monsters):
         summ = m.individuality_summary()
+        need = m.calculate_exp_to_next_level()
         roster.append({
             'idx': i, 'name': m.name, 'level': m.level, 'rank': m.rank,
             'element': m.element or '—', 'locked': getattr(m, 'locked', False),
             'in_party': i < party_n,
             'personality': summ['personality'], 'talent': summ['talent'],
             'trait': summ['trait'],
+            # 個体値・性格込みの実効ステータス
+            'hp': m.hp, 'max_hp': m.max_hp, 'mp': m.mp, 'max_mp': m.max_mp,
+            'attack': m.attack, 'defense': m.defense, 'magic': m.magic, 'speed': m.speed,
+            # 次のレベルまでに必要な残り経験値（上限なら None）
+            'exp_to_next': (need - m.exp) if need is not None else None,
         })
     return render_template('status.html', player=player, user_id=user_id, roster=roster)
 

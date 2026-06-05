@@ -43,6 +43,20 @@ class StatusIndividualityTests(unittest.TestCase):
         self.assertIn('ri-pers', html)         # 性格バッジが描画されている
         self.assertIn('ri-talent', html)       # 才能バッジが描画されている
 
+    def test_status_shows_effective_stats_and_exp_to_next(self):
+        html = self.client.get(f'/status/{self.user_id}').get_data(as_text=True)
+        self.assertIn('ri-stats', html)      # 実効ステータス行
+        self.assertIn('次Lvまで', html)       # Lv1 は上限未満なので残り経験値表示
+
+    def test_status_shows_max_at_level_cap(self):
+        mon = ALL_MONSTERS['slime'].copy()
+        mon.advance_to_level(100)             # 上限
+        player = Player('Tester', user_id=self.user_id)
+        player.party_monsters = [mon]
+        save_player(player, self.user_id)
+        html = self.client.get(f'/status/{self.user_id}').get_data(as_text=True)
+        self.assertIn('MAX', html)
+
     def test_common_talent_hidden_but_personality_shown(self):
         # 凡才（個体値0）は才能バッジを出さないが、性格は常に出る
         player = Player('Tester', user_id=self.user_id)
