@@ -22,6 +22,9 @@ from .personality import (
     zero_ivs,
 )
 
+# レベル上限。これ以上はレベルアップしない（経験値は次Lvへ繰り越さない）。
+MAX_LEVEL = 100
+
 GROWTH_TYPE_AVERAGE = "平均型"
 GROWTH_TYPE_EARLY = "早熟型"
 GROWTH_TYPE_LATE = "大器晩成型"
@@ -697,6 +700,8 @@ class Monster:
                 print(msg)
 
     def calculate_exp_to_next_level(self):
+        if self.level >= MAX_LEVEL:
+            return None  # 上限到達。次のレベルは無い。
         if self.growth_type == GROWTH_TYPE_EARLY:
             exp_needed = calculate_exp_for_early(self.level)
         elif self.growth_type == GROWTH_TYPE_LATE:
@@ -733,6 +738,8 @@ class Monster:
 
         exp_needed_for_next_level = self.calculate_exp_to_next_level()
         if exp_needed_for_next_level is None:
+            if self.level >= MAX_LEVEL:
+                self.exp = 0  # 上限では経験値を溜めない
             return
 
         while self.exp >= exp_needed_for_next_level and self.is_alive:
@@ -745,6 +752,8 @@ class Monster:
 
         if self.exp < 0:
             self.exp = 0
+        if self.level >= MAX_LEVEL:
+            self.exp = 0  # 上限では経験値を溜めない
 
     def level_up(self, log: list[dict[str, str]] | None = None, verbose=True):
         self.level += 1
@@ -815,7 +824,8 @@ class Monster:
         self._learn_skills_for_level(log=log, verbose=verbose)
 
     def advance_to_level(self, target_level, verbose=False):
-        """Raise this monster's level until reaching target_level."""
+        """Raise this monster's level until reaching target_level（上限 MAX_LEVEL）。"""
+        target_level = min(target_level, MAX_LEVEL)
         while self.level < target_level and self.is_alive:
             self.level_up(verbose=verbose)
 

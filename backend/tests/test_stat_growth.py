@@ -4,6 +4,7 @@ import unittest
 
 from monster_rpg.monsters.monster_class import (
     Monster,
+    MAX_LEVEL,
     GROWTH_TYPE_AVERAGE,
     GROWTH_TYPE_SPEED,
     GROWTH_TYPE_POWER,
@@ -60,6 +61,27 @@ class MagicTypeBaseMagicTests(unittest.TestCase):
     def test_non_magic_type_starts_without_magic(self):
         non_magic = next(m for m in ALL_MONSTERS.values() if m.growth_type != GROWTH_TYPE_MAGIC)
         self.assertEqual(non_magic.magic, 0)
+
+
+class LevelCapTests(unittest.TestCase):
+    def test_advance_to_level_caps_at_max(self):
+        m = Monster('T', hp=20, mp=10, attack=8, defense=5)
+        m.advance_to_level(MAX_LEVEL + 50)
+        self.assertEqual(m.level, MAX_LEVEL)
+
+    def test_gain_exp_does_not_exceed_cap(self):
+        m = Monster('T', hp=20, mp=10, attack=8, defense=5)
+        m.advance_to_level(MAX_LEVEL)
+        m.gain_exp(10 ** 9, verbose=False)
+        self.assertEqual(m.level, MAX_LEVEL)
+        self.assertEqual(m.exp, 0)
+        self.assertIsNone(m.calculate_exp_to_next_level())
+
+    def test_below_cap_still_levels(self):
+        m = Monster('T', hp=20, mp=10, attack=8, defense=5)
+        m.advance_to_level(MAX_LEVEL - 1)
+        m.gain_exp(10 ** 9, verbose=False)
+        self.assertEqual(m.level, MAX_LEVEL)
 
 
 if __name__ == '__main__':
