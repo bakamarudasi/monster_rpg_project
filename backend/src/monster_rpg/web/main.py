@@ -48,10 +48,13 @@ def status(user_id, player):
     party_n = len(player.party_monsters)
     roster = []
     for i, m in enumerate(player.party_monsters + player.reserve_monsters):
+        summ = m.individuality_summary()
         roster.append({
             'idx': i, 'name': m.name, 'level': m.level, 'rank': m.rank,
             'element': m.element or '—', 'locked': getattr(m, 'locked', False),
             'in_party': i < party_n,
+            'personality': summ['personality'], 'talent': summ['talent'],
+            'trait': summ['trait'],
         })
     return render_template('status.html', player=player, user_id=user_id, roster=roster)
 

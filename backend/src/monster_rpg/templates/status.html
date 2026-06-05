@@ -24,6 +24,11 @@
         <li class="roster-item {{ 'locked' if m.locked }}" data-name="{{ m.name }}">
           <span class="ri-badge {{ 'party' if m.in_party else 'reserve' }}">{{ '手持ち' if m.in_party else '控え' }}</span>
           <span class="ri-name">{% if m.locked %}🔒 {% endif %}{{ m.name }}</span>
+          <span class="ri-tags">
+            <span class="ri-pers" title="性格：{{ m.personality.effect }}">{{ m.personality.name }}</span>
+            {% if m.talent.id != 'common' %}<span class="ri-talent{% if m.talent.hidden %} hidden{% endif %}" title="才能">{{ m.talent.name }}</span>{% endif %}
+            {% if m.trait %}<span class="ri-trait" title="特性：{{ m.trait.description }}">{{ m.trait.name }}</span>{% endif %}
+          </span>
           <span class="ri-meta">Lv{{ m.level }}・{{ m.rank }}・{{ m.element }}</span>
           <form method="post" action="{{ url_for('main.toggle_lock', user_id=user_id) }}" class="ri-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -53,13 +58,19 @@
   .roster-title { color: #764ba2; margin: 6px 0; }
   .roster-filter { width: 90%; padding: 7px 10px; border-radius: 8px; border: 1px solid #cbd; margin-bottom: 10px; }
   .roster-list { list-style: none; padding: 0; margin: 0; max-height: 420px; overflow-y: auto; text-align: left; }
-  .roster-item { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+  .roster-item { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; padding: 7px 8px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
   .roster-item.locked { background: #fff6e0; }
   .ri-badge { font-size: 0.68rem; padding: 1px 7px; border-radius: 999px; color: #fff; flex: 0 0 auto; }
   .ri-badge.party { background: #5b8def; }
   .ri-badge.reserve { background: #99a; }
-  .ri-name { font-weight: bold; color: #4a3f6a; flex: 1 1 auto; }
-  .ri-meta { color: #889; font-size: 0.78rem; flex: 0 0 auto; }
+  .ri-name { font-weight: bold; color: #4a3f6a; flex: 0 1 auto; }
+  .ri-tags { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; flex: 1 1 auto; }
+  .ri-pers, .ri-talent, .ri-trait { font-size: 0.68rem; padding: 1px 8px; border-radius: 999px; flex: 0 0 auto; cursor: help; }
+  .ri-pers { background: #efe6ff; color: #6a4fb0; border: 1px solid #d8c9f5; }
+  .ri-talent { background: linear-gradient(90deg,#ffe9a8,#ffcf5c); color: #8a5a00; font-weight: bold; }
+  .ri-talent.hidden { background: linear-gradient(90deg,#ffd1f5,#c9b6ff); color: #6a2a7a; }
+  .ri-trait { background: #d7f5ec; color: #1f7a63; border: 1px solid #b3e6d6; }
+  .ri-meta { color: #889; font-size: 0.78rem; flex: 0 0 auto; margin-left: auto; }
   .ri-form { margin: 0; flex: 0 0 auto; }
   .ri-lock { padding: 3px 10px; border-radius: 6px; border: 1px solid #b9a; background: #f4f0e8; cursor: pointer; font-size: 0.78rem; }
   .ri-lock.on { background: linear-gradient(90deg,#e6a23c,#d4881f); color: #fff; border-color: #d4881f; }
