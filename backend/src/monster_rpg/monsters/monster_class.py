@@ -42,10 +42,15 @@ def get_status_gains_average(current_level):
     attack_gain = 2 + (current_level // 10)
     defense_gain = 2 + (current_level // 10)
     speed_gain = attack_gain
+    # MP は全成長型で伸ばす（skills を使い続けられるように）。魔力は控えめに全型へ。
+    mp_gain = 2 + (current_level // 8)
+    magic_gain = 1 + (current_level // 12)
     return {
         "hp": hp_gain,
+        "mp": mp_gain,
         "attack": attack_gain,
         "defense": defense_gain,
+        "magic": magic_gain,
         "speed": speed_gain,
     }
 
@@ -65,8 +70,10 @@ def get_status_gains_early(current_level):
     speed_gain = attack_gain
     return {
         "hp": hp_gain,
+        "mp": 2 + (current_level // 8),
         "attack": attack_gain,
         "defense": defense_gain,
+        "magic": 1 + (current_level // 12),
         "speed": speed_gain,
     }
 
@@ -86,8 +93,10 @@ def get_status_gains_late(current_level):
     speed_gain = attack_gain
     return {
         "hp": hp_gain,
+        "mp": 2 + (current_level // 8),
         "attack": attack_gain,
         "defense": defense_gain,
+        "magic": 1 + (current_level // 12),
         "speed": speed_gain,
     }
 
@@ -147,6 +156,7 @@ class Monster:
         image_filename=None,
         rank=RANK_D,
         speed=5,
+        magic=0,
         drop_items=None,
         scout_rate=0.25,
         ai_role="attacker",
@@ -165,8 +175,8 @@ class Monster:
         self.base_attack = attack
         self.base_defense = defense
         self.base_speed = speed
-        # 魔力パラメータ。魔法に関するバフ等で利用される
-        self.base_magic = 0
+        # 魔力パラメータ。魔法スキルの威力計算に使う（魔法型は初期値を持つ）
+        self.base_magic = magic
 
         # 一時的な補正値と倍率
         self._stat_bonuses = {"attack": 0, "defense": 0, "speed": 0, "magic": 0}
