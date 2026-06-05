@@ -65,6 +65,16 @@ class BattleUIStateTests(unittest.TestCase):
         self.assertNotEqual(hero['talent']['id'], 'common')
         self.assertIn('trait', hero)
 
+    def test_battle_json_exposes_combat_stats(self):
+        for _ in range(100):
+            if self.battle.turn_order:
+                break
+            self.battle.advance_turn()
+        units = self.client.get(f'/battle-json/{self.user_id}').get_json()['hp_values']['turn_order_monsters']
+        hero = next(u for u in units if u['name'] == 'Hero')
+        for key in ('magic', 'magic_defense', 'critical_rate', 'evasion_rate'):
+            self.assertIn(key, hero)
+
     def test_restore_field_round_trip(self):
         elements.set_field('氷', 1.5, 4, 'ブリザード')
         saved = {'field': elements.get_field()}

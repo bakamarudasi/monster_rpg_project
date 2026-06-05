@@ -94,6 +94,10 @@
         unit.dataset.attack = info.attack;
         unit.dataset.defense = info.defense;
         unit.dataset.speed = info.speed;
+        if (info.magic !== undefined) unit.dataset.magic = info.magic;
+        if (info.magic_defense !== undefined) unit.dataset.magicDefense = info.magic_defense;
+        if (info.critical_rate !== undefined) unit.dataset.criticalRate = info.critical_rate;
+        if (info.evasion_rate !== undefined) unit.dataset.evasionRate = info.evasion_rate;
         if (info.element) unit.dataset.element = info.element;
         unit.dataset.statuses = JSON.stringify(info.statuses || []);
         /* 個性（詳細パネル用のデータ属性） */
@@ -490,6 +494,12 @@
                     const weak = ELEMENT_WEAKNESS[elem];
                     weakEl.textContent = weak ? weak + '属性' : '—';
                 }
+                /* 魔力・魔防・会心率・回避率（dataset の camelCase を直接参照） */
+                const setDetail = (id, val) => { const t = document.getElementById(id); if (t) t.textContent = val; };
+                setDetail('detail-magic', el.dataset.magic || '0');
+                setDetail('detail-magic-defense', el.dataset.magicDefense || '0');
+                setDetail('detail-critical-rate', el.dataset.criticalRate || '0');
+                setDetail('detail-evasion-rate', el.dataset.evasionRate || '0');
                 /* 個性: 空欄は「—」、効果/説明はツールチップに */
                 if (fields.personality) fields.personality.title = el.dataset.personalityEffect || '';
                 if (fields.talent && !fields.talent.textContent) fields.talent.textContent = '—';
