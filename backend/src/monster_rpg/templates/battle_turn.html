@@ -9,10 +9,13 @@
 <div class="battle-page">
   <div id="turn-order-bar" class="turn-order-bar"></div>
   <div id="field-banner" class="field-banner hidden"></div>
-  <div id="enemy-party-area" class="enemy-area"></div>
-  <div class="divider"></div>
-  <div id="ally-party-area" class="ally-party-display"></div>
+  <div class="battlefield">
+    <div id="enemy-party-area" class="enemy-area"></div>
+    <div class="divider"></div>
+    <div id="ally-party-area" class="ally-party-display"></div>
+  </div>
 
+  <div class="battle-bottom">
   <div class="command-window">
     <div class="turn-banner">Turn {{ init_data.turn }}</div>
     <div class="battle-toggles">
@@ -50,6 +53,7 @@
   </div>
 
   <ul id="battle-log" class="log"></ul>
+  </div>
   <a href="{{ url_for('play', user_id=user_id) }}" class="back-link">戻る</a>
 </div>
 

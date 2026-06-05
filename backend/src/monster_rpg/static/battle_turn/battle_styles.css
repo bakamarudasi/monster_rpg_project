@@ -388,6 +388,73 @@ button:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a3f7d; }
     text-shadow: 0 0 8px rgba(255, 210, 74, 0.5);
 }
 
+/* =====================================================================
+   FF風サイドビュー対面レイアウト
+   - 既定（狭い画面）は display:contents でラッパーを透明化し、従来の縦積みを維持
+   - min-width:760px（PC・横向き）で 敵=左／味方=右 の対面に切替え
+   ===================================================================== */
+.battlefield,
+.battle-bottom { display: contents; }
+
+@media (min-width: 760px) {
+    /* 戦場：左右対面。中央の余白を埋めて画面を広く使う */
+    .battlefield {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+    .battlefield .enemy-area,
+    .battlefield .ally-party-display {
+        flex: 1 1 0;
+        min-height: 0;
+        margin-bottom: 0;
+    }
+    /* 互いに中央へ寄って対峙する */
+    .battlefield .enemy-area { justify-content: flex-end; padding-right: 1.5rem; }
+    .battlefield .ally-party-display { justify-content: flex-start; padding-left: 1.5rem; }
+
+    /* 中央の仕切りを縦線＋「VS」に */
+    .battlefield .divider {
+        width: 2px;
+        height: auto;
+        margin: 1.5rem 0;
+        flex: 0 0 auto;
+        position: relative;
+        background-image: linear-gradient(to bottom, transparent, var(--border), transparent);
+    }
+    .battlefield .divider::before {
+        content: 'VS';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-weight: 800;
+        font-style: italic;
+        font-size: 1.1rem;
+        letter-spacing: 1px;
+        color: var(--gold);
+        background: var(--bg-2);
+        padding: 6px 3px;
+        border-radius: 6px;
+        text-shadow: 0 0 8px rgba(255, 210, 74, 0.5), 1px 1px 2px #000;
+    }
+
+    /* 踏み込み（lunge）を横方向へ上書き：敵は右、味方は左へ攻め込む */
+    @keyframes lunge-enemy { 0% { transform: translateX(0); } 40% { transform: translateX(28px) scale(1.05); } 100% { transform: translateX(0); } }
+    @keyframes lunge-ally  { 0% { transform: translateX(0); } 40% { transform: translateX(-28px) scale(1.05); } 100% { transform: translateX(0); } }
+
+    /* 下段：コマンド（左）／ログ（右）の2カラム */
+    .battle-bottom {
+        display: flex;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    .battle-bottom .command-window { margin-top: 0; flex: 1 1 60%; }
+    .battle-bottom .log { margin-top: 0; height: auto; flex: 1 1 40%; }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .battle-page, .battle-page.shake, .battle-page.shake-hard,
     .battle-unit .unit-img,
