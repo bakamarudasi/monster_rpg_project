@@ -394,7 +394,18 @@ button:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a3f7d; }
    - min-width:760px（PC・横向き）で 敵=左／味方=右 の対面に切替え
    ===================================================================== */
 .battlefield,
-.battle-bottom { display: contents; }
+.battle-bottom,
+.battle-bottom-main { display: contents; }
+/* 味方ステータス専用パネル（既定＝狭い画面では非表示。味方カードがHP/MPを表示） */
+.ally-status-panel { display: none; }
+.status-row { display: flex; align-items: center; gap: .5rem; font-size: .9rem; }
+.status-row.down { opacity: .45; }
+.status-row .status-name { flex: 0 0 5.5em; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.status-row .status-bars { flex: 1 1 auto; }
+.status-row .status-bars .hp-bar, .status-row .status-bars .mp-bar { margin-bottom: 3px; }
+.status-row .status-nums { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.15; font-size: .78rem; }
+.status-row .status-nums .hp-text { font-weight: bold; }
+.status-row .status-nums .mp-text { color: #9cd3ff; }
 
 @media (min-width: 760px) {
     /* 戦場：左右対面。中央の余白を埋めて画面を広く使う */
@@ -445,14 +456,33 @@ button:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a3f7d; }
     @keyframes lunge-enemy { 0% { transform: translateX(0); } 40% { transform: translateX(28px) scale(1.05); } 100% { transform: translateX(0); } }
     @keyframes lunge-ally  { 0% { transform: translateX(0); } 40% { transform: translateX(-28px) scale(1.05); } 100% { transform: translateX(0); } }
 
-    /* 下段：コマンド（左）／ログ（右）の2カラム */
-    .battle-bottom {
-        display: flex;
-        align-items: stretch;
-        gap: 1rem;
+    /* 敵スプライトを左右反転して味方と対面させる（idle-float に反転を焼き込む） */
+    @keyframes idle-float-mirror {
+        0%, 100% { transform: translateY(0) scaleX(-1); }
+        50% { transform: translateY(-4px) scaleX(-1); }
     }
-    .battle-bottom .command-window { margin-top: 0; flex: 1 1 60%; }
-    .battle-bottom .log { margin-top: 0; height: auto; flex: 1 1 40%; }
+    .enemy-area .battle-unit:not(.down):not(.hit-flash) .unit-img { animation-name: idle-float-mirror; }
+    .enemy-area .battle-unit.down .unit-img { transform: scaleX(-1); }
+
+    /* 下段：上段＝コマンド左／味方ステータス右、下段＝全幅の細いログ帯 */
+    .battle-bottom { display: flex; flex-direction: column; gap: .75rem; }
+    .battle-bottom-main { display: flex; align-items: stretch; gap: 1rem; }
+    .battle-bottom-main .command-window { margin-top: 0; flex: 1 1 58%; }
+    .ally-status-panel {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: .5rem;
+        flex: 1 1 42%;
+        padding: .75rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: linear-gradient(180deg, var(--surface-2), var(--bg-2));
+    }
+    .battle-bottom .log { margin-top: 0; height: 130px; }
+
+    /* 味方のHP/MPはパネルに集約：カード内バーは隠す（DOMは残すので更新は継続） */
+    #ally-party-area .hp-bar, #ally-party-area .mp-bar { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -79,6 +79,75 @@
         });
     }
 
+    /* === 行動アニメ：ログの「◯◯ の攻撃！」等から踏み込み(lunge)を発火 === */
+    let lastActionLogLen = -1;
+    function lungeUnitByName(name) {
+        const units = document.querySelectorAll('#enemy-party-area .battle-unit, #ally-party-area .battle-unit');
+        for (let i = 0; i < units.length; i++) {
+            const u = units[i];
+            if (u.dataset.name === name && !u.classList.contains('down')) {
+                u.classList.remove('attacking');
+                void u.offsetWidth; /* リフローでアニメを確実に再生 */
+                u.classList.add('attacking');
+                setTimeout(() => u.classList.remove('attacking'), 450);
+                return;
+            }
+        }
+    }
+    function animateActionsFromLog(log) {
+        if (!Array.isArray(log)) return;
+        if (lastActionLogLen < 0) { lastActionLogLen = log.length; return; } /* 初回(現状取得)はスキップ */
+        const fresh = log.slice(lastActionLogLen);
+        lastActionLogLen = log.length;
+        fresh.forEach(e => {
+            const m = e.message || '';
+            const mt = m.match(/^(.+?) の攻撃！/)
+                    || m.match(/^(.+?) は挑発につられて攻撃！/)
+                    || m.match(/^(.+?) は .+ を使った！/);
+            if (mt) lungeUnitByName(mt[1]);
+        });
+    }
+
+    /* === 味方ステータス専用パネル（サイドビュー時に下段右へ表示。DOMカードを単一ソースに） === */
+    function renderAllyStatus() {
+        const panel = document.getElementById('ally-status-panel');
+        if (!panel) return;
+        const units = document.querySelectorAll('#ally-party-area .battle-unit');
+        panel.textContent = '';
+        units.forEach(u => {
+            const hp = parseInt(u.dataset.hp || '0', 10);
+            const maxHp = parseInt(u.dataset.maxHp || '1', 10);
+            const mp = parseInt(u.dataset.mp || '0', 10);
+            const maxMp = parseInt(u.dataset.maxMp || '0', 10);
+            const hpPct = Math.max(0, Math.round(hp / maxHp * 100));
+            const mpPct = maxMp > 0 ? Math.round(mp / maxMp * 100) : 0;
+            const hpCls = hpPct <= 25 ? ' critical' : (hpPct <= 50 ? ' low' : '');
+
+            const row = document.createElement('div');
+            row.className = 'status-row' + (u.classList.contains('down') ? ' down' : '');
+
+            const nameEl = document.createElement('span');
+            nameEl.className = 'status-name';
+            nameEl.textContent = u.dataset.name || '';
+
+            const bars = document.createElement('div');
+            bars.className = 'status-bars';
+            bars.innerHTML =
+                '<div class="hp-bar"><div class="hp-fill' + hpCls + '" style="width:' + hpPct + '%"></div></div>' +
+                '<div class="mp-bar"><div class="mp-fill" style="width:' + mpPct + '%"></div></div>';
+
+            const nums = document.createElement('span');
+            nums.className = 'status-nums';
+            nums.innerHTML = '<span class="hp-text">' + hp + '/' + maxHp + '</span>' +
+                             '<span class="mp-text">' + mp + '/' + maxMp + '</span>';
+
+            row.appendChild(nameEl);
+            row.appendChild(bars);
+            row.appendChild(nums);
+            panel.appendChild(row);
+        });
+    }
+
     function buildUnitElement(info, idx, side) {
         const unit = document.createElement('div');
         unit.className = `battle-unit ${side}`;
@@ -404,6 +473,7 @@
         }
 
         populatePartyAreas(initData);
+        renderAllyStatus();
         buildActionUI(initData);
         updateTurnOrder(initData.turn_order || []);
         updateFieldBanner(initData.field || null);
@@ -728,6 +798,8 @@
             });
         }
         toastFromLog(data.log);
+        animateActionsFromLog(data.log);
+        renderAllyStatus();
 
         const banner = document.querySelector('.turn-banner');
         if (banner) banner.textContent = 'Turn ' + data.turn;
