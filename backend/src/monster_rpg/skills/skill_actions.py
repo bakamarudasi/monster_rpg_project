@@ -39,10 +39,12 @@ def calculate_skill_damage(caster: Monster, target: Monster, skill: Skill) -> in
     """Calculate damage for a skill taking caster stats and elements into account."""
     if skill.category == "魔法":
         base_stat = getattr(caster, "magic", 0)
+        target_defense = target.total_magic_defense()   # 魔法は魔法防御で軽減
     else:
         base_stat = caster.total_attack()
+        target_defense = target.total_defense()
 
-    base = base_stat + skill.power - target.total_defense()
+    base = base_stat + skill.power - target_defense
     damage = max(1, base)
 
     damage = int(damage * elemental_multiplier(caster.element, target.element))

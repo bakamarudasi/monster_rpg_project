@@ -96,6 +96,7 @@ def _load_from_json(filepath: str | None = None) -> Tuple[Dict[str, Monster], Di
             element=attrs.get("element"),
             speed=stats.get("speed", 5),
             magic=stats.get("magic", default_magic),
+            magic_defense=stats.get("magic_defense"),  # 未指定なら物理防御に揃う
             ai_role=attrs.get("ai_role", "attacker"),
             growth_type=growth_type,
             monster_id=monster_id,

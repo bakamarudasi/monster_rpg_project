@@ -160,6 +160,7 @@ class Monster:
         rank=RANK_D,
         speed=5,
         magic=0,
+        magic_defense=None,
         drop_items=None,
         scout_rate=0.25,
         ai_role="attacker",
@@ -180,6 +181,9 @@ class Monster:
         self.base_speed = speed
         # 魔力パラメータ。魔法スキルの威力計算に使う（魔法型は初期値を持つ）
         self.base_magic = magic
+        # 魔法防御。魔法ダメージの軽減に使う。既定は物理防御に揃える（Lv1の挙動は不変）。
+        # レベルアップで物理防御とは別枠に育ち、防御型↔魔法型の住み分けを生む。
+        self.base_magic_defense = magic_defense if magic_defense is not None else defense
 
         # 一時的な補正値と倍率
         self._stat_bonuses = {"attack": 0, "defense": 0, "speed": 0, "magic": 0}
@@ -369,6 +373,16 @@ class Monster:
         self.base_magic = value
 
     @property
+    def magic_defense(self) -> int:
+        base = self.base_magic_defense + self._stat_bonuses.get("magic_defense", 0) + self.permanent_bonuses.get("magic_defense", 0)
+        total = base + self._equipment_bonus("magic_defense")
+        return int(total)
+
+    @magic_defense.setter
+    def magic_defense(self, value: int) -> None:
+        self.base_magic_defense = value
+
+    @property
     def critical_rate(self) -> int:
         """会心率（％ポイント）。個体差（速さ・才能）＋装備・バフ・恒久強化。
 
@@ -502,6 +516,9 @@ class Monster:
 
     def total_defense(self):
         return self.defense
+
+    def total_magic_defense(self):
+        return self.magic_defense
 
     def total_speed(self):
         return self.speed
@@ -832,10 +849,18 @@ class Monster:
         self.mp = self.max_mp
         self.base_magic += magic_increase
 
+        # 魔法防御は物理防御とは別枠。平均型の防御成長を基準に伸ばし、魔法型は上乗せ
+        # （術者は魔法に強い）。物理偏重の型は相対的に魔法へ弱くなり、住み分けが生まれる。
+        mdef_increase = get_status_gains_average(self.level)["defense"]
+        if self.growth_type == GROWTH_TYPE_MAGIC:
+            mdef_increase += magic_increase
+        self.base_magic_defense += mdef_increase
+
         if verbose:
             msg = (
                 f"最大HPが {hp_increase}、最大MPが {mp_increase}、攻撃力が {attack_increase}、"
-                f"防御力が {defense_increase}、魔力が {magic_increase}、素早さが {speed_increase} 上昇した！"
+                f"防御力が {defense_increase}、魔力が {magic_increase}、魔法防御が {mdef_increase}、"
+                f"素早さが {speed_increase} 上昇した！"
             )
             if log is not None:
                 log.append({'type': 'info', 'message': msg})
@@ -924,6 +949,7 @@ class Monster:
         new_monster.max_mp = self.max_mp
         new_monster.mp = new_monster.max_mp
         new_monster.base_magic = self.base_magic
+        new_monster.base_magic_defense = self.base_magic_defense
         new_monster.permanent_bonuses = dict(self.permanent_bonuses)
         new_monster.plus_value = self.plus_value
         new_monster.is_rare = self.is_rare

@@ -58,7 +58,8 @@ def status(user_id, player):
             'trait': summ['trait'],
             # 個体値・性格込みの実効ステータス
             'hp': m.hp, 'max_hp': m.max_hp, 'mp': m.mp, 'max_mp': m.max_mp,
-            'attack': m.attack, 'defense': m.defense, 'magic': m.magic, 'speed': m.speed,
+            'attack': m.attack, 'defense': m.defense, 'magic': m.magic,
+            'magic_defense': m.magic_defense, 'speed': m.speed,
             # 次のレベルまでに必要な残り経験値（上限なら None）
             'exp_to_next': (need - m.exp) if need is not None else None,
         })
