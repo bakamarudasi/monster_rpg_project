@@ -310,6 +310,11 @@ ALL_TRAITS: dict[str, Trait] = {
         Trait("afflictor", "状態異常の達人", "自分が与える状態異常の成功率が上がる。", "ailment_power", 0.5),
         Trait("venomous", "毒手", "物理攻撃時に確率で相手を毒状態にする。", "venom", 0.3),
         Trait("iron_will", "鉄の精神", "状態異常を受けにくくなる。", "ailment_ward", 0.5),
+        # --- テンポ / クセ強 ---
+        Trait("swift", "神速", "ATBゲージの溜まりが30%速くなる。", "haste", 0.3),
+        Trait("conserver", "省魔", "スキルのMP消費が30%軽減される。", "mp_save", 0.3),
+        Trait("fortune", "金運", "勝利時に得られるゴールドが増える。", "gold", 0.5),
+        Trait("glass_cannon", "諸刃", "与えるダメージが増えるが、受けるダメージも増える。", "glass", 0.3),
     )
 }
 

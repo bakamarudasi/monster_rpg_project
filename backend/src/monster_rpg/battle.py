@@ -248,6 +248,14 @@ def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, s
         log.append({'type': 'info', 'message': f"{defender.name} は攻撃を回避した！"})
         return 0
 
+    # 特性「諸刃」: 与ダメージも被ダメージも増える
+    atk_glass = getattr(attacker, "trait", None)
+    if atk_glass is not None and atk_glass.effect == "glass":
+        damage = int(damage * (1.0 + atk_glass.value))
+    def_glass = getattr(defender, "trait", None)
+    if def_glass is not None and def_glass.effect == "glass":
+        damage = int(damage * (1.0 + def_glass.value))
+
     damage = max(1, damage)
     # 特性「毒手」: 物理攻撃時に確率で毒を付与（耐性で確率は下がる）
     venom = getattr(attacker, "trait", None)
@@ -276,8 +284,9 @@ def apply_skill_effect(
     if log is None:
         log = []
     log.append({'type': 'info', 'message': f"{caster.name} は {skill_obj.name} を使った！"})
-    if skill_obj.cost > 0:
-        caster.mp = max(0, caster.mp - skill_obj.cost)
+    _mp_cost = caster.skill_mp_cost(skill_obj)
+    if _mp_cost > 0:
+        caster.mp = max(0, caster.mp - _mp_cost)
 
     targets_to_use = targets
     if skill_obj.scope == "all":
@@ -517,7 +526,7 @@ class Battle:
                 actor.reset_atb_gauge()
                 return
 
-            if actor.mp < skill_obj.cost:
+            if actor.mp < actor.skill_mp_cost(skill_obj):
                 self.log.append({'type': 'info', 'message': f"{actor.name} does not have enough MP for {skill_obj.name}!"})
                 actor.reset_atb_gauge()
                 return
@@ -800,7 +809,7 @@ def enemy_take_action(
     taunted = any(e["name"] == "taunt" for e in enemy_actor.status_effects)
     cant_attack = any(e["name"] == "cant_attack" for e in enemy_actor.status_effects)
 
-    usable_skills = [s for s in enemy_actor.skills if enemy_actor.mp >= s.cost]
+    usable_skills = [s for s in enemy_actor.skills if enemy_actor.mp >= enemy_actor.skill_mp_cost(s)]
 
     role = getattr(enemy_actor, "ai_role", "attacker")
 
@@ -810,7 +819,7 @@ def enemy_take_action(
         skill_id = sequence[idx % len(sequence)]
         skill_obj = ALL_SKILLS.get(skill_id)
         enemy_actor._seq_idx = idx + 1
-        if skill_obj and enemy_actor.mp >= skill_obj.cost:
+        if skill_obj and enemy_actor.mp >= enemy_actor.skill_mp_cost(skill_obj):
             targets: list[Monster] = []
             if skill_obj.target == "enemy":
                 if skill_obj.scope == "all":

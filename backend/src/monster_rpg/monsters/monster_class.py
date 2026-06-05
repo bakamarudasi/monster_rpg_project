@@ -246,10 +246,12 @@ class Monster:
 
     def update_atb_gauge(self, amount: int | None = None) -> None:
         """ATBゲージを更新する。amountが指定されなければ素早さに応じて増加。"""
-        if amount is None:
-            self.atb_gauge += self.speed
-        else:
-            self.atb_gauge += amount
+        gain = self.speed if amount is None else amount
+        # 特性「神速」: ATBの溜まりが速くなる
+        t = self.trait
+        if t is not None and t.effect == "haste":
+            gain = int(gain * (1.0 + t.value))
+        self.atb_gauge += gain
         self.atb_gauge = min(100, self.atb_gauge) # ゲージは最大100
 
     def reset_atb_gauge(self) -> None:
@@ -277,6 +279,14 @@ class Monster:
     def has_trait_effect(self, effect: str) -> bool:
         t = self.trait
         return t is not None and t.effect == effect
+
+    def skill_mp_cost(self, skill) -> int:
+        """特性「省魔」を反映した実効MPコスト。"""
+        cost = getattr(skill, "cost", 0)
+        t = self.trait
+        if t is not None and t.effect == "mp_save" and cost > 0:
+            cost = max(1, int(round(cost * (1.0 - t.value))))
+        return cost
 
     def try_endure(self, log: list[dict[str, str]] | None = None) -> bool:
         """特性「不屈」: 致死ダメージをHP1で耐える（1戦闘1回）。耐えたら True。"""

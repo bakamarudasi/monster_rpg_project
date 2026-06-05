@@ -138,5 +138,47 @@ class AilmentTraitTests(unittest.TestCase):
         self.assertTrue(_has(target, 'poison'))
 
 
+class TempoTraitTests(unittest.TestCase):
+    def test_haste_speeds_up_atb(self):
+        fast, slow = mk(), mk()
+        fast.atb_gauge = slow.atb_gauge = 0
+        fast.trait_id = 'swift'
+        fast.update_atb_gauge(20)
+        slow.update_atb_gauge(20)
+        self.assertGreater(fast.atb_gauge, slow.atb_gauge)
+
+    def test_conserver_reduces_mp_cost(self):
+        sk = Skill('S', power=10, cost=20)
+        saver = mk()
+        saver.trait_id = 'conserver'
+        self.assertLess(saver.skill_mp_cost(sk), mk().skill_mp_cost(sk))
+
+    def test_glass_cannon_deals_and_takes_more(self):
+        with patch('monster_rpg.battle.random.random', return_value=0.99):  # 会心排除
+            baseline = calculate_damage(mk(attack=20), mk(defense=0), [])
+            atk = mk(attack=20)
+            atk.trait_id = 'glass_cannon'
+            deal = calculate_damage(atk, mk(defense=0), [])
+            victim = mk(defense=0)
+            victim.trait_id = 'glass_cannon'
+            taken = calculate_damage(mk(attack=20), victim, [])
+        self.assertGreater(deal, baseline)
+        self.assertGreater(taken, baseline)
+
+    def test_fortune_increases_gold(self):
+        from monster_rpg.services.battle_service import apply_battle_rewards
+        enemy = mk()
+        enemy.level = 10
+        lucky = mk()
+        lucky.trait_id = 'fortune'
+        p1 = Player('Rich')
+        p1.gold = 0
+        apply_battle_rewards(p1, 'win', [lucky], [enemy], [])
+        p2 = Player('Poor')
+        p2.gold = 0
+        apply_battle_rewards(p2, 'win', [mk()], [enemy], [])
+        self.assertGreater(p1.gold, p2.gold)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -57,6 +57,13 @@ def calculate_skill_damage(caster: Monster, target: Monster, skill: Skill) -> in
     damage = int(damage * resist)
     if is_defending(target):
         damage = int(damage * 0.5)
+    # 特性「諸刃」: 与ダメージも被ダメージも増える
+    cg = caster.trait
+    if cg is not None and cg.effect == "glass":
+        damage = int(damage * (1.0 + cg.value))
+    tg = target.trait
+    if tg is not None and tg.effect == "glass":
+        damage = int(damage * (1.0 + tg.value))
     damage = max(1, damage)
 
     if skill.category == "魔法":
