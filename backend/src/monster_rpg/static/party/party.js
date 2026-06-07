@@ -6,6 +6,7 @@
 
     let equipmentList = [];
     let equipUrl = '';
+    let appraiseUrl = '';
     const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
     const csrfToken = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
     const dataElem = document.getElementById('party-data');
@@ -14,9 +15,34 @@
         const parsed = JSON.parse(dataElem.textContent);
         equipmentList = parsed.equipment_list || [];
         equipUrl = parsed.equip_url || '';
+        appraiseUrl = parsed.appraise_url || '';
       } catch (e) {
         console.error('Failed to parse party-data', e);
       }
+    }
+
+    function appraiseMonster(data, btn) {
+      if (!appraiseUrl) return;
+      btn.disabled = true;
+      fetch(appraiseUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+        body: JSON.stringify({ monster_idx: data.index })
+      })
+        .then(res => res.json())
+        .then(resp => {
+          if (resp.success) {
+            data.individuality = resp.individuality;
+            displayMonsterDetails(data);
+            if (typeof window.showToast === 'function' && !resp.already) {
+              window.showToast('🔍 鑑定完了！', 'item', { duration: 2500 });
+            }
+          } else {
+            alert(resp.error || '鑑定に失敗しました');
+            btn.disabled = false;
+          }
+        })
+        .catch(() => { alert('鑑定に失敗しました'); btn.disabled = false; });
     }
 
     let currentData = null;
@@ -63,6 +89,70 @@
       spanExp.textContent = 'EXP: ' + data.exp + ' / ' + data.exp_to_next + ' (残り ' + expNeeded + ')';
       lvhp.append(spanLv, document.createTextNode(' | '), spanHp, document.createTextNode(' | '), spanExp);
       header.appendChild(lvhp);
+
+      if (data.individuality) {
+        const ind = data.individuality;
+        const indiv = document.createElement('div');
+        indiv.className = 'card-monster-individuality';
+        const p = ind.personality;
+        const t = ind.talent;
+        if (p) {
+          const pTag = document.createElement('span');
+          pTag.className = 'indiv-tag indiv-personality';
+          pTag.textContent = '性格: ' + p.name + (p.effect ? '（' + p.effect + '）' : '');
+          indiv.appendChild(pTag);
+        }
+        if (t) {
+          const tTag = document.createElement('span');
+          tTag.className = 'indiv-tag indiv-talent' + (t.hidden ? ' indiv-talent-hidden' : '');
+          tTag.textContent = (t.hidden ? '🌟才能: ' : '才能: ') + t.name;
+          indiv.appendChild(tTag);
+        }
+        const tr = ind.trait;
+        if (tr) {
+          const trTag = document.createElement('span');
+          trTag.className = 'indiv-tag indiv-trait';
+          trTag.textContent = '✦特性: ' + tr.name;
+          if (tr.description) trTag.title = tr.description;
+          indiv.appendChild(trTag);
+        }
+        header.appendChild(indiv);
+
+        // 個体値（鑑定済みのときだけ数値を表示）
+        const ivBox = document.createElement('div');
+        ivBox.className = 'card-monster-ivs';
+        if (ind.appraised && ind.ivs) {
+          const title = document.createElement('div');
+          title.className = 'iv-title';
+          title.textContent = '個体値 ' + (ind.iv_total != null ? '(' + ind.iv_total + '/' + ind.iv_max + ')' : '');
+          ivBox.appendChild(title);
+          const grid = document.createElement('div');
+          grid.className = 'iv-grid';
+          const labels = { hp: 'HP', attack: '攻', defense: '防', magic: '魔', speed: '速' };
+          ['hp', 'attack', 'defense', 'magic', 'speed'].forEach(s => {
+            if (!ind.ivs[s]) return;
+            const cell = document.createElement('span');
+            const v = ind.ivs[s].value;
+            cell.className = 'iv-cell' + (v === 31 ? ' iv-best' : '');
+            cell.textContent = (labels[s] || s) + ' ' + v + '（' + ind.ivs[s].label + '）';
+            grid.appendChild(cell);
+          });
+          ivBox.appendChild(grid);
+        } else {
+          const hint = document.createElement('div');
+          hint.className = 'iv-unappraised';
+          hint.textContent = '個体値：未鑑定';
+          ivBox.appendChild(hint);
+          if (data.index != null && appraiseUrl) {
+            const btn = document.createElement('button');
+            btn.className = 'appraise-btn';
+            btn.textContent = '鑑定する（50G）';
+            btn.addEventListener('click', () => appraiseMonster(data, btn));
+            ivBox.appendChild(btn);
+          }
+        }
+        header.appendChild(ivBox);
+      }
       modalCardBody.appendChild(header);
 
       const content = document.createElement('div');
@@ -70,27 +160,27 @@
 
       const statsGrid = document.createElement('div');
       statsGrid.className = 'card-stats-grid';
-
-      const atkSpan = document.createElement('span');
-      atkSpan.textContent = 'こうげき: ';
-      const atkVal = document.createElement('strong');
-      atkVal.textContent = data.stats.attack;
-      atkSpan.appendChild(atkVal);
-      statsGrid.appendChild(atkSpan);
-
-      const defSpan = document.createElement('span');
-      defSpan.textContent = 'ぼうぎょ: ';
-      const defVal = document.createElement('strong');
-      defVal.textContent = data.stats.defense;
-      defSpan.appendChild(defVal);
-      statsGrid.appendChild(defSpan);
-
-      const spdSpan = document.createElement('span');
-      spdSpan.textContent = 'すばやさ: ';
-      const spdVal = document.createElement('strong');
-      spdVal.textContent = data.stats.speed;
-      spdSpan.appendChild(spdVal);
-      statsGrid.appendChild(spdSpan);
+      // [ラベル, キー, 単位, 0でも表示するか]
+      const statDefs = [
+        ['こうげき', 'attack', '', true],
+        ['ぼうぎょ', 'defense', '', true],
+        ['まりょく', 'magic', '', true],
+        ['まぼう', 'magic_defense', '', true],
+        ['すばやさ', 'speed', '', true],
+        ['かいしん', 'critical_rate', '%', false],
+        ['かいひ', 'evasion_rate', '%', false],
+      ];
+      statDefs.forEach(([label, key, unit, showZero]) => {
+        const v = data.stats[key];
+        if (v === undefined || v === null) return;
+        if (!showZero && !v) return;   // 会心/回避は0なら省く
+        const span = document.createElement('span');
+        span.textContent = label + ': ';
+        const strong = document.createElement('strong');
+        strong.textContent = v + unit;
+        span.appendChild(strong);
+        statsGrid.appendChild(span);
+      });
       content.appendChild(statsGrid);
 
       const skillsSection = document.createElement('div');
@@ -165,6 +255,12 @@
           btn.dataset.idx = data.index;
           btn.textContent = '装備';
           li.textContent = eq.name + ' ';
+          if (Array.isArray(eq.stats) && eq.stats.length) {
+            const stats = document.createElement('span');
+            stats.className = 'equip-stats';
+            stats.textContent = '[' + eq.stats.map(s => s.display).join(' ') + '] ';
+            li.appendChild(stats);
+          }
           li.appendChild(btn);
           invUl.appendChild(li);
         });

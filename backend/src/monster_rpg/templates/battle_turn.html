@@ -9,10 +9,14 @@
 <div class="battle-page">
   <div id="turn-order-bar" class="turn-order-bar"></div>
   <div id="field-banner" class="field-banner hidden"></div>
-  <div id="enemy-party-area" class="enemy-area"></div>
-  <div class="divider"></div>
-  <div id="ally-party-area" class="ally-party-display"></div>
+  <div class="battlefield">
+    <div id="enemy-party-area" class="enemy-area"></div>
+    <div class="divider"></div>
+    <div id="ally-party-area" class="ally-party-display"></div>
+  </div>
 
+  <div class="battle-bottom">
+    <div class="battle-bottom-main">
   <div class="command-window">
     <div class="turn-banner">Turn {{ init_data.turn }}</div>
     <div class="battle-toggles">
@@ -48,8 +52,11 @@
       <button type="submit" id="submit-btn">行動決定</button>
     </form>
   </div>
+      <div id="ally-status-panel" class="ally-status-panel"></div>
+    </div>
 
   <ul id="battle-log" class="log"></ul>
+  </div>
   <a href="{{ url_for('play', user_id=user_id) }}" class="back-link">戻る</a>
 </div>
 
@@ -58,13 +65,20 @@
   <h3 id="detail-name"></h3>
   <ul>
     <li>Lv <span id="detail-level"></span></li>
+    <li>性格 <span id="detail-personality" class="detail-pers"></span></li>
+    <li>才能 <span id="detail-talent" class="detail-talent"></span></li>
+    <li>特性 <span id="detail-trait" class="detail-trait"></span></li>
     <li>属性 <span id="detail-element" class="detail-element"></span></li>
     <li class="detail-weakness-row">弱点 <span id="detail-weakness" class="detail-weakness"></span></li>
     <li>HP <span id="detail-hp"></span>/<span id="detail-max-hp"></span></li>
     <li>MP <span id="detail-mp"></span>/<span id="detail-max-mp"></span></li>
     <li>攻撃 <span id="detail-attack"></span></li>
+    <li>魔力 <span id="detail-magic"></span></li>
     <li>防御 <span id="detail-defense"></span></li>
+    <li>魔防 <span id="detail-magic-defense"></span></li>
     <li>素早さ <span id="detail-speed"></span></li>
+    <li>会心率 <span id="detail-critical-rate"></span>%</li>
+    <li>回避率 <span id="detail-evasion-rate"></span>%</li>
     <li>状態 <span id="detail-statuses"></span></li>
   </ul>
 </div>

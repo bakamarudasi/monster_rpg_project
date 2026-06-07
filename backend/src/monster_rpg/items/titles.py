@@ -41,7 +41,7 @@ TITLE_MAGICAL = Title(
 # --- カテゴリ1: 単体ステータス強化系 ---
 TITLE_LIFE = Title("life", "生命の", "最大HPが上昇する。", {"hp": 10})
 TITLE_MANA = Title("mana", "魔力の", "最大SPが上昇する。", {"sp": 10})
-TITLE_SAGES = Title("sages", "賢者の", "魔法攻撃力が上昇する。", {"magic_attack": 5})
+TITLE_SAGES = Title("sages", "賢者の", "魔法攻撃力が上昇する。", {"magic": 5})
 TITLE_GUARDIANS = Title("guardians", "守護の", "魔法防御力が上昇する。", {"magic_defense": 5})
 TITLE_ASSASSINS = Title("assassins", "暗殺者の", "会心率が上昇する。", {"critical_rate": 5})
 TITLE_NIMBLE = Title("nimble", "身かわしの", "回避率が上昇する。", {"evasion_rate": 5})

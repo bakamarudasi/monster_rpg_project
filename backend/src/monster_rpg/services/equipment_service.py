@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from ..items.equipment import EquipmentInstance
+from ..items.equipment import EquipmentInstance, equipment_stat_summary
 from ..enhancement import (
     enhance_equipment,
     enhance_cost,
@@ -30,6 +30,8 @@ def equip(player, party_idx: int, equip_id, slot):
                 'id': (e.instance_id if isinstance(e, EquipmentInstance)
                        else getattr(e, 'equip_id', str(e))),
                 'name': getattr(e, 'name', ''),
+                'slot': getattr(e, 'slot', ''),
+                'stats': equipment_stat_summary(e),
             }
             for e in player.equipment_inventory
         ],
@@ -37,7 +39,11 @@ def equip(player, party_idx: int, equip_id, slot):
         'monster_stats': {
             'attack': monster.total_attack(),
             'defense': monster.total_defense(),
+            'magic': monster.magic,
+            'magic_defense': monster.magic_defense,
             'speed': monster.total_speed(),
+            'critical_rate': monster.critical_rate,
+            'evasion_rate': monster.evasion_rate,
         },
     }
     return success, data

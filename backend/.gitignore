@@ -175,6 +175,8 @@ cython_debug/
 
 # Local database and caches
 monster_rpg_save.db
+# 一時的なテスト/プローブ用DB（test_*.db, probe_*.db など）
+*.db
 __pycache__/
 
 # Monster images (local only)

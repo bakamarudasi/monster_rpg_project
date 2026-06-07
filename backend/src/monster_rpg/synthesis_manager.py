@@ -8,6 +8,7 @@ from typing import Tuple, Optional
 
 from .monsters.monster_class import Monster
 from .monsters.monster_data import ALL_MONSTERS
+from .monsters.personality import inherit_personality_id, inherit_ivs, inherit_trait, DEFAULT_INHERIT_COUNT
 from .monsters.synthesis_rules import (
     SYNTHESIS_RECIPES,
     SYNTHESIS_ITEMS_REQUIRED,
@@ -109,8 +110,12 @@ def _compute_child_plus(parent1: Monster, parent2: Monster) -> int:
     return max(getattr(parent1, "plus_value", 0), getattr(parent2, "plus_value", 0)) + 1
 
 
-def _build_child(parent1: Monster, parent2: Monster, result_id: str, inherit_skill_ids=None) -> Monster:
-    """合成結果のモンスターを生成（スキル継承・ステ補正・累代＋値を適用）。"""
+def _build_child(parent1: Monster, parent2: Monster, result_id: str, inherit_skill_ids=None, breeding=None) -> Monster:
+    """合成結果のモンスターを生成（スキル継承・ステ補正・累代＋値・個体値遺伝を適用）。
+
+    ``breeding`` は配合補助アイテムの効果（``inherit_count`` / ``power_stats`` /
+    ``everstone_parent``）を表す辞書。None なら通常の継承（個体値3継承・性格は親or変異）。
+    """
     new_monster = ALL_MONSTERS[result_id].copy()
 
     existing = {getattr(s, "name", None) for s in new_monster.skills}
@@ -149,6 +154,29 @@ def _build_child(parent1: Monster, parent2: Monster, result_id: str, inherit_ski
 
     # 累代＋値（強い親ほど強い子になるループ）
     new_monster.add_plus_value(_compute_child_plus(parent1, parent2))
+
+    # 個性の継承：性格はどちらかの親（稀に変異／かわらずのいしで確定）、個体値はステ
+    # ごとに親から引き継ぐ（ポケモンの遺伝に準拠）。あかいいとで継承数3→5、パワー系で
+    # 指定ステを確定継承。良個体値を集めて厳選＝才能（鬼才）を狙う配合ループの核。
+    breeding = breeding or {}
+    new_monster.personality_id = inherit_personality_id(
+        getattr(parent1, "personality_id", None),
+        getattr(parent2, "personality_id", None),
+        everstone_parent=breeding.get("everstone_parent"),
+    )
+    new_monster.ivs = inherit_ivs(
+        getattr(parent1, "ivs", None),
+        getattr(parent2, "ivs", None),
+        inherit_count=breeding.get("inherit_count", DEFAULT_INHERIT_COUNT),
+        power_stats=breeding.get("power_stats") or None,
+    )
+    new_monster.iv_appraised = False
+    # 固有特性：才能（個体値）が高い子にだけ宿る。親の特性は受け継がれやすい。
+    new_monster.trait_id = inherit_trait(
+        getattr(parent1, "trait_id", None),
+        getattr(parent2, "trait_id", None),
+        new_monster.talent.id,
+    )
 
     new_monster.hp = new_monster.max_hp
     new_monster.mp = new_monster.max_mp
@@ -202,7 +230,7 @@ def preview_synthesis(player: "Player", monster1_idx: int, monster2_idx: int, it
     }
 
 
-def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, item_id: str | None = None, inherit_skill_ids=None) -> Tuple[bool, str, Optional[Monster]]:
+def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, item_id: str | None = None, inherit_skill_ids=None, breeding=None) -> Tuple[bool, str, Optional[Monster]]:
     if not (0 <= monster1_idx < len(player.party_monsters) and 0 <= monster2_idx < len(player.party_monsters)):
         return False, "無効なモンスターの選択です。", None
     if monster1_idx == monster2_idx:
@@ -244,7 +272,7 @@ def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, i
             result_monster_id = jackpot_id
             is_jackpot = True
 
-    new_monster = _build_child(parent1, parent2, result_monster_id, inherit_skill_ids=inherit_skill_ids)
+    new_monster = _build_child(parent1, parent2, result_monster_id, inherit_skill_ids=inherit_skill_ids, breeding=breeding)
 
     # レア個体（★）抽選
     if random.random() < _rare_individual_chance(parent1, parent2):
@@ -273,6 +301,13 @@ def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, i
     else:
         prefix = ""
     msg = f"{prefix}{removed_monster_names[1]} と {removed_monster_names[0]} を合成して {star}{new_monster.name}{plus_txt} が誕生した！"
+    # 生まれた個体の個性（性格・才能・固有特性）を知らせる。隠し才能はとくに強調する。
+    talent = new_monster.talent
+    msg += f" 性格は『{new_monster.personality.name}』、才能は『{talent.name}』。"
+    if new_monster.trait is not None:
+        msg += f" 固有特性『{new_monster.trait.name}』を宿している！"
+    if talent.hidden:
+        msg = f"🌟隠し才能『{talent.name}』が覚醒！🌟 " + msg
     if achv:
         msg += " " + " ".join(achv)
     return True, msg, new_monster

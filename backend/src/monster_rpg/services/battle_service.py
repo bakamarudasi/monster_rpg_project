@@ -77,6 +77,13 @@ def apply_battle_rewards(player, outcome, player_party, enemy_party, log) -> lis
     if outcome == 'win':
         total_exp = sum(e.level * 10 for e in enemy_party)
         gold_gain = sum(e.level * 5 for e in enemy_party)
+        # 特性「金運」: 生存パーティに金運持ちがいればゴールド増（最大の倍率を採用）
+        gold_mult = 1.0
+        for m in player_party:
+            t = getattr(m, "trait", None)
+            if getattr(m, "is_alive", False) and t is not None and t.effect == "gold":
+                gold_mult = max(gold_mult, 1.0 + t.value)
+        gold_gain = int(gold_gain * gold_mult)
         alive_members = [m for m in player_party if m.is_alive]
         if alive_members and total_exp:
             share = total_exp // len(alive_members)

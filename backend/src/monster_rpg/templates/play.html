@@ -5,93 +5,136 @@
 {% endblock %}
 
 {% block content %}
-<div class="field-container">
-    <div class="loc-header">
-        <div class="header-top">
-            <h2>{{ loc.name if loc else 'Unknown' }}</h2>
-            <div class="player-status">
-                <span>Lv.{{ player.player_level }}</span>
-                <span>{{ player.gold }} G</span>
-            </div>
-        </div>
-        <p class="loc-desc">{{ loc.description if loc else '???' }}</p>
+<div class="home-screen">
+
+  <!-- === プレイヤー＆パーティカード === -->
+  <section class="home-card hero-card">
+    <div class="hero-top">
+      <div class="hero-id">
+        <div class="hero-name">{{ player.name }}</div>
+        <div class="hero-sub">冒険者 Lv.{{ player.player_level }}</div>
+      </div>
+      <div class="hero-gold">💰 {{ player.gold }} G</div>
     </div>
+    {% if player.party_monsters %}
+    <div class="party-strip">
+      {% for m in player.party_monsters %}
+        {% set pct = (m.hp / m.max_hp * 100) if m.max_hp else 0 %}
+        <div class="party-chip{% if m.hp <= 0 %} downed{% endif %}">
+          {% if m.image_filename %}
+          <img class="party-portrait" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
+          {% else %}
+          <div class="party-portrait placeholder">{{ m.element or '?' }}</div>
+          {% endif %}
+          <div class="party-meta">
+            <div class="party-name">{{ m.name }} <span class="party-lv">Lv{{ m.level }}</span></div>
+            <div class="hp-bar"><div class="hp-fill{% if pct <= 25 %} critical{% elif pct <= 50 %} low{% endif %}" style="width: {{ pct }}%"></div></div>
+            <div class="party-hp">{{ m.hp }}/{{ m.max_hp }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- === 現在地カード（ミニマップ＋いどう） === -->
+  <section class="home-card loc-card">
+    <div class="loc-head">
+      <h2>{{ loc.name if loc else 'Unknown' }}</h2>
+      {% if map_grid %}
+      <a href="{{ url_for('world_map', user_id=user_id) }}" class="loc-map-link">全体地図 →</a>
+      {% endif %}
+    </div>
+    <p class="loc-desc">{{ loc.description if loc else '???' }}</p>
 
     {% if map_grid %}
     <div class="minimap-panel">
-        <div class="minimap-head">
-            <span>周辺マップ</span>
-            <a href="{{ url_for('world_map', user_id=user_id) }}" class="minimap-link">全体地図 →</a>
-        </div>
-        <div class="minimap" data-cols="{{ map_grid[0]|length if map_grid else 0 }}">
-            {% for row in map_grid %}
-                {% for cell in row %}
-                    {% if cell %}
-                        {% set disc = discovered and cell.location_id in discovered %}
-                        <div class="mm-cell{% if disc %} disc{% else %} fog{% endif %}{% if current_loc_id == cell.location_id %} cur{% endif %}{% if cell.boss_enemy_id and disc %} boss{% endif %}"
-                             data-loc="{{ cell.location_id }}"
-                             data-region="{{ cell.region or '' }}"
-                             title="{{ (cell.name + ' [' + (cell.region or '') + ']') if disc else '未踏破' }}"></div>
-                    {% else %}
-                        <div class="mm-cell empty"></div>
-                    {% endif %}
-                {% endfor %}
-            {% endfor %}
-        </div>
+      <div class="minimap-head"><span>周辺マップ</span></div>
+      <div class="minimap" data-cols="{{ map_grid[0]|length if map_grid else 0 }}">
+        {% for row in map_grid %}
+          {% for cell in row %}
+            {% if cell %}
+              {% set disc = discovered and cell.location_id in discovered %}
+              <div class="mm-cell{% if disc %} disc{% else %} fog{% endif %}{% if current_loc_id == cell.location_id %} cur{% endif %}{% if cell.boss_enemy_id and disc %} boss{% endif %}"
+                   data-loc="{{ cell.location_id }}"
+                   data-region="{{ cell.region or '' }}"
+                   title="{{ (cell.name + ' [' + (cell.region or '') + ']') if disc else '未踏破' }}"></div>
+            {% else %}
+              <div class="mm-cell empty"></div>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      </div>
     </div>
     {% endif %}
 
-    <hr class="window-divider">
-
-    <div class="command-area">
-        <div class="actions-group">
-            <h3>いどう</h3>
-            <div class="move-btn-list">
-                {% for cmd, dest, name in connections %}
-                <form action="{{ url_for('move', user_id=user_id) }}" method="post">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="dest" value="{{ dest }}">
-                    <button type="submit" class="menu-btn"><span>{{ cmd }} → {{ name }}</span></button>
-                </form>
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="actions-group">
-            <h3>コマンド</h3>
-            <div class="menu-group">
-                <form action="{{ url_for('status', user_id=user_id) }}" method="get"><button class="menu-btn"><span>ステータス</span></button></form>
-                <form action="{{ url_for('party', user_id=user_id) }}" method="get"><button class="menu-btn"><span>パーティ</span></button></form>
-                <form action="{{ url_for('explore', user_id=user_id) }}" method="post">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button class="menu-btn" type="submit"><span>たんさく</span></button>
-                </form>
-                <form action="{{ url_for('battle_log', user_id=user_id) }}" method="get"><button class="menu-btn"><span>せんとうログ</span></button></form>
-                <form action="{{ url_for('items', user_id=user_id) }}" method="get"><button class="menu-btn"><span>アイテム</span></button></form>
-                <form action="{{ url_for('synthesize', user_id=user_id) }}" method="get"><button class="menu-btn"><span>ごうせい</span></button></form>
-                <form action="{{ url_for('inventory.enhance', user_id=user_id) }}" method="get"><button class="menu-btn"><span>そうびきょうか</span></button></form>
-                <form action="{{ url_for('monster_book', user_id=user_id) }}" method="get"><button class="menu-btn"><span>ずかん</span></button></form>
-                <form action="{{ url_for('main.achievements', user_id=user_id) }}" method="get"><button class="menu-btn"><span>じっせき</span></button></form>
-                <form action="{{ url_for('main.quests', user_id=user_id) }}" method="get"><button class="menu-btn"><span>いらい</span></button></form>
-                <form action="{{ url_for('main.arena', user_id=user_id) }}" method="get"><button class="menu-btn"><span>とうぎじょう</span></button></form>
-                <form action="{{ url_for('main.story', user_id=user_id) }}" method="get"><button class="menu-btn"><span>ものがたり</span></button></form>
-                <form action="{{ url_for('world_map', user_id=user_id) }}" method="get"><button class="menu-btn"><span>マップ</span></button></form>
-                {% if loc and loc.has_shop %}
-                <form action="{{ url_for('shop', user_id=user_id) }}" method="get"><button class="menu-btn"><span>ショップ</span></button></form>
-                {% endif %}
-                {% if loc and loc.has_inn %}
-                <form action="{{ url_for('inn', user_id=user_id) }}" method="post">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button class="menu-btn" type="submit"><span>やどや ({{ loc.inn_cost }}G)</span></button>
-                </form>
-                {% endif %}
-                <form action="{{ url_for('save', user_id=user_id) }}" method="post">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button class="menu-btn save-btn" type="submit"><span>セーブ</span></button>
-                </form>
-            </div>
-        </div>
+    {% if connections %}
+    <div class="move-row">
+      {% for cmd, dest, name in connections %}
+      <form action="{{ url_for('move', user_id=user_id) }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="dest" value="{{ dest }}">
+        <button type="submit" class="move-chip">{{ cmd }} → {{ name }}</button>
+      </form>
+      {% endfor %}
     </div>
+    {% endif %}
+  </section>
+
+  <!-- === コマンドタイル === -->
+  <section class="home-card menu-section">
+    <h3 class="menu-head">さがす</h3>
+    <div class="tile-grid">
+      <form action="{{ url_for('explore', user_id=user_id) }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="tile" type="submit"><span class="tile-icon">🔍</span><span class="tile-label">たんさく</span></button>
+      </form>
+      <a class="tile" href="{{ url_for('world_map', user_id=user_id) }}"><span class="tile-icon">🗺️</span><span class="tile-label">マップ</span></a>
+      <a class="tile" href="{{ url_for('main.arena', user_id=user_id) }}"><span class="tile-icon">⚔️</span><span class="tile-label">とうぎじょう</span></a>
+    </div>
+
+    <h3 class="menu-head">そだてる</h3>
+    <div class="tile-grid">
+      <a class="tile" href="{{ url_for('party', user_id=user_id) }}"><span class="tile-icon">🐲</span><span class="tile-label">パーティ</span></a>
+      <a class="tile" href="{{ url_for('status', user_id=user_id) }}"><span class="tile-icon">📊</span><span class="tile-label">ステータス</span></a>
+      <a class="tile" href="{{ url_for('synthesize', user_id=user_id) }}"><span class="tile-icon">🧬</span><span class="tile-label">ごうせい</span></a>
+      <a class="tile" href="{{ url_for('inventory.enhance', user_id=user_id) }}"><span class="tile-icon">⚒️</span><span class="tile-label">そうびきょうか</span></a>
+    </div>
+
+    <h3 class="menu-head">しらべる</h3>
+    <div class="tile-grid">
+      <a class="tile" href="{{ url_for('monster_book', user_id=user_id) }}"><span class="tile-icon">📖</span><span class="tile-label">ずかん</span></a>
+      <a class="tile" href="{{ url_for('main.quests', user_id=user_id) }}"><span class="tile-icon">📜</span><span class="tile-label">いらい</span></a>
+      <a class="tile" href="{{ url_for('main.achievements', user_id=user_id) }}"><span class="tile-icon">🏆</span><span class="tile-label">じっせき</span></a>
+      <a class="tile" href="{{ url_for('main.story', user_id=user_id) }}"><span class="tile-icon">📕</span><span class="tile-label">ものがたり</span></a>
+      <a class="tile" href="{{ url_for('items', user_id=user_id) }}"><span class="tile-icon">🎒</span><span class="tile-label">アイテム</span></a>
+      <a class="tile" href="{{ url_for('battle_log', user_id=user_id) }}"><span class="tile-icon">📝</span><span class="tile-label">せんとうログ</span></a>
+    </div>
+
+    {% if loc and (loc.has_shop or loc.has_inn) %}
+    <h3 class="menu-head">まち</h3>
+    <div class="tile-grid">
+      {% if loc.has_shop %}
+      <a class="tile" href="{{ url_for('shop', user_id=user_id) }}"><span class="tile-icon">🛒</span><span class="tile-label">ショップ</span></a>
+      {% endif %}
+      {% if loc.has_inn %}
+      <form action="{{ url_for('inn', user_id=user_id) }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="tile" type="submit"><span class="tile-icon">🛌</span><span class="tile-label">やどや<small>{{ loc.inn_cost }}G</small></span></button>
+      </form>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <h3 class="menu-head">システム</h3>
+    <div class="tile-grid">
+      <form action="{{ url_for('save', user_id=user_id) }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="tile save" type="submit"><span class="tile-icon">💾</span><span class="tile-label">セーブ</span></button>
+      </form>
+    </div>
+  </section>
+
 </div>
 
 <form id="mm-ft-form" method="post" action="{{ url_for('main.fast_travel', user_id=user_id) }}" style="display:none">

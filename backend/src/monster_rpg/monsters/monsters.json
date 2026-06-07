@@ -232,6 +232,7 @@
   },
   "phoenix_chick": {
     "name": "不死鳥のヒナ",
+    "trait": "endure",
     "ai_role": "attacker",
     "rank": "S",
     "element": "火",
@@ -493,6 +494,7 @@
   },
   "giant_golem": {
     "name": "ジャイアントゴーレム",
+    "trait": "endure",
     "ai_role": "attacker",
     "rank": "A",
     "element": "土",
@@ -528,6 +530,7 @@
   },
   "shadow_panther": {
     "name": "シャドウパンサー",
+    "trait": "evasive",
     "ai_role": "attacker",
     "rank": "A",
     "element": "闇",
@@ -562,6 +565,7 @@
   },
   "vampire_lord": {
     "name": "ヴァンパイアロード",
+    "trait": "lifesteal",
     "ai_role": "attacker",
     "rank": "S",
     "element": "闇",
@@ -603,6 +607,7 @@
   },
   "celestial_dragon": {
     "name": "セレスティアルドラゴン",
+    "trait": "magic_ward",
     "ai_role": "attacker",
     "rank": "S",
     "element": "光",
@@ -1535,6 +1540,7 @@
   },
   "iron_juggernaut": {
     "name": "アイアンジャガーノート",
+    "trait": "magic_ward",
     "ai_role": "attacker",
     "rank": "A",
     "element": "土",
@@ -1856,6 +1862,7 @@
   },
   "poison_queen": {
     "name": "腐毒の女王 ニーヴェ=ブランシュ",
+    "trait": "afflictor",
     "ai_role": "attacker",
     "rank": "S",
     "element": "闇",
@@ -1875,6 +1882,7 @@
   },
   "beheader_alice": {
     "name": "断罪遊戯の処刑姫 アリシエル",
+    "trait": "dual_strike",
     "ai_role": "attacker",
     "rank": "S",
     "element": "闇",
@@ -1894,6 +1902,7 @@
   },
   "crimson_hood": {
     "name": "飢餓の緋き獣 ルガルゥ",
+    "trait": "lifesteal",
     "ai_role": "attacker",
     "rank": "S",
     "element": "闇",
@@ -1913,6 +1922,7 @@
   },
   "sleeping_maiden": {
     "name": "終わらぬ微睡みの姫 ソムニア",
+    "trait": "endure",
     "ai_role": "attacker",
     "rank": "S",
     "element": "闇",
@@ -1932,6 +1942,7 @@
   },
   "match_ember": {
     "name": "煉獄を彷徨う燐火 イグニス",
+    "trait": "glass_cannon",
     "ai_role": "attacker",
     "rank": "S",
     "element": "火",
@@ -1951,6 +1962,7 @@
   },
   "tale_devourer": {
     "name": "全てを綴じる終焉の影 グリム=エンディア",
+    "trait": "pinch_power",
     "ai_role": "attacker",
     "rank": "S",
     "element": "闇",
@@ -1970,6 +1982,7 @@
   },
   "data_wraith": {
     "name": "電書の徘徊者 グリッチ",
+    "trait": "mana_leech",
     "ai_role": "attacker",
     "rank": "A",
     "element": "雷",
@@ -1989,6 +2002,7 @@
   },
   "midnight_horror": {
     "name": "真夜中の怪談 ヨミ",
+    "trait": "evasive",
     "ai_role": "attacker",
     "rank": "A",
     "element": "闇",
@@ -2008,6 +2022,7 @@
   },
   "phantom_thief": {
     "name": "完全犯罪の怪盗 ファントム",
+    "trait": "fortune",
     "ai_role": "attacker",
     "rank": "A",
     "element": "無",
@@ -2027,6 +2042,7 @@
   },
   "fallen_deity": {
     "name": "墜ちた神 アステリオス",
+    "trait": "critical_master",
     "ai_role": "attacker",
     "rank": "S",
     "element": "光",
@@ -2046,6 +2062,7 @@
   },
   "ronin_spirit": {
     "name": "無宿の刃 浪人",
+    "trait": "critical_master",
     "ai_role": "attacker",
     "rank": "S",
     "element": "無",
@@ -2065,6 +2082,7 @@
   },
   "eldritch_tome": {
     "name": "禁書の触手 ネクロノム",
+    "trait": "afflictor",
     "ai_role": "attacker",
     "rank": "S",
     "element": "闇",
@@ -2421,6 +2439,7 @@
   },
   "thunderlord_roc": {
     "name": "雷帝の大鷲",
+    "trait": "swift",
     "ai_role": "attacker",
     "rank": "A",
     "element": "雷",
@@ -2435,6 +2454,7 @@
   },
   "glacial_empress": {
     "name": "氷獄の女王",
+    "trait": "afflictor",
     "ai_role": "attacker",
     "rank": "S",
     "element": "氷",
@@ -2463,6 +2483,7 @@
   },
   "storm_sovereign": {
     "name": "暴風の覇王アエロス",
+    "trait": "swift",
     "ai_role": "attacker",
     "rank": "S",
     "element": "風",
@@ -2479,6 +2500,7 @@
   },
   "gaia_colossus": {
     "name": "山喰らいの巨王ガイオス",
+    "trait": "endure",
     "ai_role": "attacker",
     "rank": "S",
     "element": "土",
@@ -2495,6 +2517,7 @@
   },
   "plague_monarch": {
     "name": "万病の魔王ペスティス",
+    "trait": "venomous",
     "ai_role": "debuffer",
     "rank": "S",
     "element": "毒",
@@ -2511,6 +2534,7 @@
   },
   "abyssal_tide_king": {
     "name": "深淵の海皇レヴィオス",
+    "trait": "magic_ward",
     "ai_role": "attacker",
     "rank": "S",
     "element": "水",
@@ -2527,6 +2551,7 @@
   },
   "thunder_emperor": {
     "name": "雷霆の帝王ヴォルガ",
+    "trait": "dual_strike",
     "ai_role": "attacker",
     "rank": "S",
     "element": "雷",

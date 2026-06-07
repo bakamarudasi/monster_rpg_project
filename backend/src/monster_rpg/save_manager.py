@@ -10,6 +10,7 @@ from typing import Optional
 from .map_data import STARTING_LOCATION_ID
 from .monsters.monster_class import Monster
 from .monsters.monster_data import ALL_MONSTERS
+from .monsters.personality import normalize_ivs
 from .skills.skills import ALL_SKILLS
 from .items.item_data import ALL_ITEMS
 from .items.equipment import (
@@ -98,12 +99,17 @@ def save_game(player: "Player", db_name: str, user_id: Optional[int] = None) -> 
                 int(bool(getattr(monster, "is_rare", False))),
                 json.dumps(_skill_ids(monster)),
                 int(bool(getattr(monster, "locked", False))),
+                getattr(monster, "personality_id", None),
+                json.dumps(getattr(monster, "ivs", None) or {}),
+                int(bool(getattr(monster, "iv_appraised", False))),
+                getattr(monster, "trait_id", None),
             )
 
         _monster_cols = (
             "(player_id, monster_id, level, exp, hp, max_hp, mp, max_mp, "
-            "bonus_attack, bonus_defense, bonus_speed, bonus_magic, plus_value, is_rare, skills, locked) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            "bonus_attack, bonus_defense, bonus_speed, bonus_magic, plus_value, is_rare, skills, locked, "
+            "personality, ivs, iv_appraised, trait) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         )
 
         cursor.execute("DELETE FROM party_monsters WHERE player_id=?", (player.db_id,))
@@ -217,10 +223,17 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
 
             def _build_saved_monster(row):
                 (monster_id, m_level, m_exp, hp, max_hp, mp, max_mp,
-                 b_atk, b_def, b_spd, b_mag, plus_value, is_rare, skills_json, locked) = row
+                 b_atk, b_def, b_spd, b_mag, plus_value, is_rare, skills_json, locked,
+                 personality, ivs_json, iv_appraised, trait) = row
                 if monster_id not in ALL_MONSTERS:
                     return None
                 monster = ALL_MONSTERS[monster_id].copy()
+                # 個体値はレベルアップ取得量（成長率）に効くので、再レベルアップの前に復元する。
+                if ivs_json:
+                    try:
+                        monster.ivs = normalize_ivs(json.loads(ivs_json))
+                    except (ValueError, TypeError):
+                        pass
                 if monster.level < m_level:
                     monster.advance_to_level(m_level, verbose=False)
                 monster.exp = m_exp
@@ -242,6 +255,12 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
                 monster.plus_value = plus_value or 0
                 monster.is_rare = bool(is_rare)
                 monster.locked = bool(locked)
+                # 個体の個性（性格・鑑定状態・固有特性）。未保存（旧データ）なら既定値のまま。
+                if personality:
+                    monster.personality_id = personality
+                monster.iv_appraised = bool(iv_appraised)
+                if trait:
+                    monster.trait_id = trait
                 # 習得スキル（配合の継承など）を復元
                 if skills_json:
                     try:
@@ -259,7 +278,8 @@ def load_game(db_name: str, user_id: int = 1) -> Optional["Player"]:
                 return monster
 
             _saved_cols = ("monster_id, level, exp, hp, max_hp, mp, max_mp, "
-                           "bonus_attack, bonus_defense, bonus_speed, bonus_magic, plus_value, is_rare, skills, locked")
+                           "bonus_attack, bonus_defense, bonus_speed, bonus_magic, plus_value, is_rare, skills, locked, "
+                           "personality, ivs, iv_appraised, trait")
 
             cursor.execute(
                 f"SELECT {_saved_cols} FROM party_monsters WHERE player_id=?",

@@ -28,10 +28,10 @@ def deal_damage(target: Monster, damage: int, log: List[Dict[str, str]] | None) 
     actual = target.absorb_with_shield(actual, log)
     target.hp -= actual
     if actual > 0:
-        log.append({'type': 'info', 'message': f"{target.name} took {actual} damage! (HP: {max(0, target.hp)})"})
+        log.append({'type': 'damage', 'message': f"{target.name} に {actual} のダメージ！（残りHP {max(0, target.hp)}）"})
     if target.hp <= 0:
         target.is_alive = False
-        log.append({'type': 'info', 'message': f"{target.name} fainted!"})
+        log.append({'type': 'damage', 'message': f"{target.name} は たおれた！"})
     return actual
 
 
@@ -39,10 +39,12 @@ def calculate_skill_damage(caster: Monster, target: Monster, skill: Skill) -> in
     """Calculate damage for a skill taking caster stats and elements into account."""
     if skill.category == "魔法":
         base_stat = getattr(caster, "magic", 0)
+        target_defense = target.total_magic_defense()   # 魔法は魔法防御で軽減
     else:
         base_stat = caster.total_attack()
+        target_defense = target.total_defense()
 
-    base = base_stat + skill.power - target.total_defense()
+    base = base_stat + skill.power - target_defense
     damage = max(1, base)
 
     damage = int(damage * elemental_multiplier(caster.element, target.element))
@@ -55,7 +57,25 @@ def calculate_skill_damage(caster: Monster, target: Monster, skill: Skill) -> in
     damage = int(damage * resist)
     if is_defending(target):
         damage = int(damage * 0.5)
-    return max(1, damage)
+    # 特性「諸刃」: 与ダメージも被ダメージも増える
+    cg = caster.trait
+    if cg is not None and cg.effect == "glass":
+        damage = int(damage * (1.0 + cg.value))
+    tg = target.trait
+    if tg is not None and tg.effect == "glass":
+        damage = int(damage * (1.0 + tg.value))
+    damage = max(1, damage)
+
+    if skill.category == "魔法":
+        # 特性「魔法の盾」: 受ける魔法ダメージを軽減
+        ward = target.trait
+        if ward is not None and ward.effect == "magic_ward":
+            damage = max(1, int(damage * (1.0 - ward.value)))
+        # 特性「吸魔」: 与えた魔法ダメージの一部だけ術者のMPを回復
+        leech = caster.trait
+        if leech is not None and leech.effect == "mana_leech":
+            caster.mp = min(caster.max_mp, caster.mp + max(1, int(damage * leech.value)))
+    return damage
 
 
 NEGATIVE_STATUSES = {
@@ -92,14 +112,14 @@ def _bonus_multiplier(caster: Monster, target: Monster, effect: dict) -> float:
 def _apply_counter(caster: Monster, target: Monster, log: List[Dict[str, str]]) -> None:
     """target がカウンター構えなら caster に反撃ダメージを与える。"""
     if any(e["name"] == "counter_stance" for e in target.status_effects):
-        log.append({'type': 'info', 'message': f"{target.name} counters!"})
+        log.append({'type': 'info', 'message': f"{target.name} の反撃！"})
         counter_damage = int(caster.total_attack() * 0.5)  # 攻撃力の半分で反撃
         counter_damage = caster.absorb_with_shield(counter_damage, log)
         caster.hp -= counter_damage
-        log.append({'type': 'info', 'message': f"{caster.name} took {counter_damage} damage! (HP: {max(0, caster.hp)})"})
+        log.append({'type': 'damage', 'message': f"{caster.name} に {counter_damage} のダメージ！（残りHP {max(0, caster.hp)}）"})
         if caster.hp <= 0:
             caster.is_alive = False
-            log.append({'type': 'info', 'message': f"{caster.name} fainted!"})
+            log.append({'type': 'damage', 'message': f"{caster.name} は たおれた！"})
 
 
 def _inflict(caster: Monster, target: Monster, damage: int, log: List[Dict[str, str]], context: Dict[str, Any]) -> int:
@@ -107,10 +127,10 @@ def _inflict(caster: Monster, target: Monster, damage: int, log: List[Dict[str, 
     damage = target.absorb_with_shield(damage, log)
     if damage > 0:
         target.hp -= damage
-        log.append({'type': 'info', 'message': f"{target.name} took {damage} damage! (HP: {max(0, target.hp)})"})
-    if target.hp <= 0:
+        log.append({'type': 'damage', 'message': f"{target.name} に {damage} のダメージ！（残りHP {max(0, target.hp)}）"})
+    if target.hp <= 0 and not target.try_endure(log):
         target.is_alive = False
-        log.append({'type': 'info', 'message': f"{target.name} fainted!"})
+        log.append({'type': 'damage', 'message': f"{target.name} は たおれた！"})
     elif damage > 0:
         _apply_counter(caster, target, log)
     context["last_damage_dealt"] = damage
@@ -164,7 +184,7 @@ def _handle_heal_from_damage(
     heal_amount = int(last_damage_dealt * percent)
     if heal_amount > 0:
         caster.heal("hp", heal_amount)
-        log.append({'type': 'info', 'message': f"{caster.name} は {heal_amount} HPを吸収した！ (残りHP: {caster.hp})"})
+        log.append({'type': 'heal', 'message': f"{caster.name} は {heal_amount} HPを吸収した！ (残りHP: {caster.hp})"})
 
 
 
@@ -181,7 +201,7 @@ def _handle_heal(
     stat = effect.get("stat", "hp")
     amount = effect.get("amount", 0)
     target.heal(stat, amount)
-    log.append({'type': 'info', 'message': f"{target.name} の{stat}が {amount} 回復した！"})
+    log.append({'type': 'heal', 'message': f"{target.name} の{stat}が {amount} 回復した！"})
 
 
 def _handle_buff(
@@ -238,10 +258,24 @@ def _handle_status(
         if resist <= 0.0:
             log.append({'type': 'info', 'message': f"{target.name} には効かないようだ！"})
             return
-        if random.random() < chance * resist:
+        prob = chance * resist
+        # 状態異常（負の状態）は、術者の魔力が相手の魔法防御を上回るほど決まりやすい。
+        # 上回らなければ補正なし＝従来どおり（魔力0の物理術者は影響を受けない）。
+        if status in NEGATIVE_STATUSES:
+            edge = getattr(caster, "magic", 0) - target.total_magic_defense()
+            if edge > 0:
+                prob *= 1.0 + min(0.5, edge / 100.0)
+            # 特性「状態異常の達人」: 付与成功率UP / 「鉄の精神」: 被付与率DOWN
+            ct = caster.trait
+            if ct is not None and ct.effect == "ailment_power":
+                prob *= 1.0 + ct.value
+            tt = target.trait
+            if tt is not None and tt.effect == "ailment_ward":
+                prob *= 1.0 - tt.value
+        if random.random() < min(1.0, prob):
             target.apply_status(status, log, duration)
         else:
-            log.append({'type': 'info', 'message': f"{target.name} resisted the status effect."})
+            log.append({'type': 'info', 'message': f"{target.name} は状態異常を はねのけた！"})
 
 
 
@@ -336,7 +370,7 @@ def _handle_hp_cost_percent(
     if caster.hp <= 0:
         caster.hp = 0
         caster.is_alive = False
-        log.append({'type': 'info', 'message': f"{caster.name} は倒れた！"})
+        log.append({'type': 'damage', 'message': f"{caster.name} は たおれた！"})
 
 
 def _handle_self_ko(
@@ -418,7 +452,7 @@ def _handle_multi_hit(
     bonus = _bonus_multiplier(caster, target, effect)
     # 連撃は1発ごとにほぼ通常攻撃ぶんの威力が出るため、scale で1発あたりを抑える
     scale = float(effect.get("scale", 1.0))
-    log.append({'type': 'info', 'message': f"{caster.name} の連撃！ {hits} 回ヒット！"})
+    log.append({'type': 'critical', 'message': f"{caster.name} の連撃！ {hits} 回ヒット！"})
     total = 0
     for _ in range(hits):
         if not target.is_alive:
@@ -454,7 +488,7 @@ def _handle_percent_damage(
         log.append({'type': 'info', 'message': f"{target.name} は割合ダメージ {damage} を受けた！ (残りHP: {max(0, target.hp)})"})
     if target.hp <= 0:
         target.is_alive = False
-        log.append({'type': 'info', 'message': f"{target.name} fainted!"})
+        log.append({'type': 'damage', 'message': f"{target.name} は たおれた！"})
     context["last_damage_dealt"] = damage
 
 

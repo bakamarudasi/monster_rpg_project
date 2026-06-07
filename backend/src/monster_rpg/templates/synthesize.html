@@ -317,6 +317,16 @@
     .skill-chip input:disabled + span { opacity: 0.4; }
     .preview-fail { color: #b91c1c; font-weight: 600; margin-top: 6px; }
     .preview-hint { margin-top: 8px; font-size: 0.78rem; color: #8a6d2f; font-style: italic; }
+    .breeding-aids {
+        margin: 10px auto 0; max-width: 460px; padding: 8px 12px;
+        background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18);
+        border-radius: 10px; text-align: left;
+    }
+    .breeding-aids-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; opacity: 0.9; }
+    .breeding-aid { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 0.85rem; }
+    .breeding-aid-name { flex: 1; }
+    .breeding-parent { font-size: 0.8rem; border-radius: 6px; padding: 1px 4px; }
+    .breeding-parent:disabled { opacity: 0.45; }
     .result-message.jackpot {
         color: #d4a017;
         font-weight: 800;
@@ -349,6 +359,24 @@
             </div>
 
             <div id="synth-preview" class="synth-preview hidden"></div>
+
+            {% if breeding_items %}
+            <div id="breeding-aids" class="breeding-aids">
+                <div class="breeding-aids-title">🧬 配合補助アイテム（個体値の厳選）</div>
+                {% for bi in breeding_items %}
+                <label class="breeding-aid" data-id="{{ bi.id }}" data-kind="{{ bi.kind }}">
+                    <input type="checkbox" class="breeding-toggle">
+                    <span class="breeding-aid-name">{{ bi.name }}</span>
+                    {% if bi.kind != 'destiny_knot' %}
+                    <select class="breeding-parent" disabled>
+                        <option value="1">素体から</option>
+                        <option value="2">触媒から</option>
+                    </select>
+                    {% endif %}
+                </label>
+                {% endfor %}
+            </div>
+            {% endif %}
 
             <div class="button-container">
                 <button id="do-synth" class="synth-button" disabled>合成実行</button>
@@ -415,6 +443,35 @@ document.addEventListener('DOMContentLoaded', () => {
         return Array.from(previewBox.querySelectorAll('input.skill-pick:checked')).map(c => c.value);
     }
 
+    // 配合補助アイテム：チェックで親セレクトを有効化
+    document.querySelectorAll('#breeding-aids .breeding-aid').forEach(aid => {
+        const toggle = aid.querySelector('.breeding-toggle');
+        const sel = aid.querySelector('.breeding-parent');
+        if (toggle && sel) {
+            toggle.addEventListener('change', () => { sel.disabled = !toggle.checked; });
+        }
+    });
+
+    function collectBreeding() {
+        const breeding = {};
+        const power = {};
+        document.querySelectorAll('#breeding-aids .breeding-aid').forEach(aid => {
+            const toggle = aid.querySelector('.breeding-toggle');
+            if (!toggle || !toggle.checked) return;
+            const kind = aid.dataset.kind;
+            if (kind === 'destiny_knot') {
+                breeding.destiny_knot = true;
+            } else {
+                const sel = aid.querySelector('.breeding-parent');
+                const parent = sel ? parseInt(sel.value) : 1;
+                if (kind === 'everstone') breeding.everstone_parent = parent;
+                else power[aid.dataset.id] = parent;
+            }
+        });
+        if (Object.keys(power).length) breeding.power = power;
+        return breeding;
+    }
+
     function enforceInheritLimit() {
         const picks = Array.from(previewBox.querySelectorAll('input.skill-pick'));
         const checked = picks.filter(c => c.checked);
@@ -458,6 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ${skillsHtml}
             ${itemWarn}
             <div class="preview-hint">✨ ごく稀に「特別な存在」や★レア個体が生まれることがある…</div>
+            <div class="preview-hint">🧬 性格と才能は誕生時に決まる。良個体ほど高才能の子が生まれやすい（天才×天才で隠し才能も…）</div>
         `;
         previewBox.querySelectorAll('input.skill-pick').forEach(c => c.addEventListener('change', enforceInheritLimit));
     }
@@ -609,6 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         if (baseSlot.dataset.type === 'monster' && materialSlot.dataset.type === 'monster') {
             payload.inherit_skills = selectedInheritIds();
+            payload.breeding = collectBreeding();
         }
 
         resultMsg.textContent = '合成中…';
@@ -630,10 +689,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 大当たり・レア個体はトーストで祝福し、余韻を長めに
                 let delay = 2000;
                 if (typeof window.showToast === 'function') {
-                    if (data.jackpot) { window.showToast(`✨大当たり！ ${data.name} ✨`, 'level', { duration: 5000 }); delay = 3200; }
+                    if (data.talent_hidden) { window.showToast(`🌟隠し才能『${data.talent}』が覚醒！ ${data.name}`, 'level', { duration: 5500 }); delay = 3500; }
+                    else if (data.jackpot) { window.showToast(`✨大当たり！ ${data.name} ✨`, 'level', { duration: 5000 }); delay = 3200; }
+                    else if (data.trait) { window.showToast(`✦固有特性『${data.trait}』持ち！ ${data.name}`, 'item', { duration: 4800 }); delay = 3000; }
                     else if (data.rare) { window.showToast(`★レア個体！ ${data.name}`, 'item', { duration: 4500 }); delay = 3000; }
                 }
-                if (data.jackpot || data.rare) { resultMsg.classList.add('jackpot'); }
+                if (data.jackpot || data.rare || data.talent_hidden) { resultMsg.classList.add('jackpot'); }
                 setTimeout(() => window.location.reload(), delay);
             } else {
                 resultMsg.textContent = `合成失敗： ${data.error || '原因不明のエラー'}`;

@@ -16,7 +16,7 @@
             <img class="monster-img" src="{{ url_for('static', filename='images/' + m.image_filename) }}" alt="{{ m.name }}">
           {% endif %}
           <div class="member-info">
-            <span class="monster-name">{% if m.is_rare %}<span class="rare-star" title="レア個体">★</span>{% endif %}{{ m.name }}{% if m.plus_value %} <span class="plus-badge">+{{ m.plus_value }}</span>{% endif %}</span>
+            <span class="monster-name">{% if m.is_rare %}<span class="rare-star" title="レア個体">★</span>{% endif %}{{ m.name }}{% if m.plus_value %} <span class="plus-badge">+{{ m.plus_value }}</span>{% endif %}{% if m.talent.id != 'common' %} <span class="talent-badge{% if m.talent.hidden %} talent-badge-hidden{% endif %}" title="才能">{{ m.talent.name }}</span>{% endif %}</span>
             <span class="monster-level">Lv.{{ m.level }}</span>
             <span class="monster-hp">HP <b>{{ m.hp }}</b>/<span class="hp-max">{{ m.max_hp }}</span></span>
           </div>
@@ -43,7 +43,8 @@
   <script id="party-data" type="application/json">
     {{ {
         'equipment_list': equipment_list,
-        'equip_url': url_for('equip', user_id=user_id)
+        'equip_url': url_for('party.equip', user_id=user_id),
+        'appraise_url': url_for('party.appraise', user_id=user_id)
     } | tojson | safe }}
   </script>
   <script src="{{ url_for('static', filename='party/party.js') }}"></script>

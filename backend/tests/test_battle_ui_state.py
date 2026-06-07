@@ -47,6 +47,40 @@ class BattleUIStateTests(unittest.TestCase):
         self.assertEqual(hp['field']['element'], '火')
         self.assertEqual(hp['field']['remaining'], 3)
 
+    def test_battle_json_exposes_individuality(self):
+        from monster_rpg.monsters.personality import IV_STATS
+        self.hero.personality_id = 'clever'           # かしこい
+        self.hero.ivs = {s: 31 for s in IV_STATS}      # 才能ランクが common 以外になる
+        # ターンを進めて手番（turn_order）を確定させる
+        for _ in range(100):
+            if self.battle.turn_order:
+                break
+            self.battle.advance_turn()
+        resp = self.client.get(f'/battle-json/{self.user_id}')
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        units = list(data['hp_values']['turn_order_monsters'])
+        if data.get('current_actor'):
+            units.append(data['current_actor'])   # Hero は行動者か待機列のどちらかに必ずいる
+        hero = next(u for u in units if u['name'] == 'Hero')
+        self.assertEqual(hero['personality']['name'], 'かしこい')
+        self.assertIn('effect', hero['personality'])
+        self.assertNotEqual(hero['talent']['id'], 'common')
+        self.assertIn('trait', hero)
+
+    def test_battle_json_exposes_combat_stats(self):
+        for _ in range(100):
+            if self.battle.turn_order:
+                break
+            self.battle.advance_turn()
+        data = self.client.get(f'/battle-json/{self.user_id}').get_json()
+        units = list(data['hp_values']['turn_order_monsters'])
+        if data.get('current_actor'):
+            units.append(data['current_actor'])
+        hero = next(u for u in units if u['name'] == 'Hero')
+        for key in ('magic', 'magic_defense', 'critical_rate', 'evasion_rate'):
+            self.assertIn(key, hero)
+
     def test_restore_field_round_trip(self):
         elements.set_field('氷', 1.5, 4, 'ブリザード')
         saved = {'field': elements.get_field()}

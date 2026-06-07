@@ -10,7 +10,7 @@ class DamageEffectNoSkillTests(unittest.TestCase):
         apply_effects(attacker, target, [{'type': 'damage', 'amount': 10}], None, log)
         expected_damage = max(1, 10 - target.defense)
         self.assertEqual(target.hp, 30 - expected_damage)
-        self.assertTrue(any('damage' in entry['message'] for entry in log))
+        self.assertTrue(any('ダメージ' in entry['message'] for entry in log))
 
 if __name__ == '__main__':
     unittest.main()

@@ -7,8 +7,22 @@ from .utils import load_player, save_player
 from ..services.synthesis_service import perform_synthesis, preview_synthesis
 from ..services import equipment_service, shop_service
 from ..enhancement import ENHANCE_MAX
+from ..monsters.personality import DESTINY_KNOT_ITEM, EVERSTONE_ITEM, POWER_ITEMS
 
 inventory_bp = Blueprint('inventory', __name__)
+
+
+def _owned_breeding_items(player):
+    """所持している配合補助アイテム（あかいいと/かわらずのいし/パワー系）を集める。"""
+    owned = {getattr(it, 'item_id', None) for it in player.items}
+    items = []
+    for iid in [DESTINY_KNOT_ITEM, EVERSTONE_ITEM, *POWER_ITEMS.keys()]:
+        if iid in owned:
+            obj = ALL_ITEMS.get(iid)
+            kind = ('destiny_knot' if iid == DESTINY_KNOT_ITEM
+                    else 'everstone' if iid == EVERSTONE_ITEM else 'power')
+            items.append({'id': iid, 'name': getattr(obj, 'name', iid), 'kind': kind})
+    return items
 
 
 @inventory_bp.route('/enhance/<int:user_id>', methods=['GET', 'POST'], endpoint='enhance')
@@ -87,7 +101,8 @@ def synthesize(user_id):
         if outcome.success:
             save_player(player, user_id)
         message = outcome.message
-    return render_template('synthesize.html', player=player, user_id=user_id, message=message)
+    return render_template('synthesize.html', player=player, user_id=user_id, message=message,
+                           breeding_items=_owned_breeding_items(player))
 
 @inventory_bp.route('/synthesize_action/<int:user_id>', methods=['POST'], endpoint='synthesize_action')
 def synthesize_action(user_id):

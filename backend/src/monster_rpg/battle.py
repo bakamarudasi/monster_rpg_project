@@ -2,6 +2,7 @@ import random
 from typing import cast, List, Dict, Any, Optional
 from .player import Player
 from .monsters import Monster
+from .monsters.personality_ai import auto_style
 from .items.equipment import Equipment, EquipmentInstance, create_titled_equipment
 from .skills.skills import Skill, ALL_SKILLS
 from .skills.skill_actions import apply_effects, NEGATIVE_STATUSES
@@ -24,7 +25,7 @@ def _status_damage(monster: Monster, amount: int, log: List[Dict[str, str]]):
     log.append({'type': 'info', 'message': f"{monster.name} は {amount} のダメージを受けた！ (残りHP: {max(0, monster.hp)})"})
     if monster.hp <= 0:
         monster.is_alive = False
-        log.append({'type': 'info', 'message': f"{monster.name} は倒れた！"})
+        log.append({'type': 'damage', 'message': f"{monster.name} は たおれた！"})
 
 def _status_heal(monster: Monster, amount: int, log: List[Dict[str, str]]):
     if not monster.is_alive:
@@ -33,7 +34,7 @@ def _status_heal(monster: Monster, amount: int, log: List[Dict[str, str]]):
     monster.hp = min(monster.max_hp, monster.hp + amount)
     healed = monster.hp - before
     if healed:
-        log.append({'type': 'info', 'message': f"{monster.name} は {healed} 回復した！ (HP: {monster.hp})"})
+        log.append({'type': 'heal', 'message': f"{monster.name} は {healed} 回復した！ (HP: {monster.hp})"})
 
 
 def _slow_apply(monster: Monster):
@@ -191,8 +192,18 @@ def defend(monster: Monster, log: List[Dict[str, str]]) -> None:
 def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, str]] | None = None) -> int:
     if log is None:
         log = []
+    # 回避判定（％ポイント→確率、上限60%）。回避率0なら必中＝従来どおり。
+    evasion = getattr(defender, "evasion_rate", 0)
+    if evasion > 0 and random.random() < min(0.6, evasion / 100.0):
+        log.append({'type': 'resist', 'message': f"{defender.name} は素早く攻撃をかわした！"})
+        return 0
     base = attacker.total_attack() - defender.total_defense()
     damage = max(1, base)
+
+    # 特性「火事場の馬鹿力」: HPが減るほど物理攻撃の威力が上がる（最大 +value）
+    pinch = getattr(attacker, "trait", None)
+    if pinch is not None and pinch.effect == "pinch_attack" and attacker.max_hp > 0:
+        damage = int(damage * (1.0 + pinch.value * (1.0 - attacker.hp / attacker.max_hp)))
 
     multiplier = elemental_multiplier(attacker.element, defender.element)
 
@@ -203,6 +214,11 @@ def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, s
         log.append({'type': 'resist', 'message': "こうかは いまひとつの ようだ…"})
 
     damage = int(damage * multiplier)
+
+    # 固有特性「属性の申し子」: 自分の属性での攻撃ダメージを底上げする。
+    atk_trait = getattr(attacker, "trait", None)
+    if attacker.element and atk_trait is not None and atk_trait.effect == "element_attack":
+        damage = int(damage * (1.0 + atk_trait.value))
 
     # フィールド（天候）補正：攻撃属性が場と一致していれば増幅
     fmult = field_multiplier(attacker.element)
@@ -219,7 +235,9 @@ def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, s
         log.append({'type': 'resist', 'message': "こうかは いまひとつの ようだ…"})
     damage = int(damage * eresist)
 
-    if random.random() < CRITICAL_HIT_CHANCE:
+    # 会心判定: 基礎率＋会心率（速さ・才能・装備）。上限75%。
+    crit_chance = CRITICAL_HIT_CHANCE + getattr(attacker, "critical_rate", 0) / 100.0
+    if random.random() < min(0.75, crit_chance):
         damage = int(damage * CRITICAL_HIT_MULTIPLIER)
         log.append({'type': 'critical', 'message': "クリティカルヒット！"})
 
@@ -230,7 +248,30 @@ def calculate_damage(attacker: Monster, defender: Monster, log: List[Dict[str, s
         log.append({'type': 'info', 'message': f"{defender.name} は攻撃を回避した！"})
         return 0
 
-    return max(1, damage)
+    # 特性「諸刃」: 与ダメージも被ダメージも増える
+    atk_glass = getattr(attacker, "trait", None)
+    if atk_glass is not None and atk_glass.effect == "glass":
+        damage = int(damage * (1.0 + atk_glass.value))
+    def_glass = getattr(defender, "trait", None)
+    if def_glass is not None and def_glass.effect == "glass":
+        damage = int(damage * (1.0 + def_glass.value))
+
+    damage = max(1, damage)
+    # 特性「毒手」: 物理攻撃時に確率で毒を付与（耐性で確率は下がる）
+    venom = getattr(attacker, "trait", None)
+    if venom is not None and venom.effect == "venom" and defender.is_alive:
+        presist = defender.status_resistance("poison")
+        if presist > 0.0 and random.random() < venom.value * presist:
+            defender.apply_status("poison", log, 3)
+    # 特性「吸血」: 与えた物理ダメージの一部だけHPを回復
+    steal = getattr(attacker, "trait", None)
+    if steal is not None and steal.effect == "lifesteal" and attacker.is_alive:
+        healed = max(1, int(damage * steal.value))
+        before = attacker.hp
+        attacker.hp = min(attacker.max_hp, attacker.hp + healed)
+        if attacker.hp > before:
+            log.append({'type': 'heal', 'message': f"{attacker.name} は {attacker.hp - before} HP吸収した！"})
+    return damage
 
 def apply_skill_effect(
     caster: Monster,
@@ -243,8 +284,9 @@ def apply_skill_effect(
     if log is None:
         log = []
     log.append({'type': 'info', 'message': f"{caster.name} は {skill_obj.name} を使った！"})
-    if skill_obj.cost > 0:
-        caster.mp = max(0, caster.mp - skill_obj.cost)
+    _mp_cost = caster.skill_mp_cost(skill_obj)
+    if _mp_cost > 0:
+        caster.mp = max(0, caster.mp - _mp_cost)
 
     targets_to_use = targets
     if skill_obj.scope == "all":
@@ -371,6 +413,10 @@ class Battle:
         self.current_actor: Optional[Monster] = None
         self.turn_order: List[Monster] = []
 
+        # 特性「不屈」の使用済みフラグを戦闘開始時にリセット
+        for m in self.player_party + self.enemy_party:
+            m._endure_used = False
+
         # 新しい戦闘を始めるので、前の戦闘のフィールド（天候）状態を消す
         clear_field()
 
@@ -381,6 +427,10 @@ class Battle:
         else:
             for monster in all_monsters:
                 monster.atb_gauge = random.randint(0, 50) # Initialize ATB gauge randomly
+                # 固有特性「先制」: 開始時にATBゲージを上乗せして先手を取りやすくする。
+                trait = getattr(monster, "trait", None)
+                if trait is not None and trait.effect == "atb":
+                    monster.atb_gauge = min(100, monster.atb_gauge + int(trait.value))
 
     def _update_turn_order(self):
         self.turn_order = sorted(
@@ -412,12 +462,12 @@ class Battle:
 
         status_flags = process_status_effects(actor, self.log)
         if not actor.is_alive:
-            self.log.append({'type': 'info', 'message': f"{actor.name} fainted due to status effect."})
+            self.log.append({'type': 'info', 'message': f"{actor.name} は状態異常で力尽きた…"})
             self._check_battle_end()
             actor.reset_atb_gauge()
             return
         if status_flags["skip_turn"]:
-            self.log.append({'type': 'info', 'message': f"{actor.name} is unable to act due to status effect."})
+            self.log.append({'type': 'info', 'message': f"{actor.name} は動けない！"})
             actor.reset_atb_gauge()
             return
 
@@ -433,51 +483,51 @@ class Battle:
                 if alive_enemies:
                     target = random.choice(alive_enemies)
                 else:
-                    self.log.append({'type': 'info', 'message': "No enemies to attack!"})
+                    self.log.append({'type': 'info', 'message': "攻撃できる敵がいない！"})
                     actor.reset_atb_gauge()
                     return
             else:
                 try:
                     target = self.enemy_party[target_idx]
                     if not target.is_alive:
-                        self.log.append({'type': 'info', 'message': f"{target.name} is already defeated!"})
+                        self.log.append({'type': 'info', 'message': f"{target.name} はすでに倒れている。"})
                         actor.reset_atb_gauge()
                         return
                 except IndexError:
-                    self.log.append({'type': 'error', 'message': "Invalid target selected."})
+                    self.log.append({'type': 'error', 'message': "対象が正しくない。"})
                     actor.reset_atb_gauge()
                     return
 
-            self.log.append({'type': 'info', 'message': f"{actor.name} attacks {target.name}!"})
+            self.log.append({'type': 'info', 'message': f"{actor.name} の攻撃！ → {target.name}"})
             damage = calculate_damage(actor, target, self.log)
             damage = target.absorb_with_shield(damage, self.log)
             target.hp -= damage
-            self.log.append({'type': 'info', 'message': f"{target.name} took {damage} damage! (HP: {max(0, target.hp)})"})
-            if target.hp <= 0:
+            self.log.append({'type': 'damage', 'message': f"{target.name} に {damage} のダメージ！（残りHP {max(0, target.hp)}）"})
+            if target.hp <= 0 and not target.try_endure(self.log):
                 target.is_alive = False
-                self.log.append({'type': 'info', 'message': f"{target.name} fainted!"})
+                self.log.append({'type': 'damage', 'message': f"{target.name} は たおれた！"})
             else:
                 if any(e["name"] == "counter_stance" for e in target.status_effects):
-                    self.log.append({'type': 'info', 'message': f"{target.name} counters!"})
+                    self.log.append({'type': 'info', 'message': f"{target.name} の反撃！"})
                     counter_damage = calculate_damage(target, actor, self.log)
                     counter_damage = actor.absorb_with_shield(counter_damage, self.log)
                     actor.hp -= counter_damage
-                    self.log.append({'type': 'info', 'message': f"{actor.name} took {counter_damage} damage! (HP: {max(0, actor.hp)})"})
+                    self.log.append({'type': 'damage', 'message': f"{actor.name} に {counter_damage} のダメージ！（残りHP {max(0, actor.hp)}）"})
                     if actor.hp <= 0:
                         actor.is_alive = False
-                        self.log.append({'type': 'info', 'message': f"{actor.name} fainted!"})
+                        self.log.append({'type': 'damage', 'message': f"{actor.name} は たおれた！"})
 
         elif action['type'] == 'skill':
             skill_idx = action.get('skill', 0)
             try:
                 skill_obj = actor.skills[skill_idx]
             except IndexError:
-                self.log.append({'type': 'error', 'message': "Invalid skill selected."})
+                self.log.append({'type': 'error', 'message': "そのスキルは選べない。"})
                 actor.reset_atb_gauge()
                 return
 
-            if actor.mp < skill_obj.cost:
-                self.log.append({'type': 'info', 'message': f"{actor.name} does not have enough MP for {skill_obj.name}!"})
+            if actor.mp < actor.skill_mp_cost(skill_obj):
+                self.log.append({'type': 'info', 'message': f"{actor.name} はMPが足りない！（{skill_obj.name}）"})
                 actor.reset_atb_gauge()
                 return
 
@@ -492,11 +542,11 @@ class Battle:
                         if target.is_alive:
                             targets = [target]
                         else:
-                            self.log.append({'type': 'info', 'message': f"{target.name} is already defeated!"})
+                            self.log.append({'type': 'info', 'message': f"{target.name} はすでに倒れている。"})
                             actor.reset_atb_gauge()
                             return
                     except IndexError:
-                        self.log.append({'type': 'error', 'message': "Invalid target selected for skill."})
+                        self.log.append({'type': 'error', 'message': "スキルの対象が正しくない。"})
                         actor.reset_atb_gauge()
                         return
             elif skill_obj.target == "ally":
@@ -509,11 +559,11 @@ class Battle:
                         if target.is_alive:
                             targets = [target]
                         else:
-                            self.log.append({'type': 'info', 'message': f"{target.name} is already defeated!"})
+                            self.log.append({'type': 'info', 'message': f"{target.name} はすでに倒れている。"})
                             actor.reset_atb_gauge()
                             return
                     except IndexError:
-                        self.log.append({'type': 'error', 'message': "Invalid target selected for skill."})
+                        self.log.append({'type': 'error', 'message': "スキルの対象が正しくない。"})
                         actor.reset_atb_gauge()
                         return
             else: # self target
@@ -522,14 +572,14 @@ class Battle:
             if targets:
                 apply_skill_effect(actor, targets, skill_obj, self.log, self.player_party, self.enemy_party)
             else:
-                self.log.append({'type': 'info', 'message': "No valid targets for skill."})
+                self.log.append({'type': 'info', 'message': "スキルの対象がいない。"})
 
         elif action['type'] == 'item':
             item_idx = action.get('item_idx', 0)
             try:
                 item_obj = self.player.items[item_idx]
             except IndexError:
-                self.log.append({'type': 'error', 'message': "Invalid item selected."})
+                self.log.append({'type': 'error', 'message': "そのアイテムは選べない。"})
                 actor.reset_atb_gauge()
                 return
 
@@ -537,11 +587,11 @@ class Battle:
             try:
                 target_monster = self.player_party[target_idx]
                 if not target_monster.is_alive:
-                    self.log.append({'type': 'info', 'message': f"{target_monster.name} is already defeated!"})
+                    self.log.append({'type': 'info', 'message': f"{target_monster.name} はすでに倒れている。"})
                     actor.reset_atb_gauge()
                     return
             except IndexError:
-                self.log.append({'type': 'error', 'message': "Invalid target selected for item."})
+                self.log.append({'type': 'error', 'message': "アイテムの対象が正しくない。"})
                 actor.reset_atb_gauge()
                 return
 
@@ -555,7 +605,7 @@ class Battle:
             try:
                 target_monster = self.enemy_party[target_idx]
             except IndexError:
-                self.log.append({'type': 'error', 'message': "Invalid target selected for scout."})
+                self.log.append({'type': 'error', 'message': "スカウトの対象が正しくない。"})
                 actor.reset_atb_gauge()
                 return
             
@@ -563,10 +613,11 @@ class Battle:
                 # If scout successful, monster is removed from enemy_party in attempt_scout
                 pass
             else:
-                self.log.append({'type': 'info', 'message': f"Scouting {target_monster.name} failed."})
+                self.log.append({'type': 'info', 'message': f"{target_monster.name} のスカウトに失敗した…"})
 
         actor.reset_atb_gauge()
         self._check_battle_end()
+        self._maybe_extra_action(actor)
 
     def process_ai_turn(self):
         if self.finished:
@@ -574,19 +625,18 @@ class Battle:
 
         actor = self.current_actor
         if not actor or actor not in self.enemy_party:
-            self.log.append({'type': 'error', 'message': "It's not enemy's turn or no active enemy monster."})
+            self.log.append({'type': 'error', 'message': "今は敵の手番ではない／行動できる敵がいない。"})
             return
 
-        self.log.append({'type': 'info', 'message': f"{actor.name} のターン！"})
-
+        # 行動者の宣言は enemy_take_action の「〜 の行動！」に任せる（二重表示を避ける）
         status_flags = process_status_effects(actor, self.log)
         if not actor.is_alive:
-            self.log.append({'type': 'info', 'message': f"{actor.name} fainted due to status effect."})
+            self.log.append({'type': 'info', 'message': f"{actor.name} は状態異常で力尽きた…"})
             self._check_battle_end()
             actor.reset_atb_gauge()
             return
         if status_flags["skip_turn"]:
-            self.log.append({'type': 'info', 'message': f"{actor.name} is unable to act due to status effect."})
+            self.log.append({'type': 'info', 'message': f"{actor.name} は動けない！"})
             actor.reset_atb_gauge()
             return
 
@@ -597,17 +647,48 @@ class Battle:
 
         enemy_take_action(actor, self.player_party, self.enemy_party, self.log)
         actor.reset_atb_gauge()
+        self._maybe_extra_action(actor)
+
+    def run_until_player_turn(self, guard_limit: int = 1000):
+        """生存プレイヤーの手番（入力待ち）になるまで進める正準ループ。
+
+        advance_turn で次の行動者を決め、敵なら process_ai_turn で自動行動、味方なら
+        そこで止めて入力を待つ。これにより敵の手番が確実に消化される。
+        """
+        guard = 0
+        while not self.finished and guard < guard_limit:
+            guard += 1
+            self.advance_turn()
+            actor = self.current_actor
+            if actor is None or not actor.is_alive:
+                continue
+            if actor in self.player_party:
+                return  # プレイヤーの入力待ち
+            self.process_ai_turn()  # 敵の手番を自動消化
         self._check_battle_end()
+
+    def _maybe_extra_action(self, actor):
+        """特性「連撃」: 行動後、確率でATBを満タンにして即もう一度行動できるようにする。
+
+        次の advance_turn で最優先に選ばれるため、同じ相手がもう一度行動する。連鎖は
+        確率的に減衰するので暴走しない（value=0.25 なら2連=約6%）。
+        """
+        if self.finished or actor is None or not actor.is_alive:
+            return
+        t = getattr(actor, "trait", None)
+        if t is not None and t.effect == "extra_action" and random.random() < t.value:
+            actor.atb_gauge = 100
+            self.log.append({'type': 'critical', 'message': f"⚡ {actor.name} の連撃！ もう一度行動する！"})
 
     def _check_battle_end(self):
         if is_party_defeated(self.player_party):
             self.finished = True
             self.outcome = "lose"
-            self.log.append({'type': 'info', 'message': "Your party was defeated... Game Over!"})
+            self.log.append({'type': 'info', 'message': "パーティは全滅した… ゲームオーバー"})
         elif is_party_defeated(self.enemy_party):
             self.finished = True
             self.outcome = "win"
-            self.log.append({'type': 'info', 'message': "Enemy party defeated! Victory!"})
+            self.log.append({'type': 'info', 'message': "敵をすべて倒した！ 勝利！"})
             award_experience(self.player_party, self.enemy_party, self.player, self.log)
 
     def get_current_state(self):
@@ -646,7 +727,7 @@ class Battle:
             for monster in all_monsters:
                 if monster.is_alive:
                     monster.update_atb_gauge(10)
-            self.log.append({'type': 'info', 'message': "No one can act, advancing ATB gauges..."})
+            self.log.append({'type': 'info', 'message': "…時が流れる…（全員のゲージが上がった）"})
             return # Re-evaluate turn order in next call
 
         self.current_actor = self.turn_order.pop(0)
@@ -660,6 +741,28 @@ def start_atb_battle(player_party: list[Monster], enemy_party: list[Monster], pl
 def _skill_has(skill: Skill, *effect_types: str) -> bool:
     """skill の効果に指定タイプ（"multi_hit" など）のいずれかが含まれるか。"""
     return any(e.get("type") in effect_types for e in getattr(skill, "effects", []))
+
+
+def _pick_damage_target(actor: Monster, players: list[Monster], skill: Skill | None = None) -> Monster:
+    """最も効率よくダメージを通せる相手を選ぶ。
+
+    魔法技は相手の魔法防御で、物理は物理防御で実効ダメージを見積もり、基本攻撃のみ
+    回避率を考慮する。HPの低さも加味して『最短で倒せる相手』を狙う。
+    """
+    is_magic = skill is not None and getattr(skill, "category", None) == "魔法"
+    power = getattr(skill, "power", 0) if skill is not None else 0
+
+    def value(m: Monster) -> float:
+        if is_magic:
+            eff = max(1, getattr(actor, "magic", 0) + power - m.total_magic_defense())
+            hit = 1.0
+        else:
+            eff = max(1, actor.total_attack() + power - m.total_defense())
+            # 回避は基本攻撃のみ乗る（スキルは回避不可のモデル）
+            hit = 1.0 - min(0.6, getattr(m, "evasion_rate", 0) / 100.0) if skill is None else 1.0
+        return eff * hit / max(1, m.hp)
+
+    return max(players, key=value)
 
 
 def _enemy_skill_targets(actor: Monster, skill: Skill, players: list[Monster], allies: list[Monster]) -> list[Monster]:
@@ -686,15 +789,31 @@ def _enemy_skill_targets(actor: Monster, skill: Skill, players: list[Monster], a
         if statused:
             return [max(statused, key=lambda m: m.hp)]            # 追い討ち
     if skill.skill_type in ("debuff", "status"):
-        return [max(players, key=lambda m: m.attack)]             # 厄介な相手を妨害
-    return [min(players, key=lambda m: m.hp)]                     # 通常攻撃技はトドメ狙い
+        return [max(players, key=lambda m: (m.attack, -m.total_magic_defense()))]  # 厄介な相手を妨害（魔防が低い＝決まりやすい者を優先）
+    return [_pick_damage_target(actor, players, skill)]            # ダメージ技は最も効率よく削れる相手へ
+
+
+# 性格スタイル別の「攻撃技を選ぶ確率」。balanced は 0.7 で従来どおり。
+_ENEMY_OFFENSIVE_PREF = {
+    "aggressive": 0.9, "caster": 0.85, "striker": 0.8, "guardian": 0.45, "balanced": 0.7,
+}
 
 
 def _choose_enemy_skill(actor: Monster, usable_skills: list[Skill], players: list[Monster], allies: list[Monster]):
-    """攻撃技を優先しつつ支援/妨害技も時々選ぶ。(skill, targets) を返す。"""
+    """攻撃技を優先しつつ支援/妨害技も時々選ぶ。(skill, targets) を返す。
+
+    攻撃技を選ぶ確率は性格で前後する（攻撃寄りは技を撃ちやすく、防御寄りは支援に回る）。
+    """
     offensive = [s for s in usable_skills if s.target == "enemy"]
     support = [s for s in usable_skills if s.target in ("ally", "self")]
-    if offensive and (not support or random.random() < 0.7):
+    # 術者型（魔力>攻撃）は魔法技を、武闘型は物理技を優先する（選べるときだけ）
+    if len(offensive) > 1:
+        prefer_magic = getattr(actor, "magic", 0) > actor.total_attack()
+        typed = [s for s in offensive if (getattr(s, "category", None) == "魔法") == prefer_magic]
+        if typed and random.random() < 0.7:
+            offensive = typed
+    offensive_pref = _ENEMY_OFFENSIVE_PREF.get(auto_style(actor), 0.7)
+    if offensive and (not support or random.random() < offensive_pref):
         pool = offensive
     else:
         pool = support or offensive
@@ -712,16 +831,16 @@ def enemy_take_action(
 ) -> None:
     if log is None:
         log = []
-    log.append({'type': 'info', 'message': f"{enemy_actor.name}'s action!"})
+    log.append({'type': 'info', 'message': f"{enemy_actor.name} の行動！"})
     alive_player_targets = [m for m in active_player_party if m.is_alive]
     if not alive_player_targets:
-        log.append({'type': 'info', 'message': f"{enemy_actor.name} waits..."})
+        log.append({'type': 'info', 'message': f"{enemy_actor.name} は様子をうかがっている…"})
         return
 
     taunted = any(e["name"] == "taunt" for e in enemy_actor.status_effects)
     cant_attack = any(e["name"] == "cant_attack" for e in enemy_actor.status_effects)
 
-    usable_skills = [s for s in enemy_actor.skills if enemy_actor.mp >= s.cost]
+    usable_skills = [s for s in enemy_actor.skills if enemy_actor.mp >= enemy_actor.skill_mp_cost(s)]
 
     role = getattr(enemy_actor, "ai_role", "attacker")
 
@@ -731,7 +850,7 @@ def enemy_take_action(
         skill_id = sequence[idx % len(sequence)]
         skill_obj = ALL_SKILLS.get(skill_id)
         enemy_actor._seq_idx = idx + 1
-        if skill_obj and enemy_actor.mp >= skill_obj.cost:
+        if skill_obj and enemy_actor.mp >= enemy_actor.skill_mp_cost(skill_obj):
             targets: list[Monster] = []
             if skill_obj.target == "enemy":
                 if skill_obj.scope == "all":
@@ -768,30 +887,30 @@ def enemy_take_action(
 
     if taunted:
         if cant_attack:
-            log.append({'type': 'info', 'message': f"{enemy_actor.name} is taunted but cannot attack!"})
+            log.append({'type': 'info', 'message': f"{enemy_actor.name} は挑発されているが攻撃できない！"})
             return
         if role == "attacker":
-            target = min(alive_player_targets, key=lambda m: m.hp)
+            target = _pick_damage_target(enemy_actor, alive_player_targets)
         else:
             target = random.choice(alive_player_targets)
-        log.append({'type': 'info', 'message': f"{enemy_actor.name} attacks due to taunt! -> {target.name}"})
+        log.append({'type': 'info', 'message': f"{enemy_actor.name} は挑発につられて攻撃！ → {target.name}"})
         damage = calculate_damage(enemy_actor, target, log)
         damage = target.absorb_with_shield(damage, log)
         target.hp -= damage
-        log.append({'type': 'info', 'message': f"{target.name} took {damage} damage! (HP: {max(0, target.hp)})"})
-        if target.hp <= 0:
+        log.append({'type': 'damage', 'message': f"{target.name} に {damage} のダメージ！（残りHP {max(0, target.hp)}）"})
+        if target.hp <= 0 and not target.try_endure(log):
             target.is_alive = False
-            log.append({'type': 'info', 'message': f"{target.name} fainted!"})
+            log.append({'type': 'damage', 'message': f"{target.name} は たおれた！"})
         else:
             if any(e["name"] == "counter_stance" for e in target.status_effects):
-                log.append({'type': 'info', 'message': f"{target.name} counters!"})
+                log.append({'type': 'info', 'message': f"{target.name} の反撃！"})
                 counter_damage = calculate_damage(target, enemy_actor, log)
                 counter_damage = enemy_actor.absorb_with_shield(counter_damage, log)
                 enemy_actor.hp -= counter_damage
-                log.append({'type': 'info', 'message': f"{enemy_actor.name} took {counter_damage} damage! (HP: {max(0, enemy_actor.hp)})"})
+                log.append({'type': 'damage', 'message': f"{enemy_actor.name} に {counter_damage} のダメージ！（残りHP {max(0, enemy_actor.hp)}）"})
                 if enemy_actor.hp <= 0:
                     enemy_actor.is_alive = False
-                    log.append({'type': 'info', 'message': f"{enemy_actor.name} fainted!"})
+                    log.append({'type': 'damage', 'message': f"{enemy_actor.name} は たおれた！"})
         return
 
     selected_skill = None
@@ -838,20 +957,20 @@ def enemy_take_action(
         apply_skill_effect(enemy_actor, skill_targets, selected_skill, log, active_enemy_party, active_player_party)
     else:
         if cant_attack:
-            log.append({'type': 'info', 'message': f"{enemy_actor.name} cannot attack and waits..."})
+            log.append({'type': 'info', 'message': f"{enemy_actor.name} は攻撃できず様子をうかがっている…"})
             return
         if role == "attacker":
-            target = min(alive_player_targets, key=lambda m: m.hp)
+            target = _pick_damage_target(enemy_actor, alive_player_targets)
         else:
             target = random.choice(alive_player_targets)
-        log.append({'type': 'info', 'message': f"{enemy_actor.name} attacks! -> {target.name}"})
+        log.append({'type': 'info', 'message': f"{enemy_actor.name} の攻撃！ → {target.name}"})
         damage = calculate_damage(enemy_actor, target, log)
         damage = target.absorb_with_shield(damage, log)
         target.hp -= damage
-        log.append({'type': 'info', 'message': f"{target.name} took {damage} damage! (HP: {max(0, target.hp)})"})
-        if target.hp <= 0:
+        log.append({'type': 'damage', 'message': f"{target.name} に {damage} のダメージ！（残りHP {max(0, target.hp)}）"})
+        if target.hp <= 0 and not target.try_endure(log):
             target.is_alive = False
-            log.append({'type': 'info', 'message': f"{target.name} fainted!"})
+            log.append({'type': 'damage', 'message': f"{target.name} は たおれた！"})
 
 RANK_EXP_MULTIPLIERS = {
     "S": 2.0,
@@ -864,6 +983,12 @@ RANK_EXP_MULTIPLIERS = {
 def award_experience(alive_party: list[Monster], defeated_enemies: list[Monster], player: Player | None, log: List[Dict[str, str]] | None = None):
     if log is None:
         log = []
+    # 固有特性「幸運」: パーティにいる間、敵ドロップ率を底上げする。
+    luck_mult = 1.0
+    for m in alive_party:
+        trait = getattr(m, "trait", None)
+        if getattr(m, "is_alive", False) and trait is not None and trait.effect == "drop":
+            luck_mult += trait.value
     total_exp_reward = 0
     for enemy in defeated_enemies:
         base = (enemy.level * 10) + (enemy.max_hp // 5)
@@ -871,7 +996,7 @@ def award_experience(alive_party: list[Monster], defeated_enemies: list[Monster]
         total_exp_reward += int(base * mult)
         if player is not None:
             for item_obj, rate in getattr(enemy, "drop_items", []):
-                if random.random() < rate:
+                if random.random() < min(1.0, rate * luck_mult):
                     if isinstance(item_obj, Equipment):
                         new_equip = create_titled_equipment(item_obj.equip_id)
                         if new_equip:
@@ -890,23 +1015,23 @@ def award_experience(alive_party: list[Monster], defeated_enemies: list[Monster]
     if alive_monsters and total_exp_reward > 0:
         base_share = total_exp_reward // len(alive_monsters)
         remainder = total_exp_reward % len(alive_monsters)
-        log.append({'type': 'info', 'message': "--- Experience Gained ---"})
+        log.append({'type': 'info', 'message': "--- 獲得経験値 ---"})
         for idx, monster in enumerate(alive_monsters):
             share = base_share + (1 if idx < remainder else 0)
             if share > 0:
                 monster.gain_exp(share)
     else:
-        log.append({'type': 'info', 'message': "No experience gained."})
+        log.append({'type': 'info', 'message': "経験値は得られなかった。"})
 
 def attempt_scout(player: Player | None, target: Monster, enemy_party: list[Monster], log: List[Dict[str, str]] | None = None) -> bool:
     if log is None:
         log = []
     if target is None or not target.is_alive:
-        log.append({'type': 'info', 'message': "No target selected."})
+        log.append({'type': 'info', 'message': "対象が選ばれていない。"})
         return False
 
     rate = getattr(target, "scout_rate", 0.25)
-    log.append({'type': 'info', 'message': f"Attempting to scout {target.name}..."})
+    log.append({'type': 'info', 'message': f"{target.name} をスカウトしようとした…"})
 
     if random.random() < rate:
         log.append({'type': 'info', 'message': f"{target.name} seems to want to join your party!"})
@@ -917,5 +1042,5 @@ def attempt_scout(player: Player | None, target: Monster, enemy_party: list[Mons
             enemy_party.remove(target)
         return True
     else:
-        log.append({'type': 'info', 'message': f"{target.name} is wary. Scouting failed."})
+        log.append({'type': 'info', 'message': f"{target.name} は警戒している。スカウトに失敗した…"})
         return False

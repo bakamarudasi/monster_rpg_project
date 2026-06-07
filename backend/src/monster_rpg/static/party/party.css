@@ -294,3 +294,113 @@
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.65; transform: scale(1.18); }
 }
+
+/* 才能バッジ（一覧で良個体をひと目で見分ける） */
+.talent-badge {
+    display: inline-block;
+    background: linear-gradient(180deg, #9ec1ef, #4d79c0);
+    color: #0d2547;
+    font-weight: 800;
+    font-size: 0.72em;
+    padding: 1px 7px;
+    border-radius: 999px;
+    vertical-align: middle;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.talent-badge-hidden {
+    background: linear-gradient(180deg, #ffe18a, #e0a93a);
+    color: #4a2f00;
+    box-shadow: 0 0 6px rgba(255,200,74,0.8);
+    animation: rare-twinkle 1.8s ease-in-out infinite;
+}
+
+/* 個体の個性（性格・才能）タグ */
+.card-monster-individuality {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 8px;
+}
+.indiv-tag {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 2px 9px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+}
+.indiv-personality {
+    background: #e7f0e3;
+    color: #3f6b34;
+    border-color: #3f6b3433;
+}
+.indiv-talent {
+    background: #e6ecf7;
+    color: #34507c;
+    border-color: #34507c33;
+}
+.indiv-trait {
+    background: #efe3f3;
+    color: #6b348c;
+    border-color: #6b348c33;
+}
+.indiv-talent-hidden {
+    background: linear-gradient(180deg, #ffe18a, #e0a93a);
+    color: #4a2f00;
+    border-color: #a9762a;
+    box-shadow: 0 0 6px rgba(255,200,74,0.7);
+    animation: rare-twinkle 1.8s ease-in-out infinite;
+}
+
+/* 個体値（鑑定で開示） */
+.card-monster-ivs {
+    margin-top: 8px;
+    text-align: center;
+}
+.iv-title {
+    font-size: 0.8rem;
+    color: #7c653b;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.iv-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 6px;
+    justify-content: center;
+}
+.iv-cell {
+    font-size: 0.75rem;
+    background: #ede6d8;
+    color: #5d4b29;
+    border-radius: 6px;
+    padding: 2px 7px;
+}
+.iv-cell.iv-best {
+    background: linear-gradient(180deg, #ffe18a, #e0a93a);
+    color: #4a2f00;
+    font-weight: 800;
+}
+.iv-unappraised {
+    font-size: 0.78rem;
+    color: #9b8a66;
+    font-style: italic;
+}
+.appraise-btn {
+    margin-top: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(180deg, #6f9bd1, #3d6aa8);
+    border: none;
+    border-radius: 999px;
+    padding: 4px 14px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.appraise-btn:disabled { opacity: 0.5; cursor: default; }
+.appraise-btn:hover:not(:disabled) { filter: brightness(1.08); }
+
+/* 装備一覧の能力表示（攻/防/魔/魔防/速/会心/回避） */
+.equip-stats { color: #6a4fb0; font-size: 0.82em; font-weight: 600; }

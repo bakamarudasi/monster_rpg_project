@@ -129,5 +129,33 @@
     "description": "モンスター1体のさいだいMPを永続的に+10する不思議な種。",
     "usable": true,
     "effects": [{"type": "permanent_stat", "stat": "max_mp", "amount": 10}]
+  },
+  "destiny_knot": {
+    "name": "あかいいと",
+    "description": "配合に持ち込むと、子に受け継がれる個体値が3→5に増える。良個体の厳選がはかどる。"
+  },
+  "everstone": {
+    "name": "かわらずのいし",
+    "description": "配合に持ち込むと、選んだ親の性格を必ず子に受け継がせる。"
+  },
+  "power_weight": {
+    "name": "パワーウエイト",
+    "description": "配合に持ち込むと、選んだ親のHP個体値を確定で子に受け継がせる。"
+  },
+  "power_bracer": {
+    "name": "パワーリスト",
+    "description": "配合に持ち込むと、選んだ親の攻撃個体値を確定で子に受け継がせる。"
+  },
+  "power_belt": {
+    "name": "パワーベルト",
+    "description": "配合に持ち込むと、選んだ親の防御個体値を確定で子に受け継がせる。"
+  },
+  "power_lens": {
+    "name": "パワーレンズ",
+    "description": "配合に持ち込むと、選んだ親の魔力個体値を確定で子に受け継がせる。"
+  },
+  "power_anklet": {
+    "name": "パワーアンクル",
+    "description": "配合に持ち込むと、選んだ親の素早さ個体値を確定で子に受け継がせる。"
   }
 }

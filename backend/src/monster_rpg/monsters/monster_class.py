@@ -3,6 +3,27 @@ import copy  # deepcopyのためにインポート
 import uuid # uuidのためにインポート
 import random
 from .evolution_rules import EVOLUTION_RULES
+from .personality import (
+    DEFAULT_PERSONALITY_ID,
+    IV_STATS,
+    IV_LABELS,
+    IV_MAX,
+    IV_GROWTH_STRENGTH,
+    get_personality,
+    get_trait,
+    talent_from_ivs,
+    iv_judge_label,
+    iv_total,
+    iv_max_total,
+    normalize_ivs,
+    random_personality_id,
+    random_ivs,
+    roll_trait_for_talent,
+    zero_ivs,
+)
+
+# レベル上限。これ以上はレベルアップしない（経験値は次Lvへ繰り越さない）。
+MAX_LEVEL = 100
 
 GROWTH_TYPE_AVERAGE = "平均型"
 GROWTH_TYPE_EARLY = "早熟型"
@@ -24,10 +45,15 @@ def get_status_gains_average(current_level):
     attack_gain = 2 + (current_level // 10)
     defense_gain = 2 + (current_level // 10)
     speed_gain = attack_gain
+    # MP は全成長型で伸ばす（skills を使い続けられるように）。魔力は控えめに全型へ。
+    mp_gain = 2 + (current_level // 8)
+    magic_gain = 1 + (current_level // 12)
     return {
         "hp": hp_gain,
+        "mp": mp_gain,
         "attack": attack_gain,
         "defense": defense_gain,
+        "magic": magic_gain,
         "speed": speed_gain,
     }
 
@@ -47,8 +73,10 @@ def get_status_gains_early(current_level):
     speed_gain = attack_gain
     return {
         "hp": hp_gain,
+        "mp": 2 + (current_level // 8),
         "attack": attack_gain,
         "defense": defense_gain,
+        "magic": 1 + (current_level // 12),
         "speed": speed_gain,
     }
 
@@ -68,8 +96,10 @@ def get_status_gains_late(current_level):
     speed_gain = attack_gain
     return {
         "hp": hp_gain,
+        "mp": 2 + (current_level // 8),
         "attack": attack_gain,
         "defense": defense_gain,
+        "magic": 1 + (current_level // 12),
         "speed": speed_gain,
     }
 
@@ -129,6 +159,8 @@ class Monster:
         image_filename=None,
         rank=RANK_D,
         speed=5,
+        magic=0,
+        magic_defense=None,
         drop_items=None,
         scout_rate=0.25,
         ai_role="attacker",
@@ -147,8 +179,11 @@ class Monster:
         self.base_attack = attack
         self.base_defense = defense
         self.base_speed = speed
-        # 魔力パラメータ。魔法に関するバフ等で利用される
-        self.base_magic = 0
+        # 魔力パラメータ。魔法スキルの威力計算に使う（魔法型は初期値を持つ）
+        self.base_magic = magic
+        # 魔法防御。魔法ダメージの軽減に使う。既定は物理防御に揃える（Lv1の挙動は不変）。
+        # レベルアップで物理防御とは別枠に育ち、防御型↔魔法型の住み分けを生む。
+        self.base_magic_defense = magic_defense if magic_defense is not None else defense
 
         # 一時的な補正値と倍率
         self._stat_bonuses = {"attack": 0, "defense": 0, "speed": 0, "magic": 0}
@@ -159,6 +194,22 @@ class Monster:
         self.plus_value = 0
         # レア個体（★）フラグ。配合のレア抽選で生まれた個体は能力が底上げされる
         self.is_rare = False
+        # 個体の個性。性格＝ステ傾向（派生4ステの倍率）、個体値＝ステ別の隠し数値
+        # (0〜31)でレベルに比例して成長率に効く。才能ランクは個体値から導出する。
+        # is_rare/plus_value の「強さ」とは別軸で、良個体を狙う配合の動機になる。
+        self.personality_id = DEFAULT_PERSONALITY_ID
+        self.ivs = zero_ivs()
+        # 個体値の数値を鑑定済みか（未鑑定なら数値は伏せる）。才能ランクは常時表示。
+        self.iv_appraised = False
+        # 固有特性（鬼才で確定、天才で抽選）。None なら特性なし。
+        self.trait_id = None
+        # JSONで固定指定された特性か。True なら roll_individuality でも維持する
+        # （デザインされたボス/強敵に確定の特性を持たせるため）。
+        self._designed_trait = False
+        # 個体値による成長の端数を貯めるバンク（小さな取得量でも倍率を取りこぼさない）
+        self._growth_bank = {s: 0.0 for s in IV_STATS}
+        # 特性「不屈」の使用済みフラグ（1戦闘1回。戦闘開始時にリセット）
+        self._endure_used = False
 
         self.level = level
         self.exp = exp
@@ -198,15 +249,113 @@ class Monster:
 
     def update_atb_gauge(self, amount: int | None = None) -> None:
         """ATBゲージを更新する。amountが指定されなければ素早さに応じて増加。"""
-        if amount is None:
-            self.atb_gauge += self.speed
-        else:
-            self.atb_gauge += amount
+        gain = self.speed if amount is None else amount
+        # 特性「神速」: ATBの溜まりが速くなる
+        t = self.trait
+        if t is not None and t.effect == "haste":
+            gain = int(gain * (1.0 + t.value))
+        self.atb_gauge += gain
         self.atb_gauge = min(100, self.atb_gauge) # ゲージは最大100
 
     def reset_atb_gauge(self) -> None:
         """ATBゲージをリセットする。"""
         self.atb_gauge = 0
+
+    # ------------------------------------------------------------------
+    # Individuality (personality / talent)
+    # ------------------------------------------------------------------
+    @property
+    def personality(self):
+        """この個体の性格（ステ傾向）。未知IDはバランス型にフォールバック。"""
+        return get_personality(self.personality_id)
+
+    @property
+    def talent(self):
+        """この個体の才能（個体値の総合評価ランク）。個体値から導出する。"""
+        return talent_from_ivs(self.ivs)
+
+    @property
+    def trait(self):
+        """この個体の固有特性（無ければ None）。"""
+        return get_trait(self.trait_id)
+
+    def has_trait_effect(self, effect: str) -> bool:
+        t = self.trait
+        return t is not None and t.effect == effect
+
+    def skill_mp_cost(self, skill) -> int:
+        """特性「省魔」を反映した実効MPコスト。"""
+        cost = getattr(skill, "cost", 0)
+        t = self.trait
+        if t is not None and t.effect == "mp_save" and cost > 0:
+            cost = max(1, int(round(cost * (1.0 - t.value))))
+        return cost
+
+    def try_endure(self, log: list[dict[str, str]] | None = None) -> bool:
+        """特性「不屈」: 致死ダメージをHP1で耐える（1戦闘1回）。耐えたら True。"""
+        t = self.trait
+        if t is not None and t.effect == "endure" and not self._endure_used and self.hp <= 0:
+            self.hp = 1
+            self._endure_used = True
+            if log is not None:
+                log.append({'type': 'info', 'message': f"{self.name} は不屈で持ちこたえた！"})
+            return True
+        return False
+
+    def _individual_multiplier(self, stat: str) -> float:
+        """性格による派生ステの恒久倍率。バランス型なら 1.0（=従来通り）。
+
+        個体値は倍率ではなく成長率（level_up の取得量）に効くので、ここには乗せない。
+        """
+        return 1.0 + self.personality.modifiers.get(stat, 0.0)
+
+    def roll_individuality(self) -> None:
+        """性格・個体値・固有特性をランダムに引き直す（野生個体の生成時などに使う）。"""
+        self.personality_id = random_personality_id()
+        self.ivs = random_ivs()
+        # 固有特性は才能（個体値）が高い個体にだけ宿る。野生では稀。
+        # ただしデザイン固定の特性（ボス/強敵）は引き直さず維持する。
+        if not self._designed_trait:
+            self.trait_id = roll_trait_for_talent(self.talent.id)
+
+    def appraise(self) -> None:
+        """個体値の数値を開示済みにする（鑑定）。"""
+        self.iv_appraised = True
+
+    def _iv_growth_increase(self, stat: str, base_gain: int) -> int:
+        """個体値に応じてレベルアップ取得量を底上げし、端数はバンクに繰り越す。
+
+        個体値0なら ``base_gain`` をそのまま返す（＝従来挙動と完全互換）。
+        """
+        iv = int(self.ivs.get(stat, 0) or 0)
+        bank = self._growth_bank
+        bank[stat] = bank.get(stat, 0.0) + base_gain * (1.0 + iv / IV_MAX * IV_GROWTH_STRENGTH)
+        take = int(bank[stat])
+        bank[stat] -= take
+        return take
+
+    def individuality_summary(self) -> dict:
+        """UI / シリアライズ用に性格・才能・個体値をまとめた辞書を返す。
+
+        性格と才能ランクは常時表示。個体値の数値は鑑定済みのときだけ含める。
+        """
+        p = self.personality
+        t = self.talent
+        trait = self.trait
+        summary = {
+            "personality": {"id": p.id, "name": p.name, "effect": p.effect_text},
+            "talent": {"id": t.id, "name": t.name, "hidden": t.hidden},
+            "trait": {"id": trait.id, "name": trait.name, "description": trait.description} if trait else None,
+            "appraised": bool(self.iv_appraised),
+        }
+        if self.iv_appraised:
+            summary["ivs"] = {
+                s: {"value": int(self.ivs.get(s, 0) or 0), "label": iv_judge_label(self.ivs.get(s, 0))}
+                for s in IV_STATS
+            }
+            summary["iv_total"] = iv_total(self.ivs)
+            summary["iv_max"] = iv_max_total()
+        return summary
 
     # ------------------------------------------------------------------
     # Derived stat properties
@@ -215,7 +364,7 @@ class Monster:
     def attack(self) -> int:
         base = self.base_attack + self._stat_bonuses.get("attack", 0) + self.permanent_bonuses.get("attack", 0)
         total = base + self._equipment_bonus("attack")
-        return int(total * self._stat_multipliers.get("attack", 1.0))
+        return int(total * self._stat_multipliers.get("attack", 1.0) * self._individual_multiplier("attack"))
 
     @attack.setter
     def attack(self, value: int) -> None:
@@ -225,7 +374,7 @@ class Monster:
     def defense(self) -> int:
         base = self.base_defense + self._stat_bonuses.get("defense", 0) + self.permanent_bonuses.get("defense", 0)
         total = base + self._equipment_bonus("defense")
-        return int(total * self._stat_multipliers.get("defense", 1.0))
+        return int(total * self._stat_multipliers.get("defense", 1.0) * self._individual_multiplier("defense"))
 
     @defense.setter
     def defense(self, value: int) -> None:
@@ -235,7 +384,7 @@ class Monster:
     def speed(self) -> int:
         base = self.base_speed + self._stat_bonuses.get("speed", 0) + self.permanent_bonuses.get("speed", 0)
         total = base + self._equipment_bonus("speed")
-        return int(total * self._stat_multipliers.get("speed", 1.0))
+        return int(total * self._stat_multipliers.get("speed", 1.0) * self._individual_multiplier("speed"))
 
     @speed.setter
     def speed(self, value: int) -> None:
@@ -245,11 +394,48 @@ class Monster:
     def magic(self) -> int:
         base = self.base_magic + self._stat_bonuses.get("magic", 0) + self.permanent_bonuses.get("magic", 0)
         total = base + self._equipment_bonus("magic")
-        return int(total * self._stat_multipliers.get("magic", 1.0))
+        return int(total * self._stat_multipliers.get("magic", 1.0) * self._individual_multiplier("magic"))
 
     @magic.setter
     def magic(self, value: int) -> None:
         self.base_magic = value
+
+    @property
+    def magic_defense(self) -> int:
+        base = self.base_magic_defense + self._stat_bonuses.get("magic_defense", 0) + self.permanent_bonuses.get("magic_defense", 0)
+        total = base + self._equipment_bonus("magic_defense")
+        return int(total)
+
+    @magic_defense.setter
+    def magic_defense(self, value: int) -> None:
+        self.base_magic_defense = value
+
+    @property
+    def critical_rate(self) -> int:
+        """会心率（％ポイント）。個体差（速さ・才能）＋装備・バフ・恒久強化。
+
+        速いほど、才能が高いほど会心しやすい（C）。装備の critical_rate も反映（A）。
+        """
+        pts = self.speed // 40
+        pts += {"genius": 3, "mastermind": 6}.get(self.talent.id, 0)
+        t = self.trait
+        if t is not None and t.effect == "crit":
+            pts += int(t.value)
+        pts += self._stat_bonuses.get("critical_rate", 0)
+        pts += self.permanent_bonuses.get("critical_rate", 0)
+        pts += self._equipment_bonus("critical_rate")
+        return max(0, pts)
+
+    @property
+    def evasion_rate(self) -> int:
+        """回避率（％ポイント）。装備・バフ・恒久強化から（A）。既定は0＝必中。"""
+        pts = self._stat_bonuses.get("evasion_rate", 0)
+        t = self.trait
+        if t is not None and t.effect == "evasion":
+            pts += int(t.value)
+        pts += self.permanent_bonuses.get("evasion_rate", 0)
+        pts += self._equipment_bonus("evasion_rate")
+        return max(0, pts)
 
     def add_permanent_stat(self, stat: str, amount: int) -> int:
         """種アイテム等で恒久的にステータスを上げる。HP/MPは最大値に直接加算する。"""
@@ -308,6 +494,17 @@ class Monster:
         if log is None:
             return
         log.append({'type': 'info', 'message': f"名前: {self.name} (ID: {self.monster_id}, Lv.{self.level}, Rank: {self.rank})"})
+        talent = self.talent
+        talent_txt = talent.name + ("（隠し才能）" if talent.hidden else "")
+        log.append({'type': 'info', 'message': f"性格: {self.personality.name}（{self.personality.effect_text}） / 才能: {talent_txt}"})
+        if self.trait is not None:
+            log.append({'type': 'info', 'message': f"固有特性: {self.trait.name}（{self.trait.description}）"})
+        if self.iv_appraised:
+            iv_txt = " ".join(
+                f"{IV_LABELS[s]}:{int(self.ivs.get(s, 0) or 0)}({iv_judge_label(self.ivs.get(s, 0))})"
+                for s in IV_STATS
+            )
+            log.append({'type': 'info', 'message': f"個体値 {iv_txt}"})
         if self.element:
             log.append({'type': 'info', 'message': f"属性: {self.element}"})
         log.append({'type': 'info', 'message': f"HP: {self.hp}/{self.max_hp}"})
@@ -353,6 +550,9 @@ class Monster:
 
     def total_defense(self):
         return self.defense
+
+    def total_magic_defense(self):
+        return self.magic_defense
 
     def total_speed(self):
         return self.speed
@@ -530,6 +730,13 @@ class Monster:
             evolved.level = self.level
             evolved.exp = self.exp
             evolved.equipment = getattr(self, 'equipment', {}).copy()
+            # 個体の個性（性格・個体値・鑑定状態・固有特性・成長バンク）は進化後も維持する。
+            # 個体値は成長率に効くため、ここで引き継がないと進化のたびに育ちがリセットされる。
+            evolved.personality_id = self.personality_id
+            evolved.ivs = dict(self.ivs)
+            evolved.iv_appraised = self.iv_appraised
+            evolved.trait_id = self.trait_id
+            evolved._growth_bank = dict(self._growth_bank)
             self.__dict__.update(evolved.__dict__)
             if awakened:
                 self.make_rare_individual()
@@ -565,6 +772,8 @@ class Monster:
                 print(msg)
 
     def calculate_exp_to_next_level(self):
+        if self.level >= MAX_LEVEL:
+            return None  # 上限到達。次のレベルは無い。
         if self.growth_type == GROWTH_TYPE_EARLY:
             exp_needed = calculate_exp_for_early(self.level)
         elif self.growth_type == GROWTH_TYPE_LATE:
@@ -587,6 +796,11 @@ class Monster:
         if not self.is_alive:
             return
 
+        # 固有特性「速学」: 獲得経験値を底上げする。
+        trait = self.trait
+        if trait is not None and trait.effect == "exp" and amount > 0:
+            amount = int(amount * (1.0 + trait.value))
+
         self.exp += amount
         if verbose:
             msg = f"{self.name} は {amount} の経験値を獲得した！ (現在EXP: {self.exp})"
@@ -596,6 +810,8 @@ class Monster:
 
         exp_needed_for_next_level = self.calculate_exp_to_next_level()
         if exp_needed_for_next_level is None:
+            if self.level >= MAX_LEVEL:
+                self.exp = 0  # 上限では経験値を溜めない
             return
 
         while self.exp >= exp_needed_for_next_level and self.is_alive:
@@ -608,6 +824,8 @@ class Monster:
 
         if self.exp < 0:
             self.exp = 0
+        if self.level >= MAX_LEVEL:
+            self.exp = 0  # 上限では経験値を溜めない
 
     def level_up(self, log: list[dict[str, str]] | None = None, verbose=True):
         self.level += 1
@@ -647,13 +865,15 @@ class Monster:
         status_gains_dict.setdefault("magic", 0)
         status_gains_dict.setdefault("speed", 0)
 
-        hp_increase = status_gains_dict["hp"]
+        # 個体値（IV）でレベルアップ取得量を底上げする。HPを含む5ステが対象、MPは対象外。
+        # 端数はバンクに繰り越し、個体値が高いほどレベルを重ねるほど差が開く＝成長率。
+        hp_increase = self._iv_growth_increase("hp", status_gains_dict["hp"])
         mp_increase = status_gains_dict["mp"]
-        attack_increase = status_gains_dict["attack"]
-        defense_increase = status_gains_dict["defense"]
-        magic_increase = status_gains_dict["magic"]
-        speed_increase = status_gains_dict["speed"]
-            
+        attack_increase = self._iv_growth_increase("attack", status_gains_dict["attack"])
+        defense_increase = self._iv_growth_increase("defense", status_gains_dict["defense"])
+        magic_increase = self._iv_growth_increase("magic", status_gains_dict["magic"])
+        speed_increase = self._iv_growth_increase("speed", status_gains_dict["speed"])
+
         self.max_hp += hp_increase
         self.hp = self.max_hp
         self.base_attack += attack_increase
@@ -663,10 +883,18 @@ class Monster:
         self.mp = self.max_mp
         self.base_magic += magic_increase
 
+        # 魔法防御は物理防御とは別枠。平均型の防御成長を基準に伸ばし、魔法型は上乗せ
+        # （術者は魔法に強い）。物理偏重の型は相対的に魔法へ弱くなり、住み分けが生まれる。
+        mdef_increase = get_status_gains_average(self.level)["defense"]
+        if self.growth_type == GROWTH_TYPE_MAGIC:
+            mdef_increase += magic_increase
+        self.base_magic_defense += mdef_increase
+
         if verbose:
             msg = (
                 f"最大HPが {hp_increase}、最大MPが {mp_increase}、攻撃力が {attack_increase}、"
-                f"防御力が {defense_increase}、魔力が {magic_increase}、素早さが {speed_increase} 上昇した！"
+                f"防御力が {defense_increase}、魔力が {magic_increase}、魔法防御が {mdef_increase}、"
+                f"素早さが {speed_increase} 上昇した！"
             )
             if log is not None:
                 log.append({'type': 'info', 'message': msg})
@@ -676,7 +904,8 @@ class Monster:
         self._learn_skills_for_level(log=log, verbose=verbose)
 
     def advance_to_level(self, target_level, verbose=False):
-        """Raise this monster's level until reaching target_level."""
+        """Raise this monster's level until reaching target_level（上限 MAX_LEVEL）。"""
+        target_level = min(target_level, MAX_LEVEL)
         while self.level < target_level and self.is_alive:
             self.level_up(verbose=verbose)
 
@@ -697,7 +926,8 @@ class Monster:
             'alive': self.is_alive,
             'image_filename': self.image_filename,
             'statuses': [{'name': s['name'], 'remaining': s['remaining']} for s in self.status_effects],
-            'unit_id': self.unit_id
+            'unit_id': self.unit_id,
+            'individuality': self.individuality_summary(),
         }
 
     @classmethod
@@ -753,9 +983,16 @@ class Monster:
         new_monster.max_mp = self.max_mp
         new_monster.mp = new_monster.max_mp
         new_monster.base_magic = self.base_magic
+        new_monster.base_magic_defense = self.base_magic_defense
         new_monster.permanent_bonuses = dict(self.permanent_bonuses)
         new_monster.plus_value = self.plus_value
         new_monster.is_rare = self.is_rare
+        new_monster.personality_id = self.personality_id
+        new_monster.ivs = dict(self.ivs)
+        new_monster.iv_appraised = self.iv_appraised
+        new_monster.trait_id = self.trait_id
+        new_monster._designed_trait = self._designed_trait
+        new_monster._growth_bank = dict(self._growth_bank)
         new_monster.is_alive = True
         new_monster.skill_sequence = self.skill_sequence[:]
         new_monster.equipment = copy.deepcopy(self.equipment)
