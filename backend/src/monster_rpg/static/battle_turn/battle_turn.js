@@ -148,6 +148,16 @@
         });
     }
 
+    /* 画像が無い/読み込めない時の代替表示（モンスター名の頭文字） */
+    function buildImgFallback(name) {
+        const ph = document.createElement('div');
+        ph.className = 'unit-img unit-img-fallback';
+        const label = (name || '?').trim();
+        ph.textContent = label ? Array.from(label)[0] : '?';
+        ph.setAttribute('aria-label', label);
+        return ph;
+    }
+
     function buildUnitElement(info, idx, side) {
         const unit = document.createElement('div');
         unit.className = `battle-unit ${side}`;
@@ -185,7 +195,14 @@
             img.className = 'unit-img';
             img.src = info.image;
             img.alt = info.name;
+            /* 画像ファイルが無い場合は壊れアイコンではなく頭文字プレースホルダに差し替える */
+            img.addEventListener('error', () => {
+                if (!img.parentNode) return;
+                img.replaceWith(buildImgFallback(info.name));
+            });
             unit.appendChild(img);
+        } else {
+            unit.appendChild(buildImgFallback(info.name));
         }
 
         const infoBox = document.createElement('div');

@@ -4,6 +4,30 @@
   <meta charset="utf-8">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{{ title or "Monster RPG" }}</title>
+  <script>
+    /* モンスター画像が欠落している場合、壊れアイコンの代わりに頭文字メダルを表示する */
+    (function () {
+      function monsterPlaceholder(alt) {
+        var ch = (alt || '?').toString().trim();
+        ch = ch ? Array.from(ch)[0].replace(/[<>&]/g, '') : '?';
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='xMidYMid meet'>"
+          + "<defs><radialGradient id='g' cx='50%' cy='35%' r='75%'>"
+          + "<stop offset='0%' stop-color='#3a6db5'/><stop offset='100%' stop-color='#0b1422'/></radialGradient></defs>"
+          + "<rect x='4' y='4' width='92' height='92' rx='14' fill='url(#g)' stroke='#5a82c8' stroke-width='2'/>"
+          + "<text x='50' y='50' dy='.35em' text-anchor='middle' font-family='sans-serif' font-size='52' font-weight='bold' fill='#cfe0ff'>"
+          + ch + "</text></svg>";
+        return 'data:image/svg+xml,' + encodeURIComponent(svg);
+      }
+      document.addEventListener('error', function (e) {
+        var t = e.target;
+        if (!t || t.tagName !== 'IMG' || t.dataset.imgFallback) return;
+        if (t.classList.contains('unit-img')) return; /* 戦闘画面は専用処理に任せる */
+        if (!/\/static\/images\//.test(t.src)) return;
+        t.dataset.imgFallback = '1';
+        t.src = monsterPlaceholder(t.alt);
+      }, true);
+    })();
+  </script>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   {% block head_extra %}{% endblock %}
 </head>
