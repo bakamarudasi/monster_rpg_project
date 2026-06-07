@@ -283,7 +283,8 @@ def battle(user_id):
                 'finished': False,
                 'turn': battle_obj.turn_count,
                 'current_actor': _current_actor_info(battle_obj),
-                'turn_order': turn_order_ids(battle_obj.turn_order)
+                'turn_order': turn_order_ids(battle_obj.turn_order),
+                'items': [{'name': it.name} for it in (player.items if player else [])]
             })
     else: # GET request or initial battle setup
         if not battle_state:
@@ -408,5 +409,6 @@ def battle_json(user_id):
             'finished': False,
             'turn': dummy_battle_obj.turn_count,
             'current_actor': serialize_monster(dummy_battle_obj.current_actor, dummy_battle_obj.current_actor.unit_id) if dummy_battle_obj.current_actor else None,
-            'turn_order': turn_order_ids(dummy_battle_obj.turn_order)
+            'turn_order': turn_order_ids(dummy_battle_obj.turn_order),
+            'items': [{'name': it.name} for it in battle_obj.player.items] if isinstance(battle_state, Battle) else []
         })

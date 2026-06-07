@@ -520,7 +520,8 @@ class Battle:
         elif action['type'] == 'skill':
             skill_idx = action.get('skill', 0)
             try:
-                skill_obj = actor.skills[skill_idx]
+                # UI は total_skills（基本＋装備付与）を番号付けして送るため同じ並びで参照する
+                skill_obj = actor.total_skills[skill_idx]
             except IndexError:
                 self.log.append({'type': 'error', 'message': "そのスキルは選べない。"})
                 actor.reset_atb_gauge()

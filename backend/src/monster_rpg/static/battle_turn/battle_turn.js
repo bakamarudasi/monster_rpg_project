@@ -547,8 +547,8 @@
         document.querySelectorAll('.enemy.battle-unit').forEach(el => {
             el.addEventListener('click', () => {
                 for (const key in fields) {
-                    const dataKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
-                    fields[key].textContent = el.dataset[dataKey] || '';
+                    /* dataset は camelCase キーで参照（maxHp 等が空欄にならないように） */
+                    fields[key].textContent = el.dataset[key] || '';
                 }
                 try {
                     const list = JSON.parse(el.dataset.statuses || '[]');
@@ -589,7 +589,11 @@
             battleCsrf = (new FormData(form)).get('csrf_token');
             form.addEventListener('submit', evt => {
                 evt.preventDefault();
-                sendBattleAction(Object.fromEntries(new FormData(form).entries()));
+                const payload = Object.fromEntries(new FormData(form).entries());
+                /* selected_skill_id はフォーム外（スキルタブ内）にあるので手動で拾う */
+                const skEl = document.getElementById('selected-skill-id');
+                if (skEl) payload.selected_skill_id = skEl.value;
+                sendBattleAction(payload);
             });
         }
         /* オート/倍速トグル */
