@@ -137,6 +137,21 @@
 
 </div>
 
+<!-- === 固定ボトムナビ（主要操作を常時表示・スクロール不要） === -->
+<nav class="hub-bottom-nav">
+  <form action="{{ url_for('explore', user_id=user_id) }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="bn-item"><span class="bn-icon">🔍</span><span class="bn-label">たんさく</span></button>
+  </form>
+  <a class="bn-item" href="{{ url_for('world_map', user_id=user_id) }}"><span class="bn-icon">🗺️</span><span class="bn-label">マップ</span></a>
+  <a class="bn-item" href="{{ url_for('party', user_id=user_id) }}"><span class="bn-icon">🐲</span><span class="bn-label">パーティ</span></a>
+  <a class="bn-item" href="{{ url_for('status', user_id=user_id) }}"><span class="bn-icon">📊</span><span class="bn-label">ステータス</span></a>
+  <form action="{{ url_for('save', user_id=user_id) }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="bn-item save"><span class="bn-icon">💾</span><span class="bn-label">セーブ</span></button>
+  </form>
+</nav>
+
 <form id="mm-ft-form" method="post" action="{{ url_for('main.fast_travel', user_id=user_id) }}" style="display:none">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <input type="hidden" name="dest" id="mm-ft-dest">

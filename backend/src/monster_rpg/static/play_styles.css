@@ -3,7 +3,7 @@
 .home-screen {
     max-width: 720px;
     margin: 1.2rem auto;
-    padding: 0 10px 2rem;
+    padding: 0 10px calc(84px + env(safe-area-inset-bottom, 0px));
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -283,3 +283,49 @@
     border-radius: 50%;
     background: #ff6b6b;
 }
+
+/* === 固定ボトムナビ（主要操作を常時表示） === */
+.hub-bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(180deg, rgba(13, 23, 38, 0.92), rgba(8, 14, 24, 0.98));
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.45);
+}
+.hub-bottom-nav form { margin: 0; }
+.bn-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-width: 60px;
+    padding: 6px 14px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, transform 0.08s;
+}
+.bn-item:hover, .bn-item:focus {
+    color: var(--text);
+    background: rgba(74, 144, 226, 0.16);
+    outline: none;
+}
+.bn-item:active { transform: translateY(1px); }
+.bn-icon { font-size: 1.35rem; line-height: 1; }
+.bn-item.save { color: #ffd0a0; }
+.bn-item.save:hover { background: rgba(255, 208, 160, 0.14); }
