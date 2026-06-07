@@ -1,13 +1,44 @@
 /* === 拠点ホーム画面（ダッシュボード） — 共通デザイントークンに準拠 === */
 
 .home-screen {
-    max-width: 680px;
+    max-width: 720px;
     margin: 1.2rem auto;
     padding: 0 10px 2rem;
     display: flex;
     flex-direction: column;
     gap: 12px;
     animation: field-in 0.5s cubic-bezier(0.2, 1, 0.3, 1) both;
+}
+
+/* === 広い画面では2カラム（左:プレイヤー/現在地 右:コマンド）でスクロール削減 === */
+@media (min-width: 860px) {
+    .home-screen {
+        max-width: 1000px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+        grid-template-areas:
+            "hero menu"
+            "loc  menu";
+        align-items: start;
+        column-gap: 16px;
+        row-gap: 12px;
+    }
+    .hero-card { grid-area: hero; }
+    .loc-card  { grid-area: loc; }
+    .menu-section {
+        grid-area: menu;
+        align-self: stretch;
+    }
+}
+
+/* === PC幅では3カラム（プレイヤー｜現在地・マップ｜コマンド）で1画面に収める === */
+@media (min-width: 1180px) {
+    .home-screen {
+        max-width: 1240px;
+        grid-template-columns: 300px minmax(0, 1fr) 380px;
+        grid-template-areas: "hero loc menu";
+        column-gap: 18px;
+    }
 }
 @keyframes field-in {
     from { opacity: 0; transform: translateY(16px); }
@@ -175,9 +206,10 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 4px;
     width: 100%;
-    aspect-ratio: 1 / 1;
+    min-height: 70px;
+    padding: 8px 6px;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.14));
     border: 1px solid var(--border-soft);
     border-radius: var(--radius-sm);
@@ -195,7 +227,7 @@
     outline: none;
 }
 .tile:active { transform: translateY(0); }
-.tile-icon { font-size: 1.8rem; line-height: 1; }
+.tile-icon { font-size: 1.55rem; line-height: 1; }
 .tile-label { font-size: 0.82rem; text-align: center; }
 .tile-label small { display: block; font-size: 0.66rem; color: var(--text-faint); }
 .tile.save .tile-label { color: #ffd0a0; }
