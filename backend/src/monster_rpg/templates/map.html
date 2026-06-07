@@ -4,33 +4,51 @@
 {% endblock %}
 {% block content %}
 <div class="map-container">
-  <h2>ワールドマップ</h2>
-  <p class="map-hint">発見済みの拠点をクリックで<b>ファストトラベル</b>できる。</p>
+  <div class="map-header">
+    <h2>ワールドマップ</h2>
+    <p class="map-hint">発見済みの拠点をクリックで<b>ファストトラベル</b>。<span class="hint-dim">霧の先に伸びる破線は未踏のルートだ。</span></p>
+  </div>
 
-  <div class="map-grid" data-cols="{{ map_grid[0]|length if map_grid else 0 }}">
-    {% for row in map_grid %}
-        {% for cell in row %}
-          {% if cell %}
-            {% set is_discovered = discovered and cell.location_id in discovered %}
-            <div
-              class="map-cell{% if is_discovered %} discovered{% else %} fogged{% endif %}{% if current_loc_id == cell.location_id %} current{% endif %}{% if cell.boss_enemy_id %} has-boss{% endif %}"
-              data-loc="{{ cell.location_id }}"
-              data-region="{{ cell.region or '' }}"
-            >
-              {% if is_discovered %}
-                <span class="cell-name">{{ cell.name }}</span>
-                {% if cell.region %}<span class="cell-region">{{ cell.region }}</span>{% endif %}
-                {% if cell.boss_enemy_id %}<span class="cell-boss">👑</span>{% endif %}
-                {% if current_loc_id == cell.location_id %}<span class="cell-here">現在地</span>{% endif %}
-              {% else %}
-                <span class="cell-name">？？？</span>
-              {% endif %}
-            </div>
-          {% else %}
-            <div class="map-cell empty"></div>
-          {% endif %}
-        {% endfor %}
-    {% endfor %}
+  <div class="map-stage">
+    <svg class="map-links" aria-hidden="true" preserveAspectRatio="none"></svg>
+    <div class="map-compass" aria-hidden="true">
+      <span class="compass-n">N</span>
+      <span class="compass-rose">✦</span>
+    </div>
+
+    <div class="map-grid" data-cols="{{ map_grid[0]|length if map_grid else 0 }}">
+      {% for row in map_grid %}
+          {% for cell in row %}
+            {% if cell %}
+              {% set is_discovered = discovered and cell.location_id in discovered %}
+              <div
+                class="map-cell{% if is_discovered %} discovered{% else %} fogged{% endif %}{% if current_loc_id == cell.location_id %} current{% endif %}{% if cell.boss_enemy_id %} has-boss{% endif %}"
+                data-loc="{{ cell.location_id }}"
+                data-region="{{ cell.region or '' }}"
+                {% if is_discovered %}data-connections="{{ cell.connections.values()|join(',') }}"{% endif %}
+              >
+                {% if is_discovered %}
+                  {% if current_loc_id == cell.location_id %}<span class="cell-pin">📍</span>{% endif %}
+                  <span class="cell-name">{{ cell.name }}</span>
+                  {% if cell.region %}<span class="cell-region">{{ cell.region }}</span>{% endif %}
+                  <span class="cell-badges">
+                    {% if cell.boss_enemy_id %}<span class="badge boss" title="ボス">👑</span>{% endif %}
+                    {% if cell.has_shop %}<span class="badge" title="ショップ">🏪</span>{% endif %}
+                    {% if cell.has_inn %}<span class="badge" title="宿屋">🏨</span>{% endif %}
+                    {% if cell.treasure_items %}<span class="badge" title="お宝">💎</span>{% endif %}
+                    {% if cell.required_item %}<span class="badge lock" title="要アイテム: {{ cell.required_item }}">🔒</span>{% endif %}
+                  </span>
+                  {% if current_loc_id == cell.location_id %}<span class="cell-here">現在地</span>{% endif %}
+                {% else %}
+                  <span class="cell-fog-icon">？</span>
+                {% endif %}
+              </div>
+            {% else %}
+              <div class="map-cell empty"></div>
+            {% endif %}
+          {% endfor %}
+      {% endfor %}
+    </div>
   </div>
 
   <div id="region-legend" class="region-legend"></div>
@@ -72,8 +90,11 @@
     grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 
     const cells = document.querySelectorAll('.map-cell');
+    const cellByLoc = new Map();
     const regionsSeen = new Map();
     cells.forEach((cell, idx) => {
+      const loc = cell.dataset.loc;
+      if (loc) cellByLoc.set(loc, cell);
       const region = cell.dataset.region;
       if (region) {
         const hue = regionHue(region);
@@ -88,6 +109,44 @@
         cell.style.transform = 'scale(1)';
       }, idx * 40);
     });
+
+    // === 拠点をつなぐ経路ラインを描画 ===
+    const svg = document.querySelector('.map-links');
+    const stage = document.querySelector('.map-stage');
+    function drawLinks() {
+      if (!svg || !stage) return;
+      const sr = stage.getBoundingClientRect();
+      svg.setAttribute('viewBox', `0 0 ${sr.width} ${sr.height}`);
+      svg.innerHTML = '';
+      const center = (el) => {
+        const r = el.getBoundingClientRect();
+        return { x: r.left - sr.left + r.width / 2, y: r.top - sr.top + r.height / 2 };
+      };
+      const drawn = new Set();
+      cells.forEach(cell => {
+        if (!cell.classList.contains('discovered')) return;
+        const from = cell.dataset.loc;
+        const conns = (cell.dataset.connections || '').split(',').filter(Boolean);
+        const a = center(cell);
+        conns.forEach(to => {
+          const dest = cellByLoc.get(to);
+          if (!dest) return;
+          const key = [from, to].sort().join('|');
+          if (drawn.has(key)) return;
+          drawn.add(key);
+          const b = center(dest);
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+          line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+          const known = dest.classList.contains('discovered');
+          line.setAttribute('class', known ? 'link known' : 'link unknown');
+          svg.appendChild(line);
+        });
+      });
+    }
+    // セルの出現アニメが終わった頃に描画＋リサイズ追従
+    setTimeout(drawLinks, cells.length * 40 + 120);
+    window.addEventListener('resize', drawLinks);
 
     // 地方の凡例（発見済みの地方のみ）
     const legend = document.getElementById('region-legend');

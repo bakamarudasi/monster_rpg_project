@@ -1,8 +1,10 @@
 /* === ワールドマップ（統一ダークテーマ＋地方色分け＋ファストトラベル） === */
 .map-container {
-    max-width: 720px;
+    max-width: 760px;
     margin: 32px auto;
-    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    background:
+        radial-gradient(120% 80% at 50% -10%, rgba(74, 144, 226, 0.10), transparent 60%),
+        linear-gradient(180deg, var(--surface), var(--surface-2));
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
@@ -21,13 +23,72 @@
     margin: 18px 0 12px;
 }
 .map-hint { color: var(--text-dim); font-size: 0.9rem; margin: 0 0 18px; }
+.map-hint .hint-dim { color: var(--text-faint); }
+
+/* === 地図ステージ（経路ライン＋グリッド＋方位を重ねる） === */
+.map-stage {
+    position: relative;
+    margin: 0 auto 20px;
+    padding: 14px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-soft);
+    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    background-color: #070d18;
+    /* 地形テクスチャ（等高線風の格子＋ほのかな霧） */
+    background-image:
+        radial-gradient(80% 60% at 50% 40%, rgba(74, 144, 226, 0.06), transparent 70%),
+        linear-gradient(rgba(120, 160, 220, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120, 160, 220, 0.045) 1px, transparent 1px);
+    background-size: auto, 28px 28px, 28px 28px;
+}
+/* 経路ラインのSVGオーバーレイ（セルの背面） */
+.map-links {
+    position: absolute;
+    inset: 14px;
+    width: calc(100% - 28px);
+    height: calc(100% - 28px);
+    pointer-events: none;
+    z-index: 1;
+    overflow: visible;
+}
+.map-links .link {
+    fill: none;
+    stroke-linecap: round;
+}
+.map-links .link.known {
+    stroke: hsl(42, 70%, 60%);
+    stroke-width: 2.5;
+    opacity: 0.55;
+    filter: drop-shadow(0 0 3px rgba(255, 210, 74, 0.35));
+}
+.map-links .link.unknown {
+    stroke: #3a4a66;
+    stroke-width: 2;
+    stroke-dasharray: 3 7;
+    opacity: 0.7;
+}
+/* 方位記号 */
+.map-compass {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: rgba(200, 220, 255, 0.35);
+    pointer-events: none;
+}
+.map-compass .compass-n { font-size: 0.6rem; letter-spacing: 1px; }
+.map-compass .compass-rose { font-size: 1.4rem; line-height: 0.8; text-shadow: 0 0 8px rgba(74, 144, 226, 0.4); }
 
 /* === マップグリッド === */
 .map-grid {
     display: grid;
-    grid-gap: 6px;
-    margin: 0 auto 20px;
+    grid-gap: 10px;
     width: 100%;
+    position: relative;
+    z-index: 2;
 }
 .map-cell {
     --region-hue: 210;
@@ -57,8 +118,26 @@
 }
 .cell-name { font-weight: bold; line-height: 1.2; }
 .cell-region { font-size: 0.62rem; color: var(--text-faint); }
-.cell-boss { position: absolute; top: 3px; right: 5px; font-size: 0.85rem; }
 .cell-here { font-size: 0.6rem; color: var(--gold); font-weight: bold; }
+
+/* アイコンバッジ（ショップ/宿/ボス/お宝/要アイテム） */
+.cell-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; line-height: 1; }
+.cell-badges .badge { font-size: 0.8rem; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6)); }
+.cell-badges .badge.boss { font-size: 0.9rem; }
+
+/* 現在地ピン */
+.cell-pin {
+    position: absolute;
+    top: -10px;
+    font-size: 1.05rem;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+    animation: pin-bob 1.6s ease-in-out infinite;
+}
+@keyframes pin-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+.cell-fog-icon { font-size: 1.3rem; color: #2c3c58; font-weight: bold; }
 
 /* 発見済み＝転送可能 */
 .map-cell.discovered { cursor: pointer; }
@@ -69,14 +148,16 @@
 }
 /* 未踏破＝フォグ */
 .map-cell.fogged {
-    background: #0c1320;
+    background:
+        radial-gradient(circle at 50% 40%, rgba(60, 80, 110, 0.18), transparent 70%),
+        #0a1018;
     border-color: #1c2940;
     border-left-color: #2a3a55;
+    border-style: dashed;
     color: var(--text-faint);
     cursor: default;
-    filter: saturate(0.3);
 }
-.map-cell.fogged .cell-name { letter-spacing: 2px; opacity: 0.6; }
+.map-cell.fogged:hover { border-color: #34507a; }
 /* 現在地 */
 .map-cell.current {
     background: hsl(var(--region-hue), 45%, 24%);
