@@ -1031,6 +1031,13 @@ def attempt_scout(player: Player | None, target: Monster, enemy_party: list[Mons
         log.append({'type': 'info', 'message': "対象が選ばれていない。"})
         return False
 
+    # レイドボス等の特別個体（通常モンスター図鑑に未登録の種）はスカウト不可。
+    # 仲間にできてもセーブで失われるため、ここで明確に弾く（入手は合成専用）。
+    from .monsters.monster_data import ALL_MONSTERS
+    if target.monster_id not in ALL_MONSTERS:
+        log.append({'type': 'info', 'message': f"{target.name} はスカウトできない！"})
+        return False
+
     rate = getattr(target, "scout_rate", 0.25)
     log.append({'type': 'info', 'message': f"{target.name} をスカウトしようとした…"})
 

@@ -78,6 +78,15 @@ class RaidServiceTests(unittest.TestCase):
         self.assertIsNone(battle)
         self.assertIsNotNone(err)
 
+    def test_raid_boss_cannot_be_scouted(self):
+        from monster_rpg.battle import attempt_scout
+        defn = get_raid('ashen')
+        boss = raid_service.build_raid_boss(defn)
+        log = []
+        ok = attempt_scout(None, boss, [boss], log)
+        self.assertFalse(ok)
+        self.assertTrue(any('スカウトできない' in e['message'] for e in log))
+
     def test_get_raid(self):
         self.assertIsNotNone(get_raid('ashen'))
         self.assertIsNone(get_raid('does_not_exist'))
