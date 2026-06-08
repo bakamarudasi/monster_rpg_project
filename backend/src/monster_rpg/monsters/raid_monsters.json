@@ -1,0 +1,59 @@
+{
+  "raid_ashen_dragon": {
+    "name": "業火竜 イグドラ",
+    "element": "火",
+    "family": "dragon",
+    "rank": "S",
+    "ai_role": "attacker",
+    "growth_type": "平均型",
+    "image_filename": "raid_ashen_dragon.png",
+    "level": 25,
+    "stats": { "hp": 2200, "mp": 200, "attack": 130, "defense": 72, "magic": 95, "magic_defense": 60, "speed": 14 },
+    "is_boss": true,
+    "trait": "pinch_power",
+    "skills": ["dragon_breath", "fireball", "meteor_strike", "guard_up"],
+    "skill_sequence": ["dragon_breath", "fireball", "meteor_strike", "guard_up"],
+    "drop_items": [["infernal_fang", 0.6]],
+    "book": {
+      "description": "業火を統べる古竜。レイドの試練として顕現する。"
+    }
+  },
+  "raid_abyssal_kraken": {
+    "name": "深海覇王 アビスクラーケン",
+    "element": "水",
+    "family": "beast",
+    "rank": "S",
+    "ai_role": "attacker",
+    "growth_type": "魔法型",
+    "image_filename": "raid_abyssal_kraken.png",
+    "level": 35,
+    "stats": { "hp": 3600, "mp": 260, "attack": 150, "defense": 92, "magic": 130, "magic_defense": 82, "speed": 16 },
+    "is_boss": true,
+    "trait": "lifesteal",
+    "skills": ["water_blast", "ice_spear", "life_drain", "roar"],
+    "skill_sequence": ["water_blast", "ice_spear", "life_drain", "roar"],
+    "drop_items": [["abyssal_trident", 0.6]],
+    "book": {
+      "description": "深淵より来たる海の覇王。無数の触手で全てを薙ぎ払う。"
+    }
+  },
+  "raid_celestial_dragon": {
+    "name": "天空覇竜 セレスフィア",
+    "element": "光",
+    "family": "dragon",
+    "rank": "S",
+    "ai_role": "attacker",
+    "growth_type": "魔法型",
+    "image_filename": "raid_celestial_dragon.png",
+    "level": 50,
+    "stats": { "hp": 7200, "mp": 320, "attack": 150, "defense": 112, "magic": 155, "magic_defense": 120, "speed": 18 },
+    "is_boss": true,
+    "trait": "magic_ward",
+    "skills": ["meteor_strike", "holy_light", "mass_heal", "revive"],
+    "skill_sequence": ["meteor_strike", "holy_light", "mass_heal", "revive"],
+    "drop_items": [["celestial_aegis", 0.6]],
+    "book": {
+      "description": "全ての理を司る伝説の守護竜。レイド最強の試練。"
+    }
+  }
+}

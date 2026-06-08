@@ -7,9 +7,8 @@ Flask 非依存。
 
 from __future__ import annotations
 
-from ..exploration import get_monster_instance_copy
 from ..battle import start_atb_battle
-from ..raid_data import get_raid
+from ..raid_data import get_raid, RAID_MONSTERS
 
 # 1回のレイドに出撃できる最大数（3編成 × 3体）
 MAX_RAID_PARTY = 9
@@ -21,28 +20,14 @@ def collect_available(player) -> list:
 
 
 def build_raid_boss(defn: dict):
-    """定義からレイドボスのインスタンスを生成する（既存モンスターを大幅強化）。"""
-    boss = get_monster_instance_copy(defn["base"])
-    if boss is None:
+    """定義からレイド専用ボスのインスタンスを生成する。"""
+    template = RAID_MONSTERS.get(defn["monster_id"])
+    if template is None:
         return None
-
-    target = defn.get("level", boss.level)
-    if boss.level < target:
-        # ログを汚さないよう verbose=False で一気に成長
-        boss.advance_to_level(target, verbose=False)
-
-    sm = defn.get("stat_mult")
-    if sm:
-        boss.base_attack = int(boss.base_attack * sm)
-        boss.base_defense = int(boss.base_defense * sm)
-        boss.base_magic = int(boss.base_magic * sm)
-        boss.base_magic_defense = int(boss.base_magic_defense * sm)
-
-    boss.max_hp = int(boss.max_hp * defn.get("hp_mult", 6.0))
+    boss = template.copy()
     boss.hp = boss.max_hp
     boss.is_boss = True
     boss.is_alive = True
-    boss.name = defn.get("name", boss.name)
     return boss
 
 
