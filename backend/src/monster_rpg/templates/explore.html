@@ -7,11 +7,11 @@
     <!-- 探索結果のログ -->
     <div class="log-box">
       <h3>今回の出来事</h3>
-      <ul>
+      <ul class="event-log">
         {% for m in messages %}
-          <li>{{ m }}</li>
+          <li class="event-line">{{ m }}</li>
         {% else %}
-          <li>特に何も見つからなかった…</li>
+          <li class="event-line">特に何も見つからなかった…</li>
         {% endfor %}
       </ul>
     </div>
@@ -44,9 +44,9 @@
       <h3>この地域の探索率</h3>
       <div class="progress-container">
         <div class="progress-bar">
-          <div class="progress-fill" style="width: {{ progress }}%"></div>
+          <div class="progress-fill" style="width: 0%" data-target="{{ progress }}"></div>
         </div>
-        <span class="progress-percent">{{ progress }}%</span>
+        <span class="progress-percent" data-target="{{ progress }}">0%</span>
       </div>
     </div>
 
@@ -250,6 +250,32 @@
 <script>
   window.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.fade-in').classList.add('show');
+
+    /* 出来事ログを順番にフェードイン */
+    document.querySelectorAll('.event-line').forEach(function (li, i) {
+      li.style.animationDelay = (i * 90) + 'ms';
+      li.classList.add('reveal');
+    });
+
+    /* 探索率バーを 0 → 目標までアニメーション（数値もカウントアップ） */
+    var fill = document.querySelector('.progress-fill[data-target]');
+    var pct = document.querySelector('.progress-percent[data-target]');
+    var target = fill ? parseInt(fill.dataset.target) || 0 : 0;
+    setTimeout(function () { if (fill) fill.style.width = target + '%'; }, 200);
+    if (pct) {
+      var cur = 0;
+      var step = Math.max(1, Math.round(target / 30));
+      var timer = setInterval(function () {
+        cur += step;
+        if (cur >= target) { cur = target; clearInterval(timer); }
+        pct.textContent = cur + '%';
+      }, 24);
+    }
   });
 </script>
+<style>
+  .event-line { opacity: 0; }
+  .event-line.reveal { animation: ev-in 0.4s ease forwards; }
+  @keyframes ev-in { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+</style>
 {% endblock %}
