@@ -530,3 +530,101 @@ button:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a3f7d; }
     .battle-unit.hit-flash .unit-img,
     .battle-unit.attacking { animation: none !important; }
 }
+/* === クリックでターゲット選択 === */
+/* 対象用 select は隠す（クリック選択に置き換え） */
+.command-window select[name="target_enemy"],
+.command-window select[name="target_ally"],
+.command-window select[name="item_idx"] { display: none !important; }
+
+.target-hint {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--gold);
+    margin: 4px 0 2px;
+    letter-spacing: 0.5px;
+    min-height: 1.1em;
+}
+.target-hint.hidden { display: none; }
+
+/* 選択可能な対象 */
+.battle-unit.targetable { cursor: pointer; }
+.battle-unit.targetable .member-info,
+.battle-unit.targetable .unit-img { transition: filter .15s; }
+.battle-unit.targetable:hover { filter: brightness(1.12); }
+.battle-unit.targetable:hover .unit-img { filter: drop-shadow(0 0 6px var(--accent)); }
+
+/* 現在のターゲット */
+.battle-unit .target-marker {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    color: var(--gold);
+    font-size: 1.2rem;
+    opacity: 0;
+    pointer-events: none;
+    text-shadow: 0 0 8px rgba(255, 210, 74, 0.8), 0 1px 2px #000;
+    transition: opacity .15s, transform .15s;
+}
+.battle-unit.targeted .target-marker {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    animation: target-bob 1s ease-in-out infinite;
+}
+@keyframes target-bob {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-4px); }
+}
+.battle-unit.targeted .unit-img { filter: drop-shadow(0 0 8px var(--gold)); }
+.battle-unit.targeted::before {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 92px; height: 92px;
+    transform: translate(-50%, -50%);
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    box-shadow: 0 0 12px rgba(255, 210, 74, 0.5), inset 0 0 12px rgba(255, 210, 74, 0.25);
+    pointer-events: none;
+    opacity: 0.85;
+}
+
+/* 全体攻撃の対象表示 */
+.battle-unit.aoe-target .unit-img { filter: drop-shadow(0 0 6px var(--danger)); }
+.battle-unit.aoe-target::before {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 90px; height: 90px;
+    transform: translate(-50%, -50%);
+    border: 2px dashed var(--danger);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: aoe-pulse 1s ease-in-out infinite;
+}
+@keyframes aoe-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.9; } }
+
+/* 敵の詳細ⓘボタン */
+.unit-info-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    margin: 0;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: rgba(8, 14, 24, 0.7);
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .15s, color .15s, transform .08s;
+}
+.unit-info-btn:hover { background: var(--accent); color: #fff; }
+.unit-info-btn:active { transform: scale(0.9); }

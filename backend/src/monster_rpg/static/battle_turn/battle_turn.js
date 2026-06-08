@@ -164,6 +164,8 @@
         if (!info.alive) unit.classList.add('down');
         if (info.is_boss) unit.classList.add('boss');
         unit.dataset.unitId = `${side}-${idx}`;
+        unit.dataset.index = idx;
+        unit.dataset.side = side;
         unit.dataset.name = info.name;
         unit.dataset.level = info.level;
         unit.dataset.hp = info.hp;
@@ -276,6 +278,22 @@
         if (sh <= 0) shieldText.classList.add('hidden');
         unit.appendChild(shieldText);
         unit.dataset.shield = sh;
+
+        /* 敵には詳細情報ボタン（クリックは対象選択に使うため、情報は別ボタンに分離） */
+        if (side === 'enemy') {
+            const infoBtn = document.createElement('button');
+            infoBtn.type = 'button';
+            infoBtn.className = 'unit-info-btn';
+            infoBtn.textContent = 'ⓘ';
+            infoBtn.setAttribute('aria-label', '詳細');
+            unit.appendChild(infoBtn);
+        }
+
+        /* 対象選択マーカー（▼）を載せる土台 */
+        const marker = document.createElement('div');
+        marker.className = 'target-marker';
+        marker.textContent = '▼';
+        unit.appendChild(marker);
 
         return unit;
     }
@@ -440,48 +458,77 @@
         });
     }
 
-    function updateTargets() {
+    /* 現在のアクションの対象種別/範囲を返す */
+    function currentTargetInfo() {
         const actionSel = document.getElementById('action');
-        if (!actionSel) return;
-        const enemySel = document.querySelector('select[name="target_enemy"]');
-        const allySel = document.querySelector('select[name="target_ally"]');
-        const itemSel = document.querySelector('select[name="item_idx"]');
-
-        let actionVal = actionSel.value;
+        let actionVal = actionSel ? actionSel.value : 'attack';
         let target = 'enemy';
         let scope = 'single';
-        if (actionSel.tagName === 'SELECT') {
-            const opt = actionSel.selectedOptions[0];
-            if (opt) {
-                target = opt.dataset.target || target;
-                scope = opt.dataset.scope || scope;
-                actionVal = opt.value;
+        if (actionSel) {
+            if (actionSel.tagName === 'SELECT') {
+                const opt = actionSel.selectedOptions[0];
+                if (opt) { target = opt.dataset.target || target; scope = opt.dataset.scope || scope; actionVal = opt.value; }
+            } else {
+                target = actionSel.dataset.target || target;
+                scope = actionSel.dataset.scope || scope;
             }
-        } else {
-            target = actionSel.dataset.target || target;
-            scope = actionSel.dataset.scope || scope;
         }
+        return { target, scope, actionVal };
+    }
 
-        const isItem = actionVal === 'item';
+    function setTargetHint(text) {
+        const hint = document.getElementById('target-hint');
+        if (hint) { hint.textContent = text || ''; hint.classList.toggle('hidden', !text); }
+    }
+
+    /* クリックでターゲットを選ぶ方式。select は隠したまま値の保持に使う。 */
+    function updateTargets() {
+        const { target, scope, actionVal } = currentTargetInfo();
         const skillUI = document.getElementById('skill-ui');
         if (skillUI) skillUI.style.display = actionVal === 'skill' ? '' : 'none';
 
-        if (target === 'none' || scope === 'all') {
-            enemySel.classList.add('hidden');
-            allySel.classList.add('hidden');
-            if (itemSel) itemSel.classList.add('hidden');
-        } else if (target === 'ally') {
-            enemySel.classList.add('hidden');
-            allySel.classList.remove('hidden');
-            if (itemSel) {
-                if (isItem) itemSel.classList.remove('hidden');
-                else itemSel.classList.add('hidden');
-            }
-        } else {
-            enemySel.classList.remove('hidden');
-            allySel.classList.add('hidden');
-            if (itemSel) itemSel.classList.add('hidden');
+        // ターゲット用 select は常に非表示（クリック選択で置き換え）
+        ['target_enemy', 'target_ally', 'item_idx'].forEach(n => {
+            const s = document.querySelector(`select[name="${n}"]`);
+            if (s) s.classList.add('hidden');
+        });
+
+        // いったん全マーカー解除
+        document.querySelectorAll('.battle-unit').forEach(u =>
+            u.classList.remove('targetable', 'targeted', 'aoe-target'));
+
+        if (target === 'none') { setTargetHint(null); return; }
+
+        const areaSel = target === 'ally' ? '#ally-party-area' : '#enemy-party-area';
+        const units = Array.from(document.querySelectorAll(`${areaSel} .battle-unit`))
+            .filter(u => !u.classList.contains('down'));
+
+        if (scope === 'all') {
+            units.forEach(u => u.classList.add('aoe-target'));
+            setTargetHint(target === 'ally' ? '▶ 味方全体' : '▶ 敵全体');
+            return;
         }
+
+        units.forEach(u => u.classList.add('targetable'));
+        const sel = document.querySelector(`select[name="${target === 'ally' ? 'target_ally' : 'target_enemy'}"]`);
+        let idx = sel ? parseInt(sel.value) : 0;
+        let chosen = units.find(u => parseInt(u.dataset.index) === idx);
+        if (!chosen) { chosen = units[0]; if (chosen && sel) sel.value = chosen.dataset.index; }
+        if (chosen) chosen.classList.add('targeted');
+        setTargetHint(target === 'ally' ? '対象の味方をクリック' : '対象の敵をクリック');
+    }
+
+    /* ユニットをクリックして対象に設定 */
+    function handleTargetClick(unit) {
+        if (!unit || unit.classList.contains('down')) return;
+        const { target, scope } = currentTargetInfo();
+        if (target === 'none' || scope === 'all') return;
+        const side = unit.dataset.side;
+        if (target !== side) return;
+        const sel = document.querySelector(`select[name="${side === 'ally' ? 'target_ally' : 'target_enemy'}"]`);
+        if (sel) sel.value = unit.dataset.index;
+        document.querySelectorAll(`#${side}-party-area .battle-unit`).forEach(u => u.classList.remove('targeted'));
+        unit.classList.add('targeted');
     }
 
     function setupBattleUI() {
@@ -544,7 +591,7 @@
             }
         });
 
-        /* 敵詳細パネルの表示 */
+        /* 敵詳細パネル：ⓘボタンで開く（カード本体クリックは対象選択に使う） */
         const detailPanel = document.getElementById('enemy-detail');
         const closeBtn = detailPanel.querySelector('.close-btn');
         const fields = {
@@ -563,43 +610,53 @@
             speed: document.getElementById('detail-speed'),
             statuses: document.getElementById('detail-statuses'),
         };
-        document.querySelectorAll('.enemy.battle-unit').forEach(el => {
-            el.addEventListener('click', () => {
-                for (const key in fields) {
-                    /* dataset は camelCase キーで参照（maxHp 等が空欄にならないように） */
-                    fields[key].textContent = el.dataset[key] || '';
-                }
-                try {
-                    const list = JSON.parse(el.dataset.statuses || '[]');
-                    fields.statuses.textContent = list.map(s => `${s.display}(${s.remaining})`).join('、');
-                } catch (e) {
-                    fields.statuses.textContent = '';
-                }
-                /* 属性と弱点を表示 */
-                const elem = el.dataset.element || '';
-                if (fields.element) fields.element.textContent = elem || '—';
-                const weakEl = document.getElementById('detail-weakness');
-                if (weakEl) {
-                    const weak = ELEMENT_WEAKNESS[elem];
-                    weakEl.textContent = weak ? weak + '属性' : '—';
-                }
-                /* 魔力・魔防・会心率・回避率（dataset の camelCase を直接参照） */
-                const setDetail = (id, val) => { const t = document.getElementById(id); if (t) t.textContent = val; };
-                setDetail('detail-magic', el.dataset.magic || '0');
-                setDetail('detail-magic-defense', el.dataset.magicDefense || '0');
-                setDetail('detail-critical-rate', el.dataset.criticalRate || '0');
-                setDetail('detail-evasion-rate', el.dataset.evasionRate || '0');
-                /* 個性: 空欄は「—」、効果/説明はツールチップに */
-                if (fields.personality) fields.personality.title = el.dataset.personalityEffect || '';
-                if (fields.talent && !fields.talent.textContent) fields.talent.textContent = '—';
-                if (fields.trait) {
-                    if (!fields.trait.textContent) fields.trait.textContent = '—';
-                    fields.trait.title = el.dataset.traitDesc || '';
-                }
-                detailPanel.classList.add('open');
-            });
-        });
+        function openEnemyDetail(el) {
+            if (!el) return;
+            for (const key in fields) {
+                if (fields[key]) fields[key].textContent = el.dataset[key] || '';
+            }
+            try {
+                const list = JSON.parse(el.dataset.statuses || '[]');
+                fields.statuses.textContent = list.map(s => `${s.display}(${s.remaining})`).join('、');
+            } catch (e) {
+                fields.statuses.textContent = '';
+            }
+            const elem = el.dataset.element || '';
+            if (fields.element) fields.element.textContent = elem || '—';
+            const weakEl = document.getElementById('detail-weakness');
+            if (weakEl) {
+                const weak = ELEMENT_WEAKNESS[elem];
+                weakEl.textContent = weak ? weak + '属性' : '—';
+            }
+            const setDetail = (id, val) => { const t = document.getElementById(id); if (t) t.textContent = val; };
+            setDetail('detail-magic', el.dataset.magic || '0');
+            setDetail('detail-magic-defense', el.dataset.magicDefense || '0');
+            setDetail('detail-critical-rate', el.dataset.criticalRate || '0');
+            setDetail('detail-evasion-rate', el.dataset.evasionRate || '0');
+            if (fields.personality) fields.personality.title = el.dataset.personalityEffect || '';
+            if (fields.talent && !fields.talent.textContent) fields.talent.textContent = '—';
+            if (fields.trait) {
+                if (!fields.trait.textContent) fields.trait.textContent = '—';
+                fields.trait.title = el.dataset.traitDesc || '';
+            }
+            detailPanel.classList.add('open');
+        }
         closeBtn.addEventListener('click', () => detailPanel.classList.remove('open'));
+
+        /* 戦場のクリックを委譲：ⓘ=詳細、ユニット本体=対象選択 */
+        const field = document.querySelector('.battlefield');
+        if (field) {
+            field.addEventListener('click', evt => {
+                const infoBtn = evt.target.closest('.unit-info-btn');
+                if (infoBtn) {
+                    evt.stopPropagation();
+                    openEnemyDetail(infoBtn.closest('.battle-unit'));
+                    return;
+                }
+                const unit = evt.target.closest('.battle-unit');
+                if (unit) handleTargetClick(unit);
+            });
+        }
 
         /* --- AJAXでコマンド送信（オート/手動 共通） --- */
         const form = document.querySelector('.command-window form');
