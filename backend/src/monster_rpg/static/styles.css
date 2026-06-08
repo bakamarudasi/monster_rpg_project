@@ -87,6 +87,75 @@ main { margin-top: 1rem; padding: 0 0.5rem; }
 
 a { color: var(--accent); }
 
+/* =====================================================================
+   グローバル左サイドバー（PCレイアウト）
+   user_id があるページでのみ body.has-sidebar が付き、コンテンツを右へ寄せる
+   ===================================================================== */
+.app-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 216px;
+    height: 100vh;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, #0f1c30, #0a1320);
+    border-right: 1px solid var(--border);
+    box-shadow: 4px 0 18px rgba(0, 0, 0, 0.4);
+    overflow-y: auto;
+    padding: 14px 10px 20px;
+}
+.sidebar-brand {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    letter-spacing: 1px;
+    text-align: center;
+    padding: 6px 0 14px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border-soft);
+    color: var(--gold);
+}
+.sidebar-brand span { color: var(--accent); margin-left: 4px; }
+.sidebar-nav { display: flex; flex-direction: column; gap: 3px; }
+.nav-sep { height: 1px; background: var(--border-soft); margin: 8px 6px; }
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.95rem;
+    border: 1px solid transparent;
+    transition: background 0.14s, color 0.14s, border-color 0.14s, transform 0.08s;
+}
+.nav-item:hover {
+    background: rgba(74, 144, 226, 0.14);
+    color: var(--text);
+}
+.nav-item:active { transform: translateX(1px); }
+.nav-item.active {
+    background: linear-gradient(90deg, rgba(74, 144, 226, 0.28), rgba(74, 144, 226, 0.06));
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: inset 3px 0 0 var(--accent);
+}
+.nav-ico { font-size: 1.15rem; width: 1.4em; text-align: center; flex: 0 0 auto; }
+.nav-label { white-space: nowrap; }
+
+/* サイドバーぶんコンテンツを右へ寄せる（ヘッダーは省略して縦を節約） */
+.has-sidebar header { display: none; }
+.has-sidebar main { margin-left: 216px; }
+
+/* 狭い画面ではサイドバーを隠してヘッダーを復活、本文は全幅 */
+@media (max-width: 900px) {
+    .app-sidebar { display: none; }
+    .has-sidebar header { display: block; }
+    .has-sidebar main { margin-left: 0; }
+}
+
 /* === 共通コンポーネント（任意で利用可能） === */
 .panel {
     background: linear-gradient(180deg, var(--surface), var(--surface-2));

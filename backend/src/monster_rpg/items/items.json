@@ -3,46 +3,88 @@
     "name": "スモールポーション",
     "description": "HPを少し回復する小さなポーション。",
     "usable": true,
-    "effects": [{"type": "heal", "stat": "hp", "amount": 30}]
+    "effects": [
+      {
+        "type": "heal",
+        "stat": "hp",
+        "amount": 30
+      }
+    ]
   },
   "medium_potion": {
     "name": "ミディアムポーション",
     "description": "HPを中程度回復するポーション。",
     "usable": true,
-    "effects": [{"type": "heal", "stat": "hp", "amount": 60}]
+    "effects": [
+      {
+        "type": "heal",
+        "stat": "hp",
+        "amount": 60
+      }
+    ]
   },
   "large_potion": {
     "name": "ラージポーション",
     "description": "HPを大きく回復する高級ポーション。",
     "usable": true,
-    "effects": [{"type": "heal", "stat": "hp", "amount": 120}]
+    "effects": [
+      {
+        "type": "heal",
+        "stat": "hp",
+        "amount": 120
+      }
+    ]
   },
   "ether": {
     "name": "エーテル",
     "description": "MPを中程度回復する神秘の液体。",
     "usable": true,
-    "effects": [{"type": "heal", "stat": "mp", "amount": 30}]
+    "effects": [
+      {
+        "type": "heal",
+        "stat": "mp",
+        "amount": 30
+      }
+    ]
   },
   "antidote": {
     "name": "アンチドート",
     "description": "毒状態を治療する解毒薬。",
     "usable": true,
-    "effects": [{"type": "cure_status", "status": "poison"}]
+    "effects": [
+      {
+        "type": "cure_status",
+        "status": "poison"
+      }
+    ]
   },
   "elixir": {
     "name": "エリクサー",
     "description": "HPとMPを完全に回復する万能薬。",
     "usable": true,
     "effects": [
-      {"type": "heal", "stat": "hp", "amount": "full"},
-      {"type": "heal", "stat": "mp", "amount": "full"}
+      {
+        "type": "heal",
+        "stat": "hp",
+        "amount": "full"
+      },
+      {
+        "type": "heal",
+        "stat": "mp",
+        "amount": "full"
+      }
     ]
   },
   "revive_scroll": {
     "name": "リバイブスクロール",
     "description": "戦闘不能の味方1体を復活させる古文書。",
     "usable": true,
-    "effects": [{"type": "revive", "amount": "half"}]
+    "effects": [
+      {
+        "type": "revive",
+        "amount": "half"
+      }
+    ]
   },
   "magic_stone": {
     "name": "魔石",
@@ -104,31 +146,61 @@
     "name": "ちからの種",
     "description": "モンスター1体のこうげきを永続的に+3する不思議な種。",
     "usable": true,
-    "effects": [{"type": "permanent_stat", "stat": "attack", "amount": 3}]
+    "effects": [
+      {
+        "type": "permanent_stat",
+        "stat": "attack",
+        "amount": 3
+      }
+    ]
   },
   "guard_seed": {
     "name": "まもりの種",
     "description": "モンスター1体のしゅびを永続的に+3する不思議な種。",
     "usable": true,
-    "effects": [{"type": "permanent_stat", "stat": "defense", "amount": 3}]
+    "effects": [
+      {
+        "type": "permanent_stat",
+        "stat": "defense",
+        "amount": 3
+      }
+    ]
   },
   "speed_seed": {
     "name": "すばやさの種",
     "description": "モンスター1体のすばやさを永続的に+3する不思議な種。",
     "usable": true,
-    "effects": [{"type": "permanent_stat", "stat": "speed", "amount": 3}]
+    "effects": [
+      {
+        "type": "permanent_stat",
+        "stat": "speed",
+        "amount": 3
+      }
+    ]
   },
   "life_seed": {
     "name": "いのちの種",
     "description": "モンスター1体のさいだいHPを永続的に+20する不思議な種。",
     "usable": true,
-    "effects": [{"type": "permanent_stat", "stat": "max_hp", "amount": 20}]
+    "effects": [
+      {
+        "type": "permanent_stat",
+        "stat": "max_hp",
+        "amount": 20
+      }
+    ]
   },
   "mind_seed": {
     "name": "マインドの種",
     "description": "モンスター1体のさいだいMPを永続的に+10する不思議な種。",
     "usable": true,
-    "effects": [{"type": "permanent_stat", "stat": "max_mp", "amount": 10}]
+    "effects": [
+      {
+        "type": "permanent_stat",
+        "stat": "max_mp",
+        "amount": 10
+      }
+    ]
   },
   "destiny_knot": {
     "name": "あかいいと",
@@ -157,5 +229,56 @@
   "power_anklet": {
     "name": "パワーアンクル",
     "description": "配合に持ち込むと、選んだ親の素早さ個体値を確定で子に受け継がせる。"
+  },
+  "soul_ashen": {
+    "name": "業火竜の魂",
+    "description": "業火竜イグドラを討った証。禁忌の召喚に捧げる生贄。",
+    "usable": false,
+    "effects": []
+  },
+  "soul_kraken": {
+    "name": "海王の魂",
+    "description": "深海覇王アビスクラーケンを討った証。禁忌の召喚に捧げる生贄。",
+    "usable": false,
+    "effects": []
+  },
+  "soul_celestial": {
+    "name": "天竜の魂",
+    "description": "天空覇竜セレスフィアを討った証。禁忌の召喚に捧げる生贄。",
+    "usable": false,
+    "effects": []
+  },
+  "egg_ashen": {
+    "name": "業火竜のタマゴ",
+    "description": "業火竜の血を引くタマゴ。使うと孵化して仲間になる。",
+    "usable": true,
+    "effects": [
+      {
+        "type": "hatch",
+        "monster": "ashen_hatchling"
+      }
+    ]
+  },
+  "egg_kraken": {
+    "name": "海王のタマゴ",
+    "description": "深海覇王の血を引くタマゴ。使うと孵化して仲間になる。",
+    "usable": true,
+    "effects": [
+      {
+        "type": "hatch",
+        "monster": "kraken_fry"
+      }
+    ]
+  },
+  "egg_celestial": {
+    "name": "天竜のタマゴ",
+    "description": "天空覇竜の血を引くタマゴ。使うと孵化して仲間になる。",
+    "usable": true,
+    "effects": [
+      {
+        "type": "hatch",
+        "monster": "celestial_hatchling"
+      }
+    ]
   }
 }

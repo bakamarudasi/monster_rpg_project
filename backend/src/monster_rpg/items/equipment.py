@@ -579,6 +579,16 @@ def equipment_stat_summary(equip) -> list[dict]:
     return summary
 
 
+def equipment_stat_dict(equip) -> dict:
+    """装備の全ステータスを数値辞書で返す（差分比較用・0も含む）。"""
+    out = {}
+    for key, _ in EQUIPMENT_STAT_LABELS:
+        total_attr = getattr(equip, f"total_{key}", None)
+        value = total_attr if total_attr is not None else getattr(equip, key, 0)
+        out[key] = int(value or 0)
+    return out
+
+
 def _choose_amount(entry: Dict[str, Any]) -> int:
     """Return a stat amount using tiers if provided."""
     if "tiers" in entry:
@@ -707,6 +717,62 @@ CRAFTING_RECIPES["warding_robe"] = {"armor_fragment_common": 1, "magic_stone": 1
 CRAFTING_RECIPES["drifter_cloak"] = {"tough_leather": 2, "celestial_feather": 1}
 CRAFTING_RECIPES["rune_amulet"] = {"magic_stone": 1, "armor_fragment_common": 1}
 
+# === レイド限定装備（レイドボス討伐でのみ入手） ===
+INFERNAL_FANG = Equipment(
+    "infernal_fang",
+    "業火竜の牙",
+    slot="weapon",
+    category="weapon",
+    rarity="legendary",
+    attack=42,
+    magic=20,
+    speed=4,
+    critical_rate=15,
+    granted_skill_ids=["dragon_breath", "meteor_strike"],
+    status_resist={"burn": 0.0},
+    element_resist={"火": 0.0},
+)
+ABYSSAL_TRIDENT = Equipment(
+    "abyssal_trident",
+    "深淵のトライデント",
+    slot="weapon",
+    category="weapon",
+    rarity="legendary",
+    attack=36,
+    magic=32,
+    speed=8,
+    evasion_rate=8,
+    granted_skill_ids=["water_blast", "life_drain"],
+    status_resist={"freeze": 0.0},
+    element_resist={"水": 0.0},
+)
+CELESTIAL_AEGIS = Equipment(
+    "celestial_aegis",
+    "天空の聖盾",
+    slot="armor",
+    category="armor",
+    rarity="legendary",
+    defense=42,
+    magic_defense=32,
+    speed=4,
+    granted_skill_ids=["barrier", "mass_heal"],
+    status_resist={"curse": 0.0, "fear": 0.0},
+    element_resist={"闇": 0.0, "光": 0.5},
+)
+OMEGA_BLADE = Equipment(
+    "omega_blade",
+    "竜神剣オメガ",
+    slot="weapon",
+    category="weapon",
+    rarity="legendary",
+    attack=60,
+    magic=40,
+    speed=10,
+    critical_rate=20,
+    granted_skill_ids=["meteor_strike", "ragnarok_bolt"],
+    element_resist={"闇": 0.0, "光": 0.0},
+)
+
 ALL_EQUIPMENT = {
     BRONZE_SWORD.equip_id: BRONZE_SWORD,
     LEATHER_ARMOR.equip_id: LEATHER_ARMOR,
@@ -767,4 +833,9 @@ ALL_EQUIPMENT = {
     WARDING_ROBE.equip_id: WARDING_ROBE,
     DRIFTER_CLOAK.equip_id: DRIFTER_CLOAK,
     RUNE_AMULET.equip_id: RUNE_AMULET,
+    # レイド限定装備
+    INFERNAL_FANG.equip_id: INFERNAL_FANG,
+    ABYSSAL_TRIDENT.equip_id: ABYSSAL_TRIDENT,
+    CELESTIAL_AEGIS.equip_id: CELESTIAL_AEGIS,
+    OMEGA_BLADE.equip_id: OMEGA_BLADE,
 }

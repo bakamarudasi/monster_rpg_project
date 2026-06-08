@@ -1,0 +1,139 @@
+/* === ステータス画面（ダーク統一・PCワイド・ロスター複数カラム） === */
+.status-page {
+    max-width: 1180px;
+    margin: 1.2rem auto;
+    padding: 0 14px 2.5rem;
+    animation: stt-in 0.4s ease both;
+}
+@keyframes stt-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+.status-head h2 {
+    margin: 0 0 12px;
+    font-family: var(--font-display);
+    letter-spacing: 1px;
+    color: var(--text);
+}
+.status-head .player-name {
+    color: var(--gold);
+    text-shadow: 0 0 10px rgba(255, 210, 74, 0.25);
+}
+
+/* プレイヤー概要ストリップ */
+.player-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+}
+.psum {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 12px 16px;
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+.psum-label { color: var(--text-dim); font-size: 0.8rem; letter-spacing: 0.5px; }
+.psum-value { color: var(--text); font-size: 1.4rem; font-weight: bold; font-variant-numeric: tabular-nums; }
+.psum.gold .psum-value { color: var(--gold); text-shadow: 0 0 10px rgba(255, 210, 74, 0.25); }
+
+/* ツールバー */
+.roster-toolbar { margin-bottom: 14px; }
+.roster-filter {
+    width: 100%;
+    max-width: 360px;
+    padding: 9px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-2);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+.roster-filter::placeholder { color: var(--text-faint); }
+.roster-filter:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+
+/* ロスター：複数カラムのカードグリッド */
+.roster-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 12px;
+}
+.roster-card {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 12px 14px;
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.15s, transform 0.08s, box-shadow 0.15s;
+}
+.roster-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow); }
+.roster-card.locked { box-shadow: inset 3px 0 0 var(--gold), var(--shadow-sm); }
+
+.rc-top { display: flex; align-items: center; gap: 8px; }
+.ri-badge {
+    font-size: 0.68rem;
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    color: #fff;
+    flex: 0 0 auto;
+    font-weight: bold;
+}
+.ri-badge.party { background: var(--accent); }
+.ri-badge.reserve { background: #5a6b85; }
+.ri-name { font-weight: bold; color: var(--text); font-size: 1.05rem; flex: 1 1 auto; }
+
+.ri-form { margin: 0; flex: 0 0 auto; }
+.ri-lock {
+    padding: 4px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface-raised);
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-family: inherit;
+    transition: filter 0.15s;
+}
+.ri-lock:hover { filter: brightness(1.15); }
+.ri-lock.on {
+    background: linear-gradient(180deg, var(--gold), var(--gold-deep));
+    color: #3a2a00;
+    border-color: #ffe79a;
+    font-weight: bold;
+}
+
+.ri-meta { color: var(--text-dim); font-size: 0.82rem; }
+.ri-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.ri-pers, .ri-talent, .ri-trait {
+    font-size: 0.7rem;
+    padding: 2px 9px;
+    border-radius: var(--radius-pill);
+    cursor: help;
+    border: 1px solid transparent;
+}
+.ri-pers { background: rgba(120, 100, 210, 0.18); color: #c6b6ff; border-color: #4b3f7a; }
+.ri-talent { background: linear-gradient(90deg, #5a4a14, #7a5e1c); color: #ffe79a; font-weight: bold; }
+.ri-talent.hidden { background: linear-gradient(90deg, #5a2a5a, #4a3a7a); color: #f3c9ff; }
+.ri-trait { background: rgba(31, 122, 99, 0.2); color: #8fe6cf; border-color: #1f7a63; }
+
+.ri-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3px 14px;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    padding-top: 4px;
+    border-top: 1px solid var(--border-soft);
+}
+.ri-stats b { color: var(--text); }
+.ri-next { font-size: 0.78rem; color: var(--text-faint); text-align: right; }
+.roster-card.locked .ri-next { color: var(--gold); }

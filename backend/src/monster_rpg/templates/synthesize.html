@@ -4,23 +4,18 @@
 <style>
     /* --- 基本設定 --- */
     :root {
-        --color-bg-main: #443831; /* メイン背景色 */
-        --color-bg-panel: #fdf6e3; /* パネル背景色 */
-        --color-text-dark: #3a322d;
-        --color-text-light: #fdf6e3;
-        --color-border: #854d0e;
-        --color-accent: #fde68a;
-        --color-button: #78350f;
-        --color-button-hover: #59280b;
-        --color-disabled: #a8a29e;
+        --color-bg-main: var(--bg);
+        --color-bg-panel: var(--surface);
+        --color-text-dark: var(--text);
+        --color-text-light: #fff;
+        --color-border: var(--border);
+        --color-accent: var(--accent);
+        --color-button: var(--accent-strong);
+        --color-button-hover: var(--accent);
+        --color-disabled: #44546e;
     }
 
-    body {
-        font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-        background-color: var(--color-bg-main);
-        color: var(--color-text-dark);
-        margin: 0;
-    }
+    body { color: var(--text); margin: 0; }
 
     /* --- レイアウト --- */
     .synthesis-container {
@@ -334,6 +329,67 @@
         animation: jackpot-pulse 0.5s ease-in-out 3;
     }
     @keyframes jackpot-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+    /* === ダーク統一の上書き（クラス名はそのまま配色のみ変更） === */
+    .main-panel {
+        background-color: rgba(22, 38, 63, 0.92);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        max-width: 1100px;
+    }
+    .header-section { border-bottom: 1px solid var(--border-soft); }
+    .header-section h2 { color: var(--gold); font-family: var(--font-display); }
+    .header-section p { color: var(--text-dim); }
+    .drop-zone {
+        background-color: rgba(8, 14, 24, 0.45);
+        border: 2px dashed var(--border);
+        color: var(--text-faint);
+    }
+    .drop-zone.drag-over { background-color: rgba(74, 144, 226, 0.15); border-color: var(--accent); }
+    .synthesis-plus { color: var(--text-dim); }
+    .result-message { color: var(--text-dim); }
+    .result-message.error { color: var(--danger); }
+    .result-message.success { color: var(--success); }
+    .synth-button {
+        background-color: var(--accent-strong);
+        border-bottom: 4px solid #0a3f7d;
+        box-shadow: var(--shadow-sm);
+    }
+    .synth-button:hover { background-color: var(--accent); }
+    .synth-button:disabled { background-color: var(--color-disabled); border-color: #2a426688; }
+    .return-link { color: var(--text); background-color: var(--surface-raised); }
+    .return-link:hover { background-color: var(--border); }
+    .tabs-container { border-bottom: 2px solid var(--border-soft); }
+    .tab-button { color: var(--text-dim); }
+    .tab-button.active { border-color: var(--accent); background-color: rgba(74, 144, 226, 0.18); color: var(--text); }
+    .panels-container { background-color: rgba(0, 0, 0, 0.25); }
+    .draggable-item {
+        background-color: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-sm);
+        color: var(--text);
+    }
+    .monster-card .monster-img { image-rendering: pixelated; }
+    .panel::-webkit-scrollbar-track { background: var(--bg-2); }
+    .panel::-webkit-scrollbar-thumb { background: var(--border); }
+    .synth-preview {
+        background: linear-gradient(180deg, var(--surface), var(--surface-2));
+        border: 1px solid var(--border);
+        color: var(--text);
+        box-shadow: var(--shadow);
+    }
+    .preview-head b { color: var(--gold); }
+    .preview-plus { background: linear-gradient(180deg, var(--gold), var(--gold-deep)); color: #3a2a00; }
+    .preview-tag { background: rgba(8, 14, 24, 0.5); border: 1px solid var(--border-soft); color: var(--text-dim); }
+    .preview-stats span { background: rgba(8, 14, 24, 0.5); color: var(--text); }
+    .preview-skills-title { color: var(--text-dim); }
+    .skill-chip { background: rgba(8, 14, 24, 0.5); border: 1px solid var(--border); color: var(--text); }
+    .skill-chip:has(input:checked) { background: rgba(74, 144, 226, 0.22); box-shadow: 0 0 0 2px var(--accent-glow); }
+    .skill-chip input { accent-color: var(--accent); }
+    .preview-fail { color: var(--danger); }
+    .preview-hint { color: var(--text-faint); }
+    .breeding-aids { background: rgba(8, 14, 24, 0.4); border: 1px solid var(--border-soft); }
+    .result-message.jackpot { color: var(--gold); text-shadow: 0 0 10px rgba(255, 210, 74, 0.6); }
 </style>
 {% endblock %}
 
@@ -349,9 +405,9 @@
         <!-- 合成ベンチ -->
         <div class="synthesis-bench">
             <div class="synthesis-slots">
-                <div id="base-slot" class="drop-zone">ここに素体を<br>ドラッグ</div>
+                <div id="base-slot" class="drop-zone">素体を<br>ドラッグ / クリック</div>
                 <div class="synthesis-plus">+</div>
-                <div id="material-slot" class="drop-zone">ここに触媒を<br>ドラッグ</div>
+                <div id="material-slot" class="drop-zone">触媒を<br>ドラッグ / クリック</div>
             </div>
 
             <div id="result-msg" class="result-message">
@@ -380,7 +436,6 @@
 
             <div class="button-container">
                 <button id="do-synth" class="synth-button" disabled>合成実行</button>
-                <a href="{{ url_for('play', user_id=user_id) }}" class="return-link">戻る</a>
             </div>
         </div>
 
@@ -568,7 +623,42 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             draggedElement = null;
         });
+        /* クリックでも空いている枠へ配置できる（D&Dが苦手でもOK） */
+        item.addEventListener('click', () => {
+            if (item.style.display === 'none') return;
+            const target = !baseSlot.dataset.id ? baseSlot
+                          : (!materialSlot.dataset.id ? materialSlot : null);
+            if (target) placeInZone(target, item);
+        });
     });
+
+    /* スロットへ配置する共通処理（drop/クリック共用） */
+    function placeInZone(zone, el) {
+        returnItemInSlot(zone);
+        zone.dataset.id = el.dataset.id;
+        zone.dataset.type = el.dataset.type;
+        zone.dataset.name = el.dataset.name;
+        zone.textContent = '';
+        if (el.dataset.type === 'monster') {
+            const imgSrc = el.querySelector('.monster-img');
+            if (imgSrc) {
+                const img = imgSrc.cloneNode(true);
+                img.classList.add('placed-img');
+                zone.appendChild(img);
+            }
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'placed-name';
+            nameSpan.textContent = el.dataset.name;
+            zone.appendChild(nameSpan);
+        } else {
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'placed-item-name';
+            nameSpan.textContent = el.dataset.name;
+            zone.appendChild(nameSpan);
+        }
+        el.style.display = 'none';
+        checkSynthButtonState();
+    }
 
     dropZones.forEach(zone => {
         zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
@@ -576,34 +666,7 @@ document.addEventListener('DOMContentLoaded', () => {
         zone.addEventListener('drop', (e) => {
             e.preventDefault();
             zone.classList.remove('drag-over');
-
-            if (draggedElement) {
-                returnItemInSlot(zone); // If slot has an item, return it first.
-                
-                zone.dataset.id = draggedElement.dataset.id;
-                zone.dataset.type = draggedElement.dataset.type;
-                zone.dataset.name = draggedElement.dataset.name;
-
-                zone.textContent = ''; // Clear placeholder text
-                
-                if (draggedElement.dataset.type === 'monster') {
-                    const img = draggedElement.querySelector('.monster-img').cloneNode(true);
-                    img.classList.add('placed-img');
-                    const nameSpan = document.createElement('span');
-                    nameSpan.className = 'placed-name';
-                    nameSpan.textContent = draggedElement.dataset.name;
-                    zone.appendChild(img);
-                    zone.appendChild(nameSpan);
-                } else {
-                    const nameSpan = document.createElement('span');
-                    nameSpan.className = 'placed-item-name';
-                    nameSpan.textContent = draggedElement.dataset.name;
-                    zone.appendChild(nameSpan);
-                }
-                
-                draggedElement.style.display = 'none';
-                checkSynthButtonState();
-            }
+            if (draggedElement) placeInZone(zone, draggedElement);
         });
         zone.addEventListener('click', () => returnItemInSlot(zone));
     });
@@ -619,9 +682,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             zone.textContent = '';
-            zone.appendChild(document.createTextNode('ここに' + (zone.id === 'base-slot' ? '素体' : '触媒') + 'を'));
+            zone.appendChild(document.createTextNode((zone.id === 'base-slot' ? '素体' : '触媒') + 'を'));
             zone.appendChild(document.createElement('br'));
-            zone.appendChild(document.createTextNode('ドラッグ'));
+            zone.appendChild(document.createTextNode('ドラッグ / クリック'));
             delete zone.dataset.id;
             delete zone.dataset.type;
             delete zone.dataset.name;

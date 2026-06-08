@@ -31,8 +31,9 @@ def _build_enemy(monster_id: str, level: int):
     if base is None:
         return None
     mon = base.copy()
-    if level > mon.level:
-        mon.advance_to_level(level)
+    target = min(level, mon.level_cap)
+    if target > mon.level:
+        mon.advance_to_level(target)
     return mon
 
 

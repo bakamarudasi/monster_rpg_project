@@ -1,9 +1,18 @@
 {% extends "layout.html" %}
 {% block content %}
-<p>{{ message }}</p>
-{% if user_id %}
-<a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
-{% else %}
-<a href="{{ url_for('auth.index') }}">トップへ</a>
-{% endif %}
+<div class="simple-page">
+  <div class="panel simple-card">
+    <p class="simple-msg">{{ message }}</p>
+    {% if user_id %}
+      <a class="btn" href="{{ url_for('play', user_id=user_id) }}">← 戻る</a>
+    {% else %}
+      <a class="btn" href="{{ url_for('auth.index') }}">トップへ</a>
+    {% endif %}
+  </div>
+</div>
+<style>
+  .simple-page { display: flex; justify-content: center; padding: 48px 16px; }
+  .simple-card { max-width: 560px; width: 100%; text-align: center; }
+  .simple-msg { color: var(--text); font-size: 1.1rem; margin: 0 0 20px; line-height: 1.7; white-space: pre-line; }
+</style>
 {% endblock %}

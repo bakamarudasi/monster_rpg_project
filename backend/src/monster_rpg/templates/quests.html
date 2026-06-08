@@ -1,29 +1,40 @@
 {% extends "layout.html" %}
 {% block content %}
 <style>
-  .q-wrap { max-width: 820px; margin: 0 auto; padding: 18px; }
-  .q-title { text-align: center; color: #9ad; text-shadow: 1px 1px 2px #000; }
-  .q-msg { text-align: center; background: #163; color: #cfe; padding: 8px; border-radius: 6px; margin: 10px auto; max-width: 560px; }
-  .q-list { list-style: none; padding: 0; display: grid; gap: 12px; }
-  .q-card { background: #2a2a33; border: 1px solid #444; border-radius: 10px; padding: 12px; }
-  .q-card.completed { opacity: 0.6; border-color: #5a5; }
-  .q-card.ready { border-color: #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.3); }
-  .q-name { font-weight: bold; color: #cfe; }
-  .q-desc { font-size: 0.86rem; color: #ccc; margin: 4px 0; }
-  .q-reward { font-size: 0.78rem; color: #9fe; }
-  .q-badge { float: right; font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; }
-  .b-available { background: #345; color: #bcd; }
-  .b-active { background: #553; color: #fec; }
-  .b-ready { background: #c0392b; color: #fff; }
+  .q-wrap { max-width: 1100px; margin: 1rem auto; padding: 0 16px 2rem; }
+  .q-title { text-align: center; color: var(--gold); font-family: var(--font-display); letter-spacing: 1px; text-shadow: 0 0 12px rgba(255,210,74,0.25); }
+  .q-msg { text-align: center; background: rgba(74,144,226,0.12); border: 1px solid var(--border); border-left: 4px solid var(--accent); color: var(--text); padding: 10px 14px; border-radius: var(--radius-sm); margin: 10px auto 18px; max-width: 560px; }
+  .q-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  .q-card { background: linear-gradient(180deg, var(--surface), var(--surface-2)); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow-sm); }
+  .q-card.completed { opacity: 0.6; border-color: var(--success); }
+  .q-card.ready { border-color: var(--gold); box-shadow: 0 0 12px rgba(255,210,74,0.3); }
+  .q-name { font-weight: bold; color: var(--text); font-size: 1.05rem; }
+  .q-desc { font-size: 0.88rem; color: var(--text-dim); margin: 6px 0; line-height: 1.5; }
+  .q-reward { font-size: 0.8rem; color: var(--success); }
+  .q-badge { float: right; font-size: 0.72rem; padding: 2px 10px; border-radius: var(--radius-pill); font-weight: bold; }
+  .b-available { background: #34507a; color: #cfe0ff; }
+  .b-active { background: #6a5520; color: #ffe9a8; }
+  .b-ready { background: var(--danger); color: #fff; }
   .b-completed { background: #2e7d32; color: #fff; }
-  .q-btn { margin-top: 8px; padding: 5px 12px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; }
-  .q-accept { background: #3a6; color: #fff; }
-  .q-claim { background: #c0392b; color: #fff; }
-  .q-back { display: block; text-align: center; margin-top: 18px; }
+  .q-btn { margin-top: 10px; padding: 7px 16px; border-radius: var(--radius-sm); border: none; cursor: pointer; font-weight: bold; font-family: inherit; }
+  .q-accept { background: linear-gradient(180deg, var(--accent), var(--accent-strong)); color: #fff; }
+  .q-claim { background: linear-gradient(180deg, #e0584a, #c0392b); color: #fff; }
+  .q-btn:hover { filter: brightness(1.1); }
 </style>
 <div class="q-wrap">
   <h2 class="q-title">◆ 依頼掲示板 ◆</h2>
   {% if message %}<div class="q-msg">{{ message }}</div>{% endif %}
+  {% set c_av = rows | selectattr('status','equalto','available') | list | length %}
+  {% set c_ac = rows | selectattr('status','equalto','active') | list | length %}
+  {% set c_rd = rows | selectattr('status','equalto','ready') | list | length %}
+  {% set c_cp = rows | selectattr('status','equalto','completed') | list | length %}
+  <div class="q-filter">
+    <button type="button" class="qf-chip active" data-filter="all">すべて <span>{{ rows|length }}</span></button>
+    <button type="button" class="qf-chip" data-filter="available">未受注 <span>{{ c_av }}</span></button>
+    <button type="button" class="qf-chip" data-filter="active">進行中 <span>{{ c_ac }}</span></button>
+    <button type="button" class="qf-chip" data-filter="ready">達成可能 <span>{{ c_rd }}</span></button>
+    <button type="button" class="qf-chip" data-filter="completed">達成済 <span>{{ c_cp }}</span></button>
+  </div>
   <ul class="q-list">
     {% for r in rows %}
       <li class="q-card {{ r.status }}">
@@ -54,6 +65,28 @@
       </li>
     {% endfor %}
   </ul>
-  <a class="q-back" href="{{ url_for('play', user_id=user_id) }}">戻る</a>
 </div>
+<style>
+  .q-filter { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 0 0 16px; }
+  .qf-chip { background: rgba(8,14,24,0.5); border: 1px solid var(--border); color: var(--text-dim); border-radius: var(--radius-pill); padding: 6px 16px; font-family: inherit; font-size: 0.9rem; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+  .qf-chip span { color: var(--text-faint); font-size: 0.8rem; margin-left: 2px; }
+  .qf-chip:hover { color: var(--text); border-color: var(--accent); }
+  .qf-chip.active { background: linear-gradient(180deg, rgba(74,144,226,0.25), rgba(74,144,226,0.08)); border-color: var(--accent); color: #fff; }
+</style>
+<script>
+  (function () {
+    var chips = document.querySelectorAll('.qf-chip');
+    var cards = document.querySelectorAll('.q-card');
+    chips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        chips.forEach(function (c) { c.classList.remove('active'); });
+        chip.classList.add('active');
+        var f = chip.dataset.filter;
+        cards.forEach(function (c) {
+          c.style.display = (f === 'all' || c.classList.contains(f)) ? '' : 'none';
+        });
+      });
+    });
+  })();
+</script>
 {% endblock %}

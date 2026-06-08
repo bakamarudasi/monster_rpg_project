@@ -23,6 +23,7 @@ def create_app():
     from .explore import explore_bp
     from .battle import battle_bp
     from .market import market_bp
+    from .raid import raid_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
@@ -31,6 +32,7 @@ def create_app():
     app.register_blueprint(explore_bp)
     app.register_blueprint(battle_bp)
     app.register_blueprint(market_bp)
+    app.register_blueprint(raid_bp)
 
     # Backwards compatible endpoint aliases
     alias_map = {
@@ -52,6 +54,7 @@ def create_app():
         'inn': 'inventory.inn',
         'explore': 'explore.explore',
         'battle': 'battle.battle',
+        'raid': 'raid.raid',
     }
     for alias, target in alias_map.items():
         if target in app.view_functions:

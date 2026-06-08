@@ -43,6 +43,16 @@ class BattleGetJsonTests(unittest.TestCase):
         if data['current_actor']:
             self.assertIn('skills', data['current_actor'])
 
+    def test_get_returns_items(self):
+        """JSON応答に所持アイテムが含まれる（アイテムタブが消えない回帰防止）。"""
+        from types import SimpleNamespace
+        active_battles[self.user_id].player.items.append(SimpleNamespace(name='ポーション'))
+        resp = self.client.get(f'/battle-json/{self.user_id}')
+        self.assertEqual(resp.status_code, 200)
+        data = resp.get_json()
+        self.assertIn('items', data)
+        self.assertTrue(any(it.get('name') == 'ポーション' for it in data['items']))
+
     def test_get_returns_404_without_active_battle(self):
         active_battles.pop(self.user_id, None)
         resp = self.client.get(f'/battle-json/{self.user_id}')

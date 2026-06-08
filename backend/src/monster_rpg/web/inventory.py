@@ -73,10 +73,23 @@ def items(user_id):
             target_idx = int(request.form.get('target_idx', -1))
         except (TypeError, ValueError):
             idx = target_idx = -1
-        if 0 <= idx < len(player.items) and 0 <= target_idx < len(player.party_monsters):
-            item_name = player.items[idx].name
-            success = player.use_item(idx, player.party_monsters[target_idx])
-            message = f"{item_name} を使った。" if success else "アイテムを使えなかった。"
+        if 0 <= idx < len(player.items):
+            item = player.items[idx]
+            hatch_id = next((e.get('monster') for e in getattr(item, 'effects', [])
+                             if isinstance(e, dict) and e.get('type') == 'hatch'), None)
+            if hatch_id:
+                from ..exploration import get_monster_instance_copy
+                baby = get_monster_instance_copy(hatch_id)
+                if baby is not None:
+                    player.add_monster_to_party(baby)
+                    player.items.pop(idx)
+                    message = f"🥚 {item.name} が孵化した！ {baby.name} が仲間になった！"
+                else:
+                    message = "孵化に失敗した…"
+            elif 0 <= target_idx < len(player.party_monsters):
+                item_name = item.name
+                success = player.use_item(idx, player.party_monsters[target_idx])
+                message = f"{item_name} を使った。" if success else "アイテムを使えなかった。"
         save_player(player, user_id)
     return render_template('items.html', player=player, user_id=user_id, message=message)
 

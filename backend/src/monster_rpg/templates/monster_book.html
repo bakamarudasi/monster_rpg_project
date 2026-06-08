@@ -6,6 +6,15 @@
 <div class="book-wrapper">
   <h2 class="book-title">◆ モンスター図鑑 ◆</h2>
   <div class="book-meta">発見率 <span class="book-percent">{{ completion|round(1) }}%</span></div>
+  {% set captured = entries | selectattr('1', 'equalto', 'captured') | list | length %}
+  {% set seen = entries | selectattr('1', 'equalto', 'seen') | list | length %}
+  {% set unknown = entries | length - captured - seen %}
+  <div class="book-filter">
+    <button type="button" class="bf-chip active" data-filter="all">すべて <span>{{ entries|length }}</span></button>
+    <button type="button" class="bf-chip" data-filter="captured">捕獲 <span>{{ captured }}</span></button>
+    <button type="button" class="bf-chip" data-filter="seen">目撃 <span>{{ seen }}</span></button>
+    <button type="button" class="bf-chip" data-filter="unknown">未発見 <span>{{ unknown }}</span></button>
+  </div>
   <ul class="book-list">
     {% for entry, status, image_url in entries %}
       <li class="book-entry status-{{ status }}">
@@ -48,8 +57,22 @@
       </li>
     {% endfor %}
   </ul>
-  <div class="book-back">
-    <a href="{{ url_for('play', user_id=user_id) }}" class="book-link">戻る</a>
-  </div>
 </div>
+<script>
+  (function () {
+    var chips = document.querySelectorAll('.bf-chip');
+    var entries = document.querySelectorAll('.book-entry');
+    chips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        chips.forEach(function (c) { c.classList.remove('active'); });
+        chip.classList.add('active');
+        var f = chip.dataset.filter;
+        entries.forEach(function (e) {
+          var show = (f === 'all') || e.classList.contains('status-' + f);
+          e.style.display = show ? '' : 'none';
+        });
+      });
+    });
+  })();
+</script>
 {% endblock %}

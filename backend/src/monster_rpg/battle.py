@@ -520,7 +520,8 @@ class Battle:
         elif action['type'] == 'skill':
             skill_idx = action.get('skill', 0)
             try:
-                skill_obj = actor.skills[skill_idx]
+                # UI は total_skills（基本＋装備付与）を番号付けして送るため同じ並びで参照する
+                skill_obj = actor.total_skills[skill_idx]
             except IndexError:
                 self.log.append({'type': 'error', 'message': "そのスキルは選べない。"})
                 actor.reset_atb_gauge()
@@ -1028,6 +1029,13 @@ def attempt_scout(player: Player | None, target: Monster, enemy_party: list[Mons
         log = []
     if target is None or not target.is_alive:
         log.append({'type': 'info', 'message': "対象が選ばれていない。"})
+        return False
+
+    # レイドボス等の特別個体（通常モンスター図鑑に未登録の種）はスカウト不可。
+    # 仲間にできてもセーブで失われるため、ここで明確に弾く（入手は合成専用）。
+    from .monsters.monster_data import ALL_MONSTERS
+    if target.monster_id not in ALL_MONSTERS:
+        log.append({'type': 'info', 'message': f"{target.name} はスカウトできない！"})
         return False
 
     rate = getattr(target, "scout_rate", 0.25)

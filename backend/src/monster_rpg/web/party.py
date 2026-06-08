@@ -3,7 +3,7 @@ import json
 from .utils import load_player, save_player
 from ..services import equipment_service
 from ..monsters.monster_data import MONSTER_BOOK_DATA
-from ..items.equipment import EquipmentInstance, equipment_stat_summary
+from ..items.equipment import EquipmentInstance, equipment_stat_summary, equipment_stat_dict
 
 party_bp = Blueprint('party', __name__)
 
@@ -45,6 +45,7 @@ def party(user_id):
                 'individuality': m.individuality_summary(),
                 'equipment': {slot: eq.name for slot, eq in m.equipment.items()},
                 'equipment_slots': m.equipment_slots,
+                'equipped_stats': {slot: equipment_stat_dict(eq) for slot, eq in m.equipment.items()},
             },
         })
     equipment_list = [
@@ -55,6 +56,7 @@ def party(user_id):
             'attack': getattr(e, 'total_attack', getattr(e, 'attack', 0)),
             'defense': getattr(e, 'total_defense', getattr(e, 'defense', 0)),
             'stats': equipment_stat_summary(e),
+            'stats_num': equipment_stat_dict(e),
         }
         for e in player.equipment_inventory
     ]

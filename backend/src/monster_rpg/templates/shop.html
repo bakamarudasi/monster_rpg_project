@@ -1,210 +1,351 @@
 {% extends "layout.html" %}
 {% block content %}
 <style>
-  .shop-page-container {
-    max-width: 900px;
+  .shop-page {
+    max-width: 920px;
     margin: 0 auto;
-    padding: 20px;
-    font-family: sans-serif;
+    padding: 0 12px 24px;
+    animation: shop-in 0.4s cubic-bezier(0.2, 1, 0.3, 1) both;
   }
-  .shop-title {
-    text-align: center;
-    color: #333;
-    margin-bottom: 10px;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 10px;
+  @keyframes shop-in {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
   }
-  .player-info {
-    text-align: right;
-    margin-bottom: 20px;
-    font-size: 1.1em;
-    color: #555;
+
+  /* === 常時表示の上部バー === */
+  .shop-bar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 4px;
+    margin-bottom: 12px;
+    background: linear-gradient(180deg, var(--bg-2), rgba(12, 20, 34, 0.92));
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--border);
   }
+  .shop-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 14px;
+    background: rgba(8, 14, 24, 0.55);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .shop-back:hover { border-color: var(--accent); background: rgba(74, 144, 226, 0.15); }
+  .shop-bar h2 {
+    margin: 0;
+    flex: 1;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    letter-spacing: 2px;
+    color: var(--text);
+  }
+  .shop-gold {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    background: rgba(255, 210, 74, 0.1);
+    border: 1px solid var(--gold-deep);
+    border-radius: var(--radius-pill);
+    color: var(--gold);
+    font-weight: bold;
+    font-size: 1.05rem;
+    white-space: nowrap;
+    text-shadow: 0 0 10px rgba(255, 210, 74, 0.25);
+  }
+
   .shop-message {
     text-align: center;
-    padding: 10px;
-    background-color: #e3f2fd;
-    color: #1565c0;
-    border-radius: 5px;
-    margin-bottom: 20px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    background: rgba(74, 144, 226, 0.12);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius-sm);
   }
+
+  /* === タブ === */
+  .shop-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .shop-tab {
+    flex: 1;
+    padding: 10px 0;
+    background: rgba(8, 14, 24, 0.45);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .shop-tab:hover { color: var(--text); border-color: var(--border); }
+  .shop-tab.active {
+    background: linear-gradient(180deg, rgba(74, 144, 226, 0.22), rgba(74, 144, 226, 0.06));
+    border-color: var(--accent);
+    color: var(--text);
+    box-shadow: inset 0 -2px 0 var(--accent);
+  }
+  .shop-panel { display: none; }
+  .shop-panel.active { display: block; animation: shop-in 0.25s ease both; }
+
+  /* === 商品グリッド（高密度・コンパクト） === */
   .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 10px;
     list-style: none;
     padding: 0;
-  }
-  .product-card {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-  .product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  }
-  .product-info {
-    margin-bottom: 15px;
-    cursor: pointer;
-  }
-  .product-name {
-    font-size: 1.2em;
-    font-weight: bold;
-    color: #444;
-    margin: 0 0 5px 0;
-  }
-  .product-price {
-    font-size: 1.1em;
-    color: #00796b;
     margin: 0;
   }
+  .product-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  }
+  .product-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: var(--shadow), var(--shadow-glow);
+  }
+  .product-info { cursor: pointer; flex: 1; }
+  .product-name {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text);
+    margin: 0 0 4px;
+    line-height: 1.3;
+  }
+  .product-price {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.95rem;
+    color: var(--gold);
+    margin: 0;
+    font-weight: bold;
+  }
+  .product-hint { font-size: 0.7rem; color: var(--text-faint); margin: 2px 0 0; }
+
   .purchase-button {
-    background-color: #388e3c;
-    color: white;
-    border: none;
-    padding: 12px 15px;
-    font-size: 1em;
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: center;
     width: 100%;
-    transition: background-color 0.2s;
+    padding: 9px 10px;
+    color: #fff;
+    background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+    border: 1px solid #6aa6ee;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 0 #0a3f7d;
+    transition: filter 0.15s, transform 0.08s, box-shadow 0.15s;
   }
-  .purchase-button:hover {
-    background-color: #2e7d32;
+  .purchase-button:hover { filter: brightness(1.1); box-shadow: 0 2px 0 #0a3f7d, var(--shadow-glow); }
+  .purchase-button:active { transform: translateY(2px); box-shadow: 0 0 0 #0a3f7d; }
+  .purchase-button.cant-afford, .purchase-button:disabled {
+    background: var(--surface-raised);
+    color: var(--text-faint);
+    border-color: var(--border);
+    box-shadow: none;
+    cursor: not-allowed;
+    filter: none;
   }
-  .back-link {
-    display: inline-block;
-    margin-top: 30px;
-    padding: 10px 20px;
-    background-color: #757575;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.2s;
+  .purchase-button.cant-afford:active { transform: none; }
+  /* 買えない商品カードは少し沈める */
+  .product-card:has(.cant-afford) { opacity: 0.72; }
+
+  /* === マーケット === */
+  .list-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 14px;
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
   }
-  .back-link:hover {
-    background-color: #616161;
+  .list-form select, .list-form input {
+    padding: 9px 11px;
+    color: var(--text);
+    background: rgba(8, 14, 24, 0.6);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.92rem;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
   }
+  .list-form select { flex: 1 1 200px; }
+  .list-form input { flex: 0 1 130px; }
+  .list-form select:focus, .list-form input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  .list-form .purchase-button { flex: 0 0 auto; width: auto; padding: 9px 20px; }
+
+  .market-sub {
+    color: var(--accent);
+    font-size: 0.9rem;
+    margin: 0 0 8px;
+    padding-left: 8px;
+    border-left: 3px solid var(--accent);
+    letter-spacing: 1px;
+  }
+  .market-listings {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .market-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    box-shadow: var(--shadow-sm);
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+  .market-item br { display: none; }
+  .market-empty { color: var(--text-faint); text-align: center; padding: 20px 0; }
+
+  /* === モーダル === */
   .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.6);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.66);
     display: flex;
     justify-content: center;
     align-items: center;
     visibility: hidden;
     opacity: 0;
-    transition: opacity 0.3s, visibility 0.3s;
+    transition: opacity 0.25s, visibility 0.25s;
+    z-index: 100;
   }
-  .modal-overlay.visible {
-    visibility: visible;
-    opacity: 1;
-  }
+  .modal-overlay.visible { visibility: visible; opacity: 1; }
   .modal-content {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 10px;
+    background: linear-gradient(180deg, var(--surface-raised), var(--surface-2));
+    border: 1px solid var(--border);
+    padding: 26px 28px;
+    border-radius: var(--radius);
     width: 90%;
-    max-width: 500px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    max-width: 460px;
+    box-shadow: var(--shadow);
     position: relative;
-    transform: scale(0.9);
-    transition: transform 0.3s;
+    transform: scale(0.92);
+    transition: transform 0.25s;
   }
-  .modal-overlay.visible .modal-content {
-    transform: scale(1);
-  }
+  .modal-overlay.visible .modal-content { transform: scale(1); }
   .modal-close-button {
     position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 2em;
-    font-weight: bold;
-    color: #aaa;
+    top: 8px;
+    right: 14px;
+    font-size: 1.8em;
+    color: var(--text-faint);
     cursor: pointer;
     border: none;
     background: none;
+    transition: color 0.15s;
   }
-  .modal-close-button:hover {
-    color: #333;
-  }
+  .modal-close-button:hover { color: var(--text); }
   .modal-item-name {
-    font-size: 1.5em;
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #333;
+    font-family: var(--font-display);
+    font-size: 1.4em;
+    margin: 0 0 12px;
+    color: var(--gold);
   }
   .modal-item-description {
-    font-size: 1.1em;
-    color: #666;
-    line-height: 1.6;
+    font-size: 1rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin: 0;
   }
-  .market-section { margin-top: 40px; }
-  .market-listings { list-style: none; padding: 0; }
-  .market-item {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 10px;
-    margin-bottom: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+
+  @media (max-width: 480px) {
+    .shop-bar h2 { font-size: 1.1rem; letter-spacing: 1px; }
+    .product-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   }
-  .market-item button { margin-top: 10px; }
 </style>
 
-<div class="shop-page-container">
-  <h2 class="shop-title">ショップ</h2>
-  <p class="player-info">所持金: {{ player.gold }}G</p>
+<div class="shop-page">
+  <div class="shop-bar">
+    <h2>ショップ</h2>
+    <span class="shop-gold">💰 {{ player.gold }}G</span>
+  </div>
+
   {% if message %}
     <p class="shop-message">{{ message }}</p>
   {% endif %}
 
-  <ul class="product-grid">
-    {% for kind, obj_id, name, price, description in entries %}
-      <li class="product-card">
-        <div class="product-info" data-name="{{ name }}" data-description="{{ description or '説明がありません。' }}">
-          <p class="product-name">{{ name }}</p>
-          <p class="product-price">{{ price }}G</p>
-        </div>
-        <form action="{{ url_for('shop', user_id=user_id) }}" method="post">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          {% if kind == 'item' %}
-            <input type="hidden" name="buy_item" value="{{ obj_id }}">
-          {% else %}
-            <input type="hidden" name="buy_monster" value="{{ obj_id }}">
-          {% endif %}
-          <button type="submit" class="purchase-button">購入</button>
-        </form>
-      </li>
-    {% endfor %}
-  </ul>
+  <div class="shop-tabs">
+    <button type="button" class="shop-tab active" data-tab="shop">🛒 ショップ</button>
+    <button type="button" class="shop-tab" data-tab="market">🌐 オンラインマーケット</button>
+  </div>
 
-  <div class="market-section">
-    <h2 class="shop-title">オンラインマーケット</h2>
+  <div class="shop-panel active" data-panel="shop">
+    <ul class="product-grid">
+      {% for kind, obj_id, name, price, description in entries %}
+        <li class="product-card">
+          {% set afford = price <= player.gold %}
+          <div class="product-info" data-name="{{ name }}" data-description="{{ description or '説明がありません。' }}">
+            <p class="product-name">{{ name }}</p>
+            <p class="product-price">💰 {{ price }}G</p>
+            <p class="product-hint">タップで詳細</p>
+          </div>
+          <form action="{{ url_for('shop', user_id=user_id) }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% if kind == 'item' %}
+              <input type="hidden" name="buy_item" value="{{ obj_id }}">
+            {% else %}
+              <input type="hidden" name="buy_monster" value="{{ obj_id }}">
+            {% endif %}
+            <button type="submit" class="purchase-button{% if not afford %} cant-afford{% endif %}"{% if not afford %} disabled{% endif %}>{{ '購入' if afford else 'G不足' }}</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <div class="shop-panel" data-panel="market">
     <div class="list-form">
       <select id="list-select">
         <option value="">出品するものを選択</option>
       </select>
-      <input id="list-price" type="number" placeholder="価格">
+      <input id="list-price" type="number" placeholder="価格(G)">
       <button id="list-button" class="purchase-button">出品</button>
-      <p id="list-message" class="shop-message" style="display:none;"></p>
+      <p id="list-message" class="shop-message" style="display:none; width:100%; margin:0;"></p>
     </div>
-    <h3>出品一覧</h3>
+    <p class="market-sub">出品一覧</p>
     <ul id="market-list" class="market-listings"></ul>
   </div>
-
-  <a href="{{ url_for('play', user_id=user_id) }}" class="back-link">戻る</a>
 </div>
 
 <div id="item-detail-modal" class="modal-overlay">
@@ -222,6 +363,19 @@
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // --- タブ切り替え ---
+  const tabs = document.querySelectorAll('.shop-tab');
+  const panels = document.querySelectorAll('.shop-panel');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      panels.forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      const target = document.querySelector('.shop-panel[data-panel="' + tab.dataset.tab + '"]');
+      if (target) target.classList.add('active');
+    });
+  });
+
   const modal = document.getElementById('item-detail-modal');
   const modalItemName = document.getElementById('modal-item-name');
   const modalItemDescription = document.getElementById('modal-item-description');
@@ -270,6 +424,13 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(res => res.json())
       .then(data => {
         marketList.textContent = '';
+        if(!data.length){
+          const empty = document.createElement('li');
+          empty.className = 'market-empty';
+          empty.textContent = '出品はありません。';
+          marketList.appendChild(empty);
+          return;
+        }
         data.forEach(entry => {
           const li = document.createElement('li');
           li.className = 'market-item';

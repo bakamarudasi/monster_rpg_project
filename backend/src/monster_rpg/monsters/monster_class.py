@@ -40,6 +40,11 @@ RANK_B = "B"
 RANK_C = "C"
 RANK_D = "D"
 
+# DQM方式の成長限界：ランク＝レベル上限の段位。配合(＋値)/進化(ランクUP)で解放する。
+RANK_LEVEL_CAP = {"E": 20, "D": 35, "C": 50, "B": 65, "A": 80, "S": 100}
+# ＋値1あたり上限を何レベル伸ばすか（配合で天井を超える救済＝DQMの＋値）
+PLUS_LEVEL_CAP_BONUS = 2
+
 def get_status_gains_average(current_level):
     hp_gain = 5 + (current_level // 5)
     attack_gain = 2 + (current_level // 10)
@@ -411,6 +416,16 @@ class Monster:
         self.base_magic_defense = value
 
     @property
+    def level_cap(self) -> int:
+        """このモンスターのレベル上限（ランク段位＋＋値で解放）。
+
+        進化でランクが上がれば上限も上がる＝DQM式の「頭打ち→配合/進化で伸ばす」。
+        """
+        base = RANK_LEVEL_CAP.get(str(self.rank).upper(), MAX_LEVEL)
+        base += int(getattr(self, "plus_value", 0) or 0) * PLUS_LEVEL_CAP_BONUS
+        return min(MAX_LEVEL, base)
+
+    @property
     def critical_rate(self) -> int:
         """会心率（％ポイント）。個体差（速さ・才能）＋装備・バフ・恒久強化。
 
@@ -772,8 +787,8 @@ class Monster:
                 print(msg)
 
     def calculate_exp_to_next_level(self):
-        if self.level >= MAX_LEVEL:
-            return None  # 上限到達。次のレベルは無い。
+        if self.level >= self.level_cap:
+            return None  # ランク上限に到達。配合(＋値)/進化で解放するまで伸びない。
         if self.growth_type == GROWTH_TYPE_EARLY:
             exp_needed = calculate_exp_for_early(self.level)
         elif self.growth_type == GROWTH_TYPE_LATE:
@@ -810,8 +825,7 @@ class Monster:
 
         exp_needed_for_next_level = self.calculate_exp_to_next_level()
         if exp_needed_for_next_level is None:
-            if self.level >= MAX_LEVEL:
-                self.exp = 0  # 上限では経験値を溜めない
+            self.exp = 0  # 上限では経験値を溜めない
             return
 
         while self.exp >= exp_needed_for_next_level and self.is_alive:
@@ -824,7 +838,7 @@ class Monster:
 
         if self.exp < 0:
             self.exp = 0
-        if self.level >= MAX_LEVEL:
+        if self.level >= self.level_cap:
             self.exp = 0  # 上限では経験値を溜めない
 
     def level_up(self, log: list[dict[str, str]] | None = None, verbose=True):

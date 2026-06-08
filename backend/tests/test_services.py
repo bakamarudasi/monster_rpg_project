@@ -84,7 +84,7 @@ class EquipmentServiceTests(unittest.TestCase):
         p.add_monster_to_party('slime')
         ok, data = equipment_service.equip(p, 0, equip.instance_id, 'weapon')
         self.assertTrue(ok)
-        self.assertEqual(set(data), {'equipment_inventory', 'monster_equipment', 'monster_stats'})
+        self.assertEqual(set(data), {'equipment_inventory', 'monster_equipment', 'monster_stats', 'equipped_stats'})
         self.assertEqual(set(data['monster_stats']),
                          {'attack', 'defense', 'magic', 'magic_defense', 'speed', 'critical_rate', 'evasion_rate'})
         self.assertEqual(len(data['equipment_inventory']), 0)   # 在庫から外れた

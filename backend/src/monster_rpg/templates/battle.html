@@ -19,15 +19,37 @@
   </div>
   <!-- ▲▲▲ アニメーション用コンテナここまで ▲▲▲ -->
 
-  <h2>戦闘結果</h2>
+  {% set ns = namespace(outcome='') %}
+  {% for m in messages %}
+    {% if '勝利' in m.message %}{% set ns.outcome = 'win' %}
+    {% elif '敗北' in m.message %}{% set ns.outcome = 'lose' %}
+    {% elif '逃げ' in m.message %}{% set ns.outcome = 'fled' %}{% endif %}
+  {% endfor %}
+  {% set drops = messages | selectattr('type', 'equalto', 'item_drop') | list %}
+
+  <div class="result-banner result-{{ ns.outcome or 'win' }}">
+    {% if ns.outcome == 'lose' %}<span class="rb-icon">💀</span><span class="rb-text">ぜんめつ…</span>
+    {% elif ns.outcome == 'fled' %}<span class="rb-icon">💨</span><span class="rb-text">にげきった！</span>
+    {% else %}<span class="rb-icon">🏆</span><span class="rb-text">しょうり！</span>{% endif %}
+  </div>
+
+  {% if drops %}
+  <div class="reward-drops">
+    <div class="reward-drops-title">獲得アイテム</div>
+    <div class="drop-chips">
+      {% for m in drops %}
+        <span class="drop-chip">✦ {{ m.item_name or m.message }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 
   <ul class="battle-log">
     {% for m in messages %}
-      {# m.typeに応じてクラスを動的に設定 #}
       {# item_dropの場合は、アニメーションのトリガーとなるdata属性を追加 #}
       {% if m.type == 'item_drop' and m.item_name %}
-      <li class="log-message-{{ m.type }}" 
-          data-type="item_drop" 
+      <li class="log-message-{{ m.type }}"
+          data-type="item_drop"
           data-item-name="{{ m.item_name }}">
         {{ m.message }}
       </li>

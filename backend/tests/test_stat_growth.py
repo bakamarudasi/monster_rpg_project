@@ -78,10 +78,23 @@ class LevelCapTests(unittest.TestCase):
         self.assertIsNone(m.calculate_exp_to_next_level())
 
     def test_below_cap_still_levels(self):
-        m = Monster('T', hp=20, mp=10, attack=8, defense=5)
+        # S級は真の最大(MAX_LEVEL)まで経験値で伸びる
+        m = Monster('T', hp=20, mp=10, attack=8, defense=5, rank='S')
         m.advance_to_level(MAX_LEVEL - 1)
         m.gain_exp(10 ** 9, verbose=False)
         self.assertEqual(m.level, MAX_LEVEL)
+
+    def test_rank_level_cap(self):
+        # ランクが低いほどレベル上限が低い（DQM式の成長限界）
+        d = Monster('D', hp=20, mp=10, attack=8, defense=5, rank='D')
+        d.gain_exp(10 ** 9, verbose=False)
+        self.assertEqual(d.level, d.level_cap)
+        self.assertLess(d.level, MAX_LEVEL)
+        # ＋値で上限が伸びる
+        d2 = Monster('D2', hp=20, mp=10, attack=8, defense=5, rank='D')
+        base_cap = d2.level_cap
+        d2.plus_value = 3
+        self.assertGreater(d2.level_cap, base_cap)
 
 
 if __name__ == '__main__':

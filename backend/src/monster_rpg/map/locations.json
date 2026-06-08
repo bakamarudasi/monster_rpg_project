@@ -2,53 +2,116 @@
   "village_square": {
     "name": "アリアルの村・広場",
     "description": "あなたの冒険が始まる小さな村の広場。宿屋の看板が見える。",
-    "connections": { "北": "field_near_village" },
+    "connections": {
+      "北": "field_near_village"
+    },
     "encounter_rate": 0.0,
     "enemy_pool": {},
-    "party_size": [0, 0],
+    "party_size": [
+      0,
+      0
+    ],
     "has_inn": true,
     "inn_cost": 10,
     "has_shop": true,
-    "shop_items": { "small_potion": 15 },
-    "shop_monsters": { "slime": 50 },
+    "shop_items": {
+      "small_potion": 15
+    },
+    "shop_monsters": {
+      "slime": 50
+    },
     "avg_enemy_level": 1,
-    "x": 0, "y": 0
+    "x": 0,
+    "y": 0
   },
   "field_near_village": {
     "name": "村の近くの草原",
     "description": "見渡す限りの草原が広がっている。時折、弱いモンスターの姿が見える。",
-    "connections": { "南": "village_square", "北東": "forest_entrance" },
+    "connections": {
+      "南": "village_square",
+      "北東": "forest_entrance"
+    },
     "encounter_rate": 0.6,
-    "enemy_pool": { "slime": 40, "goblin": 10, "wild_rat": 20, "walking_mushroom": 30, "moss_slime": 25, "meadow_sprite": 20, "spark_mouse": 15, "bat": 20, "cinder_kit": 20, "dawn_chick": 18, "breeze_sprite": 20 },
-    "party_size": [1, 2],
-    "avg_enemy_level": 1,
-    "x": 1, "y": 0
+    "enemy_pool": {
+      "slime": 40,
+      "goblin": 10,
+      "wild_rat": 20,
+      "walking_mushroom": 30,
+      "moss_slime": 25,
+      "meadow_sprite": 20,
+      "spark_mouse": 15,
+      "bat": 20,
+      "cinder_kit": 20,
+      "dawn_chick": 18,
+      "breeze_sprite": 20
+    },
+    "party_size": [
+      1,
+      2
+    ],
+    "avg_enemy_level": 2,
+    "x": 1,
+    "y": 0
   },
   "forest_entrance": {
     "name": "妖精の森・入り口",
     "description": "薄暗い森の入り口。奥からはかすかに獣の気配がする。",
-    "connections": { "南西": "field_near_village", "奥へ": "deep_forest", "東": "mystic_lake" },
+    "connections": {
+      "南西": "field_near_village",
+      "奥へ": "deep_forest",
+      "東": "mystic_lake"
+    },
     "encounter_rate": 0.75,
-    "enemy_pool": { "goblin": 50, "wolf": 20, "slime": 30, "meadow_sprite": 25, "thorn_lurker": 15 },
-    "party_size": [1, 3],
-    "avg_enemy_level": 2,
-    "x": 2, "y": 0
+    "enemy_pool": {
+      "goblin": 50,
+      "wolf": 20,
+      "slime": 30,
+      "meadow_sprite": 25,
+      "thorn_lurker": 15
+    },
+    "party_size": [
+      1,
+      3
+    ],
+    "avg_enemy_level": 8,
+    "x": 2,
+    "y": 0
   },
   "mystic_lake": {
     "name": "神秘の湖",
     "description": "森の奥にひっそりと佇む美しい湖。水面が青く光っている。",
-    "connections": { "西": "forest_entrance", "霧の水路へ": "sunken_temple" },
+    "connections": {
+      "西": "forest_entrance",
+      "霧の水路へ": "sunken_temple"
+    },
     "encounter_rate": 0.8,
-    "enemy_pool": { "water_wolf": 40, "mermaid_siren": 40, "mist_wraith": 20, "tide_serpent": 30, "rock_crab": 20, "mire_toad": 20, "bubble_jelly": 25, "frost_pixie": 15 },
-    "party_size": [1, 2],
-    "avg_enemy_level": 3,
-    "x": 3, "y": 0
+    "enemy_pool": {
+      "water_wolf": 40,
+      "mermaid_siren": 40,
+      "mist_wraith": 20,
+      "tide_serpent": 30,
+      "rock_crab": 20,
+      "mire_toad": 20,
+      "bubble_jelly": 25,
+      "frost_pixie": 15
+    },
+    "party_size": [
+      1,
+      2
+    ],
+    "avg_enemy_level": 10,
+    "x": 3,
+    "y": 0
   },
   "deep_forest": {
     "name": "妖精の森・奥地",
     "description": "木々が鬱蒼と茂り、昼なお暗い。強力なモンスターが生息しているようだ。",
-    "connections": { "入り口へ": "forest_entrance" },
-    "hidden_connections": { "さらに奥へ": "forest_boss_room" },
+    "connections": {
+      "入り口へ": "forest_entrance"
+    },
+    "hidden_connections": {
+      "さらに奥へ": "forest_boss_room"
+    },
     "encounter_rate": 0.9,
     "enemy_pool": {
       "wolf": 40,
@@ -59,147 +122,360 @@
       "lumen_moth": 18,
       "shade_imp": 15
     },
-    "party_size": [1, 3],
+    "party_size": [
+      1,
+      3
+    ],
     "boss_enemy_id": "dragon_pup",
-    "rare_enemies": ["phoenix_chick"],
-    "treasure_items": ["small_potion"],
+    "rare_enemies": [
+      "phoenix_chick"
+    ],
+    "treasure_items": [
+      "small_potion"
+    ],
     "event_chance": 0.3,
-    "avg_enemy_level": 4,
-    "x": 4, "y": 0
+    "avg_enemy_level": 12,
+    "x": 4,
+    "y": 0
   },
   "forest_boss_room": {
     "name": "森の守護者の間",
     "description": "森の奥深くに佇む神秘的な祭壇。強大なモンスターの気配がする。",
-    "connections": { "奥地へ戻る": "deep_forest" },
+    "connections": {
+      "奥地へ戻る": "deep_forest"
+    },
     "encounter_rate": 1.0,
-    "enemy_pool": { "dragon_pup": 100 },
-    "party_size": [1, 1],
+    "enemy_pool": {
+      "dragon_pup": 100
+    },
+    "party_size": [
+      1,
+      1
+    ],
     "boss_enemy_id": "crimson_hood",
-    "avg_enemy_level": 5,
-    "x": 0, "y": 1
+    "avg_enemy_level": 14,
+    "x": 0,
+    "y": 1
   },
   "hill_road": {
     "name": "丘陵街道",
     "description": "ゆるやかな丘を抜ける古びた街道。行商人の姿もちらほら。",
-    "connections": { "南": "field_near_village", "北": "mountain_foothills" },
+    "connections": {
+      "南": "field_near_village",
+      "北": "mountain_foothills"
+    },
     "encounter_rate": 0.55,
-    "enemy_pool": { "wolf": 40, "orc_warrior": 40, "goblin": 20, "moss_slime": 20, "ember_pup": 25, "spark_mouse": 20, "thunder_pup": 20, "cinder_kit": 15 },
-    "party_size": [1, 3],
-    "avg_enemy_level": 3,
-    "x": 1, "y": 1
+    "enemy_pool": {
+      "wolf": 40,
+      "orc_warrior": 40,
+      "goblin": 20,
+      "moss_slime": 20,
+      "ember_pup": 25,
+      "spark_mouse": 20,
+      "thunder_pup": 20,
+      "cinder_kit": 15,
+      "bubble_jelly": 15,
+      "frost_pixie": 15,
+      "venom_spider": 15,
+      "shade_imp": 15,
+      "lumen_moth": 15,
+      "pebble_knight": 15
+    },
+    "party_size": [
+      1,
+      3
+    ],
+    "avg_enemy_level": 5,
+    "x": 1,
+    "y": 1
   },
   "mountain_foothills": {
     "name": "山麓の荒野",
     "description": "切り立った崖と転がる岩石。空気が薄くなり始めている。",
-    "connections": { "南": "hill_road", "北": "thunder_peak", "西": "ancient_ruins" },
+    "connections": {
+      "南": "hill_road",
+      "北": "thunder_peak",
+      "西": "ancient_ruins"
+    },
     "encounter_rate": 0.75,
-    "enemy_pool": { "orc_warrior": 40, "skeleton_archer": 30, "troll_brute": 20, "giant_golem": 10, "ember_pup": 20, "gale_harrier": 25, "pebble_knight": 22 },
-    "party_size": [2, 3],
-    "treasure_items": ["medium_potion"],
-    "avg_enemy_level": 4,
-    "x": 2, "y": 1
+    "enemy_pool": {
+      "orc_warrior": 40,
+      "skeleton_archer": 30,
+      "troll_brute": 20,
+      "giant_golem": 10,
+      "ember_pup": 20,
+      "gale_harrier": 25,
+      "pebble_knight": 22
+    },
+    "party_size": [
+      2,
+      3
+    ],
+    "treasure_items": [
+      "medium_potion"
+    ],
+    "avg_enemy_level": 16,
+    "x": 2,
+    "y": 1
   },
   "thunder_peak": {
     "name": "雷鳴峰",
     "description": "雲間を貫く尖塔のような山頂。常に雷が轟く。",
-    "connections": { "南": "mountain_foothills", "嵐の空へ": "sky_isle" },
+    "connections": {
+      "南": "mountain_foothills",
+      "嵐の空へ": "sky_isle"
+    },
     "encounter_rate": 0.85,
-    "enemy_pool": { "thunder_eagle": 40, "electro_mantis": 30, "spectral_raven": 20, "storm_golem": 10, "gale_harrier": 25, "storm_djinn": 20, "frost_owl": 20, "glacier_warden": 15, "gust_wisp": 20, "glacier_pixie": 18 },
-    "party_size": [1, 3],
+    "enemy_pool": {
+      "thunder_eagle": 40,
+      "electro_mantis": 30,
+      "spectral_raven": 20,
+      "storm_golem": 10,
+      "gale_harrier": 25,
+      "storm_djinn": 20,
+      "frost_owl": 20,
+      "glacier_warden": 15,
+      "gust_wisp": 20,
+      "glacier_pixie": 18
+    },
+    "party_size": [
+      1,
+      3
+    ],
     "boss_enemy_id": "storm_golem",
-    "rare_enemies": ["nameless_kingling"],
-    "treasure_items": ["thunder_core"],
-    "avg_enemy_level": 6,
-    "x": 3, "y": 1
+    "rare_enemies": [
+      "nameless_kingling"
+    ],
+    "treasure_items": [
+      "thunder_core"
+    ],
+    "avg_enemy_level": 22,
+    "x": 3,
+    "y": 1
   },
   "ancient_ruins": {
     "name": "古代遺跡",
     "description": "苔むした石碑と崩れた柱が並ぶ、忘れられた文明の跡。",
-    "connections": { "東": "mountain_foothills", "地下へ": "catacombs_entrance" },
+    "connections": {
+      "東": "mountain_foothills",
+      "地下へ": "catacombs_entrance"
+    },
     "encounter_rate": 0.7,
-    "enemy_pool": { "undead_warrior": 40, "skeleton_archer": 40, "pontiff_shade": 15, "mist_wraith": 5, "crystal_golem": 20 },
-    "party_size": [2, 4],
+    "enemy_pool": {
+      "undead_warrior": 40,
+      "skeleton_archer": 40,
+      "pontiff_shade": 15,
+      "mist_wraith": 5,
+      "crystal_golem": 20
+    },
+    "party_size": [
+      2,
+      4
+    ],
     "event_chance": 0.25,
-    "avg_enemy_level": 5,
-    "x": 4, "y": 1
+    "avg_enemy_level": 19,
+    "x": 4,
+    "y": 1
   },
   "catacombs_entrance": {
     "name": "地下墓地・入口",
     "description": "石階段が闇へと続く。不気味な気配が漂う。",
-    "connections": { "上へ戻る": "ancient_ruins", "奥へ": "catacombs_deep" },
+    "connections": {
+      "上へ戻る": "ancient_ruins",
+      "奥へ": "catacombs_deep"
+    },
     "encounter_rate": 0.8,
-    "enemy_pool": { "skeleton_archer": 40, "undead_warrior": 30, "gravetide_hollow": 20, "blood_fiend": 10, "bog_revenant": 20, "wraith_knight": 25 },
-    "party_size": [2, 3],
-    "treasure_items": ["frost_crystal"],
-    "avg_enemy_level": 6,
-    "x": 0, "y": 2
+    "enemy_pool": {
+      "skeleton_archer": 40,
+      "undead_warrior": 30,
+      "gravetide_hollow": 20,
+      "blood_fiend": 10,
+      "bog_revenant": 20,
+      "wraith_knight": 25
+    },
+    "party_size": [
+      2,
+      3
+    ],
+    "treasure_items": [
+      "frost_crystal"
+    ],
+    "avg_enemy_level": 24,
+    "x": 0,
+    "y": 2
   },
   "catacombs_deep": {
     "name": "地下墓地・深層",
     "description": "蝋燭の火が揺れる石室。静寂を破る足音が反響する。",
-    "connections": { "入口へ戻る": "catacombs_entrance", "奈落へ": "abyssal_chasm" },
+    "connections": {
+      "入口へ戻る": "catacombs_entrance",
+      "奈落へ": "abyssal_chasm"
+    },
     "encounter_rate": 0.9,
-    "enemy_pool": { "blighted_knight": 40, "vampire_lord": 30, "abyss_watcher": 20, "iron_juggernaut": 10, "wraith_knight": 22, "bone_drake": 20 },
-    "party_size": [2, 4],
+    "enemy_pool": {
+      "blighted_knight": 40,
+      "vampire_lord": 30,
+      "abyss_watcher": 20,
+      "iron_juggernaut": 10,
+      "wraith_knight": 22,
+      "bone_drake": 20
+    },
+    "party_size": [
+      2,
+      4
+    ],
     "boss_enemy_id": "abyss_watcher",
-    "rare_enemies": ["abyss_watcher"],
-    "treasure_items": ["abyss_shard"],
-    "avg_enemy_level": 8,
-    "x": 1, "y": 2
+    "rare_enemies": [
+      "abyss_watcher"
+    ],
+    "treasure_items": [
+      "abyss_shard"
+    ],
+    "avg_enemy_level": 28,
+    "x": 1,
+    "y": 2
   },
   "abyssal_chasm": {
     "name": "深淵の裂け目",
     "description": "底知れぬ闇が広がる亀裂。闇の鼓動が聞こえる。",
-    "connections": { "地上へ": "catacombs_deep", "光の塔へ": "celestial_tower", "物語の狭間へ": "torn_pages_rift" },
+    "connections": {
+      "地上へ": "catacombs_deep",
+      "光の塔へ": "celestial_tower",
+      "物語の狭間へ": "torn_pages_rift"
+    },
     "encounter_rate": 1.0,
-    "enemy_pool": { "shadow_panther": 30, "abyss_watcher": 30, "blighted_knight": 20, "blood_fiend": 20, "dust_djinn": 20, "bone_drake": 18 },
-    "party_size": [3, 4],
+    "enemy_pool": {
+      "shadow_panther": 30,
+      "abyss_watcher": 30,
+      "blighted_knight": 20,
+      "blood_fiend": 20,
+      "dust_djinn": 20,
+      "bone_drake": 18
+    },
+    "party_size": [
+      3,
+      4
+    ],
     "boss_enemy_id": "beheader_alice",
-    "avg_enemy_level": 9,
-    "x": 2, "y": 2
+    "avg_enemy_level": 32,
+    "x": 2,
+    "y": 2
   },
   "celestial_tower": {
     "name": "天啓の塔",
     "description": "蒼穹へと伸びる光輝の塔。最上階には試練が待つ。",
-    "connections": { "深淵へ戻る": "abyssal_chasm", "物語の狭間へ": "torn_pages_rift" },
+    "connections": {
+      "深淵へ戻る": "abyssal_chasm",
+      "物語の狭間へ": "torn_pages_rift"
+    },
     "encounter_rate": 0.85,
-    "enemy_pool": { "celestial_panther": 35, "cinder_sentinel": 25, "sky_seraph": 25, "ashen_drake": 15 },
-    "party_size": [2, 3],
-    "has_inn": true, "inn_cost": 50,
+    "enemy_pool": {
+      "celestial_panther": 35,
+      "cinder_sentinel": 25,
+      "sky_seraph": 25,
+      "ashen_drake": 15
+    },
+    "party_size": [
+      2,
+      3
+    ],
+    "has_inn": true,
+    "inn_cost": 50,
     "has_shop": true,
-    "shop_items": { "large_potion": 120, "elixir": 300, "celestial_feather": 500, "flame_blade": 500, "thunder_lance": 550, "guardian_charm": 250, "assassin_dagger": 280, "iron_helm": 200, "sage_circlet": 450, "swift_boots": 480, "flame_ward": 260, "frost_ward": 260, "keen_blade": 320, "warding_robe": 340, "drifter_cloak": 300, "rune_amulet": 260 },
+    "shop_items": {
+      "large_potion": 120,
+      "elixir": 300,
+      "celestial_feather": 500,
+      "flame_blade": 500,
+      "thunder_lance": 550,
+      "guardian_charm": 250,
+      "assassin_dagger": 280,
+      "iron_helm": 200,
+      "sage_circlet": 450,
+      "swift_boots": 480,
+      "flame_ward": 260,
+      "frost_ward": 260,
+      "keen_blade": 320,
+      "warding_robe": 340,
+      "drifter_cloak": 300,
+      "rune_amulet": 260
+    },
     "boss_enemy_id": "celestial_dragon",
-    "treasure_items": ["celestial_feather", "elixir"],
-    "avg_enemy_level": 10,
-    "x": 3, "y": 2
+    "treasure_items": [
+      "celestial_feather",
+      "elixir"
+    ],
+    "avg_enemy_level": 40,
+    "x": 3,
+    "y": 2
   },
   "desert_outskirts": {
     "name": "砂漠の外れ",
     "description": "熱風が吹きつけ、遠くに蜃気楼が揺れる。",
-    "connections": { "西": "field_near_village", "東": "desert_oasis" },
+    "connections": {
+      "西": "field_near_village",
+      "東": "desert_oasis"
+    },
     "encounter_rate": 0.65,
-    "enemy_pool": { "desert_scorpion": 50, "sand_wyrm": 30, "orc_warrior": 20, "dust_imp": 30, "flame_mantis": 20, "thunder_pup": 20, "venom_spider": 20 },
-    "party_size": [1, 3],
-    "avg_enemy_level": 4,
-    "x": 4, "y": 2
+    "enemy_pool": {
+      "desert_scorpion": 50,
+      "sand_wyrm": 30,
+      "orc_warrior": 20,
+      "dust_imp": 30,
+      "flame_mantis": 20,
+      "thunder_pup": 20,
+      "venom_spider": 20
+    },
+    "party_size": [
+      1,
+      3
+    ],
+    "avg_enemy_level": 26,
+    "x": 4,
+    "y": 2
   },
   "desert_oasis": {
     "name": "オアシスの集落",
     "description": "椰子の木が茂る水辺。旅人の憩いの場だ。",
-    "connections": { "西": "desert_outskirts", "北": "sunken_temple" },
+    "connections": {
+      "西": "desert_outskirts",
+      "北": "sunken_temple"
+    },
     "encounter_rate": 0.3,
-    "enemy_pool": { "desert_scorpion": 100, "dust_imp": 40, "rock_crab": 30, "imp": 35, "venom_spider": 35 },
-    "party_size": [1, 2],
-    "has_inn": true, "inn_cost": 20,
+    "enemy_pool": {
+      "desert_scorpion": 100,
+      "dust_imp": 40,
+      "rock_crab": 30,
+      "imp": 35,
+      "venom_spider": 35
+    },
+    "party_size": [
+      1,
+      2
+    ],
+    "has_inn": true,
+    "inn_cost": 20,
     "has_shop": true,
-    "shop_items": { "medium_potion": 40, "antidote": 25, "power_seed": 300, "guard_seed": 300, "speed_seed": 300, "life_seed": 400, "mind_seed": 250 },
-    "avg_enemy_level": 3,
-    "x": 0, "y": 3
+    "shop_items": {
+      "medium_potion": 40,
+      "antidote": 25,
+      "power_seed": 300,
+      "guard_seed": 300,
+      "speed_seed": 300,
+      "life_seed": 400,
+      "mind_seed": 250
+    },
+    "avg_enemy_level": 28,
+    "x": 0,
+    "y": 3
   },
   "sunken_temple": {
     "name": "水没した神殿",
     "description": "半ば湖に沈んだ古代神殿。水棲モンスターの巣窟。",
-    "connections": { "南": "desert_oasis", "深部へ": "abyssal_marsh" },
+    "connections": {
+      "南": "desert_oasis",
+      "深部へ": "abyssal_marsh"
+    },
     "encounter_rate": 0.85,
     "enemy_pool": {
       "kraken": 15,
@@ -211,27 +487,52 @@
       "venom_naga": 20,
       "reef_guardian": 22
     },
-    "party_size": [2, 4],
-    "treasure_items": ["frost_crystal"],
+    "party_size": [
+      2,
+      4
+    ],
+    "treasure_items": [
+      "frost_crystal"
+    ],
     "boss_enemy_id": "sleeping_maiden",
-    "avg_enemy_level": 7,
-    "x": 1, "y": 3
+    "avg_enemy_level": 30,
+    "x": 1,
+    "y": 3
   },
   "abyssal_marsh": {
     "name": "深淵の湿地",
     "description": "黒い水面に泡が弾ける不気味な湿地帯。",
-    "connections": { "上へ": "sunken_temple", "東": "volcanic_ridge" },
+    "connections": {
+      "上へ": "sunken_temple",
+      "東": "volcanic_ridge"
+    },
     "encounter_rate": 0.95,
-    "enemy_pool": { "kraken": 20, "blighted_knight": 20, "abyss_watcher": 20, "mist_wraith": 20, "gravetide_hollow": 20, "bog_revenant": 20, "mire_toad": 15, "venom_naga": 20 },
-    "party_size": [3, 4],
+    "enemy_pool": {
+      "kraken": 20,
+      "blighted_knight": 20,
+      "abyss_watcher": 20,
+      "mist_wraith": 20,
+      "gravetide_hollow": 20,
+      "bog_revenant": 20,
+      "mire_toad": 15,
+      "venom_naga": 20
+    },
+    "party_size": [
+      3,
+      4
+    ],
     "boss_enemy_id": "poison_queen",
-    "avg_enemy_level": 8,
-    "x": 2, "y": 3
+    "avg_enemy_level": 33,
+    "x": 2,
+    "y": 3
   },
   "volcanic_ridge": {
     "name": "熔岩稜線",
     "description": "赤熱した溶岩が流れ、空気が揺らめく灼熱地帯。",
-    "connections": { "西": "abyssal_marsh", "北": "lava_core" },
+    "connections": {
+      "西": "abyssal_marsh",
+      "北": "lava_core"
+    },
     "encounter_rate": 0.9,
     "enemy_pool": {
       "lava_elemental": 40,
@@ -242,112 +543,274 @@
       "granite_ogre": 22,
       "magma_serpent": 20
     },
-    "party_size": [2, 3],
-    "rare_enemies": ["cinder_sentinel"],
-    "treasure_items": ["dragon_scale"],
+    "party_size": [
+      2,
+      3
+    ],
+    "rare_enemies": [
+      "cinder_sentinel"
+    ],
+    "treasure_items": [
+      "dragon_scale"
+    ],
     "boss_enemy_id": "match_ember",
-    "avg_enemy_level": 9,
-    "x": 3, "y": 3
+    "avg_enemy_level": 35,
+    "x": 3,
+    "y": 3
   },
   "lava_core": {
     "name": "熔岩核",
     "description": "流動するマグマの中央に浮かぶ岩盤。炎の脈動が響く。",
-    "connections": { "南": "volcanic_ridge", "上空へ": "sky_isle" },
+    "connections": {
+      "南": "volcanic_ridge",
+      "上空へ": "sky_isle"
+    },
     "encounter_rate": 1.0,
-    "enemy_pool": { "lava_elemental": 70, "obsidian_titan": 30, "crystal_golem": 15, "magma_serpent": 35, "flame_imp": 30 },
-    "party_size": [1, 2],
+    "enemy_pool": {
+      "lava_elemental": 70,
+      "obsidian_titan": 30,
+      "crystal_golem": 15,
+      "magma_serpent": 35,
+      "flame_imp": 30
+    },
+    "party_size": [
+      1,
+      2
+    ],
     "boss_enemy_id": "lava_elemental",
-    "avg_enemy_level": 10,
-    "x": 4, "y": 3
+    "avg_enemy_level": 38,
+    "x": 4,
+    "y": 3
   },
   "sky_isle": {
     "name": "浮遊島・聖域",
     "description": "雲海を見下ろす浮島。澄んだ風の中で光が舞う。",
-    "connections": { "下へ": "lava_core", "北": "celestial_tower" },
-    "hidden_connections": { "更なる空の高みへ": "sky_isle_inner_sanctum" },
+    "connections": {
+      "下へ": "lava_core",
+      "北": "celestial_tower"
+    },
+    "hidden_connections": {
+      "更なる空の高みへ": "sky_isle_inner_sanctum"
+    },
     "encounter_rate": 0.8,
-    "enemy_pool": { "sky_seraph": 30, "thunder_eagle": 25, "celestial_panther": 25, "spectral_raven": 10, "crystal_drake": 10, "frost_owl": 15, "gust_wisp": 18, "tempest_hawk": 12, "glacier_pixie": 18 },
-    "party_size": [2, 4],
-    "avg_enemy_level": 10,
-    "x": 0, "y": 4
+    "enemy_pool": {
+      "sky_seraph": 30,
+      "thunder_eagle": 25,
+      "celestial_panther": 25,
+      "spectral_raven": 10,
+      "crystal_drake": 10,
+      "frost_owl": 15,
+      "gust_wisp": 18,
+      "tempest_hawk": 12,
+      "glacier_pixie": 18
+    },
+    "party_size": [
+      2,
+      4
+    ],
+    "avg_enemy_level": 41,
+    "x": 0,
+    "y": 4
   },
   "sky_isle_inner_sanctum": {
     "name": "浮遊島・内なる聖域",
     "description": "静謐な光が満ちる最奥部。翼を持つ守護者が待ち構えている。",
-      "required_item": "celestial_feather",
-    "connections": { "外縁へ戻る": "sky_isle", "終焉へ": "torn_pages_rift" },
+    "required_item": "celestial_feather",
+    "connections": {
+      "外縁へ戻る": "sky_isle",
+      "終焉へ": "torn_pages_rift"
+    },
     "encounter_rate": 1.0,
-    "enemy_pool": { "sky_seraph": 100 },
-    "party_size": [1, 1],
+    "enemy_pool": {
+      "sky_seraph": 100
+    },
+    "party_size": [
+      1,
+      1
+    ],
     "boss_enemy_id": "sky_seraph",
-    "treasure_items": ["celestial_feather", "elixir"],
-    "avg_enemy_level": 12,
-    "x": 1, "y": 4
+    "treasure_items": [
+      "celestial_feather",
+      "elixir"
+    ],
+    "avg_enemy_level": 44,
+    "x": 1,
+    "y": 4
   },
   "torn_pages_rift": {
     "name": "裂けた頁の狭間",
     "description": "世界の継ぎ目が綻び、無数の頁が虚空を舞う。ここから先は、物語の外側だ。",
     "region": "終焉の物語世界",
-    "connections": { "光の塔へ": "celestial_tower", "深淵へ": "abyssal_chasm", "久遠の書庫へ": "eternal_library", "児話の区画へ": "forgotten_nursery" },
+    "connections": {
+      "光の塔へ": "celestial_tower",
+      "深淵へ": "abyssal_chasm",
+      "久遠の書庫へ": "eternal_library",
+      "児話の区画へ": "forgotten_nursery"
+    },
     "encounter_rate": 0.9,
-    "enemy_pool": { "data_wraith": 25, "midnight_horror": 25, "phantom_thief": 20, "mist_wraith": 15, "spectral_raven": 15, "storm_sovereign": 8, "abyssal_tide_king": 8 },
-    "party_size": [2, 4],
-    "avg_enemy_level": 13,
-    "x": 2, "y": 5
+    "enemy_pool": {
+      "data_wraith": 25,
+      "midnight_horror": 25,
+      "phantom_thief": 20,
+      "mist_wraith": 15,
+      "spectral_raven": 15,
+      "storm_sovereign": 8,
+      "abyssal_tide_king": 8
+    },
+    "party_size": [
+      2,
+      4
+    ],
+    "avg_enemy_level": 45,
+    "x": 2,
+    "y": 5
   },
   "eternal_library": {
     "name": "久遠の書庫",
     "description": "天井も果ても見えぬ無限の書架。読み手なき物語だけが、静かに頁を繰っている。",
     "region": "終焉の物語世界",
-    "connections": { "狭間へ戻る": "torn_pages_rift", "物語の墓標へ": "graveyard_of_tales" },
+    "connections": {
+      "狭間へ戻る": "torn_pages_rift",
+      "物語の墓標へ": "graveyard_of_tales"
+    },
     "encounter_rate": 0.5,
-    "enemy_pool": { "data_wraith": 35, "phantom_thief": 25, "pontiff_shade": 20, "mist_wraith": 20 },
-    "rare_enemies": ["eldritch_tome"],
-    "party_size": [1, 2],
-    "has_inn": true, "inn_cost": 60,
+    "enemy_pool": {
+      "data_wraith": 35,
+      "phantom_thief": 25,
+      "pontiff_shade": 20,
+      "mist_wraith": 20
+    },
+    "rare_enemies": [
+      "eldritch_tome"
+    ],
+    "party_size": [
+      1,
+      2
+    ],
+    "has_inn": true,
+    "inn_cost": 60,
     "has_shop": true,
-    "shop_items": { "elixir": 300, "power_seed": 300, "guard_seed": 300, "speed_seed": 300, "life_seed": 400, "mind_seed": 250, "weapon_core_rare": 400, "armor_fragment_rare": 400, "abyss_shard": 200, "celestial_feather": 500, "aegis_shield": 1200, "sage_orb": 700, "berserker_band": 700, "angel_robe": 650, "vorpal_blade": 2000, "destiny_knot": 1500, "everstone": 800, "power_weight": 1000, "power_bracer": 1000, "power_belt": 1000, "power_lens": 1000, "power_anklet": 1000 },
-    "avg_enemy_level": 14,
-    "x": 1, "y": 5
+    "shop_items": {
+      "elixir": 300,
+      "power_seed": 300,
+      "guard_seed": 300,
+      "speed_seed": 300,
+      "life_seed": 400,
+      "mind_seed": 250,
+      "weapon_core_rare": 400,
+      "armor_fragment_rare": 400,
+      "abyss_shard": 200,
+      "celestial_feather": 500,
+      "aegis_shield": 1200,
+      "sage_orb": 700,
+      "berserker_band": 700,
+      "angel_robe": 650,
+      "vorpal_blade": 2000,
+      "destiny_knot": 1500,
+      "everstone": 800,
+      "power_weight": 1000,
+      "power_bracer": 1000,
+      "power_belt": 1000,
+      "power_lens": 1000,
+      "power_anklet": 1000
+    },
+    "avg_enemy_level": 46,
+    "x": 1,
+    "y": 5
   },
   "forgotten_nursery": {
     "name": "忘却の児話区画",
     "description": "破り捨てられた童話たちが息づく区画。残酷なヒロインたちの嗤い声が反響する。",
     "region": "終焉の物語世界",
-    "connections": { "狭間へ": "torn_pages_rift", "物語の墓標へ": "graveyard_of_tales", "終章の間へ": "final_chapter_hall" },
+    "connections": {
+      "狭間へ": "torn_pages_rift",
+      "物語の墓標へ": "graveyard_of_tales",
+      "終章の間へ": "final_chapter_hall"
+    },
     "encounter_rate": 0.95,
-    "enemy_pool": { "midnight_horror": 25, "phantom_thief": 20, "vampire_lord": 20, "blood_fiend": 20, "gravetide_hollow": 15, "thunder_emperor": 8 },
-    "party_size": [3, 4],
-    "rare_enemies": ["beheader_alice", "poison_queen", "crimson_hood"],
-    "treasure_items": ["abyss_shard"],
-    "avg_enemy_level": 15,
-    "x": 3, "y": 5
+    "enemy_pool": {
+      "midnight_horror": 25,
+      "phantom_thief": 20,
+      "vampire_lord": 20,
+      "blood_fiend": 20,
+      "gravetide_hollow": 15,
+      "thunder_emperor": 8
+    },
+    "party_size": [
+      3,
+      4
+    ],
+    "rare_enemies": [
+      "beheader_alice",
+      "poison_queen",
+      "crimson_hood"
+    ],
+    "treasure_items": [
+      "abyss_shard"
+    ],
+    "avg_enemy_level": 47,
+    "x": 3,
+    "y": 5
   },
   "graveyard_of_tales": {
     "name": "物語の墓標",
     "description": "読み終えられた物語の墓標が累々と並ぶ。亡き王が、最後の読者を待っている。",
     "region": "終焉の物語世界",
-    "connections": { "書庫へ": "eternal_library", "児話の区画へ": "forgotten_nursery", "終章の間へ": "final_chapter_hall" },
+    "connections": {
+      "書庫へ": "eternal_library",
+      "児話の区画へ": "forgotten_nursery",
+      "終章の間へ": "final_chapter_hall"
+    },
     "encounter_rate": 1.0,
-    "enemy_pool": { "ronin_spirit": 25, "fallen_deity": 20, "eldritch_tome": 20, "abyss_watcher": 20, "obsidian_titan": 15, "gaia_colossus": 8, "plague_monarch": 8 },
-    "party_size": [2, 4],
+    "enemy_pool": {
+      "ronin_spirit": 25,
+      "fallen_deity": 20,
+      "eldritch_tome": 20,
+      "abyss_watcher": 20,
+      "obsidian_titan": 15,
+      "gaia_colossus": 8,
+      "plague_monarch": 8
+    },
+    "party_size": [
+      2,
+      4
+    ],
     "boss_enemy_id": "nameless_kingling",
-    "rare_enemies": ["sleeping_maiden", "nameless_kingling"],
-    "treasure_items": ["abyss_shard", "elixir"],
-    "avg_enemy_level": 16,
-    "x": 2, "y": 6
+    "rare_enemies": [
+      "sleeping_maiden",
+      "nameless_kingling"
+    ],
+    "treasure_items": [
+      "abyss_shard",
+      "elixir"
+    ],
+    "avg_enemy_level": 48,
+    "x": 2,
+    "y": 6
   },
   "final_chapter_hall": {
     "name": "終章の間",
     "description": "全ての頁が尽きる場所。そこに座すのは、物語そのものを喰らい綴じる、終焉の影。",
     "region": "終焉の物語世界",
-    "connections": { "墓標へ戻る": "graveyard_of_tales", "区画へ戻る": "forgotten_nursery" },
+    "connections": {
+      "墓標へ戻る": "graveyard_of_tales",
+      "区画へ戻る": "forgotten_nursery"
+    },
     "encounter_rate": 1.0,
-    "enemy_pool": { "vampire_lord": 100 },
-    "party_size": [1, 1],
+    "enemy_pool": {
+      "vampire_lord": 100
+    },
+    "party_size": [
+      1,
+      1
+    ],
     "boss_enemy_id": "tale_devourer",
-    "treasure_items": ["elixir", "celestial_feather"],
-    "avg_enemy_level": 18,
-    "x": 3, "y": 6
+    "treasure_items": [
+      "elixir",
+      "celestial_feather"
+    ],
+    "avg_enemy_level": 50,
+    "x": 3,
+    "y": 6
   }
 }

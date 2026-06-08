@@ -7,6 +7,26 @@
     let equipmentList = [];
     let equipUrl = '';
     let appraiseUrl = '';
+
+    /* 装備の対現状差分（±）を色分けして返す */
+    const DIFF_LABELS = [['attack','攻'],['defense','防'],['magic','魔'],['magic_defense','魔防'],['speed','速'],['critical_rate','会心'],['evasion_rate','回避']];
+    const PERCENT_STATS = { critical_rate: 1, evasion_rate: 1 };
+    function buildEquipDiff(cand, equipped) {
+      const wrap = document.createElement('span');
+      wrap.className = 'equip-diff';
+      DIFF_LABELS.forEach(([k, lab]) => {
+        const c = (cand && cand[k]) || 0;
+        const e = (equipped && equipped[k]) || 0;
+        if (c === 0 && e === 0) return;
+        const d = c - e;
+        const s = document.createElement('span');
+        s.className = 'diff ' + (d > 0 ? 'up' : (d < 0 ? 'down' : 'same'));
+        const unit = PERCENT_STATS[k] ? '%' : '';
+        s.textContent = lab + (d > 0 ? '+' : '') + d + unit;
+        wrap.appendChild(s);
+      });
+      return wrap;
+    }
     const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
     const csrfToken = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
     const dataElem = document.getElementById('party-data');
@@ -86,7 +106,9 @@
       const spanHp = document.createElement('span');
       spanHp.textContent = 'HP: ' + data.hp + ' / ' + data.max_hp;
       const spanExp = document.createElement('span');
-      spanExp.textContent = 'EXP: ' + data.exp + ' / ' + data.exp_to_next + ' (残り ' + expNeeded + ')';
+      spanExp.textContent = (data.exp_to_next == null)
+        ? 'EXP: 🏆 レベル上限（進化/配合で解放）'
+        : 'EXP: ' + data.exp + ' / ' + data.exp_to_next + ' (残り ' + expNeeded + ')';
       lvhp.append(spanLv, document.createTextNode(' | '), spanHp, document.createTextNode(' | '), spanExp);
       header.appendChild(lvhp);
 
@@ -255,12 +277,10 @@
           btn.dataset.idx = data.index;
           btn.textContent = '装備';
           li.textContent = eq.name + ' ';
-          if (Array.isArray(eq.stats) && eq.stats.length) {
-            const stats = document.createElement('span');
-            stats.className = 'equip-stats';
-            stats.textContent = '[' + eq.stats.map(s => s.display).join(' ') + '] ';
-            li.appendChild(stats);
-          }
+          /* 現在その枠に着けている装備との差分（±）を色分け表示 */
+          const equipped = (data.equipped_stats || {})[eq.slot];
+          const diff = buildEquipDiff(eq.stats_num, equipped);
+          if (diff.childNodes.length) li.appendChild(diff);
           li.appendChild(btn);
           invUl.appendChild(li);
         });
@@ -291,6 +311,7 @@
               equipmentList.length = 0;
               resp.equipment_inventory.forEach(e => equipmentList.push(e));
               data.equipment = resp.monster_equipment;
+              if (resp.equipped_stats) { data.equipped_stats = resp.equipped_stats; }
               if (resp.monster_stats) {
                 data.stats = resp.monster_stats;
               }
@@ -319,6 +340,7 @@
               equipmentList.length = 0;
               resp.equipment_inventory.forEach(e => equipmentList.push(e));
               data.equipment = resp.monster_equipment;
+              if (resp.equipped_stats) { data.equipped_stats = resp.equipped_stats; }
               if (resp.monster_stats) {
                 data.stats = resp.monster_stats;
               }

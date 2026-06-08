@@ -83,6 +83,25 @@ body {
     filter: drop-shadow(0 6px 5px rgba(0, 0, 0, 0.55)); /* 画像に影をつける */
 }
 
+/* 画像欠落時の代替表示（頭文字メダル） */
+.unit-img-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display, sans-serif);
+    font-size: 2.6rem;
+    font-weight: bold;
+    color: #cfe0ff;
+    text-transform: uppercase;
+    background:
+        radial-gradient(circle at 50% 35%, rgba(74, 144, 226, 0.35), rgba(8, 14, 24, 0.85));
+    border: 1px solid rgba(120, 160, 220, 0.4);
+    border-radius: 14px;
+    box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    image-rendering: auto;
+}
+
 /* 足元の接地影（要素背景として描画＝z-index不要） */
 .battle-unit {
     background: radial-gradient(ellipse 58px 11px at 50% 92px, rgba(0, 0, 0, 0.42), transparent 72%);
@@ -421,10 +440,24 @@ button:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a3f7d; }
         flex: 1 1 0;
         min-height: 0;
         margin-bottom: 0;
+        flex-direction: column;   /* 各サイドは縦に積む（横並びで潰れるのを防ぐ） */
+        flex-wrap: wrap;          /* レイドの9体などは複数列に折り返す（3×3風） */
+        align-content: center;
+        justify-content: center;  /* 縦方向に中央寄せで対峙させる */
+        gap: 0.9rem;
+        overflow-y: auto;         /* それでも入りきらなければスクロール */
     }
-    /* 互いに中央へ寄って対峙する */
-    .battlefield .enemy-area { justify-content: flex-end; padding-right: 1.5rem; }
-    .battlefield .ally-party-display { justify-content: flex-start; padding-left: 1.5rem; }
+    /* レイド等で多人数（味方）のときはカードを少し小さくして3×3に収める */
+    .battlefield .ally-party-display.crowded .battle-unit { width: 140px; }
+    .battlefield .ally-party-display.crowded .unit-img { width: 66px; height: 66px; }
+    /* 互いに中央(VS)へ寄って対峙する */
+    .battlefield .enemy-area { align-items: flex-end; padding-right: 1.5rem; }
+    .battlefield .ally-party-display { align-items: flex-start; padding-left: 1.5rem; }
+
+    /* 縦積みに合わせてカードをコンパクトに（画像が潰れない固定サイズ） */
+    .battlefield .battle-unit { width: 176px; }
+    .battlefield .unit-img { width: 84px; height: 84px; margin-bottom: 0.25rem; }
+    .battlefield .battle-unit { background-position: 50% 80px; }
 
     /* 中央の仕切りを縦線＋「VS」に */
     .battlefield .divider {
@@ -464,22 +497,28 @@ button:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a3f7d; }
     .enemy-area .battle-unit:not(.down):not(.hit-flash) .unit-img { animation-name: idle-float-mirror; }
     .enemy-area .battle-unit.down .unit-img { transform: scaleX(-1); }
 
-    /* 下段：上段＝コマンド左／味方ステータス右、下段＝全幅の細いログ帯 */
-    .battle-bottom { display: flex; flex-direction: column; gap: .75rem; }
-    .battle-bottom-main { display: flex; align-items: stretch; gap: 1rem; }
-    .battle-bottom-main .command-window { margin-top: 0; flex: 1 1 58%; }
+    /* 下段：コマンド｜パーティ状態｜ログ の3カラム */
+    .battle-bottom {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr 1.1fr;
+        gap: .75rem;
+        flex: 0 0 auto;
+        align-items: stretch;
+    }
+    /* ラッパーを透明化して command-window と ally-status を直接グリッドの列にする */
+    .battle-bottom-main { display: contents; }
+    .battle-bottom-main .command-window { margin-top: 0; }
     .ally-status-panel {
         display: flex;
         flex-direction: column;
         justify-content: center;
         gap: .5rem;
-        flex: 1 1 42%;
         padding: .75rem 1rem;
         border: 1px solid var(--border);
         border-radius: var(--radius-sm);
         background: linear-gradient(180deg, var(--surface-2), var(--bg-2));
     }
-    .battle-bottom .log { margin-top: 0; height: 130px; }
+    .battle-bottom .log { margin-top: 0; height: auto; min-height: 120px; max-height: 24vh; }
 
     /* 味方のHP/MPはパネルに集約：カード内バーは隠す（DOMは残すので更新は継続） */
     #ally-party-area .hp-bar, #ally-party-area .mp-bar { display: none; }
@@ -490,4 +529,161 @@ button:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a3f7d; }
     .battle-unit .unit-img,
     .battle-unit.hit-flash .unit-img,
     .battle-unit.attacking { animation: none !important; }
+}
+/* === クリックでターゲット選択 === */
+/* 対象用 select は隠す（クリック選択に置き換え） */
+.command-window select[name="target_enemy"],
+.command-window select[name="target_ally"],
+.command-window select[name="item_idx"] { display: none !important; }
+
+.target-hint {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--gold);
+    margin: 4px 0 2px;
+    letter-spacing: 0.5px;
+    min-height: 1.1em;
+}
+.target-hint.hidden { display: none; }
+
+/* 選択可能な対象 */
+.battle-unit.targetable { cursor: pointer; }
+.battle-unit.targetable .member-info,
+.battle-unit.targetable .unit-img { transition: filter .15s; }
+.battle-unit.targetable:hover { filter: brightness(1.12); }
+.battle-unit.targetable:hover .unit-img { filter: drop-shadow(0 0 6px var(--accent)); }
+
+/* 現在のターゲット */
+.battle-unit .target-marker {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    color: var(--gold);
+    font-size: 1.2rem;
+    opacity: 0;
+    pointer-events: none;
+    text-shadow: 0 0 8px rgba(255, 210, 74, 0.8), 0 1px 2px #000;
+    transition: opacity .15s, transform .15s;
+}
+.battle-unit.targeted .target-marker {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    animation: target-bob 1s ease-in-out infinite;
+}
+@keyframes target-bob {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-4px); }
+}
+.battle-unit.targeted .unit-img { filter: drop-shadow(0 0 8px var(--gold)); }
+.battle-unit.targeted::before {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 92px; height: 92px;
+    transform: translate(-50%, -50%);
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    box-shadow: 0 0 12px rgba(255, 210, 74, 0.5), inset 0 0 12px rgba(255, 210, 74, 0.25);
+    pointer-events: none;
+    opacity: 0.85;
+}
+
+/* 全体攻撃の対象表示 */
+.battle-unit.aoe-target .unit-img { filter: drop-shadow(0 0 6px var(--danger)); }
+.battle-unit.aoe-target::before {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 90px; height: 90px;
+    transform: translate(-50%, -50%);
+    border: 2px dashed var(--danger);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: aoe-pulse 1s ease-in-out infinite;
+}
+@keyframes aoe-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.9; } }
+
+/* 敵の詳細ⓘボタン */
+.unit-info-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    margin: 0;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: rgba(8, 14, 24, 0.7);
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .15s, color .15s, transform .08s;
+}
+.unit-info-btn:hover { background: var(--accent); color: #fff; }
+.unit-info-btn:active { transform: scale(0.9); }
+
+/* === 戦闘演出（バナー / フラッシュ / 撃破） === */
+.fx-banner {
+    position: absolute;
+    top: 38%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 40;
+    font-family: var(--font-display, serif);
+    font-weight: 800;
+    font-size: 2.4rem;
+    letter-spacing: 2px;
+    pointer-events: none;
+    white-space: nowrap;
+    animation: fx-banner-pop 0.9s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+}
+.fx-banner.fx-crit { color: #ff8a3c; text-shadow: 0 0 16px rgba(255, 138, 60, 0.9), 0 2px 4px #000; }
+.fx-banner.fx-effective { color: var(--gold); text-shadow: 0 0 16px rgba(255, 210, 74, 0.9), 0 2px 4px #000; }
+.fx-banner.fx-resist { color: #9bb0cc; font-size: 1.8rem; text-shadow: 0 2px 4px #000; }
+@keyframes fx-banner-pop {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    25% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+    70% { opacity: 1; transform: translate(-50%, -55%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -70%) scale(1); }
+}
+
+.fx-flash {
+    position: absolute;
+    inset: 0;
+    z-index: 35;
+    pointer-events: none;
+    border-radius: var(--radius);
+    animation: fx-flash-fade 0.36s ease-out forwards;
+}
+.fx-flash.fx-crit { background: radial-gradient(circle at 50% 45%, rgba(255, 138, 60, 0.35), transparent 70%); }
+.fx-flash.fx-effective { background: radial-gradient(circle at 50% 45%, rgba(255, 210, 74, 0.3), transparent 70%); }
+@keyframes fx-flash-fade { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+/* 撃破時の溶解アニメ */
+.battle-unit.just-defeated .unit-img,
+.battle-unit.just-defeated .unit-img-fallback {
+    animation: dissolve 0.7s ease-in forwards;
+}
+@keyframes dissolve {
+    0% { opacity: 1; transform: scale(1); filter: grayscale(0); }
+    40% { opacity: 1; filter: brightness(2) grayscale(0.4); }
+    100% { opacity: 0; transform: scale(0.6) translateY(10px); filter: grayscale(1) blur(2px); }
+}
+
+/* レイドフェーズ発動バナー */
+.fx-banner.fx-phase {
+    color: #ff7bd5;
+    font-size: 2rem;
+    text-shadow: 0 0 18px rgba(255, 123, 213, 0.9), 0 2px 4px #000;
+    white-space: normal;
+    max-width: 80%;
+    text-align: center;
+    line-height: 1.3;
 }
