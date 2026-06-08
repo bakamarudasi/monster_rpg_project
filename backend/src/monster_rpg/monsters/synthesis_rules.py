@@ -273,8 +273,8 @@ def ikai_synthesis_candidates(parent1, parent2) -> list[str]:
 
     add(_step_up_in_family(getattr(higher, "family", "") or "", href))
     add(_step_up_in_family(getattr(lower, "family", "") or "", href))
-    add((getattr(parent1, "monster_id", "") or "").lower())
-    add((getattr(parent2, "monster_id", "") or "").lower())
+    add((getattr(higher, "monster_id", "") or "").lower())
+    add((getattr(lower, "monster_id", "") or "").lower())
     return candidates
 
 

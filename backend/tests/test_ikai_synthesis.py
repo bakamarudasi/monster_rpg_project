@@ -95,6 +95,21 @@ class IkaiSynthesisTests(unittest.TestCase):
         ids = [c['id'] for c in pv['candidates']]
         self.assertIn('wraith_knight', ids)
 
+    def test_baby_forms_are_low_rank(self):
+        """進化前の幼体は実力相応の低ランク。生まれつき高capにせず、進化で天井を開く。"""
+        self.assertEqual(ALL_MONSTERS['dragon_pup'].rank, 'C')
+        self.assertEqual(ALL_MONSTERS['phoenix_chick'].rank, 'C')
+
+    def test_default_child_is_never_a_weak_baby_with_strong_parent(self):
+        """強い親が絡む配合の既定が弱い幼体に落ちない（位階ラダー歪みの回帰防止）。"""
+        babies = {'dragon_pup', 'phoenix_chick'}
+        for a, b in [('dragon_pup', 'celestial_dragon'),
+                     ('dragon_pup', 'vampire_lord'),
+                     ('dragon_pup', 'sky_seraph')]:
+            _key, cands = synthesis_candidates(ALL_MONSTERS[a], ALL_MONSTERS[b])
+            self.assertTrue(cands)
+            self.assertNotIn(cands[0], babies, f"{a}×{b} の既定が幼体になっている")
+
 
 if __name__ == '__main__':
     unittest.main()

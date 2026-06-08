@@ -198,7 +198,7 @@
   "dragon_pup": {
     "name": "ドラゴンのこども",
     "ai_role": "attacker",
-    "rank": "A",
+    "rank": "C",
     "element": "火",
     "image_filename": "dragon_pup.png",
     "growth_type": "大器晩成型",
@@ -234,7 +234,7 @@
     "name": "不死鳥のヒナ",
     "trait": "endure",
     "ai_role": "attacker",
-    "rank": "S",
+    "rank": "C",
     "element": "火",
     "image_filename": "phoenix_chick.png",
     "growth_type": "大器晩成型",
