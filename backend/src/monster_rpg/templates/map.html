@@ -30,7 +30,10 @@
                 {% if is_discovered %}
                   {% if current_loc_id == cell.location_id %}<span class="cell-pin">📍</span>{% endif %}
                   <span class="cell-name">{{ cell.name }}</span>
-                  {% if cell.region %}<span class="cell-region">{{ cell.region }}</span>{% endif %}
+                  <span class="cell-meta">
+                    {% if cell.region %}<span class="cell-region">{{ cell.region }}</span>{% endif %}
+                    {% if cell.avg_enemy_level %}<span class="cell-lv">Lv{{ cell.avg_enemy_level }}</span>{% endif %}
+                  </span>
                   <span class="cell-badges">
                     {% if cell.boss_enemy_id %}<span class="badge boss" title="ボス">👑</span>{% endif %}
                     {% if cell.has_shop %}<span class="badge" title="ショップ">🏪</span>{% endif %}

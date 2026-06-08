@@ -267,3 +267,17 @@
 }
 .back-btn:hover { filter: brightness(1.1); box-shadow: 0 3px 0 #0a3f7d, var(--shadow-glow); }
 .back-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a3f7d; }
+
+/* セルの推奨レベル表示（地域差を可視化） */
+.cell-meta { display: flex; align-items: center; justify-content: center; gap: 5px; flex-wrap: wrap; }
+.cell-lv {
+  font-size: 0.6rem;
+  font-weight: bold;
+  color: var(--gold);
+  background: rgba(255, 210, 74, 0.12);
+  border: 1px solid var(--gold-deep);
+  border-radius: var(--radius-pill);
+  padding: 0 6px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
