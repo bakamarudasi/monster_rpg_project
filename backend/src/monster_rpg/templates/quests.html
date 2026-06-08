@@ -24,6 +24,17 @@
 <div class="q-wrap">
   <h2 class="q-title">◆ 依頼掲示板 ◆</h2>
   {% if message %}<div class="q-msg">{{ message }}</div>{% endif %}
+  {% set c_av = rows | selectattr('status','equalto','available') | list | length %}
+  {% set c_ac = rows | selectattr('status','equalto','active') | list | length %}
+  {% set c_rd = rows | selectattr('status','equalto','ready') | list | length %}
+  {% set c_cp = rows | selectattr('status','equalto','completed') | list | length %}
+  <div class="q-filter">
+    <button type="button" class="qf-chip active" data-filter="all">すべて <span>{{ rows|length }}</span></button>
+    <button type="button" class="qf-chip" data-filter="available">未受注 <span>{{ c_av }}</span></button>
+    <button type="button" class="qf-chip" data-filter="active">進行中 <span>{{ c_ac }}</span></button>
+    <button type="button" class="qf-chip" data-filter="ready">達成可能 <span>{{ c_rd }}</span></button>
+    <button type="button" class="qf-chip" data-filter="completed">達成済 <span>{{ c_cp }}</span></button>
+  </div>
   <ul class="q-list">
     {% for r in rows %}
       <li class="q-card {{ r.status }}">
@@ -55,4 +66,27 @@
     {% endfor %}
   </ul>
 </div>
+<style>
+  .q-filter { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 0 0 16px; }
+  .qf-chip { background: rgba(8,14,24,0.5); border: 1px solid var(--border); color: var(--text-dim); border-radius: var(--radius-pill); padding: 6px 16px; font-family: inherit; font-size: 0.9rem; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+  .qf-chip span { color: var(--text-faint); font-size: 0.8rem; margin-left: 2px; }
+  .qf-chip:hover { color: var(--text); border-color: var(--accent); }
+  .qf-chip.active { background: linear-gradient(180deg, rgba(74,144,226,0.25), rgba(74,144,226,0.08)); border-color: var(--accent); color: #fff; }
+</style>
+<script>
+  (function () {
+    var chips = document.querySelectorAll('.qf-chip');
+    var cards = document.querySelectorAll('.q-card');
+    chips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        chips.forEach(function (c) { c.classList.remove('active'); });
+        chip.classList.add('active');
+        var f = chip.dataset.filter;
+        cards.forEach(function (c) {
+          c.style.display = (f === 'all' || c.classList.contains(f)) ? '' : 'none';
+        });
+      });
+    });
+  })();
+</script>
 {% endblock %}

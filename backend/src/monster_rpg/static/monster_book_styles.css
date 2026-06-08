@@ -62,3 +62,21 @@
 }
 .entry-hint { font-size: 0.85em; color: var(--text-dim); margin-bottom: 0.2em; }
 .hint-label { font-weight: bold; color: var(--accent); }
+
+/* 状態フィルタ */
+.book-filter { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 16px; }
+.bf-chip {
+  background: rgba(8, 14, 24, 0.5);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: var(--radius-pill);
+  padding: 6px 16px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.bf-chip span { color: var(--text-faint); font-size: 0.8rem; margin-left: 2px; }
+.bf-chip:hover { color: var(--text); border-color: var(--accent); }
+.bf-chip.active { background: linear-gradient(180deg, rgba(74,144,226,0.25), rgba(74,144,226,0.08)); border-color: var(--accent); color: #fff; }
+.bf-chip.active span { color: #cfe0ff; }
