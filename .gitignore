@@ -56,6 +56,10 @@ local_settings.py
 instance/
 .webassets-cache
 
+# Game save / runtime SQLite databases (created at runtime, not source)
+*.db
+*.sqlite3
+
 # Scrapy stuff:
 .scrapy
 

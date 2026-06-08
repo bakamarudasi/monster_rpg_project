@@ -45,9 +45,6 @@ def add_monster_to_party(player: "Player", monster_id_or_object) -> Optional[Mon
         print("エラー: add_monster_to_party の引数が不正です。")
 
     if newly_added_monster:
-        print(
-            f"[DEBUG add_monster_to_party] Actual monster_id of added monster '{newly_added_monster.name}': '{newly_added_monster.monster_id}' (type: {type(newly_added_monster.monster_id)})"
-        )
         player.monster_book.record_captured(newly_added_monster.monster_id)
         return newly_added_monster
     return None
