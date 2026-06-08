@@ -110,3 +110,7 @@
 .raid-btn:hover:not(:disabled) { filter: brightness(1.08); }
 .raid-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #7e5e16; }
 .raid-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+/* 稀少ドロップ表示 */
+.boss-drop { margin-top: 6px; font-size: 0.8rem; color: #e9c9ff; }
+.boss-drop .drop-rate { color: var(--text-faint); font-variant-numeric: tabular-nums; }

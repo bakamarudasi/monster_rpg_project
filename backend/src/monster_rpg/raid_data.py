@@ -55,12 +55,22 @@ def _display_name(monster_id: str) -> str:
     return m.name if m else monster_id
 
 
-# 表示名・レベルはボス本体から補完
+# 表示名・レベル・稀少ドロップはボス本体から補完
 for _b in RAID_BOSSES:
     _mon = RAID_MONSTERS.get(_b["monster_id"])
     _b["name"] = _mon.name if _mon else _b["monster_id"]
     _b["level"] = _mon.level if _mon else 1
     _b["max_hp"] = _mon.max_hp if _mon else 0
+    # ドロップ表の中で最もレアな（=最低確率の legendary）専用装備を「稀少ドロップ」として表示
+    _b["drop_name"] = None
+    _b["drop_rate"] = None
+    if _mon:
+        _rares = [(it, rate) for it, rate in _mon.drop_items
+                  if getattr(it, "rarity", "") == "legendary"]
+        if _rares:
+            _it, _rate = min(_rares, key=lambda x: x[1])
+            _b["drop_name"] = _it.name
+            _b["drop_rate"] = round(_rate * 100)
 
 
 def get_raid(raid_id: str):

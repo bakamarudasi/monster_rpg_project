@@ -28,7 +28,8 @@
               <span class="boss-lv">Lv{{ b.level }}</span>
             </div>
             <p class="boss-desc">{{ b.desc }}</p>
-            <div class="boss-reward">報酬ボーナス {{ b.reward_gold }}G</div>
+            <div class="boss-reward">報酬ボーナス {{ b.reward_gold }}G ＋ 汎用装備ドロップ</div>
+            {% if b.drop_name %}<div class="boss-drop">稀少 ✦ {{ b.drop_name }} <span class="drop-rate">{{ b.drop_rate }}%</span></div>{% endif %}
           </div>
         </label>
       {% endfor %}

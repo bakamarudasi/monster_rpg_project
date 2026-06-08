@@ -13,7 +13,7 @@
     "trait": "pinch_power",
     "skills": ["dragon_breath", "fireball", "meteor_strike", "guard_up"],
     "skill_sequence": ["dragon_breath", "fireball", "meteor_strike", "guard_up"],
-    "drop_items": [["infernal_fang", 0.6]],
+    "drop_items": [["steel_sword", 0.4], ["chainmail", 0.4], ["flame_blade", 0.3], ["mythril_sword", 0.2], ["infernal_fang", 0.08]],
     "book": {
       "description": "業火を統べる古竜。レイドの試練として顕現する。"
     }
@@ -32,7 +32,7 @@
     "trait": "lifesteal",
     "skills": ["water_blast", "ice_spear", "life_drain", "roar"],
     "skill_sequence": ["water_blast", "ice_spear", "life_drain", "roar"],
-    "drop_items": [["abyssal_trident", 0.6]],
+    "drop_items": [["great_axe", 0.35], ["mage_robe", 0.35], ["thunder_lance", 0.3], ["plate_armor", 0.25], ["frost_staff", 0.25], ["abyssal_trident", 0.07]],
     "book": {
       "description": "深淵より来たる海の覇王。無数の触手で全てを薙ぎ払う。"
     }
@@ -51,7 +51,7 @@
     "trait": "magic_ward",
     "skills": ["meteor_strike", "holy_light", "mass_heal", "revive"],
     "skill_sequence": ["meteor_strike", "holy_light", "mass_heal", "revive"],
-    "drop_items": [["celestial_aegis", 0.6]],
+    "drop_items": [["war_hammer", 0.3], ["dark_scepter", 0.25], ["aegis_shield", 0.25], ["glaive_of_light", 0.2], ["vorpal_blade", 0.12], ["celestial_aegis", 0.06]],
     "book": {
       "description": "全ての理を司る伝説の守護竜。レイド最強の試練。"
     }
