@@ -55,8 +55,6 @@
     {% else %}
     <p class="empty">強化できる装備を持っていない。</p>
     {% endif %}
-
-    <a class="back-link" href="{{ url_for('play', user_id=user_id) }}">← 戻る</a>
   </div>
 </div>
 
@@ -64,7 +62,7 @@
   .enhance-wrap { display: flex; justify-content: center; padding: 32px 12px; }
   .enhance-card {
     width: 100%;
-    max-width: 620px;
+    max-width: 1000px;
     background: linear-gradient(180deg, var(--surface), var(--surface-2));
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -75,7 +73,7 @@
   .enhance-head h2 { margin: 0; font-family: var(--font-display); color: var(--gold); letter-spacing: 2px; }
   .gold { color: var(--gold); font-weight: bold; font-size: 1.1rem; }
   .enhance-hint { color: var(--text-dim); font-size: 0.95rem; margin: 14px 0 18px; }
-  .equip-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  .equip-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 10px; }
   .equip-row {
     display: grid;
     grid-template-columns: 1fr auto auto;
