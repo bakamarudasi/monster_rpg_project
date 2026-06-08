@@ -703,17 +703,45 @@
         setTimeout(() => page.classList.remove(cls), hard ? 520 : 370);
     }
 
+    /* 中央に一瞬だけ出る演出バナー（会心/効果バツグン等） */
+    function showCenterBanner(text, kind) {
+        const page = document.querySelector('.battle-page');
+        if (!page) return;
+        const el = document.createElement('div');
+        el.className = 'fx-banner fx-' + (kind || 'info');
+        el.textContent = text;
+        page.appendChild(el);
+        setTimeout(() => el.remove(), 900);
+    }
+
+    /* 画面全体の色フラッシュ */
+    function flashScreen(kind) {
+        const page = document.querySelector('.battle-page');
+        if (!page) return;
+        const fx = document.createElement('div');
+        fx.className = 'fx-flash fx-' + (kind || 'info');
+        page.appendChild(fx);
+        setTimeout(() => fx.remove(), 360);
+    }
+
     function updateUnitList(units, infoList, opts = {}) {
         let damaged = false;
         units.forEach((unit, idx) => {
             const info = infoList[idx];
             if (!info) return;
             const prevHp = parseInt(unit.dataset.hp || '0');
+            const wasDown = unit.classList.contains('down');
             unit.dataset.hp = info.hp;
             unit.dataset.mp = info.mp;
             unit.dataset.statuses = JSON.stringify(info.status_effects || []);
             if (!info.alive) {
                 unit.classList.add('down');
+                /* 今ターン倒れた瞬間だけ溶解アニメを再生 */
+                if (!wasDown) {
+                    unit.classList.remove('targeted', 'targetable', 'aoe-target');
+                    unit.classList.add('just-defeated');
+                    setTimeout(() => unit.classList.remove('just-defeated'), 700);
+                }
             } else {
                 unit.classList.remove('down');
             }
@@ -851,6 +879,7 @@
         if (detailPanel) detailPanel.classList.remove('open');
         const hasCrit = Array.isArray(data.log) && data.log.some(e => e.type === 'critical');
         const hasEffective = Array.isArray(data.log) && data.log.some(e => e.type === 'effective');
+        const hasResist = Array.isArray(data.log) && data.log.some(e => e.type === 'resist');
 
         const allyUnits = document.querySelectorAll('#ally-party-area .battle-unit');
         allyUnits.forEach(el => el.classList.remove('active-turn'));
@@ -860,6 +889,11 @@
         const enemyDamaged = updateUnitList(enemyUnits, data.hp_values.enemy, { crit: hasCrit });
 
         if (allyDamaged || enemyDamaged) triggerShake(hasCrit || hasEffective);
+
+        /* 演出：会心／効果バツグン／いまひとつ の中央バナー＋画面フラッシュ */
+        if (hasCrit) { showCenterBanner('クリティカル！', 'crit'); flashScreen('crit'); }
+        else if (hasEffective) { showCenterBanner('効果はバツグンだ！', 'effective'); flashScreen('effective'); }
+        else if (hasResist) { showCenterBanner('いまひとつ…', 'resist'); }
 
         if (data.hp_values) updateFieldBanner(data.hp_values.field);
 

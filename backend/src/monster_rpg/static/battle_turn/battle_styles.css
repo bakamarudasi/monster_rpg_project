@@ -628,3 +628,51 @@ button:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a3f7d; }
 }
 .unit-info-btn:hover { background: var(--accent); color: #fff; }
 .unit-info-btn:active { transform: scale(0.9); }
+
+/* === 戦闘演出（バナー / フラッシュ / 撃破） === */
+.fx-banner {
+    position: absolute;
+    top: 38%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 40;
+    font-family: var(--font-display, serif);
+    font-weight: 800;
+    font-size: 2.4rem;
+    letter-spacing: 2px;
+    pointer-events: none;
+    white-space: nowrap;
+    animation: fx-banner-pop 0.9s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+}
+.fx-banner.fx-crit { color: #ff8a3c; text-shadow: 0 0 16px rgba(255, 138, 60, 0.9), 0 2px 4px #000; }
+.fx-banner.fx-effective { color: var(--gold); text-shadow: 0 0 16px rgba(255, 210, 74, 0.9), 0 2px 4px #000; }
+.fx-banner.fx-resist { color: #9bb0cc; font-size: 1.8rem; text-shadow: 0 2px 4px #000; }
+@keyframes fx-banner-pop {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    25% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+    70% { opacity: 1; transform: translate(-50%, -55%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -70%) scale(1); }
+}
+
+.fx-flash {
+    position: absolute;
+    inset: 0;
+    z-index: 35;
+    pointer-events: none;
+    border-radius: var(--radius);
+    animation: fx-flash-fade 0.36s ease-out forwards;
+}
+.fx-flash.fx-crit { background: radial-gradient(circle at 50% 45%, rgba(255, 138, 60, 0.35), transparent 70%); }
+.fx-flash.fx-effective { background: radial-gradient(circle at 50% 45%, rgba(255, 210, 74, 0.3), transparent 70%); }
+@keyframes fx-flash-fade { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+/* 撃破時の溶解アニメ */
+.battle-unit.just-defeated .unit-img,
+.battle-unit.just-defeated .unit-img-fallback {
+    animation: dissolve 0.7s ease-in forwards;
+}
+@keyframes dissolve {
+    0% { opacity: 1; transform: scale(1); filter: grayscale(0); }
+    40% { opacity: 1; filter: brightness(2) grayscale(0.4); }
+    100% { opacity: 0; transform: scale(0.6) translateY(10px); filter: grayscale(1) blur(2px); }
+}
