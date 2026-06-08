@@ -1,292 +1,239 @@
-  body {
-    background: #f9eee0;
-    min-height: 100vh;
-  }
-  .book-bg {
+/* === パーティ画面（ダーク統一・PCワイド・カードグリッド） === */
+.book-bg {
     display: flex;
     justify-content: center;
     align-items: flex-start;
     min-height: 100vh;
-    padding-top: 48px;
-    padding-bottom: 48px;
-  }
-  .book-page {
-    background: #f7f2e6;
-    border: 4px solid #b68b4c;
-    border-radius: 18px;
-    max-width: 420px;
-    width: 98%;
-    box-shadow:
-      0 4px 32px #7b51120a,
-      0 0 0 10px #e6d3b6;
-    padding: 32px 22px 38px 22px;
+    padding: 28px 14px 48px;
+}
+.book-page {
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    max-width: 960px;
+    width: 100%;
+    padding: 24px 24px 30px;
     position: relative;
-  }
-  .book-title {
-    font-family: 'Georgia', 'Times New Roman', serif;
+}
+.book-title {
+    font-family: var(--font-display);
     text-align: center;
-    font-size: 2.1rem;
-    margin-bottom: 1.2em;
-    color: #895c1a;
-    letter-spacing: 2.5px;
-    text-shadow: 0 2px 1px #f4e3bd, 0 0 6px #f4e3bd99;
-    border-bottom: 2px solid #b68b4c55;
-    padding-bottom: .2em;
-  }
-  .party-list {
+    font-size: 1.9rem;
+    margin: 0 0 1em;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-shadow: 0 0 12px rgba(255, 210, 74, 0.25);
+    border-bottom: 1px solid var(--border-soft);
+    padding-bottom: .3em;
+}
+.party-list {
     list-style: none;
     padding: 0;
     margin: 0 0 1.5em 0;
-  }
-  .party-member {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+.party-member {
     display: flex;
     align-items: center;
-    gap: 1.1em;
-    margin-bottom: 1.2em;
-    background: linear-gradient(90deg, #f6e9d1 80%, #e6d3b6 100%);
-    border-radius: 10px;
-    box-shadow: 0 1px 5px #c1b28b33 inset;
-    border-left: 5px solid #b68b4cbb;
-    padding: 8px 13px 8px 10px;
+    gap: 14px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.12));
+    border: 1px solid var(--border-soft);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
     position: relative;
     z-index: 1;
-    transition: box-shadow .35s cubic-bezier(.19,1,.22,1), border-color .28s, transform .2s ease;
+    transition: box-shadow .3s, border-color .2s, transform .12s ease;
     cursor: pointer;
-  }
-  .party-member:hover {
-    transform: scale(1.02);
-  }
-  .party-member.magic-hover {
-    box-shadow: 0 0 22px 5px #ffc85788, 0 0 0 8px #e0c38a22 inset;
-    border-color: #c39b3d;
-  }
-  .monster-img {
-    width: 56px;
-    height: 56px;
+}
+.party-member:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    box-shadow: var(--shadow), 0 0 0 1px var(--accent-glow);
+}
+.party-member.magic-hover {
+    box-shadow: 0 0 22px 4px rgba(255, 210, 74, 0.4);
+    border-color: var(--gold);
+}
+.monster-img {
+    width: 64px;
+    height: 64px;
     object-fit: contain;
-    border-radius: 8px;
-    background: #e3dac0;
-    border: 2px solid #c9b383;
-    box-shadow: 0 2px 5px #b68b4c1a;
-  }
-  .member-info {
-    font-family: 'Georgia', serif;
-    font-size: 1.12rem;
-    color: #5d4b29;
-    letter-spacing: 1.1px;
-    line-height: 1.35;
+    image-rendering: pixelated;
+    border-radius: var(--radius-sm);
+    background: rgba(8, 14, 24, 0.5);
+    border: 1px solid var(--border-soft);
+    flex: 0 0 auto;
+}
+.member-info {
+    font-size: 1rem;
+    color: var(--text);
+    line-height: 1.4;
     display: flex;
     flex-direction: column;
     gap: 3px;
-  }
-  .monster-name {
+    min-width: 0;
+}
+.monster-name {
     font-weight: bold;
-    font-size: 1.16em;
-    color: #865e2a;
-    letter-spacing: 1.2px;
-  }
-  .monster-level {
-    font-size: 1em;
-    color: #7c653b;
-  }
-  .monster-hp {
-    font-size: 0.97em;
-    color: #ab2a2a;
-    font-variant-numeric: tabular-nums;
-  }
-  .hp-max {
-    color: #74571b;
-    opacity: .8;
-  }
-  .book-btn {
-    display: block;
-    margin: 0 auto 12px auto;
-    padding: 11px 44px;
-    background: linear-gradient(90deg,#a17c4b 30%,#d3b173 100%);
-    color: #fffbe6;
-    border: none;
-    border-radius: 9px;
-    font-size: 1.12rem;
-    font-family: 'Georgia', serif;
-    letter-spacing: 1px;
-    font-weight: bold;
-    box-shadow: 0 2px 9px #8c6d3b33;
-    cursor: pointer;
-    transition: background .18s, box-shadow .17s;
-    border-bottom: 3px solid #c9b383;
-  }
-  .book-btn:hover {
-    background: linear-gradient(90deg,#d3b173 0%,#a17c4b 100%);
-    box-shadow: 0 4px 13px #a17c4b44;
-  }
-  .book-link {
+    font-size: 1.1em;
+    color: var(--text);
+}
+.monster-level { font-size: 0.9em; color: var(--text-dim); }
+.monster-hp { font-size: 0.9em; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.monster-hp b { color: var(--success); }
+.hp-max { color: var(--text-faint); }
+
+.book-btn {
     display: block;
     margin: 0 auto;
-    color: #9c7228;
-    font-family: 'Georgia', serif;
-    font-size: 1.05em;
-    text-decoration: underline wavy #b68b4c66;
-    letter-spacing: 1.1px;
-    padding-top: 8px;
-    text-align: center;
-    transition: color .17s;
-  }
-  .book-link:hover {
-    color: #ad8236;
-    text-decoration: underline wavy #a17c4b;
-  }
+    padding: 11px 44px;
+    background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+    color: #fff;
+    border: 1px solid #6aa6ee;
+    border-radius: var(--radius-sm);
+    font-size: 1.05rem;
+    font-family: inherit;
+    letter-spacing: 1px;
+    font-weight: bold;
+    box-shadow: 0 3px 0 #0a3f7d, var(--shadow-sm);
+    cursor: pointer;
+    transition: filter .15s, box-shadow .15s, transform .08s;
+}
+.book-btn:hover { filter: brightness(1.1); box-shadow: 0 3px 0 #0a3f7d, var(--shadow-glow); }
+.book-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a3f7d; }
 
-  .fade-in { opacity: 0; transform: translateY(32px) scale(.98); transition: .9s cubic-bezier(.19,1,.22,1);}
-  .fade-in.show { opacity: 1; transform: none; }
+.fade-in { opacity: 0; transform: translateY(24px); transition: .7s cubic-bezier(.19,1,.22,1); }
+.fade-in.show { opacity: 1; transform: none; }
 
-  .modal-backdrop {
+/* === 詳細モーダル（party.js が生成。クラス名維持） === */
+.modal-backdrop {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(66, 45, 12, 0.6);
+    inset: 0;
+    background-color: rgba(4, 8, 14, 0.7);
     backdrop-filter: blur(4px);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 100;
+    z-index: 1000;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
-  }
-  .modal-backdrop.show {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  .modal-card {
-    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-    border: 2px solid #fff;
-    border-radius: 20px;
-    width: 90%;
-    max-width: 380px;
+}
+.modal-backdrop.show { opacity: 1; pointer-events: auto; }
+.modal-card {
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 92%;
+    max-width: 420px;
     max-height: 90vh;
     overflow: hidden;
     position: relative;
-    box-shadow: 0 10px 50px rgba(0,0,0,0.4), 0 0 0 5px #b68b4c;
-    transform: scale(0.9) rotateY(15deg);
-    transition: transform 0.4s cubic-bezier(.19,1,.22,1);
+    box-shadow: var(--shadow), 0 0 0 1px var(--accent-glow);
+    transform: scale(0.92);
+    transition: transform 0.35s cubic-bezier(.19,1,.22,1);
     display: flex;
     flex-direction: column;
-  }
-  .modal-backdrop.show .modal-card {
-      transform: scale(1) rotateY(0deg);
-  }
-  .modal-close-btn {
-      position: absolute;
-      top: 5px;
-      right: 10px;
-      background: rgba(0,0,0,0.3);
-      border: none;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      font-size: 1.5rem;
-      color: #fff;
-      cursor: pointer;
-      z-index: 10;
-      line-height: 30px;
-      text-align: center;
-  }
-  #modal-card-body {
-      overflow-y: auto;
-      font-family: 'Georgia', serif;
-  }
-  .card-image-area {
-      height: 200px;
-      background: #c3d4e0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-bottom: 4px solid #b68b4c;
-  }
-  .card-monster-img {
-      max-width: 90%;
-      max-height: 90%;
-      object-fit: contain;
-      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
-  }
-  .card-header {
-      padding: 16px;
-      text-align: center;
-      background: #f7f2e6;
-  }
-  .card-monster-name {
-      font-size: 1.7rem;
-      color: #865e2a;
-      font-weight: bold;
-      margin-bottom: 4px;
-  }
-  .card-monster-lvhp {
-      font-size: 1rem;
-      color: #7c653b;
-  }
-  .card-content {
-      padding: 16px;
-  }
-  .card-stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px 12px;
-      margin-bottom: 16px;
-      font-size: 1.1rem;
-      color: #5d4b29;
-  }
-  .card-stats-grid span {
-      background: #ede6d8;
-      padding: 4px 8px;
-      border-radius: 6px;
-  }
-  .card-section h3 {
-      font-size: 1.3rem;
-      color: #865e2a;
-      border-bottom: 1px solid #b68b4c55;
-      padding-bottom: 4px;
-      margin-bottom: 8px;
-  }
-  .card-skills-list ul {
-      list-style: none;
-      padding: 0;
-   }
-  .card-skills-list li {
-      background: #ede6d8;
-      border-radius: 6px;
-      padding: 8px 12px;
-      margin-bottom: 6px;
-      font-size: 0.95rem;
-   }
-   .card-description p {
-       line-height: 1.5;
-       font-size: 1rem;
-       color: #5d4b29;
-       padding: 8px;
-       background: #ede6d8;
-       border-radius: 6px;
-   }
+}
+.modal-backdrop.show .modal-card { transform: scale(1); }
+.modal-close-btn {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-soft);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 1.4rem;
+    color: #fff;
+    cursor: pointer;
+    z-index: 10;
+    line-height: 26px;
+    text-align: center;
+}
+#modal-card-body { overflow-y: auto; }
+.card-image-area {
+    height: 200px;
+    background: radial-gradient(circle at 50% 40%, var(--surface-raised), var(--bg-2));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+}
+.card-monster-img {
+    max-width: 88%;
+    max-height: 88%;
+    object-fit: contain;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.5));
+}
+.card-header { padding: 16px; text-align: center; background: var(--bg-2); }
+.card-monster-name { font-size: 1.6rem; color: var(--gold); font-weight: bold; margin-bottom: 4px; }
+.card-monster-lvhp { font-size: 1rem; color: var(--text-dim); }
+.card-content { padding: 16px; }
+.card-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+    margin-bottom: 16px;
+    font-size: 1rem;
+    color: var(--text);
+}
+.card-stats-grid span {
+    background: rgba(8, 14, 24, 0.5);
+    border: 1px solid var(--border-soft);
+    padding: 5px 10px;
+    border-radius: var(--radius-sm);
+}
+.card-section h3 {
+    font-size: 1.15rem;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border-soft);
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+}
+.card-skills-list ul { list-style: none; padding: 0; margin: 0; }
+.card-skills-list li {
+    background: rgba(8, 14, 24, 0.5);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+    color: var(--text);
+}
+.card-description p {
+    line-height: 1.5;
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    padding: 10px;
+    background: rgba(8, 14, 24, 0.5);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+}
 
 /* 配合の世代（＋値）バッジ */
 .plus-badge {
     display: inline-block;
-    background: linear-gradient(180deg, #ffd24a, #c9962a);
+    background: linear-gradient(180deg, var(--gold), var(--gold-deep));
     color: #3a2a00;
     font-weight: 800;
     font-size: 0.78em;
     padding: 1px 7px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     vertical-align: middle;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-    letter-spacing: 0.5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* レア個体（★） */
 .rare-star {
-    color: #ffd24a;
-    text-shadow: 0 0 6px rgba(255,210,74,0.8);
+    color: var(--gold);
+    text-shadow: 0 0 6px rgba(255, 210, 74, 0.8);
     margin-right: 2px;
     animation: rare-twinkle 1.8s ease-in-out infinite;
 }
@@ -295,7 +242,7 @@
     50% { opacity: 0.65; transform: scale(1.18); }
 }
 
-/* 才能バッジ（一覧で良個体をひと目で見分ける） */
+/* 才能バッジ */
 .talent-badge {
     display: inline-block;
     background: linear-gradient(180deg, #9ec1ef, #4d79c0);
@@ -303,18 +250,18 @@
     font-weight: 800;
     font-size: 0.72em;
     padding: 1px 7px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     vertical-align: middle;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 .talent-badge-hidden {
     background: linear-gradient(180deg, #ffe18a, #e0a93a);
     color: #4a2f00;
-    box-shadow: 0 0 6px rgba(255,200,74,0.8);
+    box-shadow: 0 0 6px rgba(255, 200, 74, 0.8);
     animation: rare-twinkle 1.8s ease-in-out infinite;
 }
 
-/* 個体の個性（性格・才能）タグ */
+/* 個性タグ（性格・才能・特性） */
 .card-monster-individuality {
     display: flex;
     flex-wrap: wrap;
@@ -327,80 +274,53 @@
     font-size: 0.8rem;
     font-weight: 700;
     padding: 2px 9px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     border: 1px solid transparent;
 }
-.indiv-personality {
-    background: #e7f0e3;
-    color: #3f6b34;
-    border-color: #3f6b3433;
-}
-.indiv-talent {
-    background: #e6ecf7;
-    color: #34507c;
-    border-color: #34507c33;
-}
-.indiv-trait {
-    background: #efe3f3;
-    color: #6b348c;
-    border-color: #6b348c33;
-}
+.indiv-personality { background: rgba(63, 107, 52, 0.22); color: #9fe08f; border-color: #3f6b34; }
+.indiv-talent { background: rgba(52, 80, 124, 0.28); color: #aecaf5; border-color: #34507c; }
+.indiv-trait { background: rgba(107, 52, 140, 0.25); color: #d9b6f5; border-color: #6b348c; }
 .indiv-talent-hidden {
     background: linear-gradient(180deg, #ffe18a, #e0a93a);
     color: #4a2f00;
     border-color: #a9762a;
-    box-shadow: 0 0 6px rgba(255,200,74,0.7);
+    box-shadow: 0 0 6px rgba(255, 200, 74, 0.7);
     animation: rare-twinkle 1.8s ease-in-out infinite;
 }
 
 /* 個体値（鑑定で開示） */
-.card-monster-ivs {
-    margin-top: 8px;
-    text-align: center;
-}
-.iv-title {
-    font-size: 0.8rem;
-    color: #7c653b;
-    font-weight: 700;
-    margin-bottom: 4px;
-}
-.iv-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 6px;
-    justify-content: center;
-}
+.card-monster-ivs { margin-top: 8px; text-align: center; }
+.iv-title { font-size: 0.8rem; color: var(--text-dim); font-weight: 700; margin-bottom: 4px; }
+.iv-grid { display: flex; flex-wrap: wrap; gap: 4px 6px; justify-content: center; }
 .iv-cell {
     font-size: 0.75rem;
-    background: #ede6d8;
-    color: #5d4b29;
-    border-radius: 6px;
+    background: rgba(8, 14, 24, 0.5);
+    color: var(--text-dim);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
     padding: 2px 7px;
 }
 .iv-cell.iv-best {
     background: linear-gradient(180deg, #ffe18a, #e0a93a);
     color: #4a2f00;
     font-weight: 800;
+    border-color: #a9762a;
 }
-.iv-unappraised {
-    font-size: 0.78rem;
-    color: #9b8a66;
-    font-style: italic;
-}
+.iv-unappraised { font-size: 0.78rem; color: var(--text-faint); font-style: italic; }
 .appraise-btn {
     margin-top: 6px;
     font-size: 0.8rem;
     font-weight: 700;
     color: #fff;
-    background: linear-gradient(180deg, #6f9bd1, #3d6aa8);
-    border: none;
-    border-radius: 999px;
+    background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+    border: 1px solid #6aa6ee;
+    border-radius: var(--radius-pill);
     padding: 4px 14px;
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 .appraise-btn:disabled { opacity: 0.5; cursor: default; }
-.appraise-btn:hover:not(:disabled) { filter: brightness(1.08); }
+.appraise-btn:hover:not(:disabled) { filter: brightness(1.1); }
 
-/* 装備一覧の能力表示（攻/防/魔/魔防/速/会心/回避） */
-.equip-stats { color: #6a4fb0; font-size: 0.82em; font-weight: 600; }
+/* 装備一覧の能力表示 */
+.equip-stats { color: #c6b6ff; font-size: 0.82em; font-weight: 600; }
