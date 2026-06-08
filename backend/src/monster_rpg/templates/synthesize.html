@@ -489,6 +489,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewBox = document.getElementById('synth-preview');
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
     let previewMaxInherit = 3;
+    // 位階配合で選んだ子の monster_id（レシピ配合のときは無効。素材が変わると null に戻す）
+    let selectedResultChoice = null;
 
     function hidePreview() {
         if (previewBox) { previewBox.classList.add('hidden'); previewBox.textContent = ''; }
@@ -545,6 +547,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const plus = d.plus_value ? ` <span class="preview-plus">+${d.plus_value}</span>` : '';
         const elem = d.element ? `<span class="preview-tag">${d.element}</span>` : '';
         const rank = d.rank ? `<span class="preview-tag">${d.rank}</span>` : '';
+        // 位階配合の子候補（どの親の系統に寄せるか選ぶ）。レシピ配合では選択不可。
+        let candHtml = '';
+        if (d.selectable && Array.isArray(d.candidates) && d.candidates.length > 1) {
+            const opts = d.candidates.map(c =>
+                `<label class="skill-chip"><input type="radio" name="cand-pick" class="cand-pick" value="${c.id}" ${c.id === d.result_id ? 'checked' : ''}><span>${c.name} <small>[${c.rank}]</small></span></label>`
+            ).join('');
+            candHtml = `<div class="preview-skills"><div class="preview-skills-title">どの系統に寄せる？（位階配合）</div><div class="skill-chips">${opts}</div></div>`;
+        }
         let skillsHtml = '';
         if (Array.isArray(d.skills) && d.skills.length) {
             const chips = d.skills.map(sk =>
@@ -561,6 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
         previewBox.classList.remove('hidden');
         previewBox.innerHTML = `
             <div class="preview-head">生まれる: <b>${d.result_name}</b>${plus} ${elem}${rank}</div>
+            ${candHtml}
             <div class="preview-stats">
                 <span>HP ${s.max_hp ?? '?'}</span>
                 <span>攻 ${s.attack ?? '?'}</span>
@@ -573,15 +584,22 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="preview-hint">🧬 性格と才能は誕生時に決まる。良個体ほど高才能の子が生まれやすい（天才×天才で隠し才能も…）</div>
         `;
         previewBox.querySelectorAll('input.skill-pick').forEach(c => c.addEventListener('change', enforceInheritLimit));
+        // 候補を選び直したら、その子でプレビューを取り直す（ステ／継承可能スキルが変わる）
+        previewBox.querySelectorAll('input.cand-pick').forEach(r => r.addEventListener('change', () => {
+            selectedResultChoice = r.value;
+            fetchPreview();
+        }));
     }
 
     function fetchPreview() {
         const baseId = parseInt(baseSlot.dataset.id);
         const matId = parseInt(materialSlot.dataset.id);
+        const body = { base_id: baseId, material_id: matId };
+        if (selectedResultChoice) body.result_choice = selectedResultChoice;
         fetch("{{ url_for('inventory.synthesize_preview', user_id=user_id) }}", {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
-            body: JSON.stringify({ base_id: baseId, material_id: matId })
+            body: JSON.stringify(body)
         })
         .then(res => res.json())
         .then(renderPreview)
@@ -694,6 +712,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function checkSynthButtonState() {
+        // 素材が変わったら位階配合の選択はリセット（前の組み合わせの選択を持ち越さない）
+        selectedResultChoice = null;
         const baseReady = baseSlot.dataset.id && baseSlot.dataset.type;
         const materialReady = materialSlot.dataset.id && materialSlot.dataset.type;
         const isSameMonster = baseReady && materialReady && baseSlot.dataset.type === 'monster' && baseSlot.dataset.id === materialSlot.dataset.id;
@@ -731,6 +751,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (baseSlot.dataset.type === 'monster' && materialSlot.dataset.type === 'monster') {
             payload.inherit_skills = selectedInheritIds();
             payload.breeding = collectBreeding();
+            if (selectedResultChoice) payload.result_choice = selectedResultChoice;
         }
 
         resultMsg.textContent = '合成中…';

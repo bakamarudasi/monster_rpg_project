@@ -16,7 +16,7 @@ from .monsters.synthesis_rules import (
     ITEM_ITEM_RECIPES,
     SPECIAL_MONSTER_POOL,
     RANK_VALUES,
-    find_family_synthesis_result,
+    synthesis_candidates,
 )
 from .items.item_data import ALL_ITEMS
 from .items.equipment import (
@@ -78,20 +78,16 @@ def _apply_rare_individual(monster: Monster) -> None:
 
 
 def resolve_synthesis_result(parent1: Monster, parent2: Monster):
-    """親2体から合成結果のモンスターIDを解決する。
+    """親2体から合成結果（既定の子）のモンスターIDを解決する。
 
     戻り値は (result_id or None, recipe_key or None)。recipe_key はレシピ配合の
-    ときのみ非Noneで、必要触媒アイテムの判定に使う。
+    ときのみ非Noneで、必要触媒アイテムの判定に使う。レシピにも家系ルールにも当たらない
+    組み合わせは位階配合で必ず候補が出るため、result_id は基本 None にならない。
+    既定の子は候補の先頭（位階が高い親の系統で1つ上）。選択は ``result_choice`` で行う。
     """
-    id1 = (parent1.monster_id or "").lower()
-    id2 = (parent2.monster_id or "").lower()
-    recipe_key = tuple(sorted([id1, id2]))
-    if recipe_key in SYNTHESIS_RECIPES:
-        return SYNTHESIS_RECIPES[recipe_key], recipe_key
-    result_id = find_family_synthesis_result(
-        parent1.family, parent1.rank, parent2.family, parent2.rank
-    )
-    return result_id, None
+    recipe_key, candidates = synthesis_candidates(parent1, parent2)
+    result_id = candidates[0] if candidates else None
+    return result_id, recipe_key
 
 
 def inheritable_skills(parent1: Monster, parent2: Monster) -> dict:
@@ -184,8 +180,12 @@ def _build_child(parent1: Monster, parent2: Monster, result_id: str, inherit_ski
     return new_monster
 
 
-def preview_synthesis(player: "Player", monster1_idx: int, monster2_idx: int, item_id: str | None = None) -> dict:
-    """配合結果を確定せずに予測する（種族・予測ステ・継承候補スキル・＋値）。"""
+def preview_synthesis(player: "Player", monster1_idx: int, monster2_idx: int, item_id: str | None = None, result_choice: str | None = None) -> dict:
+    """配合結果を確定せずに予測する（種族・予測ステ・継承候補スキル・＋値・子候補）。
+
+    ``result_choice`` を渡すと、その候補（位階配合の選択肢）で予測する。レシピ配合では
+    候補は1つだけ（上書き＝選択不可）。
+    """
     if not (0 <= monster1_idx < len(player.party_monsters) and 0 <= monster2_idx < len(player.party_monsters)):
         return {"ok": False, "message": "無効なモンスターの選択です。"}
     if monster1_idx == monster2_idx:
@@ -195,9 +195,17 @@ def preview_synthesis(player: "Player", monster1_idx: int, monster2_idx: int, it
     if not p1.monster_id or not p2.monster_id:
         return {"ok": False, "message": "合成元のモンスターにIDがありません。"}
 
-    result_id, recipe_key = resolve_synthesis_result(p1, p2)
-    if not result_id or result_id not in ALL_MONSTERS:
+    recipe_key, candidates = synthesis_candidates(p1, p2)
+    candidates = [c for c in candidates if c in ALL_MONSTERS]
+    if not candidates:
         return {"ok": False, "message": f"{p1.name} と {p2.name} では何も生まれない…"}
+
+    # 既定は候補の先頭。位階配合のときだけプレイヤーの選択を採用する。
+    result_id = candidates[0]
+    if recipe_key is None and result_choice:
+        chosen = str(result_choice).lower()
+        if chosen in candidates:
+            result_id = chosen
 
     required_item = SYNTHESIS_ITEMS_REQUIRED.get(recipe_key) if recipe_key else None
     has_item = required_item is None or any(
@@ -208,6 +216,18 @@ def preview_synthesis(player: "Player", monster1_idx: int, monster2_idx: int, it
     base_skill_names = {getattr(s, "name", None) for s in ALL_MONSTERS[result_id].skills}
     pool = inheritable_skills(p1, p2)
     skills = [{"id": nm, "name": nm} for nm in pool.keys() if nm not in base_skill_names]
+
+    # 子候補のラベル一覧（プレイヤーがどの親の系統に寄せるか選ぶための材料）。
+    # 選択可能なのは位階配合のときのみ（recipe_key が None）。
+    candidate_list = [
+        {
+            "id": cid,
+            "name": ALL_MONSTERS[cid].name,
+            "rank": ALL_MONSTERS[cid].rank,
+            "element": ALL_MONSTERS[cid].element,
+        }
+        for cid in candidates
+    ]
 
     return {
         "ok": True,
@@ -223,6 +243,8 @@ def preview_synthesis(player: "Player", monster1_idx: int, monster2_idx: int, it
             "speed": child.speed,
         },
         "skills": skills,
+        "candidates": candidate_list,
+        "selectable": recipe_key is None and len(candidate_list) > 1,
         "max_inherit": MAX_INHERIT_SKILLS,
         "required_item": (ALL_ITEMS[required_item].name if required_item in ALL_ITEMS else required_item) if required_item else None,
         "has_required_item": has_item,
@@ -230,7 +252,7 @@ def preview_synthesis(player: "Player", monster1_idx: int, monster2_idx: int, it
     }
 
 
-def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, item_id: str | None = None, inherit_skill_ids=None, breeding=None) -> Tuple[bool, str, Optional[Monster]]:
+def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, item_id: str | None = None, inherit_skill_ids=None, breeding=None, result_choice: str | None = None) -> Tuple[bool, str, Optional[Monster]]:
     if not (0 <= monster1_idx < len(player.party_monsters) and 0 <= monster2_idx < len(player.party_monsters)):
         return False, "無効なモンスターの選択です。", None
     if monster1_idx == monster2_idx:
@@ -247,9 +269,16 @@ def synthesize_monster(player: "Player", monster1_idx: int, monster2_idx: int, i
     if not parent1.monster_id or not parent2.monster_id:
         return False, "エラー: 合成元のモンスターにIDが設定されていません。", None
 
-    result_monster_id, recipe_key = resolve_synthesis_result(parent1, parent2)
-    if not result_monster_id or result_monster_id not in ALL_MONSTERS:
+    recipe_key, candidates = synthesis_candidates(parent1, parent2)
+    candidates = [c for c in candidates if c in ALL_MONSTERS]
+    if not candidates:
         return False, f"{parent1.name} と {parent2.name} の組み合わせでは何も生まれなかった...", None
+    result_monster_id = candidates[0]  # 既定＝候補の先頭（位階が高い親の系統で1つ上）
+    # 位階配合のときだけプレイヤーの候補選択を尊重する（特殊レシピは上書き不可）
+    if recipe_key is None and result_choice:
+        chosen = str(result_choice).lower()
+        if chosen in candidates:
+            result_monster_id = chosen
 
     # レシピ配合で触媒アイテムが必要な場合は消費する
     if recipe_key is not None:

@@ -190,3 +190,117 @@ def find_family_synthesis_result(
     best = min(candidates, key=lambda m: abs(rank_value(m) - target_value))
     return best.monster_id
 
+
+# ---------------------------------------------------------------------------
+# 位階配合 (rank-order breeding) — DQM準拠の汎用フォールバック
+# ---------------------------------------------------------------------------
+# 特定レシピにも家系ルールにも当たらない任意の2体から「必ず何か」を生む仕組み。
+# これにより全組み合わせが配合可能になり、どの個体も配合の累代＋値を伸ばせる
+# （レシピの無い種が＋値を振れない問題の解消）。
+#
+# 位階＝系統(family)内での強さの並び順。既存データ（rank→初期ステ合計）から自動導出する。
+# 通常配合の上限はA級まで（S級＝魔王枠は特殊配合/ジャックポット専用）。
+
+# 通常配合で到達できる最高ランク値。これを超える種（＝S級）は位階ラダーから除外する。
+GENERIC_MAX_RANK_VALUE = RANK_VALUES["A"]
+
+
+def _template_strength(template) -> tuple[int, int]:
+    """種族の強さキー（位階比較用）。(ランク値, 初期ステ合計) の辞書順で比較する。"""
+    rank_v = RANK_VALUES.get(str(getattr(template, "rank", "")).upper(), 0)
+    total = (
+        getattr(template, "max_hp", 0)
+        + getattr(template, "max_mp", 0)
+        + getattr(template, "base_attack", 0)
+        + getattr(template, "base_defense", 0)
+        + getattr(template, "base_speed", 0)
+    )
+    return (rank_v, total)
+
+
+def _species_strength(monster) -> tuple[int, int]:
+    """個体の「種族としての」強さキー。位階は種族固有なのでレベルや＋値ではなく
+    種族テンプレ（ALL_MONSTERS）で測る。未登録種は個体の実値で代用する。"""
+    from . import monster_data as all_monster_data
+
+    mid = (getattr(monster, "monster_id", "") or "").lower()
+    template = all_monster_data.ALL_MONSTERS.get(mid)
+    return _template_strength(template if template is not None else monster)
+
+
+def family_ladder(family: str) -> list:
+    """系統内のテンプレを弱→強で並べた位階ラダー。S級は通常配合の上限から除外する。"""
+    from . import monster_data as all_monster_data
+
+    fam = (family or "").lower()
+    members = [
+        m
+        for m in all_monster_data.ALL_MONSTERS.values()
+        if (getattr(m, "family", "") or "").lower() == fam
+        and RANK_VALUES.get(str(getattr(m, "rank", "")).upper(), 0) <= GENERIC_MAX_RANK_VALUE
+    ]
+    return sorted(members, key=_template_strength)
+
+
+def _step_up_in_family(family: str, ref_strength: tuple[int, int]) -> str | None:
+    """系統内で ref_strength より位階が1つ上のテンプレID。上が無ければ None。"""
+    for t in family_ladder(family):
+        if _template_strength(t) > ref_strength:
+            return t.monster_id
+    return None
+
+
+def ikai_synthesis_candidates(parent1, parent2) -> list[str]:
+    """位階配合の子候補ID。先頭が推奨（位階が高い親の系統で1つ上）。
+
+    候補は最大4つ: 〔高位の親の系統で1つ上〕〔もう片方の系統で1つ上〕〔親1そのもの〕
+    〔親2そのもの〕。親そのものを含めるのは「同種配合での＋値稼ぎ」と、ユーザー原案の
+    「親のどちらかの枠に収める」を両立するため。位階1つ上はS級を含まない（A止まり）。
+    """
+    from . import monster_data as all_monster_data
+
+    all_monsters = all_monster_data.ALL_MONSTERS
+    s1 = _species_strength(parent1)
+    s2 = _species_strength(parent2)
+    higher, lower = (parent1, parent2) if s1 >= s2 else (parent2, parent1)
+    href = max(s1, s2)
+
+    candidates: list[str] = []
+
+    def add(mid):
+        if mid and mid in all_monsters and mid not in candidates:
+            candidates.append(mid)
+
+    add(_step_up_in_family(getattr(higher, "family", "") or "", href))
+    add(_step_up_in_family(getattr(lower, "family", "") or "", href))
+    add((getattr(parent1, "monster_id", "") or "").lower())
+    add((getattr(parent2, "monster_id", "") or "").lower())
+    return candidates
+
+
+def synthesis_candidates(parent1, parent2) -> tuple[tuple | None, list[str]]:
+    """配合の子候補を解決する。戻り値は (recipe_key or None, [候補ID...])。
+
+    - 特殊レシピに当たる場合: recipe_key を返し、候補はそのレシピ結果のみ（上書き＝選択不可）。
+    - それ以外: 既存の家系ルール結果（あれば）に続けて位階配合の候補を返す（プレイヤーが選択）。
+    """
+    id1 = (getattr(parent1, "monster_id", "") or "").lower()
+    id2 = (getattr(parent2, "monster_id", "") or "").lower()
+    recipe_key = tuple(sorted([id1, id2]))
+    if recipe_key in SYNTHESIS_RECIPES:
+        return recipe_key, [SYNTHESIS_RECIPES[recipe_key]]
+
+    candidates: list[str] = []
+    fam = find_family_synthesis_result(
+        getattr(parent1, "family", None),
+        getattr(parent1, "rank", None),
+        getattr(parent2, "family", None),
+        getattr(parent2, "rank", None),
+    )
+    if fam:
+        candidates.append(fam)
+    for cid in ikai_synthesis_candidates(parent1, parent2):
+        if cid not in candidates:
+            candidates.append(cid)
+    return None, candidates
+

@@ -170,8 +170,12 @@ def perform_synthesis(player, data: dict) -> SynthesisOutcome:
         if inherit is not None and not isinstance(inherit, list):
             inherit = None
         breeding = _parse_breeding(player, data)
+        result_choice = data.get('result_choice')
+        if not isinstance(result_choice, str):
+            result_choice = None
         success, msg, result = player.synthesize_monster(
-            base_idx, material_idx, inherit_skill_ids=inherit, breeding=breeding
+            base_idx, material_idx, inherit_skill_ids=inherit, breeding=breeding,
+            result_choice=result_choice,
         )
     elif base_type == 'monster' and material_type == 'item':
         success, msg, result = player.synthesize_monster_with_item(base_idx, material_id)
@@ -198,4 +202,7 @@ def preview_synthesis(player, data: dict):
     material_idx, err2 = _parse_index(data.get('material_id'))
     if err1 or err2:
         return None, 'invalid index'
-    return player.preview_synthesis(base_idx, material_idx), None
+    result_choice = data.get('result_choice')
+    if not isinstance(result_choice, str):
+        result_choice = None
+    return player.preview_synthesis(base_idx, material_idx, result_choice=result_choice), None
