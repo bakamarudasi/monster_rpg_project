@@ -277,6 +277,11 @@ def battle(user_id):
         battle_obj.process_player_action(_resolve_player_action(battle_obj, data_src))
         battle_obj.run_until_player_turn()
 
+        # レイドボスのフェーズギミック（HP閾値で強化/回復）
+        if getattr(battle_obj, 'is_raid', False):
+            from ..services import raid_service
+            raid_service.check_phases(battle_obj)
+
         active_battles[user_id] = battle_obj
         save_player(player, user_id)
 

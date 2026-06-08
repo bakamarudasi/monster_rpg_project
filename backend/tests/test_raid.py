@@ -82,6 +82,35 @@ class RaidServiceTests(unittest.TestCase):
         self.assertIsNotNone(get_raid('ashen'))
         self.assertIsNone(get_raid('does_not_exist'))
 
+    def test_phase_triggers_on_hp_threshold(self):
+        player = _player_with(3)
+        battle, err = raid_service.start_raid(player, 'ashen', [0, 1, 2])
+        self.assertIsNone(err)
+        boss = battle.enemy_party[0]
+        base_atk = boss.base_attack
+        # 満タンでは発動しない
+        raid_service.check_phases(battle)
+        self.assertEqual(boss._raid_phase_done, 0)
+        # HPを49%に → 50%フェーズ発動（攻撃強化＋ログ）
+        boss.hp = int(boss.max_hp * 0.49)
+        n_before = len(battle.log)
+        raid_service.check_phases(battle)
+        self.assertEqual(boss._raid_phase_done, 1)
+        self.assertGreater(boss.base_attack, base_atk)
+        self.assertTrue(any(e['type'] == 'boss' for e in battle.log[n_before:]))
+        # 再呼び出しでは重複発動しない
+        atk_after = boss.base_attack
+        raid_service.check_phases(battle)
+        self.assertEqual(boss.base_attack, atk_after)
+
+    def test_phase_heal(self):
+        player = _player_with(3)
+        battle, _ = raid_service.start_raid(player, 'kraken', [0, 1, 2])
+        boss = battle.enemy_party[0]
+        boss.hp = int(boss.max_hp * 0.49)  # 50%フェーズに heal:0.15 がある
+        raid_service.check_phases(battle)
+        self.assertGreater(boss.hp, int(boss.max_hp * 0.49))
+
 
 if __name__ == '__main__':
     unittest.main()

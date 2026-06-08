@@ -79,6 +79,22 @@
         });
     }
 
+    /* === レイドボスのフェーズ発動を中央バナーで演出（新規のbossログのみ） === */
+    let lastBossLogLen = -1;
+    function bannerFromLog(log) {
+        if (!Array.isArray(log)) return;
+        if (lastBossLogLen < 0) { lastBossLogLen = log.length; return; }
+        const fresh = log.slice(lastBossLogLen);
+        lastBossLogLen = log.length;
+        fresh.forEach(e => {
+            if (e.type === 'boss') {
+                showCenterBanner(e.message, 'phase');
+                flashScreen('crit');
+                triggerShake(true);
+            }
+        });
+    }
+
     /* === 行動アニメ：ログの「◯◯ の攻撃！」等から踏み込み(lunge)を発火 === */
     let lastActionLogLen = -1;
     function lungeUnitByName(name) {
@@ -912,6 +928,7 @@
             });
         }
         toastFromLog(data.log);
+        bannerFromLog(data.log);
         animateActionsFromLog(data.log);
         renderAllyStatus();
 

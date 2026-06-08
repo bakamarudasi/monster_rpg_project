@@ -30,6 +30,11 @@ RAID_BOSSES = [
         "stars": 3,
         "reward_gold": 1500,
         "desc": "灼熱の息吹で全てを焼き尽くす炎の古竜。まずはここから。",
+        # phases: HPが at(割合) 以下で1度だけ発動。攻撃/魔力の倍率・割合回復・演出メッセージ
+        "phases": [
+            {"at": 0.5, "attack_mult": 1.3, "message": "🔥 イグドラが激昂した！ 攻撃が上がった！"},
+            {"at": 0.2, "attack_mult": 1.25, "message": "🔥 イグドラ暴走！ 全身が業火に包まれる！"},
+        ],
     },
     {
         "id": "kraken",
@@ -38,6 +43,10 @@ RAID_BOSSES = [
         "stars": 4,
         "reward_gold": 3000,
         "desc": "深海より現れし無数の触手を持つ海の覇王。生半可な編成では沈む。",
+        "phases": [
+            {"at": 0.5, "magic_mult": 1.3, "heal": 0.15, "message": "🌊 アビスクラーケンが深海の力で再生した！"},
+            {"at": 0.25, "attack_mult": 1.3, "message": "🌊 触手が荒れ狂う！ 攻撃が激化した！"},
+        ],
     },
     {
         "id": "celestial",
@@ -46,6 +55,10 @@ RAID_BOSSES = [
         "stars": 5,
         "reward_gold": 6000,
         "desc": "全ての理を司る伝説の守護竜。9体の総力をもって挑め。",
+        "phases": [
+            {"at": 0.66, "magic_mult": 1.25, "message": "✨ セレスフィアが聖なる加護をまとった！"},
+            {"at": 0.33, "attack_mult": 1.3, "magic_mult": 1.2, "heal": 0.1, "message": "✨ 天空の怒り！ セレスフィアが真の力を解放した！"},
+        ],
     },
 ]
 
