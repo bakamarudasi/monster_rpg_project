@@ -55,6 +55,10 @@
       [
         "soul_ashen",
         1.0
+      ],
+      [
+        "egg_ashen",
+        0.08
       ]
     ],
     "book": {
@@ -121,6 +125,10 @@
       [
         "soul_kraken",
         1.0
+      ],
+      [
+        "egg_kraken",
+        0.07
       ]
     ],
     "book": {
@@ -187,6 +195,10 @@
       [
         "soul_celestial",
         1.0
+      ],
+      [
+        "egg_celestial",
+        0.06
       ]
     ],
     "book": {

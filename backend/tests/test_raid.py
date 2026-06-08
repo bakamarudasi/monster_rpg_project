@@ -142,6 +142,31 @@ class RaidServiceTests(unittest.TestCase):
                           if isinstance(it, Item) and it.item_id == sid and rate >= 1.0]
             self.assertTrue(soul_drops, f"{rid} should guarantee-drop {sid}")
 
+    def test_raids_drop_eggs(self):
+        from monster_rpg.items.item_data import Item
+        for rid, egg in (('ashen', 'egg_ashen'), ('kraken', 'egg_kraken'), ('celestial', 'egg_celestial')):
+            boss = raid_service.build_raid_boss(get_raid(rid))
+            eggs = [it for it, _ in boss.drop_items if isinstance(it, Item) and it.item_id == egg]
+            self.assertTrue(eggs, f"{rid} should drop {egg}")
+
+    def test_egg_hatches_and_evolves(self):
+        from monster_rpg.items.item_data import ALL_ITEMS
+        from monster_rpg.monsters.monster_data import ALL_MONSTERS
+        from monster_rpg.exploration import get_monster_instance_copy
+        chains = {
+            'egg_ashen': ('ashen_hatchling', 'ashen_drakeling', 'ashen_emperor'),
+            'egg_kraken': ('kraken_fry', 'kraken_juvenile', 'abyss_sovereign'),
+            'egg_celestial': ('celestial_hatchling', 'celestial_drakeling', 'celestial_archdragon'),
+        }
+        for egg_id, (baby, mid, final) in chains.items():
+            egg = ALL_ITEMS[egg_id]
+            hatch_id = next(e['monster'] for e in egg.effects if e.get('type') == 'hatch')
+            self.assertEqual(hatch_id, baby)
+            self.assertIn(final, ALL_MONSTERS)
+            m = get_monster_instance_copy(baby)
+            m.advance_to_level(40, verbose=False)
+            self.assertEqual(m.monster_id, final, f"{baby} should evolve to {final} by Lv40")
+
     def test_phase_heal(self):
         player = _player_with(3)
         battle, _ = raid_service.start_raid(player, 'kraken', [0, 1, 2])

@@ -247,5 +247,38 @@
     "description": "天空覇竜セレスフィアを討った証。禁忌の召喚に捧げる生贄。",
     "usable": false,
     "effects": []
+  },
+  "egg_ashen": {
+    "name": "業火竜のタマゴ",
+    "description": "業火竜の血を引くタマゴ。使うと孵化して仲間になる。",
+    "usable": true,
+    "effects": [
+      {
+        "type": "hatch",
+        "monster": "ashen_hatchling"
+      }
+    ]
+  },
+  "egg_kraken": {
+    "name": "海王のタマゴ",
+    "description": "深海覇王の血を引くタマゴ。使うと孵化して仲間になる。",
+    "usable": true,
+    "effects": [
+      {
+        "type": "hatch",
+        "monster": "kraken_fry"
+      }
+    ]
+  },
+  "egg_celestial": {
+    "name": "天竜のタマゴ",
+    "description": "天空覇竜の血を引くタマゴ。使うと孵化して仲間になる。",
+    "usable": true,
+    "effects": [
+      {
+        "type": "hatch",
+        "monster": "celestial_hatchling"
+      }
+    ]
   }
 }

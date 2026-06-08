@@ -97,6 +97,14 @@ EVOLUTION_RULES = {
     "wraith_knight": [{"level": 18, "evolves_to": "bone_drake"}],
     "reef_guardian": [{"level": 26, "evolves_to": "coral_hydra", "awaken_chance": 0.08}],
     "glacier_pixie": [{"level": 18, "evolves_to": "glacier_warden"}],
+
+    # === レイドの卵から孵る系統（孵化→2段進化で上位形態へ） ===
+    "ashen_hatchling": [{"level": 12, "evolves_to": "ashen_drakeling"}],
+    "ashen_drakeling": [{"level": 28, "evolves_to": "ashen_emperor", "awaken_chance": 0.1}],
+    "kraken_fry": [{"level": 12, "evolves_to": "kraken_juvenile"}],
+    "kraken_juvenile": [{"level": 30, "evolves_to": "abyss_sovereign", "awaken_chance": 0.1}],
+    "celestial_hatchling": [{"level": 15, "evolves_to": "celestial_drakeling"}],
+    "celestial_drakeling": [{"level": 34, "evolves_to": "celestial_archdragon", "awaken_chance": 0.1}],
 }
 
 
