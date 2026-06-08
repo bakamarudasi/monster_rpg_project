@@ -1098,6 +1098,7 @@
     "rank": "S",
     "element": "雷",
     "image_filename": "nameless_kingling.png",
+    "growth_type": "パワー型",
     "stats": {
       "hp": 155,
       "mp": 60,
@@ -1138,6 +1139,7 @@
     "rank": "A",
     "element": "氷",
     "image_filename": "pontiff_shade.png",
+    "growth_type": "魔法型",
     "stats": {
       "hp": 100,
       "mp": 35,
