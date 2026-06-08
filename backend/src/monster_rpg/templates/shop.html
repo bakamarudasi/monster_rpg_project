@@ -164,6 +164,17 @@
   }
   .purchase-button:hover { filter: brightness(1.1); box-shadow: 0 2px 0 #0a3f7d, var(--shadow-glow); }
   .purchase-button:active { transform: translateY(2px); box-shadow: 0 0 0 #0a3f7d; }
+  .purchase-button.cant-afford, .purchase-button:disabled {
+    background: var(--surface-raised);
+    color: var(--text-faint);
+    border-color: var(--border);
+    box-shadow: none;
+    cursor: not-allowed;
+    filter: none;
+  }
+  .purchase-button.cant-afford:active { transform: none; }
+  /* 買えない商品カードは少し沈める */
+  .product-card:has(.cant-afford) { opacity: 0.72; }
 
   /* === マーケット === */
   .list-form {
@@ -286,7 +297,6 @@
 
 <div class="shop-page">
   <div class="shop-bar">
-    <a href="{{ url_for('play', user_id=user_id) }}" class="shop-back">← 戻る</a>
     <h2>ショップ</h2>
     <span class="shop-gold">💰 {{ player.gold }}G</span>
   </div>
@@ -304,6 +314,7 @@
     <ul class="product-grid">
       {% for kind, obj_id, name, price, description in entries %}
         <li class="product-card">
+          {% set afford = price <= player.gold %}
           <div class="product-info" data-name="{{ name }}" data-description="{{ description or '説明がありません。' }}">
             <p class="product-name">{{ name }}</p>
             <p class="product-price">💰 {{ price }}G</p>
@@ -316,7 +327,7 @@
             {% else %}
               <input type="hidden" name="buy_monster" value="{{ obj_id }}">
             {% endif %}
-            <button type="submit" class="purchase-button">購入</button>
+            <button type="submit" class="purchase-button{% if not afford %} cant-afford{% endif %}"{% if not afford %} disabled{% endif %}>{{ '購入' if afford else 'G不足' }}</button>
           </form>
         </li>
       {% endfor %}
