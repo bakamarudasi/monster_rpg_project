@@ -1,0 +1,112 @@
+/* === レイドロビー（ダーク統一・PCワイド） === */
+.raid-page { max-width: 1180px; margin: 1.2rem auto; padding: 0 16px 3rem; }
+.raid-head h2 { margin: 0 0 6px; font-family: var(--font-display); color: var(--gold); letter-spacing: 1px; text-shadow: 0 0 14px rgba(255, 210, 74, 0.3); }
+.raid-sub { color: var(--text-dim); margin: 0 0 8px; }
+
+.raid-section {
+    color: var(--accent);
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+    border-left: 3px solid var(--accent);
+    padding-left: 0.6rem;
+    margin: 1.6rem 0 0.9rem;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+.pick-count { color: var(--text-dim); font-size: 0.9rem; }
+.pick-count #pick-n { color: var(--gold); font-weight: bold; }
+
+/* ボス選択 */
+.boss-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.boss-card { display: block; cursor: pointer; }
+.boss-card input { position: absolute; opacity: 0; pointer-events: none; }
+.boss-card-inner {
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    box-shadow: var(--shadow-sm);
+    transition: border-color .15s, box-shadow .15s, transform .1s;
+    height: 100%;
+}
+.boss-card:hover .boss-card-inner { transform: translateY(-2px); border-color: var(--accent); }
+.boss-card input:checked + .boss-card-inner {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 1px var(--gold), 0 0 16px rgba(255, 210, 74, 0.25);
+}
+.boss-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.boss-name { font-weight: bold; color: var(--text); font-size: 1.1rem; }
+.boss-cleared { font-size: 0.7rem; background: #2e7d32; color: #fff; padding: 2px 9px; border-radius: var(--radius-pill); }
+.boss-meta { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+.boss-stars { color: var(--gold); letter-spacing: 1px; }
+.boss-lv { color: var(--text-dim); font-size: 0.85rem; }
+.boss-el { font-size: 0.72rem; padding: 1px 9px; border-radius: var(--radius-pill); border: 1px solid var(--border-soft); color: var(--text-dim); }
+.el-火 { color: #ff8a5b; border-color: #7c3a22; }
+.el-水 { color: #5bb8ff; border-color: #22507c; }
+.el-光 { color: #ffe27a; border-color: #7c6a22; }
+.el-闇 { color: #c08aff; border-color: #4a2a7c; }
+.el-氷 { color: #9fe6ff; border-color: #2a6a7c; }
+.el-雷 { color: #ffd24a; border-color: #7c6322; }
+.el-風 { color: #8fe6b0; border-color: #2a7c50; }
+.el-土 { color: #d8b066; border-color: #6a5322; }
+.el-毒 { color: #c08fe0; border-color: #5a2a6a; }
+.boss-desc { color: var(--text-dim); font-size: 0.88rem; margin: 0 0 8px; line-height: 1.5; }
+.boss-reward { color: var(--gold); font-size: 0.82rem; font-weight: bold; }
+
+/* メンバー選択 */
+.mon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+.mon-card { display: block; cursor: pointer; position: relative; }
+.mon-card input { position: absolute; opacity: 0; pointer-events: none; }
+.mon-card-inner {
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.14));
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    padding: 10px 8px;
+    text-align: center;
+    transition: border-color .15s, box-shadow .15s, transform .1s;
+    position: relative;
+}
+.mon-card:hover .mon-card-inner { transform: translateY(-2px); border-color: var(--accent); }
+.mon-card.selected .mon-card-inner {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 1px var(--gold), inset 0 0 12px rgba(255, 210, 74, 0.12);
+}
+.mon-card.selected .mon-card-inner::after {
+    content: "✓";
+    position: absolute; top: 4px; right: 6px;
+    color: #3a2a00; background: var(--gold);
+    width: 18px; height: 18px; border-radius: 50%;
+    font-size: 0.8rem; font-weight: bold; line-height: 18px;
+}
+.mon-card.mon-disabled { opacity: 0.4; cursor: not-allowed; }
+.mon-img { width: 64px; height: 64px; object-fit: contain; image-rendering: pixelated; margin: 0 auto 6px; display: block; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.5)); }
+.mon-img-ph {
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle at 50% 35%, rgba(74,144,226,0.35), rgba(8,14,24,0.85));
+    border: 1px solid var(--border-soft); border-radius: 10px;
+    font-size: 1.6rem; font-weight: bold; color: #cfe0ff;
+}
+.mon-name { font-size: 0.85rem; color: var(--text); font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mon-meta { font-size: 0.72rem; color: var(--text-dim); }
+.mon-badge { display: inline-block; margin-top: 4px; font-size: 0.62rem; background: var(--accent); color: #fff; padding: 1px 7px; border-radius: var(--radius-pill); }
+
+.raid-empty { color: var(--text-dim); text-align: center; padding: 2rem 0; }
+
+.raid-actions { position: sticky; bottom: 0; padding: 16px 0 6px; margin-top: 18px; display: flex; justify-content: center; background: linear-gradient(180deg, transparent, var(--bg) 40%); }
+.raid-btn {
+    padding: 12px 48px;
+    font-size: 1.15rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #3a2a00;
+    background: linear-gradient(180deg, var(--gold), var(--gold-deep));
+    border: 1px solid #ffe79a;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 3px 0 #7e5e16, var(--shadow);
+    cursor: pointer;
+    transition: filter .15s, transform .08s, box-shadow .15s;
+}
+.raid-btn:hover:not(:disabled) { filter: brightness(1.08); }
+.raid-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #7e5e16; }
+.raid-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }

@@ -9,6 +9,22 @@ from ..monsters.personality_ai import choose_auto_action
 from .. import elements
 
 
+def _apply_raid_bonus(battle_obj, player, msgs) -> None:
+    """レイド戦に勝利したら、クリアフラグとボーナスゴールドを付与する。"""
+    if not getattr(battle_obj, 'is_raid', False) or battle_obj.outcome != 'win':
+        return
+    rid = getattr(battle_obj, 'raid_id', None)
+    if not rid:
+        return
+    from ..raid_data import get_raid
+    player.story_flags.add(f'raid_cleared:{rid}')
+    defn = get_raid(rid)
+    bonus = defn.get('reward_gold', 0) if defn else 0
+    if bonus:
+        player.gold += bonus
+        msgs.append({'type': 'item_drop', 'message': f'🏆 レイド報酬 {bonus}G を獲得！'})
+
+
 def _assign_unit_ids(battle_obj) -> None:
     """戦闘中のモンスターに安定した unit_id を振る（行動者ハイライトの一致用）。"""
     for i, m in enumerate(battle_obj.player_party):
@@ -271,6 +287,7 @@ def battle(user_id):
             msgs = battle_service.apply_battle_rewards(
                 player, battle_obj.outcome, player_party, enemy_party, battle_obj.log
             )
+            _apply_raid_bonus(battle_obj, player, msgs)
             player.last_battle_log = msgs
             del active_battles[user_id]
             save_player(player, user_id)
@@ -312,6 +329,7 @@ def battle(user_id):
             msgs = battle_service.apply_battle_rewards(
                 player, battle_obj.outcome, battle_obj.player_party, battle_obj.enemy_party, battle_obj.log
             )
+            _apply_raid_bonus(battle_obj, player, msgs)
             player.last_battle_log = msgs
             active_battles.pop(user_id, None)
             save_player(player, user_id)

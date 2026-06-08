@@ -290,6 +290,8 @@
         if (allyArea && Array.isArray(data.ally_info)) {
             allyArea.textContent = '';
             data.ally_info.forEach((a, i) => allyArea.appendChild(buildUnitElement(a, i, 'ally')));
+            /* レイドなど味方が多いときは3×3に収まるようカードを縮小 */
+            allyArea.classList.toggle('crowded', data.ally_info.length > 3);
         }
 
         const enemySel = document.querySelector('select[name="target_enemy"]');

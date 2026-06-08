@@ -39,6 +39,7 @@
     <nav class="sidebar-nav">
       <a class="nav-item {% if cur == 'play' %}active{% endif %}" href="{{ url_for('play', user_id=user_id) }}"><span class="nav-ico">🏠</span><span class="nav-label">拠点</span></a>
       <a class="nav-item {% if cur == 'world_map' %}active{% endif %}" href="{{ url_for('world_map', user_id=user_id) }}"><span class="nav-ico">🗺️</span><span class="nav-label">マップ</span></a>
+      <a class="nav-item {% if cur == 'raid' %}active{% endif %}" href="{{ url_for('raid.raid', user_id=user_id) }}"><span class="nav-ico">👑</span><span class="nav-label">レイド</span></a>
       <a class="nav-item {% if cur == 'party' %}active{% endif %}" href="{{ url_for('party', user_id=user_id) }}"><span class="nav-ico">🐲</span><span class="nav-label">パーティ</span></a>
       <a class="nav-item {% if cur == 'status' %}active{% endif %}" href="{{ url_for('status', user_id=user_id) }}"><span class="nav-ico">📊</span><span class="nav-label">ステータス</span></a>
       <a class="nav-item {% if cur == 'items' %}active{% endif %}" href="{{ url_for('items', user_id=user_id) }}"><span class="nav-ico">🎒</span><span class="nav-label">どうぐ</span></a>

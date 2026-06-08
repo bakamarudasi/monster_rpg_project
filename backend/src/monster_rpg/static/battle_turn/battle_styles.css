@@ -441,10 +441,15 @@ button:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a3f7d; }
         min-height: 0;
         margin-bottom: 0;
         flex-direction: column;   /* 各サイドは縦に積む（横並びで潰れるのを防ぐ） */
+        flex-wrap: wrap;          /* レイドの9体などは複数列に折り返す（3×3風） */
+        align-content: center;
         justify-content: center;  /* 縦方向に中央寄せで対峙させる */
         gap: 0.9rem;
-        overflow-y: auto;         /* 多人数でも画面外にはみ出さない */
+        overflow-y: auto;         /* それでも入りきらなければスクロール */
     }
+    /* レイド等で多人数（味方）のときはカードを少し小さくして3×3に収める */
+    .battlefield .ally-party-display.crowded .battle-unit { width: 140px; }
+    .battlefield .ally-party-display.crowded .unit-img { width: 66px; height: 66px; }
     /* 互いに中央(VS)へ寄って対峙する */
     .battlefield .enemy-area { align-items: flex-end; padding-right: 1.5rem; }
     .battlefield .ally-party-display { align-items: flex-start; padding-left: 1.5rem; }
