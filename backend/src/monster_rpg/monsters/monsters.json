@@ -937,7 +937,7 @@
   "cinder_sentinel": {
     "name": "シンダーセンチネル",
     "ai_role": "attacker",
-    "rank": "S",
+    "rank": "A",
     "element": "火",
     "image_filename": "cinder_sentinel.png",
     "growth_type": "防御型",
