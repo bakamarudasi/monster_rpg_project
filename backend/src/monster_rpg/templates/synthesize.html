@@ -405,9 +405,9 @@
         <!-- 合成ベンチ -->
         <div class="synthesis-bench">
             <div class="synthesis-slots">
-                <div id="base-slot" class="drop-zone">ここに素体を<br>ドラッグ</div>
+                <div id="base-slot" class="drop-zone">素体を<br>ドラッグ / クリック</div>
                 <div class="synthesis-plus">+</div>
-                <div id="material-slot" class="drop-zone">ここに触媒を<br>ドラッグ</div>
+                <div id="material-slot" class="drop-zone">触媒を<br>ドラッグ / クリック</div>
             </div>
 
             <div id="result-msg" class="result-message">
@@ -623,7 +623,42 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             draggedElement = null;
         });
+        /* クリックでも空いている枠へ配置できる（D&Dが苦手でもOK） */
+        item.addEventListener('click', () => {
+            if (item.style.display === 'none') return;
+            const target = !baseSlot.dataset.id ? baseSlot
+                          : (!materialSlot.dataset.id ? materialSlot : null);
+            if (target) placeInZone(target, item);
+        });
     });
+
+    /* スロットへ配置する共通処理（drop/クリック共用） */
+    function placeInZone(zone, el) {
+        returnItemInSlot(zone);
+        zone.dataset.id = el.dataset.id;
+        zone.dataset.type = el.dataset.type;
+        zone.dataset.name = el.dataset.name;
+        zone.textContent = '';
+        if (el.dataset.type === 'monster') {
+            const imgSrc = el.querySelector('.monster-img');
+            if (imgSrc) {
+                const img = imgSrc.cloneNode(true);
+                img.classList.add('placed-img');
+                zone.appendChild(img);
+            }
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'placed-name';
+            nameSpan.textContent = el.dataset.name;
+            zone.appendChild(nameSpan);
+        } else {
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'placed-item-name';
+            nameSpan.textContent = el.dataset.name;
+            zone.appendChild(nameSpan);
+        }
+        el.style.display = 'none';
+        checkSynthButtonState();
+    }
 
     dropZones.forEach(zone => {
         zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
@@ -631,34 +666,7 @@ document.addEventListener('DOMContentLoaded', () => {
         zone.addEventListener('drop', (e) => {
             e.preventDefault();
             zone.classList.remove('drag-over');
-
-            if (draggedElement) {
-                returnItemInSlot(zone); // If slot has an item, return it first.
-                
-                zone.dataset.id = draggedElement.dataset.id;
-                zone.dataset.type = draggedElement.dataset.type;
-                zone.dataset.name = draggedElement.dataset.name;
-
-                zone.textContent = ''; // Clear placeholder text
-                
-                if (draggedElement.dataset.type === 'monster') {
-                    const img = draggedElement.querySelector('.monster-img').cloneNode(true);
-                    img.classList.add('placed-img');
-                    const nameSpan = document.createElement('span');
-                    nameSpan.className = 'placed-name';
-                    nameSpan.textContent = draggedElement.dataset.name;
-                    zone.appendChild(img);
-                    zone.appendChild(nameSpan);
-                } else {
-                    const nameSpan = document.createElement('span');
-                    nameSpan.className = 'placed-item-name';
-                    nameSpan.textContent = draggedElement.dataset.name;
-                    zone.appendChild(nameSpan);
-                }
-                
-                draggedElement.style.display = 'none';
-                checkSynthButtonState();
-            }
+            if (draggedElement) placeInZone(zone, draggedElement);
         });
         zone.addEventListener('click', () => returnItemInSlot(zone));
     });
@@ -674,9 +682,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             zone.textContent = '';
-            zone.appendChild(document.createTextNode('ここに' + (zone.id === 'base-slot' ? '素体' : '触媒') + 'を'));
+            zone.appendChild(document.createTextNode((zone.id === 'base-slot' ? '素体' : '触媒') + 'を'));
             zone.appendChild(document.createElement('br'));
-            zone.appendChild(document.createTextNode('ドラッグ'));
+            zone.appendChild(document.createTextNode('ドラッグ / クリック'));
             delete zone.dataset.id;
             delete zone.dataset.type;
             delete zone.dataset.name;
