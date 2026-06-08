@@ -301,6 +301,9 @@
     box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.45);
 }
 .hub-bottom-nav form { margin: 0; }
+/* サイドバーと重ならないよう右側に寄せる（狭い画面では全幅） */
+.has-sidebar .hub-bottom-nav { left: 216px; }
+@media (max-width: 900px) { .has-sidebar .hub-bottom-nav { left: 0; } }
 .bn-item {
     display: flex;
     flex-direction: column;

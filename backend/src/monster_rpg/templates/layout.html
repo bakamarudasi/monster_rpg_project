@@ -31,7 +31,29 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   {% block head_extra %}{% endblock %}
 </head>
-<body>
+<body class="{% if user_id is defined and user_id is not none %}has-sidebar{% endif %}">
+  {% if user_id is defined and user_id is not none %}
+  {% set cur = (request.endpoint or '').split('.')[-1] %}
+  <aside class="app-sidebar">
+    <div class="sidebar-brand">Monster<span>RPG</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item {% if cur == 'play' %}active{% endif %}" href="{{ url_for('play', user_id=user_id) }}"><span class="nav-ico">🏠</span><span class="nav-label">拠点</span></a>
+      <a class="nav-item {% if cur == 'world_map' %}active{% endif %}" href="{{ url_for('world_map', user_id=user_id) }}"><span class="nav-ico">🗺️</span><span class="nav-label">マップ</span></a>
+      <a class="nav-item {% if cur == 'party' %}active{% endif %}" href="{{ url_for('party', user_id=user_id) }}"><span class="nav-ico">🐲</span><span class="nav-label">パーティ</span></a>
+      <a class="nav-item {% if cur == 'status' %}active{% endif %}" href="{{ url_for('status', user_id=user_id) }}"><span class="nav-ico">📊</span><span class="nav-label">ステータス</span></a>
+      <a class="nav-item {% if cur == 'items' %}active{% endif %}" href="{{ url_for('items', user_id=user_id) }}"><span class="nav-ico">🎒</span><span class="nav-label">どうぐ</span></a>
+      <a class="nav-item {% if cur == 'monster_book' %}active{% endif %}" href="{{ url_for('monster_book', user_id=user_id) }}"><span class="nav-ico">📖</span><span class="nav-label">ずかん</span></a>
+      <div class="nav-sep"></div>
+      <a class="nav-item {% if cur == 'synthesize' %}active{% endif %}" href="{{ url_for('synthesize', user_id=user_id) }}"><span class="nav-ico">🧬</span><span class="nav-label">合成</span></a>
+      <a class="nav-item {% if cur == 'enhance' %}active{% endif %}" href="{{ url_for('inventory.enhance', user_id=user_id) }}"><span class="nav-ico">⚒️</span><span class="nav-label">強化</span></a>
+      <a class="nav-item {% if cur == 'quests' %}active{% endif %}" href="{{ url_for('main.quests', user_id=user_id) }}"><span class="nav-ico">📜</span><span class="nav-label">クエスト</span></a>
+      <a class="nav-item {% if cur == 'achievements' %}active{% endif %}" href="{{ url_for('main.achievements', user_id=user_id) }}"><span class="nav-ico">🏆</span><span class="nav-label">実績</span></a>
+      <a class="nav-item {% if cur == 'arena' %}active{% endif %}" href="{{ url_for('main.arena', user_id=user_id) }}"><span class="nav-ico">⚔️</span><span class="nav-label">アリーナ</span></a>
+      <a class="nav-item {% if cur == 'shop' %}active{% endif %}" href="{{ url_for('shop', user_id=user_id) }}"><span class="nav-ico">🏪</span><span class="nav-label">ショップ</span></a>
+      <a class="nav-item {% if cur == 'story' %}active{% endif %}" href="{{ url_for('main.story', user_id=user_id) }}"><span class="nav-ico">📚</span><span class="nav-label">ストーリー</span></a>
+    </nav>
+  </aside>
+  {% endif %}
   <header>
     <h1>Monster RPG</h1>
   </header>
