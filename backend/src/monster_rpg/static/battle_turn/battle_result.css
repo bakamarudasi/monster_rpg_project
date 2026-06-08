@@ -188,3 +188,53 @@
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
+
+/* === 結果バナー & 獲得物の強調 === */
+.result-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 4px 0 20px;
+    padding: 14px;
+    border-radius: var(--radius);
+    font-family: var(--font-display, serif);
+    border: 1px solid var(--border);
+}
+.result-banner .rb-icon { font-size: 2rem; }
+.result-banner .rb-text { font-size: 1.8rem; font-weight: 800; letter-spacing: 2px; }
+.result-banner.result-win {
+    background: linear-gradient(180deg, rgba(255, 210, 74, 0.18), rgba(255, 210, 74, 0.04));
+    border-color: var(--gold);
+}
+.result-banner.result-win .rb-text { color: var(--gold); text-shadow: 0 0 14px rgba(255, 210, 74, 0.5); }
+.result-banner.result-lose {
+    background: linear-gradient(180deg, rgba(255, 77, 77, 0.16), transparent);
+    border-color: var(--danger);
+}
+.result-banner.result-lose .rb-text { color: var(--danger); }
+.result-banner.result-fled .rb-text { color: var(--text-dim); }
+.result-banner.result-win { animation: rb-pop 0.5s cubic-bezier(0.2, 1, 0.3, 1) both; }
+@keyframes rb-pop { 0% { opacity: 0; transform: scale(0.8); } 60% { transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
+
+.reward-drops {
+    margin: 0 0 18px;
+    padding: 14px;
+    border: 1px solid var(--gold);
+    border-radius: var(--radius);
+    background: linear-gradient(180deg, rgba(255, 210, 74, 0.08), transparent);
+}
+.reward-drops-title { color: var(--gold); font-weight: bold; font-size: 0.9rem; letter-spacing: 1px; margin-bottom: 8px; }
+.drop-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.drop-chip {
+    background: linear-gradient(180deg, var(--surface-raised), var(--surface-2));
+    border: 1px solid var(--gold);
+    color: #ffe9a8;
+    border-radius: var(--radius-pill);
+    padding: 5px 14px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(255, 210, 74, 0.2);
+    animation: chip-in 0.4s ease both;
+}
+@keyframes chip-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
