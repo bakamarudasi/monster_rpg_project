@@ -1,24 +1,24 @@
 {% extends "layout.html" %}
 {% block content %}
 <style>
-  .ar-wrap { max-width: 760px; margin: 0 auto; padding: 18px; }
-  .ar-title { text-align: center; color: #e6a; text-shadow: 1px 1px 2px #000; }
-  .ar-sub { text-align: center; color: #bbb; margin-bottom: 12px; }
-  .ar-msg { text-align: center; background: #422; color: #fdd; padding: 8px; border-radius: 6px; margin: 10px auto; max-width: 560px; }
-  .ar-list { list-style: none; padding: 0; display: grid; gap: 12px; }
-  .ar-card { background: #2a2630; border: 1px solid #555; border-radius: 10px; padding: 12px; }
-  .ar-card.cleared { border-color: #5a5; }
-  .ar-card.open { border-color: #e6a; box-shadow: 0 0 10px rgba(230,100,170,0.3); }
+  .ar-wrap { max-width: 1100px; margin: 1rem auto; padding: 0 16px 2rem; }
+  .ar-title { text-align: center; color: var(--gold); font-family: var(--font-display); letter-spacing: 1px; text-shadow: 0 0 12px rgba(255,210,74,0.25); }
+  .ar-sub { text-align: center; color: var(--text-dim); margin-bottom: 14px; }
+  .ar-msg { text-align: center; background: rgba(192,57,43,0.18); border: 1px solid var(--border); border-left: 4px solid var(--danger); color: var(--text); padding: 10px 14px; border-radius: var(--radius-sm); margin: 10px auto 18px; max-width: 560px; }
+  .ar-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  .ar-card { background: linear-gradient(180deg, var(--surface), var(--surface-2)); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow-sm); }
+  .ar-card.cleared { border-color: var(--success); }
+  .ar-card.open { border-color: var(--gold); box-shadow: 0 0 12px rgba(255,210,74,0.3); }
   .ar-card.locked { opacity: 0.5; }
-  .ar-name { font-weight: bold; color: #f9c; font-size: 1.05rem; }
-  .ar-info { font-size: 0.85rem; color: #ccc; margin: 4px 0; }
-  .ar-reward { font-size: 0.78rem; color: #9fe; }
-  .ar-badge { float: right; font-size: 0.72rem; padding: 2px 8px; border-radius: 999px; }
+  .ar-name { font-weight: bold; color: var(--text); font-size: 1.05rem; }
+  .ar-info { font-size: 0.85rem; color: var(--text-dim); margin: 6px 0; }
+  .ar-reward { font-size: 0.8rem; color: var(--success); }
+  .ar-badge { float: right; font-size: 0.72rem; padding: 2px 10px; border-radius: var(--radius-pill); font-weight: bold; }
   .b-cleared { background: #2e7d32; color: #fff; }
-  .b-open { background: #ad1457; color: #fff; }
-  .b-locked { background: #444; color: #aaa; }
-  .ar-btn { margin-top: 8px; padding: 6px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; background: #c2185b; color: #fff; }
-  .ar-back { display: block; text-align: center; margin-top: 18px; }
+  .b-open { background: linear-gradient(180deg, var(--gold), var(--gold-deep)); color: #3a2a00; }
+  .b-locked { background: var(--surface-raised); color: var(--text-faint); }
+  .ar-btn { margin-top: 10px; padding: 7px 18px; border-radius: var(--radius-sm); border: 1px solid #6aa6ee; cursor: pointer; font-weight: bold; font-family: inherit; background: linear-gradient(180deg, var(--accent), var(--accent-strong)); color: #fff; }
+  .ar-btn:hover { filter: brightness(1.1); }
 </style>
 <div class="ar-wrap">
   <h2 class="ar-title">⚔ 闘技場 ⚔</h2>
@@ -46,6 +46,5 @@
       </li>
     {% endfor %}
   </ul>
-  <a class="ar-back" href="{{ url_for('play', user_id=user_id) }}">戻る</a>
 </div>
 {% endblock %}
