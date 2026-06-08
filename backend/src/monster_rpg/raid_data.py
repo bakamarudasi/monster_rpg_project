@@ -60,6 +60,26 @@ RAID_BOSSES = [
             {"at": 0.33, "attack_mult": 1.3, "magic_mult": 1.2, "heal": 0.1, "message": "✨ 天空の怒り！ セレスフィアが真の力を解放した！"},
         ],
     },
+    {
+        "id": "omega",
+        "monster_id": "raid_omega",
+        "element": "闇",
+        "stars": 7,
+        "reward_gold": 30000,
+        "desc": "3体の魂を捧げし時、禁忌の竜神が目覚める……Lv99の極限。",
+        "ultimate": True,
+        # 生贄: 3体のレイドボスの魂を消費して召喚する
+        "requires": [
+            ("soul_ashen", "業火竜の魂"),
+            ("soul_kraken", "海王の魂"),
+            ("soul_celestial", "天竜の魂"),
+        ],
+        "phases": [
+            {"at": 0.75, "magic_mult": 1.2, "message": "🐉 オメガ＝バハムートが覚醒の咆哮を上げた！"},
+            {"at": 0.5, "attack_mult": 1.25, "magic_mult": 1.2, "heal": 0.1, "message": "🐉 次元が歪む……オメガが真の姿を現す！"},
+            {"at": 0.2, "attack_mult": 1.4, "magic_mult": 1.4, "message": "🐉 最終形態！ 全てを終わらせる滅びの光！"},
+        ],
+    },
 ]
 
 

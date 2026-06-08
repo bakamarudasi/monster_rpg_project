@@ -15,11 +15,12 @@
     <h3 class="raid-section">挑むボスを選ぶ</h3>
     <div class="boss-grid">
       {% for b in bosses %}
-        <label class="boss-card" data-element="{{ b.element }}">
-          <input type="radio" name="raid_id" value="{{ b.id }}" {{ 'checked' if loop.first }}>
+        {% set locked = b.requires and not b.ready %}
+        <label class="boss-card{% if b.ultimate %} boss-ultimate{% endif %}{% if locked %} boss-locked{% endif %}" data-element="{{ b.element }}">
+          <input type="radio" name="raid_id" value="{{ b.id }}" {{ 'checked' if loop.first }}{{ ' disabled' if locked }}>
           <div class="boss-card-inner">
             <div class="boss-top">
-              <span class="boss-name">{{ b.name }}</span>
+              <span class="boss-name">{% if b.ultimate %}👑 {% endif %}{{ b.name }}</span>
               {% if b.cleared %}<span class="boss-cleared">討伐済</span>{% endif %}
             </div>
             <div class="boss-meta">
@@ -28,6 +29,17 @@
               <span class="boss-lv">Lv{{ b.level }}</span>
             </div>
             <p class="boss-desc">{{ b.desc }}</p>
+            {% if b.requires %}
+              <div class="boss-sacrifice">
+                <div class="sacrifice-title">🩸 生贄（消費して召喚）</div>
+                <div class="sacrifice-list">
+                  {% for r in b.reqs %}
+                    <span class="sac-chip {{ 'ok' if r.have else 'missing' }}">{{ '✓' if r.have else '✗' }} {{ r.name }}</span>
+                  {% endfor %}
+                </div>
+                {% if locked %}<div class="sacrifice-hint">3体のレイドを倒して魂を集めよ</div>{% endif %}
+              </div>
+            {% endif %}
             <div class="boss-reward">報酬ボーナス {{ b.reward_gold }}G ＋ 汎用装備ドロップ</div>
             {% if b.drop_name %}<div class="boss-drop">稀少 ✦ {{ b.drop_name }} <span class="drop-rate">{{ b.drop_rate }}%</span></div>{% endif %}
           </div>

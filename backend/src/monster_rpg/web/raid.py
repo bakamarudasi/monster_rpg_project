@@ -24,10 +24,14 @@ def raid(user_id, player):
         }
         for i, m in enumerate(available)
     ]
-    bosses = [
-        {**b, 'cleared': f"raid_cleared:{b['id']}" in player.story_flags}
-        for b in RAID_BOSSES
-    ]
+    bosses = []
+    for b in RAID_BOSSES:
+        entry = {**b, 'cleared': f"raid_cleared:{b['id']}" in player.story_flags}
+        reqs = b.get('requires')
+        if reqs:
+            entry['reqs'] = raid_service.soul_status(player, reqs)
+            entry['ready'] = all(r['have'] for r in entry['reqs'])
+        bosses.append(entry)
     return render_template(
         'raid.html', user_id=user_id, bosses=bosses, mons=mons,
         max_party=raid_service.MAX_RAID_PARTY, title='レイド',

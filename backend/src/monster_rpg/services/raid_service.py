@@ -80,6 +80,13 @@ def start_raid(player, raid_id: str, indices):
     if not defn:
         return None, "そのレイドは存在しない。"
 
+    # 生贄（召喚アイテム）が必要なレイドは、所持を確認してから消費する
+    requires = defn.get("requires") or []
+    if requires:
+        missing = [name for sid, name in requires if not _has_item(player, sid)]
+        if missing:
+            return None, "生贄が足りない… 必要: " + " / ".join(missing)
+
     available = collect_available(player)
     chosen = []
     seen = set()
@@ -106,8 +113,32 @@ def start_raid(player, raid_id: str, indices):
     if boss is None:
         return None, "レイドボスの生成に失敗した。"
 
+    # ここまで来たら生贄を消費して召喚
+    for sid, _name in requires:
+        _consume_item(player, sid)
+
     battle = start_atb_battle(chosen, [boss], player)
     battle.is_raid = True
     battle.raid_id = defn["id"]
-    battle.log.append({"type": "boss", "message": f"⚠ レイドボス {boss.name} が立ちはだかった！"})
+    intro = "⚠ 禁忌の召喚……" if requires else "⚠ レイドボス "
+    battle.log.append({"type": "boss", "message": f"{intro}{boss.name} が立ちはだかった！"})
     return battle, None
+
+
+def _has_item(player, item_id: str) -> bool:
+    return any(getattr(it, "item_id", None) == item_id for it in getattr(player, "items", []))
+
+
+def _consume_item(player, item_id: str) -> bool:
+    """player.items から item_id を1つ取り除く。"""
+    items = getattr(player, "items", [])
+    for i, it in enumerate(items):
+        if getattr(it, "item_id", None) == item_id:
+            del items[i]
+            return True
+    return False
+
+
+def soul_status(player, requires):
+    """生贄の所持状況を [{id,name,have}] で返す（ロビー表示用）。"""
+    return [{"id": sid, "name": name, "have": _has_item(player, sid)} for sid, name in requires]

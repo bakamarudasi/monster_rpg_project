@@ -51,6 +51,10 @@
       [
         "infernal_fang",
         0.08
+      ],
+      [
+        "soul_ashen",
+        1.0
       ]
     ],
     "book": {
@@ -113,6 +117,10 @@
       [
         "abyssal_trident",
         0.07
+      ],
+      [
+        "soul_kraken",
+        1.0
       ]
     ],
     "book": {
@@ -175,10 +183,69 @@
       [
         "celestial_aegis",
         0.06
+      ],
+      [
+        "soul_celestial",
+        1.0
       ]
     ],
     "book": {
       "description": "全ての理を司る伝説の守護竜。レイド最強の試練。"
+    }
+  },
+  "raid_omega": {
+    "name": "禁忌竜神 オメガ＝バハムート",
+    "element": "闇",
+    "family": "dragon",
+    "rank": "S",
+    "ai_role": "attacker",
+    "growth_type": "魔法型",
+    "image_filename": "raid_omega.png",
+    "level": 99,
+    "stats": {
+      "hp": 38000,
+      "mp": 600,
+      "attack": 220,
+      "defense": 150,
+      "magic": 220,
+      "magic_defense": 150,
+      "speed": 22
+    },
+    "is_boss": true,
+    "trait": "glass_cannon",
+    "skills": [
+      "meteor_strike",
+      "dragon_breath",
+      "ragnarok_bolt",
+      "holy_light",
+      "mass_heal"
+    ],
+    "skill_sequence": [
+      "meteor_strike",
+      "ragnarok_bolt",
+      "dragon_breath",
+      "holy_light"
+    ],
+    "drop_items": [
+      [
+        "vorpal_blade",
+        0.5
+      ],
+      [
+        "dragon_shield",
+        0.5
+      ],
+      [
+        "aegis_shield",
+        0.5
+      ],
+      [
+        "omega_blade",
+        0.25
+      ]
+    ],
+    "book": {
+      "description": "3体の魂を糧に顕現せし禁忌の竜神。全てを終わらせる極限の試練。"
     }
   }
 }

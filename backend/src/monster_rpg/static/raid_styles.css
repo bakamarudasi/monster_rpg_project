@@ -114,3 +114,32 @@
 /* 稀少ドロップ表示 */
 .boss-drop { margin-top: 6px; font-size: 0.8rem; color: #e9c9ff; }
 .boss-drop .drop-rate { color: var(--text-faint); font-variant-numeric: tabular-nums; }
+
+/* === 究極レイド（生贄召喚・Lv99） === */
+.boss-ultimate .boss-card-inner {
+    background: linear-gradient(180deg, #2a1430, #15101f);
+    border-color: #7a3aa0;
+}
+.boss-ultimate:hover .boss-card-inner { border-color: #c08aff; }
+.boss-ultimate input:checked + .boss-card-inner {
+    border-color: #c08aff;
+    box-shadow: 0 0 0 1px #c08aff, 0 0 20px rgba(192, 138, 255, 0.4);
+}
+.boss-ultimate .boss-name { color: #e9c9ff; text-shadow: 0 0 10px rgba(192, 138, 255, 0.5); }
+.boss-ultimate .boss-stars { color: #c08aff; }
+.boss-locked { cursor: not-allowed; }
+.boss-locked .boss-card-inner { opacity: 0.7; filter: grayscale(0.3); }
+
+.boss-sacrifice {
+    margin: 8px 0;
+    padding: 8px 10px;
+    background: rgba(122, 58, 160, 0.12);
+    border: 1px solid #5a2a7a;
+    border-radius: var(--radius-sm);
+}
+.sacrifice-title { font-size: 0.78rem; color: #d9b6f5; font-weight: bold; margin-bottom: 6px; }
+.sacrifice-list { display: flex; flex-wrap: wrap; gap: 5px; }
+.sac-chip { font-size: 0.72rem; padding: 2px 8px; border-radius: var(--radius-pill); border: 1px solid transparent; }
+.sac-chip.ok { background: rgba(0, 224, 117, 0.16); color: #8fe6b0; border-color: #1f7a63; }
+.sac-chip.missing { background: rgba(255, 77, 77, 0.14); color: #ff9b9b; border-color: #7a2a2a; }
+.sacrifice-hint { font-size: 0.72rem; color: var(--text-faint); margin-top: 6px; font-style: italic; }

@@ -759,6 +759,19 @@ CELESTIAL_AEGIS = Equipment(
     status_resist={"curse": 0.0, "fear": 0.0},
     element_resist={"闇": 0.0, "光": 0.5},
 )
+OMEGA_BLADE = Equipment(
+    "omega_blade",
+    "竜神剣オメガ",
+    slot="weapon",
+    category="weapon",
+    rarity="legendary",
+    attack=60,
+    magic=40,
+    speed=10,
+    critical_rate=20,
+    granted_skill_ids=["meteor_strike", "ragnarok_bolt"],
+    element_resist={"闇": 0.0, "光": 0.0},
+)
 
 ALL_EQUIPMENT = {
     BRONZE_SWORD.equip_id: BRONZE_SWORD,
@@ -824,4 +837,5 @@ ALL_EQUIPMENT = {
     INFERNAL_FANG.equip_id: INFERNAL_FANG,
     ABYSSAL_TRIDENT.equip_id: ABYSSAL_TRIDENT,
     CELESTIAL_AEGIS.equip_id: CELESTIAL_AEGIS,
+    OMEGA_BLADE.equip_id: OMEGA_BLADE,
 }

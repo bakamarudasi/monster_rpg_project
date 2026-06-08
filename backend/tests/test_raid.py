@@ -103,6 +103,36 @@ class RaidServiceTests(unittest.TestCase):
         raid_service.check_phases(battle)
         self.assertEqual(boss.base_attack, atk_after)
 
+    def test_ultimate_requires_sacrifices(self):
+        from monster_rpg.items.item_data import ALL_ITEMS
+        player = _player_with(3)
+        player.items = []
+        # 魂なし → 召喚失敗
+        battle, err = raid_service.start_raid(player, 'omega', [0, 1, 2])
+        self.assertIsNone(battle)
+        self.assertIn('生贄', err)
+        # 3つの魂を持たせる → 召喚成功＆消費される
+        for sid in ('soul_ashen', 'soul_kraken', 'soul_celestial'):
+            player.items.append(ALL_ITEMS[sid])
+        battle, err = raid_service.start_raid(player, 'omega', [0, 1, 2])
+        self.assertIsNone(err)
+        self.assertEqual(len(battle.enemy_party), 1)
+        self.assertEqual(battle.enemy_party[0].level, 99)
+        # 魂は消費されている
+        remaining = {getattr(it, 'item_id', None) for it in player.items}
+        self.assertNotIn('soul_ashen', remaining)
+        self.assertNotIn('soul_kraken', remaining)
+        self.assertNotIn('soul_celestial', remaining)
+
+    def test_base_raids_drop_souls(self):
+        from monster_rpg.items.item_data import Item
+        for rid, sid in (('ashen', 'soul_ashen'), ('kraken', 'soul_kraken'), ('celestial', 'soul_celestial')):
+            defn = get_raid(rid)
+            boss = raid_service.build_raid_boss(defn)
+            soul_drops = [it for it, rate in boss.drop_items
+                          if isinstance(it, Item) and it.item_id == sid and rate >= 1.0]
+            self.assertTrue(soul_drops, f"{rid} should guarantee-drop {sid}")
+
     def test_phase_heal(self):
         player = _player_with(3)
         battle, _ = raid_service.start_raid(player, 'kraken', [0, 1, 2])
