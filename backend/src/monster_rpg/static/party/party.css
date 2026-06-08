@@ -324,3 +324,10 @@
 
 /* 装備一覧の能力表示 */
 .equip-stats { color: #c6b6ff; font-size: 0.82em; font-weight: 600; }
+
+/* 装備の対現状差分（±） */
+.equip-diff { display: inline-flex; flex-wrap: wrap; gap: 4px; margin-right: 6px; vertical-align: middle; }
+.equip-diff .diff { font-size: 0.72rem; padding: 1px 7px; border-radius: var(--radius-pill); font-weight: 700; }
+.equip-diff .diff.up { color: #8fe6b0; background: rgba(0, 224, 117, 0.15); }
+.equip-diff .diff.down { color: #ff9b9b; background: rgba(255, 77, 77, 0.15); }
+.equip-diff .diff.same { color: var(--text-faint); background: rgba(255, 255, 255, 0.04); }

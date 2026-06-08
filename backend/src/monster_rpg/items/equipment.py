@@ -579,6 +579,16 @@ def equipment_stat_summary(equip) -> list[dict]:
     return summary
 
 
+def equipment_stat_dict(equip) -> dict:
+    """装備の全ステータスを数値辞書で返す（差分比較用・0も含む）。"""
+    out = {}
+    for key, _ in EQUIPMENT_STAT_LABELS:
+        total_attr = getattr(equip, f"total_{key}", None)
+        value = total_attr if total_attr is not None else getattr(equip, key, 0)
+        out[key] = int(value or 0)
+    return out
+
+
 def _choose_amount(entry: Dict[str, Any]) -> int:
     """Return a stat amount using tiers if provided."""
     if "tiers" in entry:

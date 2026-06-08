@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from ..items.equipment import EquipmentInstance, equipment_stat_summary
+from ..items.equipment import EquipmentInstance, equipment_stat_summary, equipment_stat_dict
 from ..enhancement import (
     enhance_equipment,
     enhance_cost,
@@ -32,10 +32,12 @@ def equip(player, party_idx: int, equip_id, slot):
                 'name': getattr(e, 'name', ''),
                 'slot': getattr(e, 'slot', ''),
                 'stats': equipment_stat_summary(e),
+                'stats_num': equipment_stat_dict(e),
             }
             for e in player.equipment_inventory
         ],
         'monster_equipment': {slot: eq.name for slot, eq in monster.equipment.items()},
+        'equipped_stats': {slot: equipment_stat_dict(eq) for slot, eq in monster.equipment.items()},
         'monster_stats': {
             'attack': monster.total_attack(),
             'defense': monster.total_defense(),
