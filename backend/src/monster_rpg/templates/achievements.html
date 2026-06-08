@@ -1,22 +1,21 @@
 {% extends "layout.html" %}
 {% block content %}
 <style>
-  .ach-wrap { max-width: 820px; margin: 0 auto; padding: 18px; }
-  .ach-title { text-align: center; color: #ffdd55; text-shadow: 1px 1px 2px #000; }
-  .ach-meta { text-align: center; margin-bottom: 14px; color: #ccc; }
-  .ach-bar { background: #222; border-radius: 8px; height: 14px; overflow: hidden; margin: 6px auto 2px; max-width: 480px; border: 1px solid #444; }
-  .ach-bar > div { height: 100%; background: linear-gradient(90deg, #ffb347, #ffd700); }
+  .ach-wrap { max-width: 1100px; margin: 1rem auto; padding: 0 16px 2rem; }
+  .ach-title { text-align: center; color: var(--gold); font-family: var(--font-display); letter-spacing: 1px; text-shadow: 0 0 12px rgba(255,210,74,0.25); }
+  .ach-meta { text-align: center; margin-bottom: 14px; color: var(--text-dim); }
+  .ach-bar { background: var(--bg-2); border-radius: var(--radius-pill); height: 14px; overflow: hidden; margin: 6px auto 2px; max-width: 480px; border: 1px solid var(--border); }
+  .ach-bar > div { height: 100%; background: linear-gradient(90deg, var(--gold-deep), var(--gold)); }
   .ms-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 10px 0 18px; }
-  .ms-chip { padding: 4px 10px; border-radius: 999px; font-size: 0.85rem; border: 1px solid #555; color: #aaa; }
-  .ms-chip.on { background: linear-gradient(90deg, #c0392b, #e67e22); color: #fff; border-color: #e67e22; }
-  .ach-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
-  .ach-card { background: #2a2a33; border: 1px solid #444; border-radius: 10px; padding: 12px; opacity: 0.55; }
-  .ach-card.unlocked { opacity: 1; border-color: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.25); }
-  .ach-name { font-weight: bold; color: #ffe680; }
+  .ms-chip { padding: 4px 12px; border-radius: var(--radius-pill); font-size: 0.85rem; border: 1px solid var(--border); color: var(--text-faint); }
+  .ms-chip.on { background: linear-gradient(90deg, var(--gold-deep), var(--gold)); color: #3a2a00; border-color: var(--gold); font-weight: bold; }
+  .ach-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .ach-card { background: linear-gradient(180deg, var(--surface), var(--surface-2)); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; opacity: 0.55; box-shadow: var(--shadow-sm); }
+  .ach-card.unlocked { opacity: 1; border-color: var(--gold); box-shadow: 0 0 12px rgba(255, 210, 74, 0.25); }
+  .ach-name { font-weight: bold; color: var(--gold); }
   .ach-card.unlocked .ach-name::before { content: "🏆 "; }
-  .ach-desc { font-size: 0.86rem; color: #ccc; margin-top: 4px; }
-  .ach-reward { font-size: 0.78rem; color: #9fe; margin-top: 6px; }
-  .ach-back { display: block; text-align: center; margin-top: 20px; }
+  .ach-desc { font-size: 0.86rem; color: var(--text-dim); margin-top: 6px; line-height: 1.5; }
+  .ach-reward { font-size: 0.8rem; color: var(--success); margin-top: 6px; }
 </style>
 <div class="ach-wrap">
   <h2 class="ach-title">◆ じっせき ◆</h2>
@@ -45,7 +44,5 @@
       </li>
     {% endfor %}
   </ul>
-
-  <a class="ach-back" href="{{ url_for('play', user_id=user_id) }}">戻る</a>
 </div>
 {% endblock %}
