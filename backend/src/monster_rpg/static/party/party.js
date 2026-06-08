@@ -106,7 +106,9 @@
       const spanHp = document.createElement('span');
       spanHp.textContent = 'HP: ' + data.hp + ' / ' + data.max_hp;
       const spanExp = document.createElement('span');
-      spanExp.textContent = 'EXP: ' + data.exp + ' / ' + data.exp_to_next + ' (残り ' + expNeeded + ')';
+      spanExp.textContent = (data.exp_to_next == null)
+        ? 'EXP: 🏆 レベル上限（進化/配合で解放）'
+        : 'EXP: ' + data.exp + ' / ' + data.exp_to_next + ' (残り ' + expNeeded + ')';
       lvhp.append(spanLv, document.createTextNode(' | '), spanHp, document.createTextNode(' | '), spanExp);
       header.appendChild(lvhp);
 

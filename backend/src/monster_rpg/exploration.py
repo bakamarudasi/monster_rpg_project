@@ -50,7 +50,7 @@ def generate_enemy_party(location: Location, player=None) -> list[Monster]:
                 if player is not None and hasattr(player, "monster_book"):
                     player.monster_book.record_seen(enemy_instance.monster_id)
                 target_level = max(1, base_level + random.randint(-1, 1))
-                while enemy_instance.level < target_level:
+                while enemy_instance.level < target_level and enemy_instance.level < enemy_instance.level_cap:
                     enemy_instance.level_up()
                 _roll_wild_individuality(enemy_instance)
             return party
@@ -69,7 +69,7 @@ def generate_enemy_party(location: Location, player=None) -> list[Monster]:
             if player is not None and hasattr(player, "monster_book"):
                 player.monster_book.record_seen(enemy_copy.monster_id)
             target_level = max(1, base_level + random.randint(-1, 1))
-            while enemy_copy.level < target_level:
+            while enemy_copy.level < target_level and enemy_copy.level < enemy_copy.level_cap:
                 enemy_copy.level_up()
             _roll_wild_individuality(enemy_copy)
             enemy_party.append(enemy_copy)
@@ -81,7 +81,7 @@ def generate_enemy_party(location: Location, player=None) -> list[Monster]:
             if player is not None and hasattr(player, "monster_book"):
                 player.monster_book.record_seen(enemy_copy.monster_id)
             target_level = max(1, base_level + random.randint(-1, 1))
-            while enemy_copy.level < target_level:
+            while enemy_copy.level < target_level and enemy_copy.level < enemy_copy.level_cap:
                 enemy_copy.level_up()
             _roll_wild_individuality(enemy_copy)
             enemy_party.append(enemy_copy)
