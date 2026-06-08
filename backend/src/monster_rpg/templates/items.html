@@ -1,28 +1,35 @@
 {% extends "layout.html" %}
+{% block head_extra %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='items_styles.css') }}">
+{% endblock %}
 {% block content %}
-<h2>アイテム</h2>
-<p>所持金 {{ player.gold }}G</p>
-{% if message %}<p>{{ message }}</p>{% endif %}
-{% if player.items %}
-<ul>
-{% for item in player.items %}
-  {% set idx = loop.index0 %}
-  <li>{{ item.name }}
-    <form action="{{ url_for('items', user_id=user_id) }}" method="post" style="display:inline">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <input type="hidden" name="item_idx" value="{{ idx }}">
-      <select name="target_idx">
-      {% for m in player.party_monsters %}
-        <option value="{{ loop.index0 }}">{{ m.name }}</option>
-      {% endfor %}
-      </select>
-      <button type="submit">使う</button>
-    </form>
-  </li>
-{% endfor %}
-</ul>
-{% else %}
-<p>アイテムを持っていない。</p>
-{% endif %}
-<a href="{{ url_for('play', user_id=user_id) }}">戻る</a>
+<div class="items-page">
+  <header class="items-head">
+    <h2>アイテム</h2>
+    <span class="gold-chip">所持金 {{ player.gold }}G</span>
+  </header>
+  {% if message %}<div class="info-banner">{{ message }}</div>{% endif %}
+  {% if player.items %}
+  <ul class="item-grid">
+    {% for item in player.items %}
+      {% set idx = loop.index0 %}
+      <li class="item-card">
+        <span class="item-name">{{ item.name }}</span>
+        <form class="item-use" action="{{ url_for('items', user_id=user_id) }}" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="item_idx" value="{{ idx }}">
+          <select class="item-target" name="target_idx">
+            {% for m in player.party_monsters %}
+              <option value="{{ loop.index0 }}">{{ m.name }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn item-use-btn" type="submit">使う</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty-note">アイテムを持っていない。</p>
+  {% endif %}
+</div>
 {% endblock %}

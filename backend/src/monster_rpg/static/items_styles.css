@@ -1,0 +1,54 @@
+/* === アイテム画面（ダーク統一・カードグリッド） === */
+.items-page { max-width: 1100px; margin: 1.2rem auto; padding: 0 14px 2.5rem; }
+.items-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.items-head h2 { margin: 0; font-family: var(--font-display); letter-spacing: 1px; color: var(--text); }
+.gold-chip {
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    padding: 6px 16px;
+    color: var(--gold);
+    font-weight: bold;
+    box-shadow: var(--shadow-sm);
+}
+.info-banner {
+    background: rgba(74, 144, 226, 0.12);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    color: var(--text);
+}
+.item-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+}
+.item-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 12px 14px;
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+.item-name { font-weight: bold; color: var(--text); flex: 1 1 100%; font-size: 1.05rem; }
+.item-use { display: flex; gap: 8px; margin: 0; flex: 1 1 auto; }
+.item-target {
+    flex: 1 1 auto;
+    background: var(--bg-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 7px 10px;
+    font-family: inherit;
+}
+.item-use-btn { flex: 0 0 auto; padding: 7px 18px; }
+.empty-note { color: var(--text-dim); text-align: center; padding: 2rem 0; }
