@@ -44,14 +44,23 @@ class BattleGetJsonTests(unittest.TestCase):
             self.assertIn('skills', data['current_actor'])
 
     def test_get_returns_items(self):
-        """JSON応答に所持アイテムが含まれる（アイテムタブが消えない回帰防止）。"""
-        from types import SimpleNamespace
-        active_battles[self.user_id].player.items.append(SimpleNamespace(name='ポーション'))
+        """JSON応答に戦闘で使えるアイテムが含まれる（アイテムタブが消えない回帰防止）。
+
+        素材など戦闘で使えない物は除外され、使える物は元のインベントリ位置
+        （idx）付きで返る。
+        """
+        from monster_rpg.items.item_data import ALL_ITEMS
+        player = active_battles[self.user_id].player
+        player.items.append(ALL_ITEMS['magic_stone'])    # 素材 → 除外される
+        player.items.append(ALL_ITEMS['small_potion'])   # 回復 → 含まれる
         resp = self.client.get(f'/battle-json/{self.user_id}')
         self.assertEqual(resp.status_code, 200)
         data = resp.get_json()
         self.assertIn('items', data)
-        self.assertTrue(any(it.get('name') == 'ポーション' for it in data['items']))
+        potion = next((it for it in data['items'] if it.get('name') == 'スモールポーション'), None)
+        self.assertIsNotNone(potion)
+        self.assertEqual(potion['idx'], 1)
+        self.assertFalse(any(it.get('name') == '魔石' for it in data['items']))
 
     def test_get_returns_404_without_active_battle(self):
         active_battles.pop(self.user_id, None)

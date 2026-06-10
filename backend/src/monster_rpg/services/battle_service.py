@@ -23,6 +23,32 @@ def _to_int(value, default: int) -> int:
         return default
 
 
+# 戦闘中に意味を持つアイテム効果。種（permanent_stat）やタマゴ（hatch）は戦闘外専用。
+BATTLE_ITEM_EFFECTS = {'heal', 'cure_status', 'revive'}
+
+
+def battle_items(player) -> list:
+    """戦闘中に使えるアイテムだけを、元のインベントリ位置（idx）付きで返す。
+
+    UI は表示順ではなく idx を item_idx として送るため、素材などを
+    除外してもエンジン側のインデックスとずれない。
+    """
+    out = []
+    for i, it in enumerate(player.items if player else []):
+        effects = getattr(it, 'effects', []) or []
+        if not getattr(it, 'usable', False):
+            continue
+        if not any(e.get('type') in BATTLE_ITEM_EFFECTS for e in effects):
+            continue
+        out.append({
+            'name': it.name,
+            'idx': i,
+            'description': getattr(it, 'description', ''),
+            'target': 'fainted' if any(e.get('type') == 'revive' for e in effects) else 'ally',
+        })
+    return out
+
+
 def build_player_action(data_src) -> dict:
     """HTTP のフォーム/JSON から Battle.process_player_action 用のアクション辞書を作る。"""
     action = data_src.get('action', 'attack')

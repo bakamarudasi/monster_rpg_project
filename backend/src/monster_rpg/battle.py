@@ -19,6 +19,14 @@ from .elements import (
 CRITICAL_HIT_CHANCE = 0.1
 CRITICAL_HIT_MULTIPLIER = 2.0
 
+# Scout (capture) settings
+SCOUT_HP_BONUS_MAX = 2.0        # 瀕死（HP≒0）で基礎率に掛かる倍率の上乗せ分（最大3倍）
+SCOUT_BIND_STATUS_BONUS = 1.5   # 行動不能系（睡眠・凍結・気絶・まひ）でさらに倍率
+SCOUT_DEBUFF_STATUS_BONUS = 1.2 # その他の弱体状態での倍率
+SCOUT_CHANCE_CAP = 0.95
+
+_SCOUT_BIND_STATUSES = {"sleep", "freeze", "stun", "paralyze"}
+
 # --- Status effect definitions -------------------------------------------------------
 def _status_damage(monster: Monster, amount: int, log: List[Dict[str, str]]):
     monster.hp -= amount
@@ -585,10 +593,15 @@ class Battle:
                 return
 
             target_idx = action.get('target_ally', 0)
+            is_revive_item = any(e.get('type') == 'revive' for e in getattr(item_obj, 'effects', []))
             try:
                 target_monster = self.player_party[target_idx]
-                if not target_monster.is_alive:
+                if not target_monster.is_alive and not is_revive_item:
                     self.log.append({'type': 'info', 'message': f"{target_monster.name} はすでに倒れている。"})
+                    actor.reset_atb_gauge()
+                    return
+                if target_monster.is_alive and is_revive_item:
+                    self.log.append({'type': 'info', 'message': f"{target_monster.name} はまだ倒れていない。"})
                     actor.reset_atb_gauge()
                     return
             except IndexError:
@@ -1024,6 +1037,29 @@ def award_experience(alive_party: list[Monster], defeated_enemies: list[Monster]
     else:
         log.append({'type': 'info', 'message': "経験値は得られなかった。"})
 
+def scout_chance(target: Monster) -> float:
+    """現在のスカウト成功率を返す（0.0〜SCOUT_CHANCE_CAP）。
+
+    HPを削るほど基礎率（scout_rate）への倍率が上がり（瀕死で約3倍）、
+    行動不能系の状態異常ならさらに1.5倍、その他の弱体でも1.2倍になる。
+    図鑑未登録の特別個体（レイドボス等）とscout_rate 0の種は常に0。
+    """
+    from .monsters.monster_data import ALL_MONSTERS
+    if target is None or target.monster_id not in ALL_MONSTERS:
+        return 0.0
+    base = getattr(target, "scout_rate", 0.25)
+    if base <= 0:
+        return 0.0
+    hp_ratio = target.hp / target.max_hp if target.max_hp > 0 else 1.0
+    mult = 1.0 + SCOUT_HP_BONUS_MAX * (1.0 - max(0.0, min(1.0, hp_ratio)))
+    active = {e["name"] for e in target.status_effects}
+    if active & _SCOUT_BIND_STATUSES:
+        mult *= SCOUT_BIND_STATUS_BONUS
+    elif active & NEGATIVE_STATUSES:
+        mult *= SCOUT_DEBUFF_STATUS_BONUS
+    return min(SCOUT_CHANCE_CAP, base * mult)
+
+
 def attempt_scout(player: Player | None, target: Monster, enemy_party: list[Monster], log: List[Dict[str, str]] | None = None) -> bool:
     if log is None:
         log = []
@@ -1038,8 +1074,11 @@ def attempt_scout(player: Player | None, target: Monster, enemy_party: list[Mons
         log.append({'type': 'info', 'message': f"{target.name} はスカウトできない！"})
         return False
 
-    rate = getattr(target, "scout_rate", 0.25)
-    log.append({'type': 'info', 'message': f"{target.name} をスカウトしようとした…"})
+    rate = scout_chance(target)
+    if rate <= 0:
+        log.append({'type': 'info', 'message': f"{target.name} はスカウトできない！"})
+        return False
+    log.append({'type': 'info', 'message': f"{target.name} をスカウトしようとした…（成功率 {int(rate * 100)}%）"})
 
     if random.random() < rate:
         log.append({'type': 'info', 'message': f"{target.name} seems to want to join your party!"})

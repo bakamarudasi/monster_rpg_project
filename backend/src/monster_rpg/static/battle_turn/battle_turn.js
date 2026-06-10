@@ -5,6 +5,8 @@
     let autoMode = false;
     let fastMode = false;
     let lastData = null;
+    /* 選択中アイテムの対象種別（'ally' | 'fainted'）。蘇生アイテムは倒れた味方を選ぶ */
+    let selectedItemTarget = 'ally';
 
     function sendBattleAction(payload) {
         if (!battlePostUrl) return;
@@ -196,6 +198,7 @@
         if (info.critical_rate !== undefined) unit.dataset.criticalRate = info.critical_rate;
         if (info.evasion_rate !== undefined) unit.dataset.evasionRate = info.evasion_rate;
         if (info.element) unit.dataset.element = info.element;
+        if (info.scout_chance !== undefined) unit.dataset.scoutChance = info.scout_chance;
         unit.dataset.statuses = JSON.stringify(info.statuses || []);
         /* 個性（詳細パネル用のデータ属性） */
         if (info.personality) {
@@ -353,7 +356,7 @@
             itemSel.textContent = '';
             data.items.forEach((it, i) => {
                 const opt = document.createElement('option');
-                opt.value = i;
+                opt.value = (it.idx !== undefined) ? it.idx : i;
                 opt.textContent = it.name;
                 itemSel.appendChild(opt);
             });
@@ -434,14 +437,16 @@
             itemsPanel.textContent = '';
             itemSel.textContent = '';
             data.items.forEach((it,i) => {
+                const idx = (it.idx !== undefined) ? it.idx : i;
                 const opt = document.createElement('option');
-                opt.value = i;
+                opt.value = idx;
                 opt.textContent = it.name;
                 itemSel.appendChild(opt);
 
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.textContent = it.name;
+                if (it.description) btn.title = it.description;
                 btn.addEventListener('click', () => {
                     if (actionSel) {
                         actionSel.value = 'item';
@@ -450,7 +455,8 @@
                             actionSel.dataset.scope = 'single';
                         }
                     }
-                    itemSel.value = i;
+                    itemSel.value = idx;
+                    selectedItemTarget = it.target || 'ally';
                     updateTargets();
                 });
                 itemsPanel.appendChild(btn);
@@ -516,8 +522,10 @@
         if (target === 'none') { setTargetHint(null); return; }
 
         const areaSel = target === 'ally' ? '#ally-party-area' : '#enemy-party-area';
+        /* 蘇生アイテムだけは倒れた味方を対象にする */
+        const wantFainted = actionVal === 'item' && selectedItemTarget === 'fainted';
         const units = Array.from(document.querySelectorAll(`${areaSel} .battle-unit`))
-            .filter(u => !u.classList.contains('down'));
+            .filter(u => u.classList.contains('down') === wantFainted);
 
         if (scope === 'all') {
             units.forEach(u => u.classList.add('aoe-target'));
@@ -531,20 +539,36 @@
         let chosen = units.find(u => parseInt(u.dataset.index) === idx);
         if (!chosen) { chosen = units[0]; if (chosen && sel) sel.value = chosen.dataset.index; }
         if (chosen) chosen.classList.add('targeted');
+        if (actionVal === 'scout') {
+            const pct = chosen ? (chosen.dataset.scoutChance || '0') : '0';
+            setTargetHint(`スカウト対象をクリック｜成功率 ${pct}%（HPを削る・眠らせると上昇）`);
+            return;
+        }
+        if (wantFainted) {
+            setTargetHint(units.length ? '蘇生する味方をクリック' : '倒れている味方はいない');
+            return;
+        }
         setTargetHint(target === 'ally' ? '対象の味方をクリック' : '対象の敵をクリック');
     }
 
     /* ユニットをクリックして対象に設定 */
     function handleTargetClick(unit) {
-        if (!unit || unit.classList.contains('down')) return;
-        const { target, scope } = currentTargetInfo();
+        if (!unit) return;
+        const { target, scope, actionVal } = currentTargetInfo();
         if (target === 'none' || scope === 'all') return;
+        const wantFainted = actionVal === 'item' && selectedItemTarget === 'fainted';
+        if (unit.classList.contains('down') !== wantFainted) return;
         const side = unit.dataset.side;
         if (target !== side) return;
         const sel = document.querySelector(`select[name="${side === 'ally' ? 'target_ally' : 'target_enemy'}"]`);
         if (sel) sel.value = unit.dataset.index;
         document.querySelectorAll(`#${side}-party-area .battle-unit`).forEach(u => u.classList.remove('targeted'));
         unit.classList.add('targeted');
+        /* スカウト中は選んだ相手の成功率をヒントに反映 */
+        if (actionVal === 'scout') {
+            const pct = unit.dataset.scoutChance || '0';
+            setTargetHint(`スカウト対象をクリック｜成功率 ${pct}%（HPを削る・眠らせると上昇）`);
+        }
     }
 
     function setupBattleUI() {
@@ -649,6 +673,7 @@
             setDetail('detail-magic-defense', el.dataset.magicDefense || '0');
             setDetail('detail-critical-rate', el.dataset.criticalRate || '0');
             setDetail('detail-evasion-rate', el.dataset.evasionRate || '0');
+            setDetail('detail-scout', (el.dataset.scoutChance || '0') + '%');
             if (fields.personality) fields.personality.title = el.dataset.personalityEffect || '';
             if (fields.talent && !fields.talent.textContent) fields.talent.textContent = '—';
             if (fields.trait) {
@@ -749,6 +774,7 @@
             const wasDown = unit.classList.contains('down');
             unit.dataset.hp = info.hp;
             unit.dataset.mp = info.mp;
+            if (info.scout_chance !== undefined) unit.dataset.scoutChance = info.scout_chance;
             unit.dataset.statuses = JSON.stringify(info.status_effects || []);
             if (!info.alive) {
                 unit.classList.add('down');

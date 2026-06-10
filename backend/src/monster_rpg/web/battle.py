@@ -1,6 +1,6 @@
 import copy
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
-from ..battle import start_atb_battle, STATUS_DEFINITIONS, Battle
+from ..battle import start_atb_battle, STATUS_DEFINITIONS, Battle, scout_chance
 from .utils import load_player, save_player
 from ..monsters.monster_class import Monster
 from ..services import battle_service
@@ -117,6 +117,7 @@ def serialize_monster(m, unit_id):
         'atb_gauge': m.atb_gauge,
         'shield': getattr(m, 'shield', 0),
         'is_boss': getattr(m, 'is_boss', False),
+        'scout_chance': round(scout_chance(m) * 100),
         'alive': m.is_alive,
         'image': url_for('static', filename='images/' + m.image_filename) if m.image_filename else None,
         'statuses': [
@@ -181,6 +182,8 @@ def deserialize_monster(data):
         monster.status_resist = dict(template.status_resist)
         monster.element_resist = dict(template.element_resist)
         monster.is_boss = template.is_boss
+        # スカウト率も種族固有（往復でコンストラクタ既定値に戻さない）
+        monster.scout_rate = template.scout_rate
     monster.is_boss = bool(data.get('is_boss', monster.is_boss))
     # 個性（性格/個体値/特性/鑑定状態）を復元（往復で失わない）
     monster.personality_id = data.get('personality_id')
@@ -218,6 +221,7 @@ def serialize_battle_state(player_party, enemy_party, log, current_actor_info, t
             'max_mp': m.max_mp,
             'shield': getattr(m, 'shield', 0),
             'alive': m.is_alive,
+            'scout_chance': round(scout_chance(m) * 100),
             'status_effects': [
                 {
                     'name': e['name'],
@@ -306,7 +310,7 @@ def battle(user_id):
                 'turn': battle_obj.turn_count,
                 'current_actor': _current_actor_info(battle_obj),
                 'turn_order': turn_order_ids(battle_obj.turn_order),
-                'items': [{'name': it.name} for it in (player.items if player else [])]
+                'items': battle_service.battle_items(player)
             })
     else: # GET request or initial battle setup
         if not battle_state:
@@ -343,7 +347,7 @@ def battle(user_id):
         init_data = {
             'ally_info': [serialize_monster(m, f'ally-{i}') for i, m in enumerate(battle_obj.player_party)],
             'enemy_info': [serialize_monster(m, f'enemy-{i}') for i, m in enumerate(battle_obj.enemy_party)],
-            'items': [{'name': it.name} for it in (player.items if player else [])],
+            'items': battle_service.battle_items(player),
             'turn': battle_obj.turn_count,
             'log': battle_obj.log,
             'current_actor': serialize_monster(battle_obj.current_actor, battle_obj.current_actor.unit_id) if battle_obj.current_actor else None,
@@ -433,5 +437,5 @@ def battle_json(user_id):
             'turn': dummy_battle_obj.turn_count,
             'current_actor': serialize_monster(dummy_battle_obj.current_actor, dummy_battle_obj.current_actor.unit_id) if dummy_battle_obj.current_actor else None,
             'turn_order': turn_order_ids(dummy_battle_obj.turn_order),
-            'items': [{'name': it.name} for it in battle_obj.player.items] if isinstance(battle_state, Battle) else []
+            'items': battle_service.battle_items(battle_obj.player) if isinstance(battle_state, Battle) else []
         })
